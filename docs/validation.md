@@ -89,3 +89,10 @@ test; phải đổi cùng HTTPS trước khi công bố ra ngoài.
 
 Remaining: full accessibility audit, real touch devices, Split View, durable jobs and service integrations.
 Previous sections describe V1 verification history and should not be interpreted as V2 measurements.
+
+## File Station design verification — 2026-10-30
+
+Interactive prototype only: folder navigation, name filtering, selection/details,
+new mock folder, mock trash, layout variants and upload pause checked in a browser.
+An initial mock folder submission did not run in the sandbox; changed the action to an explicit local click handler and retested successfully.
+No backend/source runtime behavior changed; Go/API tests were not repeated for documentation/mockup work.

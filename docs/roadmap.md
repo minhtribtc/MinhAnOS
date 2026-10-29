@@ -91,3 +91,8 @@ Delivered scope: iPadOS-inspired Home, Dock, app search, app switcher, Control C
 responsive layout and existing mounted app lifecycle. Optional window mode remains.
 Split View, tabs, floating utility panels and durable jobs remain future milestones.
 See HANDOFF.md for implementation boundaries and next steps.
+
+## File Station design preview
+
+Proposed interface and lifecycle boundaries: [file-station-design.md](file-station-design.md).
+This is design work only; the deployed Files module remains a placeholder until implementation.

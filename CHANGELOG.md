@@ -9,3 +9,8 @@
 - Added mandatory agent handoff/documentation rules in AGENTS.md.
 
 This is interface V2. Split View, durable background jobs, Terminal and service integrations remain planned.
+
+## Unreleased — File Station design
+
+- Added two interactive File Station design variants and a specification for UI, storage boundaries and task lifecycle.
+- Design only; no deployed file operations or API changes.

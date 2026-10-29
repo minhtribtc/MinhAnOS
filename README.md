@@ -78,3 +78,5 @@ Chưa có tenant/ACL file và các chức năng NAS, chưa kết luận sẵn s�
 
 Nguồn mới không chứa lõi PHP làm rối của bản tham chiếu. Chưa công bố giấy phép
 phân phối riêng cho mã ứng dụng; cần chốt trước khi cấp phép phân phối lại.
+
+Bản thiết kế ứng dụng quản lý tệp: [File Station](docs/file-station-design.md) — đang đề xuất, chưa kết nối dữ liệu thật.

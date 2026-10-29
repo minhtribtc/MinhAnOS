@@ -52,3 +52,11 @@ Never commit runtime artifacts. Test draft retention with a harmless form draft;
 5. Modal overlays use inert background, initial focus, Tab wrapping and focus restoration; full screen-reader/device testing remains outstanding.
 6. Next: split view with explicit lifecycle contracts, then restricted Debian agent and first real integration adapter.
 7. Current deployment is a LAN HTTP preview, not a production release.
+
+## File Station design handoff — 2026-10-30
+
+User requested a design before implementation. Read docs/file-station-design.md and
+its interactive fragment docs/designs/file-station.html. Both variants use mock data only.
+No Files API, filesystem volume, schema or running deployment was changed in this design pass.
+Next priority is File Station after design feedback; the earlier Split View priority is deferred.
+Implement per-user storage and authorization before connecting the UI to real files.
