@@ -37,3 +37,12 @@ và hardening riêng trước khi đưa ra ngoài LAN.
 3. Permission registry chi tiết theo module/action; audit và thu hồi phiên.
 4. File service có data volume, ACL và journal/reconciliation, không nối trực tiếp
    vào data của kodbox đang chạy.
+
+## Interface V2 (0.2.0)
+
+Shell components: App.vue orchestrates Home, search, switcher and Control Center.
+HomeScreen renders widgets from existing store/API data; AppSwitcher lists real open instances.
+ipados.css loads last, replacing the outer Fluent shell while keeping shared app interiors.
+Home visibility is local UI state; it does not minimize/remove application instances.
+Preference IDs and backend API/schema remain compatible with desktop-v1.
+Do not confuse this interface iteration with completion of the full V2 multitasking roadmap.

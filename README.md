@@ -1,16 +1,12 @@
-# MinhAnOS Desktop 0.1
+# MinhAnOS Desktop 0.2
 
-Nhánh `desktop-v1` chứa nền tảng Go/Vue được xây mới. Nhánh `main` của repo
-`minhtribtc/MinhAnOS` tiếp tục giữ bản kodbox tham chiếu.
+Nhánh `desktop-v2-ipados` chứa giao diện V2 lấy cảm hứng iPadOS. `desktop-v1` giữ bản trước, `main` giữ kodbox tham chiếu.
 
-**Trải nghiệm mặc định:** launcher toàn màn hình và mỗi app một vùng làm việc,
-với taskbar kiểu Fluent. Chuyển ứng dụng không làm unmount component; biểu mẫu,
-tab và tìm kiếm trong app đang mở được giữ. Chế độ cửa sổ nâng cao vẫn có tại
-Cài đặt → Giao diện → Cách làm việc.
+Home có widget, lưới ứng dụng, Dock nổi, tìm kiếm và bộ chuyển ứng dụng. Trung tâm điều khiển quản lý giao diện sáng/tối và tài khoản. Mặc định mở từng app trong vùng làm việc lớn; chế độ cửa sổ nâng cao vẫn có tại Cài đặt → Giao diện.
 
-Xem [roadmap V1/V2/V3 và hợp đồng giữ trạng thái](docs/roadmap.md),
-[bản cập nhật giao diện](docs/fluent-update.md).
+Chuyển app, về Home hoặc thu nhỏ giữ component và biểu mẫu trong phiên. Đóng app, reload hoặc đăng xuất không giữ biểu mẫu chưa lưu. Terminal/upload/tác vụ nền bền vững chưa có.
 
+Agent tiếp theo bắt đầu tại [AGENTS.md](AGENTS.md), [bàn giao](docs/HANDOFF.md), [kiến trúc](docs/architecture.md), [roadmap](docs/roadmap.md) và [kiểm chứng](docs/validation.md). Tài liệu phải cập nhật cùng commit triển khai.
 Desktop web độc lập: Vue 3 + TypeScript, Go, PostgreSQL. Bản đầu có đăng nhập
 cục bộ, desktop/window manager, launcher, theme/hình nền, ghi chú riêng, quản lý
 tạo tài khoản, nhật ký xác thực/quản trị và số liệu tiến trình/filesystem thật.
@@ -43,14 +39,14 @@ write API kiểm tra CSRF và Origin, password hash PBKDF2-SHA256 với salt ri�
 
 ## Sử dụng
 
-- Dùng Start/launcher hoặc icon taskbar để mở/chuyển ứng dụng. Chế độ cửa sổ có thêm icon desktop.
+- Chạm icon Home hoặc Dock để mở app; dùng nút các lớp trong Dock để chuyển ứng dụng đang mở.
 - Ctrl+Space mở tìm ứng dụng; Escape đóng menu; Alt+Tab chuyển cửa sổ.
 - Ở chế độ cửa sổ, kéo titlebar để di chuyển; kéo góc dưới phải để resize. Có thể dùng phím mũi tên
   khi focus nút resize. Double click titlebar để phóng to/khôi phục.
 - Theme, wallpaper, ghi chú, pinned apps và các cửa sổ lưu riêng theo user trong
   PostgreSQL. Chờ trạng thái tự lưu xong trước khi đóng tab.
 - Tài khoản admin có thể tạo user tại Cài đặt → Người dùng. User thường không có
-  quyền gọi API quản trị. Chưa có sửa/xóa/reset mật khẩu trong UI bản 0.1.
+  quyền gọi API quản trị. Chưa có sửa/xóa/reset mật khẩu trong UI bản 0.2.
 - `?app=notes` hoặc `?app=settings` mở trực tiếp một module sau đăng nhập.
 
 ## Build và test

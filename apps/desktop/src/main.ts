@@ -5,3 +5,4 @@ import './style.css'
 import './fluent.css'
 
 createApp(App).use(createPinia()).mount('#app')
+import './ipados.css'

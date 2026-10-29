@@ -13,7 +13,7 @@ const onViewport = () => { viewport.value = { width: innerWidth, height: innerHe
 globalThis.addEventListener('resize', onViewport)
 const geometry = computed(() => {
   const { width: vw, height: vh } = viewport.value
-  if (desktop.preferences.mode === 'focus') return { width: vw, height: vh - 58, left: 0, top: 0 }
+  if (desktop.preferences.mode === 'focus') return { width: vw - 24, height: vh - 140, left: 12, top: 38 }
   const maximized = props.window.maximized || vw < 700
   const width = maximized ? vw - 24 : Math.min(props.window.width, vw - 32)
   const height = maximized ? vh - 88 : Math.min(props.window.height, vh - 112)

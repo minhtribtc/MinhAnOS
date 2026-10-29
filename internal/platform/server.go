@@ -28,7 +28,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const Version = "0.1.0"
+const Version = "0.2.0"
 const passwordIterations = 600000
 const schema = `
 CREATE TABLE IF NOT EXISTS schema_version (version integer PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now());

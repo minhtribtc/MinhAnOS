@@ -45,7 +45,7 @@ func main() {
 		defer cancel()
 		_ = server.Shutdown(shutdownCtx)
 	}()
-	log.Print("MinhAnOS 0.1.0 listening on :8081")
+	log.Print("MinhAnOS 0.2.0 listening on :8081")
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

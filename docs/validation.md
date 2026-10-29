@@ -70,3 +70,22 @@ Chưa kiểm tra SSO/NetBird/1Panel vì chưa cấu hình; File Station chưa tr
 Chưa kiểm thử nhiều thiết bị thực, mọi trình duyệt, screen reader đầy đủ hoặc
 khôi phục sự cố disk/database. HTTP LAN dùng cookie không Secure theo cấu hình
 test; phải đổi cùng HTTPS trước khi công bố ra ngoài.
+
+## V2 iPadOS-inspired interface — 2026-10-30
+
+- Docker frontend build passed vue-tsc and Vite. Backend go test ./... and go vet ./... passed during image build.
+- Both Compose services healthy; desktop serves version 0.2.0 on port 8081.
+- API smoke: all 10 checks passed (guest rejection, wrong password, cookies, CSRF/Origin, app validation,
+  real metrics, admin restrictions, isolated preferences/audit, revoked logout session).
+- Exact disposable e2e user removed after test (DELETE 1); no browser form submitted.
+- Browser: Home, Dock app launch, Spotlight query/open, switcher resume, minimize/reopen passed.
+- Draft display name and username remained after Home → switcher → app and minimize → Dock reopen.
+- Control Center light/dark toggles worked; dark-mode persisted through reload; returned to light for handoff.
+- Modal background is inert; initial focus moves to dialog and returns to trigger on dismissal.
+- 390x844: Home and Settings inspected, document width 390 (no page overflow); Dock scrolls horizontally.
+- 1024x768: Home inspected, document width 1024. Home content scrolls vertically when widgets exceed height.
+- Browser viewport reset to default. No warn/error console entries during checks.
+- Screenshot: artifacts/ipados-v2.jpg (local, ignored).
+
+Remaining: full accessibility audit, real touch devices, Split View, durable jobs and service integrations.
+Previous sections describe V1 verification history and should not be interpreted as V2 measurements.

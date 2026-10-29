@@ -84,3 +84,10 @@ Hoàn thiện app lifecycle/draft contracts; tích hợp Authentik và adapter �
 thái NetBird/1Panel; triển khai durable jobs trước các thao tác quản trị dài hạn.
 Sau đó xây upload/file và terminal với session/transfer ID riêng, rồi mới đưa
 Split View và đa instance vào bản vận hành.
+
+## Interface V2 — 2026-10-30
+
+Delivered scope: iPadOS-inspired Home, Dock, app search, app switcher, Control Center,
+responsive layout and existing mounted app lifecycle. Optional window mode remains.
+Split View, tabs, floating utility panels and durable jobs remain future milestones.
+See HANDOFF.md for implementation boundaries and next steps.
