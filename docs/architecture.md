@@ -46,3 +46,14 @@ ipados.css loads last, replacing the outer Fluent shell while keeping shared app
 Home visibility is local UI state; it does not minimize/remove application instances.
 Preference IDs and backend API/schema remain compatible with desktop-v1.
 Do not confuse this interface iteration with completion of the full V2 multitasking roadmap.
+
+## Drive 0.1 — independently runnable application
+
+Read [drive.md](drive.md). apps/drive is a separate Vue build; cmd/drive/internal/drive serve its API/static files on 8082.
+The Drive image does not copy desktop/platform sources. compose.drive.yaml deploys only Drive/PostgreSQL.
+Integrated mode shares users but has a separate Drive session table/cookie. IdentityStore decouples identity integration;
+authn holds shared password/token primitives. Both schema initializers serialize startup via the same advisory transaction lock.
+No desktop HTTP call, UI state, iframe or parent-window messaging is required.
+Host files are a separate privileged Unix-socket service; the web container remains uid 10001 without a host root mount.
+Private files and trash are filesystem-backed under immutable user IDs. Request audit uses PostgreSQL; host outcomes use journald.
+This release does not add durable transfers/jobs or claim power-loss transactionality; see drive.md for limits.

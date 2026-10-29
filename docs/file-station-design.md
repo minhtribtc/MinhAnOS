@@ -76,3 +76,29 @@ khôi phục DB/filesystem sau lỗi giữa chừng. Không đánh dấu hoàn t
 Đã thử trên trình duyệt: điều hướng vào thư mục, lọc tên, chọn tệp/hiện thông tin,
 tạo thư mục minh họa, đưa vào Thùng rác, chuyển thiết kế lưới/danh sách và tạm dừng tác vụ giả lập.
 Không có dữ liệu thật được gửi đi. Bản mẫu không chứng minh hiệu năng, độ an toàn hay độ bền upload thật.
+
+## Yêu cầu bổ sung — admin quản lý tệp hệ thống (2026-10-30)
+
+Người dùng xác định admin được quản trị tệp hệ thống Debian. Bổ sung vị trí «Hệ thống Debian»
+chỉ dành cho admin có capability host.files; đây là yêu cầu thiết kế, chưa có trong runtime/mockup.
+Không thay thế kho riêng/kho chung bằng filesystem root. Quyền ứng dụng và quyền Linux phải được ánh xạ rõ.
+Desktop/API vẫn non-root; một host agent đặc quyền thực hiện các thao tác file cụ thể qua giao diện hẹp.
+Không mở endpoint thực thi lệnh root tùy ý. Capability, phiên nâng quyền, audit và giới hạn namespace phải kiểm tra server-side.
+
+Chức năng cần thiết: breadcrumb có nhập đường dẫn, duyệt /etc /var/log /opt /srv và mounts,
+hiện tệp ẩn, uid/gid, mode bits/ACL, symlink đích, loại tệp, filesystem chỉ đọc và dung lượng thật.
+Cho phép admin đọc/ghi/đổi tên/sao chép/di chuyển theo quyền được cấp, chỉnh cấu hình văn bản có backup,
+diff trước lưu, kiểm tra file thay đổi đồng thời và thay thế nguyên tử khi có thể.
+Không coi /proc, /sys, /dev, socket hoặc FIFO như tệp thông thường. Thùng rác chỉ áp dụng nơi có hỗ trợ;
+không hứa undo đối với xóa hệ thống hoặc mọi filesystem. Hành động xóa/ghi đè có xác nhận cụ thể.
+
+Khoảng thiếu so với trải nghiệm kodbox/File Explorer: chọn nhiều/range, clipboard copy-cut-paste,
+kéo thả, menu ngữ cảnh, phím tắt, sort/group/cột chi tiết, tabs, lịch sử điều hướng, tìm kiếm đệ quy,
+preview thật và chọn ứng dụng mở tệp; nén/giải nén, đổi tên hàng loạt; queue/cancel/retry/resume,
+xử lý xung đột hàng loạt; ACL/kho chung/quota, sharing links, phiên bản và storage adapters.
+Các nhóm web/cloud và desktop-native không có tương đương hoàn toàn giữa hai sản phẩm.
+Ưu tiên nền tảng tệp và chế độ host admin trước Office/collaboration và multi-cloud.
+
+Nguồn đối chiếu: https://github.com/kalcaddle/kodbox/blob/main/README.md
+https://support.microsoft.com/en-us/windows/experience/fileexplorer/file-explorer-in-windows
+https://support.microsoft.com/en-us/windows/experience/storage-filemanagement/zip-and-unzip-files

@@ -1,0 +1,20 @@
+[Unit]
+Description=MinhAnOS restricted host file agent
+After=local-fs.target
+[Service]
+ExecStart=/usr/local/libexec/minhanos-files-agent
+User=root
+Group=10001
+RuntimeDirectory=minhanos-files
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=false
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX
+UMask=0077
+[Install]
+WantedBy=multi-user.target

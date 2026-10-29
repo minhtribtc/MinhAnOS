@@ -96,3 +96,11 @@ See HANDOFF.md for implementation boundaries and next steps.
 
 Proposed interface and lifecycle boundaries: [file-station-design.md](file-station-design.md).
 This is design work only; the deployed Files module remains a placeholder until implementation.
+
+## Delivered — Drive 0.1
+
+File Station is now a standalone application on 8082, launched from the desktop in another tab.
+Personal filesystem CRUD, trash/restore, text editor with backups and admin Debian file agent are implemented.
+Independent frontend/backend build and compose.drive.yaml are available; see drive.md.
+Current priority: durable/resumable transfers, multi-select/copy/quota, shared ACL and previews.
+Earlier sections describing Files as a placeholder/design-only are historical.

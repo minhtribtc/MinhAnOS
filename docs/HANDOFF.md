@@ -1,3 +1,19 @@
+# Current handoff — Drive 0.1 / branch file-station-v1
+
+Read docs/drive.md first for current Files behavior, architecture and operational limits.
+Drive is live on http://10.1.1.20:8082 with a separate Vue frontend, Go process, session cookie and build.
+Desktop 8081 only launches the URL. Personal file CRUD/trash/text edits and admin Debian file operations are real.
+Host agent: minhanos-files-agent.service on the VM; Unix socket /run/minhanos-files/agent.sock, root:10001 0660.
+Integrated identities share users table; standalone compose.drive.yaml bootstraps its own empty database without desktop.
+No iframe, desktop Pinia import, platform package import or platform HTTP call is needed by Drive.
+
+Current backup: /opt/minhanos-backups/before-drive-v1.tgz + before-drive-v1.sql; root-only.
+Keep drive-files volume and users IDs together. Do not delete volumes or overwrite .env/secrets.
+Full details/API/tests/limits are in docs/drive.md, docs/api.md and docs/validation.md.
+Next: resumable uploads + durable jobs, multi-select/copy and quota, then shared folders/ACL and richer previews.
+The older design/history below predates implementation; Files is no longer a placeholder.
+
+---
 # Agent handoff — Desktop 0.2
 
 ## Source of truth
@@ -60,3 +76,10 @@ its interactive fragment docs/designs/file-station.html. Both variants use mock 
 No Files API, filesystem volume, schema or running deployment was changed in this design pass.
 Next priority is File Station after design feedback; the earlier Split View priority is deferred.
 Implement per-user storage and authorization before connecting the UI to real files.
+
+### Latest requirement — host filesystem administration
+
+Admin must be able to manage Debian system files. Read the appended section of docs/file-station-design.md.
+Add a distinct privileged «Hệ thống Debian» location and restricted host file agent; keep desktop/API non-root.
+No host filesystem functionality has been implemented or deployed. The existing interactive mockup predates this requirement.
+Feature gap inventory now includes desktop file interactions, archive tools, transfer recovery and cloud collaboration.

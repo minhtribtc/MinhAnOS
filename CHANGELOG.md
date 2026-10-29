@@ -14,3 +14,10 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 
 - Added two interactive File Station design variants and a specification for UI, storage boundaries and task lifecycle.
 - Design only; no deployed file operations or API changes.
+
+## Drive 0.1 — 2026-10-30
+
+- Added independently runnable Drive frontend/backend, login/session and standalone Compose.
+- Added real private file operations, upload/download, rename/move, trash/restore and UTF-8 text edits with backups.
+- Added admin Debian file agent over protected Unix socket. Desktop launches Drive in a separate tab.
+- Added file isolation/security/integration tests and deployment/handoff documentation.

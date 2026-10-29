@@ -1,7 +1,10 @@
 name: minhanos-next
 services:
   desktop:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_DRIVE_URL: "${VITE_DRIVE_URL:-}"
     restart: unless-stopped
     ports:
       - "${MINHANOS_BIND_IP:-127.0.0.1}:${MINHANOS_PORT:-8081}:8081"
@@ -13,6 +16,29 @@ services:
       - bootstrap_password
     volumes:
       - desktop-data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: [/tmp]
+  drive:
+    build:
+      context: .
+      dockerfile: Drive.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${MINHANOS_BIND_IP:-127.0.0.1}:${DRIVE_PORT:-8082}:8082"
+    environment:
+      DATABASE_URL: "postgres://minhanos:${POSTGRES_PASSWORD}@db:5432/minhanos?sslmode=disable"
+      BOOTSTRAP_PASSWORD_FILE: /run/secrets/bootstrap_password
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+      DRIVE_AGENT_SOCKET: /run/minhanos-files/agent.sock
+    secrets: [bootstrap_password]
+    volumes:
+      - drive-files:/data
+      - /run/minhanos-files:/run/minhanos-files:ro
     depends_on:
       db:
         condition: service_healthy
@@ -40,3 +66,4 @@ secrets:
 volumes:
   database:
   desktop-data:
+  drive-files:

@@ -96,3 +96,28 @@ Interactive prototype only: folder navigation, name filtering, selection/details
 new mock folder, mock trash, layout variants and upload pause checked in a browser.
 An initial mock folder submission did not run in the sandbox; changed the action to an explicit local click handler and retested successfully.
 No backend/source runtime behavior changed; Go/API tests were not repeated for documentation/mockup work.
+
+## Drive 0.1 implementation verification — 2026-10-30
+
+- Docker builds: standalone Drive frontend vue-tsc/Vite passed; desktop launcher frontend passed.
+- Go: all 6 Drive tests and 6 existing platform tests passed; go vet ./... passed in build.
+- Tests cover namespace isolation/auth, rooted traversal and symlink rejection, no-overwrite upload,
+  trash restore collisions, stale text ETags/backups and explicit system-delete confirmation.
+- A listing test caught descriptor-relative metadata lookup returning no files; fixed with openat/O_PATH on the directory descriptor.
+- Live Drive integration: 10 checks passed, including real file bytes, two-user isolation, CSRF/Origin,
+  trash ownership, optimistic edits, admin-only host access, root-owned fixture write/edit/backup,
+  /etc/hostname read and blocked /proc access. Temporary /srv fixture removed.
+- Existing platform smoke: all 10 checks passed after extracting shared authn primitives.
+- Exact disposable users/private namespaces cleaned; platform test account removed.
+- Desktop stopped during tests/drive-independent.mjs: frontend, independent login, personal list and logout passed; desktop restarted.
+- Fresh standalone Compose + independent database on localhost:8083: bootstrap/login/files/logout passed without desktop or host agent.
+  Isolation containers/network/test volumes removed after successful check.
+- Host agent: systemd active; Unix directory 0750 root:10001, socket 0660 root:10001; restart retained access from Drive.
+  Initial systemd start required creating reserved GID 10001; RuntimeDirectoryPreserve prevents stale bind mounts after restart.
+- Browser: independent login, real folder creation, file-chooser upload, text preview/edit/save with backup,
+  private trash, folder back navigation, grid/list and Debian root browse verified.
+- Mobile 390x844: no horizontal document overflow; inspector reflows below browser. Viewport reset afterward.
+- Persistent admin demo artifacts: personal folder Tài liệu and uploaded/edited Chào mừng Drive.txt; its initial backup is in private trash.
+- No full accessibility, load, quota, disk crash/recovery or resumable-upload claim. See drive.md for remaining limits.
+- Desktop Home/Dock launcher verified opening the independent Drive URL in a separate browser tab; popup-block fallback is available.
+- Screenshot: artifacts/drive-v1.jpg (local, ignored). Browser override reset before handoff.

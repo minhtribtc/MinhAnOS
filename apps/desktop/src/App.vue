@@ -23,7 +23,7 @@ watch(panel, async (value, previous) => {
   if (value) document.querySelector<HTMLElement>('[aria-modal="true"] input, [aria-modal="true"] button')?.focus()
   else if (restoreFocus?.isConnected) restoreFocus.focus()
 })
-function launch(id: string) { desktop.open(id); home.value = false; panel.value = null }
+function launch(id: string) { desktop.open(id); if (id !== 'files') home.value = false; panel.value = null }
 function goHome() { home.value = true; panel.value = null }
 async function search() { panel.value = panel.value === 'search' ? null : 'search'; query.value = ''; if (panel.value) { await nextTick(); searchInput.value?.focus() } }
 function togglePanel(value: 'switcher' | 'control') { panel.value = panel.value === value ? null : value }

@@ -39,6 +39,14 @@ export const useDesktop = defineStore('desktop', () => {
   }
   function open(id: string) {
     if (!apps.value.some(a => a.id === id)) return
+    if (id === 'files') {
+      const target = new URL(import.meta.env.VITE_DRIVE_URL || location.href)
+      if (!import.meta.env.VITE_DRIVE_URL) { target.port = '8082'; target.pathname = '/'; target.search = ''; target.hash = '' }
+      const tab = globalThis.open('about:blank', '_blank')
+      if (tab) { tab.opener = null; tab.location.replace(target.href) }
+      else globalThis.location.assign(target.href)
+      return
+    }
     let window = preferences.value.windows.find(w => w.id === id)
     if (!window) {
       const offset = (preferences.value.windows.length % 5) * 28
@@ -65,7 +73,7 @@ export const useDesktop = defineStore('desktop', () => {
     apps.value = registry
     preferences.value = prefs
     preferences.value.mode = prefs.mode === 'windows' ? 'windows' : 'focus'
-    preferences.value.windows = prefs.windows.filter(w => registry.some(a => a.id === w.id))
+    preferences.value.windows = prefs.windows.filter(w => w.id !== 'files' && registry.some(a => a.id === w.id))
     order.value = preferences.value.windows.map(w => w.id)
     active.value = preferences.value.windows.filter(w => !w.minimized).at(-1)?.id || ''
     ready.value = true

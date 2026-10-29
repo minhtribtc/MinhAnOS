@@ -1,3 +1,11 @@
+# MinhAnOS Desktop + Drive
+
+**Drive 0.1 is available at http://10.1.1.20:8082** on branch `file-station-v1`.
+It is an independent Vue/Go application with its own login, API, build and deployment.
+Desktop 8081 opens it in a separate tab. See [Drive setup, capabilities and limitations](docs/drive.md).
+Standalone: `docker compose -f compose.drive.yaml up -d --build` (with runtime secrets configured).
+
+The sections below retain desktop setup history; Files is now implemented in Drive.
 # MinhAnOS Desktop 0.2
 
 Nhánh `desktop-v2-ipados` chứa giao diện V2 lấy cảm hứng iPadOS. `desktop-v1` giữ bản trước, `main` giữ kodbox tham chiếu.
@@ -11,8 +19,8 @@ Desktop web độc lập: Vue 3 + TypeScript, Go, PostgreSQL. Bản đầu có �
 cục bộ, desktop/window manager, launcher, theme/hình nền, ghi chú riêng, quản lý
 tạo tài khoản, nhật ký xác thực/quản trị và số liệu tiến trình/filesystem thật.
 
-NetBird, Authentik, 1Panel, File Station, App Center packages và Linux host agent
-**chưa được tích hợp**. Các màn hình tương ứng ghi rõ trạng thái hiện tại.
+NetBird, Authentik, 1Panel và App Center packages
+**chưa được tích hợp**. File Station đã chuyển thành Drive độc lập; host agent hiện chỉ phục vụ thao tác tệp.
 Ứng dụng vẫn chạy độc lập với bản kodbox tham chiếu trên cổng 8080.
 
 ## Triển khai thử

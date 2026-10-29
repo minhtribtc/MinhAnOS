@@ -2,11 +2,7 @@ package platform
 
 import (
 	"context"
-	"crypto/pbkdf2"
-	"crypto/rand"
-	"crypto/sha256"
 	"crypto/subtle"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,6 +22,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/authn"
 )
 
 const Version = "0.2.0"
@@ -106,7 +103,7 @@ type AppDefinition struct {
 
 var registry = []AppDefinition{
 	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
-	{"files", "File Station", "Không gian lưu trữ", "files", "amber", "Dữ liệu", "planned"},
+	{"files", "File Station", "Drive độc lập · mở trong tab riêng", "files", "amber", "Dữ liệu", "ready"},
 	{"apps", "Trung tâm ứng dụng", "Khám phá MinhAnOS", "apps", "blue", "Hệ thống", "ready"},
 	{"connections", "Kết nối", "NetBird · Authentik · 1Panel", "connections", "violet", "Quản trị", "planned"},
 	{"settings", "Cài đặt", "Cá nhân hóa desktop", "settings", "slate", "Hệ thống", "ready"},
@@ -121,19 +118,20 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
+	if _, err = tx.Exec(ctx, "SELECT pg_advisory_xact_lock(681021)"); err != nil {
+		return nil, err
+	}
 	if _, err = tx.Exec(ctx, schema); err != nil {
 		return nil, err
 	}
-	if err = tx.Commit(ctx); err != nil {
-		return nil, err
-	}
+
 	a := &App{db: db, started: time.Now(), secureCookie: os.Getenv("COOKIE_SECURE") == "true", attempts: make(map[string]attempt)}
 	a.dummyHash, err = hashPassword(token())
 	if err != nil {
 		return nil, err
 	}
 	var count int
-	if err = db.QueryRow(ctx, "SELECT count(*) FROM users").Scan(&count); err != nil {
+	if err = tx.QueryRow(ctx, "SELECT count(*) FROM users").Scan(&count); err != nil {
 		return nil, err
 	}
 	if count == 0 {
@@ -149,13 +147,18 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		if err != nil {
 			return nil, err
 		}
-		_, err = db.Exec(ctx, "INSERT INTO users(id,username,display_name,role,password_hash) VALUES($1,'admin','Minh An','admin',$2)", token(), hash)
+		_, err = tx.Exec(ctx, "INSERT INTO users(id,username,display_name,role,password_hash) VALUES($1,'admin','Minh An','admin',$2)", token(), hash)
 		if err != nil {
 			return nil, err
 		}
 		log.Print("bootstrap administrator created; password is not logged")
 	}
-	_, _ = db.Exec(ctx, "DELETE FROM sessions WHERE expires_at < now()")
+	if _, err = tx.Exec(ctx, "DELETE FROM sessions WHERE expires_at < now()"); err != nil {
+		return nil, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return nil, err
+	}
 	return a, nil
 }
 
@@ -571,41 +574,10 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, 201, u)
 }
-func hashPassword(password string) (string, error) {
-	salt := make([]byte, 16)
-	if _, err := rand.Read(salt); err != nil {
-		return "", err
-	}
-	key, err := pbkdf2.Key(sha256.New, password, salt, passwordIterations, 32)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(salt) + ":" + hex.EncodeToString(key), nil
-}
-func verifyPassword(password, hash string) bool {
-	parts := strings.Split(hash, ":")
-	if len(parts) != 2 {
-		return false
-	}
-	salt, e1 := hex.DecodeString(parts[0])
-	want, e2 := hex.DecodeString(parts[1])
-	if e1 != nil || e2 != nil || len(salt) != 16 || len(want) != 32 {
-		return false
-	}
-	key, err := pbkdf2.Key(sha256.New, password, salt, passwordIterations, 32)
-	return err == nil && subtle.ConstantTimeCompare(key, want) == 1
-}
-func token() string {
-	b := make([]byte, 32)
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
-	}
-	return hex.EncodeToString(b)
-}
-func digest(value string) string {
-	hash := sha256.Sum256([]byte(value))
-	return hex.EncodeToString(hash[:])
-}
+func hashPassword(password string) (string, error) { return authn.Hash(password) }
+func verifyPassword(password, hash string) bool    { return authn.Verify(password, hash) }
+func token() string                                { return authn.Token() }
+func digest(value string) string                   { return authn.Digest(value) }
 func decode(w http.ResponseWriter, r *http.Request, out any) bool {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()

@@ -1,6 +1,9 @@
 # MinhAnOS development contract
 
 Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before editing.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is file-station-v1.
+Drive must remain independently buildable/runnable. Never import desktop stores/components into apps/drive,
+or internal/platform into internal/drive/cmd/drive. Desktop launches a URL; do not replace this with an iframe dependency.
 
 ## Mandatory documentation on every change
 
