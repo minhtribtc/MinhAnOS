@@ -12,14 +12,15 @@ import (
 	"strings"
 	"time"
 
-	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/requestid"
 )
 
 // HTTPHandler serves the implemented v1 slice in either host; it never imports
 // a Shell, trusts identity headers or enables the still-planned registry routes.
 func (s *Service) HTTPHandler(realm Realm) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestID := authn.Token()
+		// Hosts wrap requests in requestid.Middleware; a bare handler (tests) gets fresh IDs.
+		requestID := requestid.From(r.Context()).Request
 		w.Header().Set("X-Request-ID", requestID)
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")

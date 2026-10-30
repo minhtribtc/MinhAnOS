@@ -1,5 +1,9 @@
 Release status: Account Center usable v1 (a0b1248) deployed to VM 10.1.1.20 after pg_dump backup /opt/minhanos-backups/before-identity-006.sql; identity SQL 006 applied; Desktop, Drive, DB healthy. Browser acceptance pending user.
 
+# Handoff — Phase A audit/event foundation (current)
+
+Read [Phase A report](account-center/PHASE_A_REPORT.md). Identity SQL 001–007 immutable (007 security_log). requestid middleware on both hosts; identity_auth_events retired (insert trigger); identity_admin_events append-only with 365-day retention; identity_notification_outbox queues security notices. Next: M2 admin user sessions + must-change password, then Phase 5.
+
 Fix (current): Account Center dialogs failed on plain HTTP because of crypto.randomUUID; use createIdempotencyKey from app-sdk. tests/insecure-context.mjs guards it.
 
 # Handoff — Account Center usable v1 (current)

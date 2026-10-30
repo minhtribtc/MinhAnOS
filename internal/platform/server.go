@@ -11,6 +11,7 @@ import (
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	identityschema "minhanos.local/platform/internal/identity"
+	"minhanos.local/platform/internal/requestid"
 	"net"
 	"net/http"
 	"net/url"
@@ -230,7 +231,7 @@ func (a *App) Handler() http.Handler {
 		}
 		fs.ServeHTTP(w, r)
 	})
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return requestid.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "same-origin")
@@ -248,7 +249,7 @@ func (a *App) Handler() http.Handler {
 			}
 		}
 		mux.ServeHTTP(w, r)
-	})
+	}))
 }
 
 func sameOrigin(r *http.Request) bool {

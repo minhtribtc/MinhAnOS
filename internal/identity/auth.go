@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/requestid"
 )
 
 var (
@@ -217,7 +218,8 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 		return AuthSession{}, "", e
 	}
 	// Success audit commits with the session it describes.
-	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT public_id,'auth.login',public_id::text,'success',$2,jsonb_build_object('realm',$3::text) FROM users WHERE id=$1", s.Principal.StorageID, authn.Token(), string(realm)); e != nil {
+	ids := requestid.From(ctx)
+	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id,details) SELECT public_id,'auth.login',public_id::text,'success',$2,$3,jsonb_build_object('realm',$4::text) FROM users WHERE id=$1", s.Principal.StorageID, ids.Request, ids.Correlation, string(realm)); e != nil {
 		return AuthSession{}, "", e
 	}
 	e = tx.Commit(ctx)
@@ -236,12 +238,14 @@ func (a *AuthCore) Logout(ctx context.Context, realm Realm, token string) error 
 		return ErrUnauthorized
 	}
 	// One statement: the session delete and its audit row commit together.
-	_, e = a.db.Exec(ctx, `WITH gone AS (DELETE FROM `+t+` WHERE token_hash=$1 RETURNING user_id) INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT u.public_id,'auth.logout',u.public_id::text,'success',$2,jsonb_build_object('realm',$3::text) FROM gone JOIN users u ON u.id=gone.user_id`, authn.Digest(token), authn.Token(), string(realm))
+	ids := requestid.From(ctx)
+	_, e = a.db.Exec(ctx, `WITH gone AS (DELETE FROM `+t+` WHERE token_hash=$1 RETURNING user_id) INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id,details) SELECT u.public_id,'auth.logout',u.public_id::text,'success',$2,$3,jsonb_build_object('realm',$4::text) FROM gone JOIN users u ON u.id=gone.user_id`, authn.Digest(token), ids.Request, ids.Correlation, string(realm))
 	return e
 }
 
 // Failed sign-ins of existing accounts are audited at attempts 1, 5, 10 and 20 of a
-// throttle window only, so brute force cannot turn into an unbounded audit write load.
+// throttle window only (10 and 20 also queue a notice to the account owner), so brute force
+// cannot turn into an unbounded audit write load.
 // Unknown usernames are not recorded (no identifier worth keeping, unbounded keys).
 func (a *AuthCore) recordLoginFailure(ctx context.Context, realm Realm, storageID, reason string, attempts int) {
 	switch attempts {
@@ -249,7 +253,11 @@ func (a *AuthCore) recordLoginFailure(ctx context.Context, realm Realm, storageI
 	default:
 		return
 	}
-	_, e := a.db.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT NULL,'auth.login.failed',public_id::text,'failure',$2,jsonb_build_object('reasonCode',$3::text,'realm',$4::text,'count',$5::int) FROM users WHERE id=$1", storageID, authn.Token(), reason, string(realm), attempts)
+	ids := requestid.From(ctx)
+	_, e := a.db.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id,details) SELECT NULL,'auth.login.failed',public_id::text,'failure',$2,$3,jsonb_build_object('reasonCode',$4::text,'realm',$5::text,'count',$6::int) FROM users WHERE id=$1", storageID, ids.Request, ids.Correlation, reason, string(realm), attempts)
+	if e == nil && attempts >= 10 {
+		_, e = a.db.Exec(ctx, "INSERT INTO identity_notification_outbox(recipient_id,kind,severity,mandatory,details,request_id,correlation_id) SELECT public_id,'login.failures','warning',true,jsonb_build_object('realm',$2::text,'count',$3::int),$4,$5 FROM users WHERE id=$1 AND public_id IS NOT NULL", storageID, string(realm), attempts, ids.Request, ids.Correlation)
+	}
 	if e != nil {
 		log.Printf("identity: login failure audit not recorded: %v", e)
 	}
@@ -350,7 +358,10 @@ func lockSession(ctx context.Context, tx pgx.Tx, realm Realm, token string) (str
 	}
 	return id, nil
 }
-func revoke(ctx context.Context, tx pgx.Tx, id, action string) error {
+
+// revoke ends every session of a user in both realms and clears the sign-in throttle.
+// Auditing is the caller's job (mutate or securityEvent) so nothing is recorded twice.
+func revoke(ctx context.Context, tx pgx.Tx, id string) error {
 	for _, t := range []string{"sessions", "drive_sessions"} {
 		if _, e := tx.Exec(ctx, "DELETE FROM "+t+" WHERE user_id=$1", id); e != nil {
 			return e
@@ -359,8 +370,7 @@ func revoke(ctx context.Context, tx pgx.Tx, id, action string) error {
 	if _, e := tx.Exec(ctx, "DELETE FROM identity_auth_attempts WHERE key_hash=(SELECT encode(sha256(convert_to(username,'UTF8')),'hex') FROM users WHERE id=$1)", id); e != nil {
 		return e
 	}
-	_, e := tx.Exec(ctx, "INSERT INTO identity_auth_events(user_id,action) VALUES($1,$2)", id, action)
-	return e
+	return nil
 }
 
 // RevokeAll invalidates both realms including the current session. Any in-flight
@@ -378,7 +388,13 @@ func (a *AuthCore) RevokeAll(ctx context.Context, realm Realm, token string) err
 	if _, e = tx.Exec(ctx, "UPDATE users SET auth_epoch=auth_epoch+1,recovery_token_hash=NULL,recovery_expires_at=NULL,recovery_auth_epoch=NULL WHERE id=$1", id); e != nil {
 		return e
 	}
-	if e = revoke(ctx, tx, id, "sessions.revoked"); e != nil {
+	if e = revoke(ctx, tx, id); e != nil {
+		return e
+	}
+	if e = securityEvent(ctx, tx, id, "sessions.revoked", true, ""); e != nil {
+		return e
+	}
+	if e = notify(ctx, tx, id, "sessions.revoked", "info", false, nil); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
@@ -433,7 +449,13 @@ func (a *AuthCore) ChangePassword(ctx context.Context, realm Realm, token, curre
 	if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", id, nextHash); e != nil {
 		return e
 	}
-	if e = revoke(ctx, tx, id, "password.changed"); e != nil {
+	if e = revoke(ctx, tx, id); e != nil {
+		return e
+	}
+	if e = securityEvent(ctx, tx, id, "password.changed", true, ""); e != nil {
+		return e
+	}
+	if e = notify(ctx, tx, id, "password.changed", "warning", true, nil); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
@@ -492,7 +514,7 @@ func (a *AuthCore) RevokeOwnSession(ctx context.Context, realm Realm, token, han
 	if tag.RowsAffected() != 1 {
 		return ErrUnauthorized
 	}
-	if _, e = tx.Exec(ctx, "INSERT INTO identity_auth_events(user_id,action) VALUES($1,'sessions.revoked')", id); e != nil {
+	if e = securityEvent(ctx, tx, id, "sessions.revoked", true, ""); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
@@ -515,7 +537,7 @@ func (a *AuthCore) IssueRecoveryLocal(ctx context.Context, name string) (string,
 	if _, e = tx.Exec(ctx, "UPDATE users SET recovery_token_hash=$2,recovery_expires_at=now()+interval '15 minutes',recovery_auth_epoch=auth_epoch WHERE id=$1", id, authn.Digest(raw)); e != nil {
 		return "", e
 	}
-	if _, e = tx.Exec(ctx, "INSERT INTO identity_auth_events(user_id,action) VALUES($1,'recovery.issued')", id); e != nil {
+	if e = securityEvent(ctx, tx, id, "recovery.issued", false, "LOCAL_OPERATOR"); e != nil {
 		return "", e
 	}
 	if e = tx.Commit(ctx); e != nil {
@@ -565,7 +587,13 @@ func (a *AuthCore) ConsumeRecoveryLocal(ctx context.Context, name, raw, next str
 	if tag.RowsAffected() != 1 {
 		return ErrUnauthorized
 	}
-	if e = revoke(ctx, tx, id, "recovery.consumed"); e != nil {
+	if e = revoke(ctx, tx, id); e != nil {
+		return e
+	}
+	if e = securityEvent(ctx, tx, id, "recovery.consumed", false, "LOCAL_OPERATOR"); e != nil {
+		return e
+	}
+	if e = notify(ctx, tx, id, "recovery.consumed", "critical", true, nil); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)

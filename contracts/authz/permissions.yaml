@@ -146,6 +146,48 @@
       "resourceTypes": [
         "identity"
       ]
+    },
+    "notifications.own.read": {
+      "description": "notifications.own.read",
+      "resourceTypes": [
+        "notification"
+      ]
+    },
+    "notifications.own.manage": {
+      "description": "notifications.own.manage",
+      "resourceTypes": [
+        "notification"
+      ]
+    },
+    "logs.audit.read": {
+      "description": "logs.audit.read",
+      "resourceTypes": [
+        "log"
+      ]
+    },
+    "logs.application.read": {
+      "description": "logs.application.read",
+      "resourceTypes": [
+        "log"
+      ]
+    },
+    "logs.system.read": {
+      "description": "logs.system.read",
+      "resourceTypes": [
+        "log"
+      ]
+    },
+    "logs.export": {
+      "description": "logs.export",
+      "resourceTypes": [
+        "log"
+      ]
+    },
+    "logs.retention.manage": {
+      "description": "logs.retention.manage",
+      "resourceTypes": [
+        "log"
+      ]
     }
   },
   "rules": [

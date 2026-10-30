@@ -267,6 +267,7 @@ export interface IdentityAuditEvent {
     realm?: "desktop" | "files";
     count?: number;
   };
+  correlationId?: string | null;
 }
 
 export interface IdentityCreateUser {
@@ -360,6 +361,7 @@ export interface IdentityAuditPage {
       realm?: "desktop" | "files";
       count?: number;
     };
+    correlationId?: string | null;
   }[];
   nextCursor: string | null;
 }

@@ -1,3 +1,5 @@
+[Phase A report](account-center/PHASE_A_REPORT.md) — request IDs, single identity security log, append-only audit, notice outbox.
+
 [Account Center usable v1](account-center/USABLE_V1_REPORT.md) — admin password reset, user detail page, sign-in audit.
 
 [Notification & Log Center review](notifications-logs-review.md) — evaluation of the Codex brief against current audit/event code.

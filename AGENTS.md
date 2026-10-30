@@ -117,5 +117,5 @@ User rule: every app must integrate uniformly with the central Settings app (com
 
 ## Account Center usable v1 (current)
 
-Read docs/account-center/USABLE_V1_REPORT.md. Identity SQL 001–006 are applied and immutable; append 007+. 34 operations active. Sign-in success/logout audit is transactional; failures are sampled (1/5/10/20) for existing accounts only. Web admins must never reset a host operator's password. Audit lists are newest first by (occurred_at,id).
+Read docs/account-center/USABLE_V1_REPORT.md. Identity SQL 001–007 are applied and immutable; append 008+. Use requestid.From(ctx) for request/correlation IDs; never write identity_auth_events; security notices go to identity_notification_outbox via notify(). 34 operations active. Sign-in success/logout audit is transactional; failures are sampled (1/5/10/20) for existing accounts only. Web admins must never reset a host operator's password. Audit lists are newest first by (occurred_at,id).
 - Plain HTTP LAN access is a supported deployment: never call secure-context-only APIs (crypto.randomUUID, navigator.clipboard, crypto.subtle) unguarded in frontend code; use createIdempotencyKey from app-sdk. tests/insecure-context.mjs enforces the UUID part.

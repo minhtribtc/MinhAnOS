@@ -1,3 +1,9 @@
+## Nền tảng nhật ký và thông báo (Phase A) — 2026-10-30
+
+- Mỗi yêu cầu có mã truy vết (X-Request-ID, X-Correlation-ID) được lưu cùng nhật ký bảo mật.
+- Nhật ký bảo mật gộp về một kho, không sửa/xóa được (trừ dọn sau 365 ngày).
+- Ghi sẵn thông báo bảo mật (đổi/đặt lại mật khẩu, đổi vai trò, đăng nhập sai nhiều lần) cho Trung tâm thông báo sau này.
+
 ## Sửa lỗi Account Center trên HTTP — 2026-10-30
 
 - Sửa lỗi mọi hộp thoại (tạo tài khoản, nhóm, vai trò, gán vai trò, sửa, khóa, đặt lại/đổi mật khẩu) không mở khi truy cập qua địa chỉ HTTP thường như http://10.1.1.20:8081.

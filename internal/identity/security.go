@@ -91,7 +91,10 @@ func (s *Service) Password(ctx context.Context, realm Realm, token, key, request
 		if _, e := tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", a.StorageID, hash); e != nil {
 			return Result{}, e
 		}
-		if e := revoke(ctx, tx, a.StorageID, "password.changed"); e != nil {
+		if e := revoke(ctx, tx, a.StorageID); e != nil {
+			return Result{}, e
+		}
+		if e := notify(ctx, tx, a.StorageID, "password.changed", "warning", true, nil); e != nil {
 			return Result{}, e
 		}
 		return result(map[string]bool{"accepted": true}, 200, 0), nil
@@ -148,7 +151,10 @@ func (s *Service) ResetPassword(ctx context.Context, realm Realm, token, target,
 		if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", storageID, hash); e != nil {
 			return Result{}, e
 		}
-		if e = revoke(ctx, tx, storageID, "password.changed"); e != nil {
+		if e = revoke(ctx, tx, storageID); e != nil {
+			return Result{}, e
+		}
+		if e = notify(ctx, tx, storageID, "password.reset", "critical", true, nil); e != nil {
 			return Result{}, e
 		}
 		if u, _, e = userRow(ctx, tx, target); e != nil {

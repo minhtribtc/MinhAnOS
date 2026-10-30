@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/requestid"
 )
 
 const AccountApp = "com.minhanos.account-center"
@@ -202,6 +203,9 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 			return Result{}, e
 		}
 	}
+	if e = retain(ctx, tx); e != nil {
+		return Result{}, e
+	}
 	out, e := fn(tx, a)
 	if e != nil {
 		return Result{}, e
@@ -216,7 +220,7 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 			target = u.ID
 		}
 	}
-	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id) VALUES(nullif($1,'')::uuid,$2,$3,'success',$4)", a.PublicID, actionName(route), target, requestID); e != nil {
+	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id) VALUES(nullif($1,'')::uuid,$2,$3,'success',$4,$5)", a.PublicID, actionName(route), target, requestID, requestid.From(ctx).Correlation); e != nil {
 		return Result{}, e
 	}
 	if key != "" {
@@ -494,6 +498,12 @@ func (s *Service) ChangeUser(ctx context.Context, realm Realm, token, target, op
 			}
 			if e == nil {
 				_, e = tx.Exec(ctx, "DELETE FROM drive_sessions WHERE user_id=(SELECT id FROM users WHERE public_id=$1)", target)
+			}
+			if e == nil {
+				var storage string
+				if storage, e = storageIDOf(ctx, tx, target); e == nil {
+					e = notify(ctx, tx, storage, "role.changed", "warning", true, map[string]any{"role": operation})
+				}
 			}
 		default:
 			return Result{}, fault(400, "INVALID_REQUEST")

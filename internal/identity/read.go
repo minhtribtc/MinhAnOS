@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/requestid"
 )
 
 func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, search, page string, limit int) (Result, error) {
@@ -113,7 +114,7 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 		rows, e = tx.Query(ctx, `SELECT key,jsonb_build_object('key',key,'descriptionKey','accounts.permissions.'||key,'resourceTypes',jsonb_build_array('identity')) FROM identity_permissions WHERE key>$1 ORDER BY key LIMIT $2`, after, limit+1)
 	case "audit-events":
 		// Newest first; the signed cursor carries "occurredAt|id". target matches either side of the event.
-		rows, e = tx.Query(ctx, `SELECT (to_json(occurred_at)#>>'{}')||'|'||id::text,jsonb_build_object('id',id,'actorId',actor_id,'action',action,'targetId',target_id,'outcome',outcome,'occurredAt',occurred_at,'requestId',request_id,'details',details) FROM identity_admin_events WHERE ($1='' OR (occurred_at,id)<(split_part($1,'|',1)::timestamptz,split_part($1,'|',2)::uuid)) AND ($3='' OR target_id=$3 OR actor_id::text=$3) ORDER BY occurred_at DESC,id DESC LIMIT $2`, after, limit+1, search)
+		rows, e = tx.Query(ctx, `SELECT (to_json(occurred_at)#>>'{}')||'|'||id::text,jsonb_build_object('id',id,'actorId',actor_id,'action',action,'targetId',target_id,'outcome',outcome,'occurredAt',occurred_at,'requestId',request_id,'correlationId',correlation_id,'details',details) FROM identity_admin_events WHERE ($1='' OR (occurred_at,id)<(split_part($1,'|',1)::timestamptz,split_part($1,'|',2)::uuid)) AND ($3='' OR target_id=$3 OR actor_id::text=$3) ORDER BY occurred_at DESC,id DESC LIMIT $2`, after, limit+1, search)
 	}
 	if e != nil {
 		return Result{}, e
@@ -151,7 +152,7 @@ func (s *Service) RecordDenied(ctx context.Context, storageID, requestID, route,
 	if len(code) > 64 || !strings.HasPrefix(code, "IDENTITY_") && code != "APP_ACCESS_DENIED" && code != "APP_PERMISSION_DENIED" && code != "REAUTH_REQUIRED" {
 		return
 	}
-	_, _ = s.db.Exec(ctx, `INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT public_id,'identity.denied',$2,'denied',$3,jsonb_build_object('reasonCode',$4::text) FROM users WHERE id=$1`, storageID, auditTarget(route), requestID, code)
+	_, _ = s.db.Exec(ctx, `INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id,details) SELECT public_id,'identity.denied',$2,'denied',$3,$5,jsonb_build_object('reasonCode',$4::text) FROM users WHERE id=$1`, storageID, auditTarget(route), requestID, code, requestid.From(ctx).Correlation)
 }
 
 func (s *Service) ownAccess(ctx context.Context, tx pgx.Tx, a Actor) (Result, error) {

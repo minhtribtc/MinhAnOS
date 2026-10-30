@@ -9,6 +9,7 @@ import (
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/identity"
+	"minhanos.local/platform/internal/requestid"
 	"net"
 	"net/http"
 	"net/url"
@@ -257,7 +258,7 @@ func (s *Server) Handler() http.Handler {
 		}
 	})
 	mux.Handle("/", http.FileServer(http.Dir(s.StaticDir)))
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return requestid.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -277,7 +278,7 @@ func (s *Server) Handler() http.Handler {
 			r.Body = http.MaxBytesReader(w, r.Body, limit)
 		}
 		mux.ServeHTTP(w, r)
-	})
+	}))
 }
 func (s *Server) proxyAgent(w http.ResponseWriter, r *http.Request, u User) {
 	transport := &http.Transport{DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {

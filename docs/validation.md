@@ -1,3 +1,7 @@
+## Phase A audit/event foundation — 2026-10-30
+
+VM check folder /opt/minhanos-m1: gofmt (auth.go reformatted), go vet, go test PASS incl. new internal/requestid tests; migrations-integration on disposable DB PASS incl. TestSecurityLogAppendOnlyRetentionAndRetiredLedger, TestSignInUsesRequestAndCorrelationIDs, TestSecurityNoticesQueuedWithTheChange and updated TestCredentialChangeRollsBackIfAuditFails; clean npm ci + contracts:generate + npm run build PASS.
+
 ## Fix: dialogs on plain HTTP — 2026-10-30
 
 User reported create account/group/role not working. Live DB showed no create or denied events after sign-in, so requests never reached the API. Root cause: AccountsApp called crypto.randomUUID (secure contexts only) in open(), the idempotency-key watchers and changePassword; on http://10.1.1.20 it is undefined, so every dialog threw. Node-based tests had randomUUID and missed it. Fix: createIdempotencyKey (api-client, re-exported by app-sdk) with getRandomValues fallback; new tests/insecure-context.mjs removes crypto.randomUUID and scans frontend sources. Clean npm ci + npm run build PASS on VM. Browser confirmation by the user still pending.

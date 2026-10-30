@@ -125,7 +125,7 @@ func TestSharedAuthPasswordAndAllRealms(t *testing.T) {
 	}
 	denied(t, a, DriveRealm, fresh)
 	var count int
-	db.QueryRow(ctx, "SELECT count(*) FROM identity_auth_events WHERE action='password.changed'").Scan(&count)
+	db.QueryRow(ctx, "SELECT count(*) FROM identity_admin_events WHERE action='password.changed'").Scan(&count)
 	if count != 1 {
 		t.Fatal("audit", count)
 	}
@@ -315,7 +315,7 @@ func TestCredentialChangeRollsBackIfAuditFails(t *testing.T) {
 	a, db := authFixture(t)
 	ctx := context.Background()
 	token := loginTest(t, a, DesktopRealm, testPassword)
-	if _, e := db.Exec(ctx, "DROP TABLE identity_auth_events"); e != nil {
+	if _, e := db.Exec(ctx, "DROP TABLE identity_admin_events"); e != nil {
 		t.Fatal(e)
 	}
 	if e := a.ChangePassword(ctx, DesktopRealm, token, testPassword, "replacement-password-123"); e == nil {
@@ -324,7 +324,10 @@ func TestCredentialChangeRollsBackIfAuditFails(t *testing.T) {
 	if _, e := a.Authenticate(ctx, DesktopRealm, token); e != nil {
 		t.Fatal("rollback lost old session", e)
 	}
-	loginTest(t, a, DriveRealm, testPassword)
+	var hash string
+	if e := db.QueryRow(ctx, "SELECT password_hash FROM users WHERE username=$1", "legacy").Scan(&hash); e != nil || !authn.Verify(testPassword, hash) {
+		t.Fatal("rollback changed the password", e)
+	}
 }
 
 func TestThrottleCapacityAndPasswordInvalidatesRecovery(t *testing.T) {

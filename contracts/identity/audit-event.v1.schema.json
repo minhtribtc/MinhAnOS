@@ -68,6 +68,13 @@
         }
       },
       "required": []
+    },
+    "correlationId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 64
     }
   },
   "required": [
