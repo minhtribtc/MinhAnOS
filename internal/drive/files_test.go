@@ -71,6 +71,49 @@ func TestPrivateFilesLifecycle(t *testing.T) {
 		t.Fatal(content, err)
 	}
 }
+
+func TestCopyCannotOverwriteAndKeepsSource(t *testing.T) {
+	e := testEngine(t)
+	_, err := e.Upload("", "a.txt", strings.NewReader("copy me"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = e.Copy("a.txt", "b.txt"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = e.Copy("a.txt", "b.txt"); err == nil {
+		t.Fatal("copy overwrote destination")
+	}
+	for _, p := range []string{"a.txt", "b.txt"} {
+		v, _, er := e.Text(p)
+		if er != nil || v != "copy me" {
+			t.Fatal(p, v, er)
+		}
+	}
+	if _, err = e.Copy("a.txt", "../escape"); err == nil {
+		t.Fatal("copy traversal accepted")
+	}
+}
+
+func (f fakeIdentity) PlatformSession(ctx context.Context, token string) (Session, error) {
+	v, e := f.Session(ctx, token)
+	v.User.Role = "user"
+	return v, e
+}
+func TestOptionalPlatformSessionUsesPlatformRole(t *testing.T) {
+	for _, enabled := range []bool{false, true} {
+		s := &Server{Identity: fakeIdentity{role: "admin"}, AllowPlatformSessions: enabled, DataDir: t.TempDir(), StaticDir: t.TempDir()}
+		r := httptest.NewRequest("GET", "http://drive.test/api/files/list?root=system", nil)
+		r.AddCookie(&http.Cookie{Name: CookieName, Value: "valid"})
+		r.AddCookie(&http.Cookie{Name: "minhanos_session", Value: "valid"})
+		r.Header.Set("X-Drive-Auth-Mode", "platform")
+		w := httptest.NewRecorder()
+		s.Handler().ServeHTTP(w, r)
+		if w.Code != 403 {
+			t.Fatal("platform mode bypassed disabled adapter or standard-user role", enabled, w.Code)
+		}
+	}
+}
 func TestTraversalSymlinksAndSpecialFiles(t *testing.T) {
 	e := testEngine(t)
 	for _, p := range []string{"../outside", "a/../../b", "a\\b"} {

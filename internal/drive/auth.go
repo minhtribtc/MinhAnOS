@@ -102,6 +102,19 @@ func (s *SQLIdentity) Session(ctx context.Context, token string) (Session, error
 	}
 	return v, err
 }
+
+// PlatformSession is optional and reads an authenticated session rather than browser-supplied identity claims.
+func (s *SQLIdentity) PlatformSession(ctx context.Context, token string) (Session, error) {
+	var v Session
+	if len(token) != 64 {
+		return v, ErrUnauthorized
+	}
+	err := s.db.QueryRow(ctx, `SELECT u.id,u.username,u.display_name,u.role,s.csrf_token FROM sessions s JOIN users u ON u.id=s.user_id WHERE token_hash=$1 AND expires_at>now()`, authn.Digest(token)).Scan(&v.User.ID, &v.User.Username, &v.User.DisplayName, &v.User.Role, &v.CSRF)
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrUnauthorized
+	}
+	return v, err
+}
 func (s *SQLIdentity) Login(ctx context.Context, name, password string) (Session, string, error) {
 	var v Session
 	hash := s.dummy

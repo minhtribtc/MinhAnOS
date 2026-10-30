@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Minus, Square, X, Copy, Grip } from 'lucide-vue-next'
 import { useDesktop } from '../store'
 import type { DesktopWindow, AppDefinition } from '../api'
 import AppIcon from './AppIcon.vue'
 import AppContent from './AppContent.vue'
 
-const props = defineProps<{ window: DesktopWindow; app: AppDefinition }>()
+const props = defineProps<{ window: DesktopWindow; app: AppDefinition; foreground?: boolean }>()
 const desktop = useDesktop()
+const content=ref<{canClose:()=>boolean}|null>(null)
+let unregisterGuard=()=>{}
+onMounted(()=>{unregisterGuard=desktop.registerCloseGuard(props.window.id,()=>content.value?.canClose()??true)})
+function closeWindow(){desktop.close(props.window.id)}
 const viewport = ref({ width: innerWidth, height: innerHeight })
 const onViewport = () => { viewport.value = { width: innerWidth, height: innerHeight } }
 globalThis.addEventListener('resize', onViewport)
@@ -52,7 +56,7 @@ function keyboardResize(event: KeyboardEvent) {
   props.window.height = Math.max(340, Math.min(innerHeight - 112, props.window.height + (event.key === 'ArrowDown' ? 20 : event.key === 'ArrowUp' ? -20 : 0)))
   desktop.saveSoon()
 }
-onBeforeUnmount(() => { cleanup(); globalThis.removeEventListener('resize', onViewport) })
+onBeforeUnmount(() => { unregisterGuard(); cleanup(); globalThis.removeEventListener('resize', onViewport) })
 </script>
 
 <template>
@@ -62,10 +66,10 @@ onBeforeUnmount(() => { cleanup(); globalThis.removeEventListener('resize', onVi
       <div class="window-controls" @dblclick.stop>
         <button :aria-label="`Thu nhỏ ${app.title}`" @click="desktop.minimize(window.id)"><Minus :size="16" /></button>
         <button v-if="desktop.preferences.mode === 'windows'" :aria-label="window.maximized ? `Khôi phục ${app.title}` : `Phóng to ${app.title}`" @click="desktop.maximize(window.id)"><component :is="window.maximized ? Copy : Square" :size="13" /></button>
-        <button class="close-window" :aria-label="`Đóng ${app.title}`" @click="desktop.close(window.id)"><X :size="17" /></button>
+        <button class="close-window" :aria-label="`Đóng ${app.title}`" @click="closeWindow"><X :size="17" /></button>
       </div>
     </header>
-    <div class="window-content"><AppContent :app="app" /></div>
+    <div class="window-content"><AppContent ref="content" :foreground="foreground" :app="app" /></div>
     <button v-if="!window.maximized && desktop.preferences.mode === 'windows'" class="resize-grip" :aria-label="`Thay đổi kích thước ${app.title}`" @pointerdown.stop="begin($event, true)" @keydown="keyboardResize"><Grip :size="13" /></button>
   </section>
 </template>

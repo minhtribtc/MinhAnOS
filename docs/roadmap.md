@@ -104,3 +104,9 @@ Personal filesystem CRUD, trash/restore, text editor with backups and admin Debi
 Independent frontend/backend build and compose.drive.yaml are available; see drive.md.
 Current priority: durable/resumable transfers, multi-select/copy/quota, shared ACL and previews.
 Earlier sections describing Files as a placeholder/design-only are historical.
+
+## Native File Station and context menus
+
+File Station now opens inside the desktop using shared packages/files-app. Drive remains independently runnable.
+Implemented contextual actions, overflow controls, basic multi-select, same-root clipboard copy/cut/paste and keyboard actions.
+Next: recursive copy via durable jobs, resumable uploads/quota and shared ACL/previews.

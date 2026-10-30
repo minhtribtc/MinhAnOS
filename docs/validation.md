@@ -121,3 +121,27 @@ No backend/source runtime behavior changed; Go/API tests were not repeated for d
 - No full accessibility, load, quota, disk crash/recovery or resumable-upload claim. See drive.md for remaining limits.
 - Desktop Home/Dock launcher verified opening the independent Drive URL in a separate browser tab; popup-block fallback is available.
 - Screenshot: artifacts/drive-v1.jpg (local, ignored). Browser override reset before handoff.
+
+## Native File Station verification — 2026-10-30
+
+- Both Docker frontend builds passed vue-tsc/Vite against the same packages/files-app source.
+- Go tests/vet passed: 8 Drive tests and 7 platform tests, including copy/no-overwrite, optional adapter role selection and anonymous gateway rejection.
+- tests/files-desktop-smoke.mjs passed 4 integration groups: existing desktop session, login/logout gateway denial,
+  independent Drive-admin cookie cannot elevate desktop user, CSRF/Origin checks, streaming upload beyond 128 KiB,
+  copied bytes/collision protection, per-user isolation and access revoked by desktop logout.
+- Existing Drive smoke: all 10 groups passed, including real Debian host operations. Exact disposable users/namespaces cleaned.
+- Action registry and per-instance client tests passed under Node strip-types; client API base/CSRF state do not leak across instances.
+- Desktop stopped: tests/drive-independent.mjs passed. Drive remains independent; desktop was restarted afterward.
+- Browser: Files opened natively on 8081 without Drive login; original private files visible. No iframe or navigation to 8082.
+- Browser: right-click menu, overflow menu, disabled directory copy, Ctrl-click multi-selection with right-click preserving the group,
+  disabled multi-rename, real copy/paste, real cut/paste, F2 rename and Escape menu dismissal verified.
+- Browser: directory and clipboard persisted through Home/reopen. Unsaved UTF-8 editor draft persisted through Home/reopen and was not saved to disk.
+- Narrow native window (~578px content): container query reflow; scrollWidth equals clientWidth (no horizontal overflow).
+- Native confirm close-guard test encountered an automation/browser dialog deadlock; cancel/accept flow could not be completed by the browser tool.
+  A fresh desktop preview was used afterward. This is an explicit verification limit, not a passing UI test.
+- Ctrl+X key injection did not trigger in the automation browser; the same Cut command succeeded through overflow menu.
+  F2 and Escape were verified; complete browser/OS keyboard accessibility remains pending.
+- Demo file Hướng dẫn sử dụng.txt was created by copy then renamed/moved in admin's personal space; original Chào mừng Drive.txt unchanged.
+- Backups: before-files-desktop.tgz and before-files-desktop.sql in /opt/minhanos-backups, root-only. No schema/data migration required.
+- Final shared UI loaded in both desktop (?app=files on 8081) and standalone Drive (8082) using existing sessions.
+- Evidence image: artifacts/files-in-desktop.jpg (local, ignored). No iframe, URL navigation to Drive, or second login required for the embedded view.

@@ -304,6 +304,25 @@ func (e *Engine) Text(value string) (string, string, error) {
 	return string(b), etag(fi), nil
 }
 
+func (e *Engine) Copy(source, destination string) (Entry, error) {
+	src, fi, err := e.Read(source)
+	if err != nil {
+		return Entry{}, err
+	}
+	defer src.Close()
+	if fi.Size() > MaxUpload {
+		return Entry{}, problem(413, "Sao chép tệp giới hạn 128 MB trong bản này.")
+	}
+	dest, err := e.logical(destination)
+	if err != nil {
+		return Entry{}, err
+	}
+	if dest == "." {
+		return Entry{}, problem(400, "Đích sao chép không hợp lệ.")
+	}
+	return e.Upload(path.Dir(dest), path.Base(dest), src)
+}
+
 // SaveText checks optimistic concurrency and keeps a backup before atomic replacement.
 func (e *Engine) SaveText(value, content, expected string) (string, error) {
 	if len(content) > MaxText || !utf8.ValidString(content) || strings.ContainsRune(content, 0) {

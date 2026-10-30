@@ -21,3 +21,10 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Added real private file operations, upload/download, rename/move, trash/restore and UTF-8 text edits with backups.
 - Added admin Debian file agent over protected Unix socket. Desktop launches Drive in a separate tab.
 - Added file isolation/security/integration tests and deployment/handoff documentation.
+
+## File Station desktop integration — 2026-10-30
+
+- Shared Files UI renders natively in desktop and independently in Drive.
+- Added authenticated same-origin gateway using desktop identity, context/overflow menus, multi-select and shared keyboard actions.
+- Added bounded regular-file copy and same-root clipboard operations without overwrite.
+- Preserved mounted state across Home/app switches; closing asks when text or uploads are pending.

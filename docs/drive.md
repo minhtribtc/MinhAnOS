@@ -1,16 +1,16 @@
 # MinhAnOS Drive 0.1 / File Station
 
 Drive is an independently runnable application, not a desktop component or iframe.
-Test URL: http://10.1.1.20:8082. Desktop on 8081 launches its URL in a new tab, with same-tab navigation when the browser blocks popups.
-Branch: file-station-v1. Source: apps/drive, cmd/drive, internal/drive, internal/authn.
+Test URL: http://10.1.1.20:8082. Desktop on 8081 renders the same Files UI inside its native application host.
+Branch: file-station-desktop. Shared UI: packages/files-app. Standalone host: apps/drive. Backend: cmd/drive, internal/drive, internal/authn.
 
 ## Independence contract
 
-- Frontend has its own package, lockfile, build, login and client API; no imports from apps/desktop or desktop Pinia.
+- Shared files-app has no desktop/Pinia imports. apps/drive is an independent build/login host; desktop mounts the same component with explicit configuration.
 - Backend does not import internal/platform or call desktop/platform HTTP APIs.
 - Drive.Dockerfile builds without copying desktop frontend or platform backend sources.
 - compose.drive.yaml runs Drive + PostgreSQL without a desktop service. An empty standalone DB bootstraps its own admin from the secret file.
-- Current integrated deployment shares the users table/password format with MinhAnOS, not its browser session.
+- Current integrated deployment shares the users table/password format with MinhAnOS. Embedded mode uses the platform session through the authenticated gateway; standalone Drive keeps a separate browser session.
   Drive uses its own drive_sessions table and minhanos_drive_session cookie. Logging out of one app does not log out the other.
 - IdentityStore is an adapter boundary for future OIDC or a separate identity database. Shared authn contains password/token primitives only.
 - Drive does not require parent window messaging, a desktop token, shell state, localStorage credentials or desktop routes.
@@ -20,7 +20,7 @@ Branch: file-station-v1. Source: apps/drive, cmd/drive, internal/drive, internal
 
 Private filesystem namespace per user; grid/list, hidden files, folder navigation/back/up,
 name filtering in the current folder, metadata/UID/GID/mode, create folder, raw upload/download,
-rename, same-filesystem move without overwriting, trash and restore. Filename collisions return 409.
+rename, same-filesystem move, regular-file copy without overwriting, trash and restore. Filename collisions return 409.
 Text preview/edit for UTF-8 up to 256 KiB, optimistic concurrency and a backup next to the original file before atomic replacement.
 Real upload progress, cancel and retry from the in-memory File; switching folders keeps transfers alive.
 
@@ -43,7 +43,7 @@ docker compose ps
 Integrated services share PostgreSQL but run separate non-root, read-only-rootfs app containers.
 drive-files mounts at /data only in Drive. Do not mount the Debian root into the web container.
 Default ports: desktop 8081, Drive 8082. DRIVE_PORT configures published port; VITE_DRIVE_URL overrides the desktop launcher URL at build time.
-Desktop defaults to the same hostname on port 8082. A changed published port needs a matching launcher build configuration.
+Desktop uses DRIVE_INTERNAL_URL on the server for /api/drive/*; the browser stays on port 8081. VITE_DRIVE_URL is retained only as legacy configuration and is not required for native embedding.
 
 ## Run standalone
 
@@ -101,8 +101,29 @@ See validation.md for executed checks, including a fresh standalone DB and stopp
 ## Limits / next work
 
 128 MiB per upload, no quota enforcement yet; 10,000 entries per directory; no recursive search,
-multi-select, copy, ZIP, tabs, thumbnails/media/PDF preview, sharing/ACL UI or background durable jobs.
+recursive folder copy, ZIP, tabs, thumbnails/media/PDF preview, sharing/ACL UI or background durable jobs.
 Files are real but transfers are browser-owned: closing/reloading interrupts them. No chunk resume or promise of survival after tab close.
 Same-filesystem move only. UTF-8 text editor only; backups remain ordinary adjacent files until managed/moved to trash.
 No public trash purge endpoint yet. No ETag-safe overwrite workflow for arbitrary uploads.
 HTTP LAN preview only; use HTTPS + secure cookies and review authentication/host capability isolation before wider exposure.
+
+## Native desktop hosting and context actions (0.2)
+
+packages/files-app exports FilesApp and a per-instance client factory. Inputs: embedded, apiBase, active.
+Desktop AppContent mounts it with embedded=true and apiBase=/api/drive. apps/drive mounts it with defaults (/api).
+CSS is scoped under .files-app; desktop shell CSS is not reused or imported into the application.
+Vite dedupes Vue/Lucide peer dependencies; TS path aliases resolve shared source. Both Dockerfiles copy the shared package.
+
+Gateway: platform authenticates desktop cookie/CSRF, rewrites /api/drive/* to /api/* on DRIVE_INTERNAL_URL,
+sets X-Drive-Auth-Mode=platform, preserves browser Host/Origin and strips Set-Cookie. Gateway login/logout are blocked.
+Drive enables the SQL platform-session adapter only when ALLOW_PLATFORM_SESSIONS=true (integrated Compose only).
+The adapter resolves user/role/CSRF from sessions/users in the DB; it does not trust identity headers or prefer a standalone Drive cookie.
+Standalone Compose does not enable the adapter or require a platform sessions table.
+Platform streaming timeouts accommodate uploads; Drive still enforces size limits. No CORS/token-in-URL or browser bearer secret is added.
+
+Context actions: right-click file/folder/blank/trash, per-file ellipsis, toolbar overflow and shortcuts share actions.ts + dispatch.
+Ctrl/Cmd+C/X/V/A, F2, Delete and Shift+F10; menu ArrowUp/Down/Home/End/Escape. Inputs/editors retain their native shortcuts.
+Right-click preserves an existing group; Ctrl/Cmd/Shift selects multiple items. Filtering clears selection to avoid acting on hidden results.
+Copy/cut clipboard stays in app memory; paste is same-root only, no overwrite, up to 100 items per batch. Regular-file copy max 128 MiB.
+Batch operations are sequential browser requests, not durable jobs/atomic batches; errors are reported per item and successful cuts are removed from clipboard.
+Folder recursive copy is deliberately disabled until durable jobs exist. No archive/sharing/permissions commands are faked.

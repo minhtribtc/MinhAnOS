@@ -53,3 +53,13 @@ Only server-side identity determines the user namespace. Mutations require same 
 413 size limit; 415 unsupported text; 422 oversized directory; 503 agent/identity/audit unavailable; 507 disk full.
 The host agent accepts this narrow file API only on its protected Unix socket. It has no login or shell endpoint.
 See drive.md for permissions, backups, data layouts and unsupported operations.
+
+## Embedded Files gateway and copy
+
+Desktop GET /api/drive/session and /api/drive/roots use the existing desktop cookie.
+/api/drive/files/* mirrors the Drive file API; all writes require desktop X-CSRF-Token and valid Origin.
+Login/logout through the gateway are forbidden. Backend role is resolved from the desktop session, even if another Drive cookie is present.
+Integrated Drive requires ALLOW_PLATFORM_SESSIONS=true; desktop requires DRIVE_INTERNAL_URL=http://drive:8082.
+Standalone users continue to use /api/* on 8082 and independent Drive cookies.
+POST /api/files/copy (or embedded /api/drive/files/copy): query root/path, JSON {destination}.
+Only regular files <=128 MiB, same root; 409 if destination exists; folders/special files not supported.

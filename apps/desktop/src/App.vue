@@ -23,7 +23,7 @@ watch(panel, async (value, previous) => {
   if (value) document.querySelector<HTMLElement>('[aria-modal="true"] input, [aria-modal="true"] button')?.focus()
   else if (restoreFocus?.isConnected) restoreFocus.focus()
 })
-function launch(id: string) { desktop.open(id); if (id !== 'files') home.value = false; panel.value = null }
+function launch(id: string) { desktop.open(id); home.value = false; panel.value = null }
 function goHome() { home.value = true; panel.value = null }
 async function search() { panel.value = panel.value === 'search' ? null : 'search'; query.value = ''; if (panel.value) { await nextTick(); searchInput.value?.focus() } }
 function togglePanel(value: 'switcher' | 'control') { panel.value = panel.value === value ? null : value }
@@ -65,7 +65,7 @@ onBeforeUnmount(() => { clearInterval(clockTimer); clearInterval(systemTimer); g
       <header class="tablet-status" :inert="!!panel"><button @click="goHome">{{ time }} <span>{{ longDate }}</span></button><span class="status-brand">MinhAnOS</span><button aria-label="Mở trung tâm điều khiển" @click="togglePanel('control')"><span :class="['status-dot', {offline:!desktop.system}]"></span><span>{{ desktop.system ? 'Đã kết nối' : 'Mất kết nối' }}</span><Wifi :size="16" /><SlidersHorizontal :size="17" /></button></header>
       <HomeScreen :inert="!!panel" v-show="home || !desktop.visibleWindows.length" :time="time" :date="longDate" @launch="launch" @search="search" />
       <!-- Keep instances mounted: Home, Spotlight and switching must retain local drafts. -->
-      <DesktopWindow :inert="!!panel" v-for="window in desktop.preferences.windows" v-show="!home && !window.minimized && (desktop.preferences.mode === 'windows' || desktop.active === window.id)" :key="window.id" :window="window" :app="desktop.apps.find(a => a.id === window.id)!" />
+      <DesktopWindow :foreground="!home && desktop.active===window.id && !window.minimized && !panel" :inert="!!panel" v-for="window in desktop.preferences.windows" v-show="!home && !window.minimized && (desktop.preferences.mode === 'windows' || desktop.active === window.id)" :key="window.id" :window="window" :app="desktop.apps.find(a => a.id === window.id)!" />
       <div v-if="panel" class="tablet-scrim" @click="panel = null"></div>
       <section v-if="panel === 'search'" class="tablet-spotlight" role="dialog" aria-modal="true" aria-label="Tìm ứng dụng" @keydown.esc="panel = null"><label><Search :size="23" /><input ref="searchInput" v-model="query" placeholder="Tìm ứng dụng…" aria-label="Tìm trong danh sách ứng dụng"><button class="tablet-round" aria-label="Đóng tìm kiếm" @click="panel = null"><X :size="18" /></button></label><div class="spotlight-results"><button v-for="app in results" :key="app.id" @click="launch(app.id)"><AppIcon :id="app.icon" :color="app.color" small /><span><strong>{{ app.title }}</strong><small>{{ app.subtitle }}</small></span><ArrowRight :size="16" /></button><p v-if="!results.length">Không tìm thấy ứng dụng phù hợp.</p></div><footer>Ứng dụng trên MinhAnOS <kbd>Esc để đóng</kbd></footer></section>
       <AppSwitcher v-if="panel === 'switcher'" @launch="launch" @dismiss="panel = null" />

@@ -1,8 +1,8 @@
 # MinhAnOS Desktop + Drive
 
-**Drive 0.1 is available at http://10.1.1.20:8082** on branch `file-station-v1`.
+**Drive 0.1 is available at http://10.1.1.20:8082** on branch `file-station-desktop`.
 It is an independent Vue/Go application with its own login, API, build and deployment.
-Desktop 8081 opens it in a separate tab. See [Drive setup, capabilities and limitations](docs/drive.md).
+File Station opens natively inside desktop 8081; both hosts share packages/files-app. See [Drive setup, capabilities and limitations](docs/drive.md).
 Standalone: `docker compose -f compose.drive.yaml up -d --build` (with runtime secrets configured).
 
 The sections below retain desktop setup history; Files is now implemented in Drive.

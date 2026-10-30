@@ -13,6 +13,8 @@ export const useDesktop = defineStore('desktop', () => {
   const saving = ref(false)
   const saveError = ref('')
   const notice = ref('')
+  const closeGuards=new Map<string,()=>boolean>()
+  function registerCloseGuard(id:string,guard:()=>boolean){closeGuards.set(id,guard);return ()=>closeGuards.delete(id)}
   let timer: ReturnType<typeof setTimeout> | undefined
   let noticeTimer: ReturnType<typeof setTimeout> | undefined
   let revision = 0
@@ -39,14 +41,6 @@ export const useDesktop = defineStore('desktop', () => {
   }
   function open(id: string) {
     if (!apps.value.some(a => a.id === id)) return
-    if (id === 'files') {
-      const target = new URL(import.meta.env.VITE_DRIVE_URL || location.href)
-      if (!import.meta.env.VITE_DRIVE_URL) { target.port = '8082'; target.pathname = '/'; target.search = ''; target.hash = '' }
-      const tab = globalThis.open('about:blank', '_blank')
-      if (tab) { tab.opener = null; tab.location.replace(target.href) }
-      else globalThis.location.assign(target.href)
-      return
-    }
     let window = preferences.value.windows.find(w => w.id === id)
     if (!window) {
       const offset = (preferences.value.windows.length % 5) * 28
@@ -58,6 +52,7 @@ export const useDesktop = defineStore('desktop', () => {
     window.minimized = false; focus(id); saveSoon()
   }
   function close(id: string) {
+    if(closeGuards.get(id)?.()===false)return
     preferences.value.windows = preferences.value.windows.filter(w => w.id !== id)
     order.value = order.value.filter(x => x !== id)
     active.value = order.value.at(-1) || ''
@@ -73,7 +68,7 @@ export const useDesktop = defineStore('desktop', () => {
     apps.value = registry
     preferences.value = prefs
     preferences.value.mode = prefs.mode === 'windows' ? 'windows' : 'focus'
-    preferences.value.windows = prefs.windows.filter(w => w.id !== 'files' && registry.some(a => a.id === w.id))
+    preferences.value.windows = prefs.windows.filter(w => registry.some(a => a.id === w.id))
     order.value = preferences.value.windows.map(w => w.id)
     active.value = preferences.value.windows.filter(w => !w.minimized).at(-1)?.id || ''
     ready.value = true
@@ -83,10 +78,11 @@ export const useDesktop = defineStore('desktop', () => {
   }
   async function refreshSystem() { try { system.value = await api<SystemInfo>('/system') } catch { /* individual panels expose disconnected state */ system.value = null } }
   async function logout() {
+    for(const guard of closeGuards.values()){if(!guard())return}
     await persist()
     await api('/logout', { method: 'POST' })
     user.value = null; setCSRF(''); ready.value = false; apps.value = []; system.value = null
     revision = 0; savedRevision = 0; order.value = []; active.value = ''
   }
-  return { user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
+  return { registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
 })

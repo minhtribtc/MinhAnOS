@@ -174,6 +174,7 @@ func (a *App) Handler() http.Handler {
 		writeJSON(w, 200, map[string]string{"status": "ok", "version": Version})
 	})
 	mux.HandleFunc("POST /api/login", a.login)
+	mux.Handle("/api/drive/", a.driveProxy())
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
 	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, registry) })))
@@ -220,7 +221,9 @@ func (a *App) Handler() http.Handler {
 				writeError(w, 403, "Nguồn yêu cầu không hợp lệ.")
 				return
 			}
-			r.Body = http.MaxBytesReader(w, r.Body, 128*1024)
+			if !strings.HasPrefix(r.URL.Path, "/api/drive/") {
+				r.Body = http.MaxBytesReader(w, r.Body, 128*1024)
+			}
 		}
 		mux.ServeHTTP(w, r)
 	})

@@ -20,13 +20,14 @@ import (
 const CookieName = "minhanos_drive_session"
 
 type Server struct {
-	Identity     IdentityStore
-	DataDir      string
-	StaticDir    string
-	AgentSocket  string
-	SecureCookie bool
-	locks        sync.Map
-	limiter      loginLimiter
+	AllowPlatformSessions bool
+	Identity              IdentityStore
+	DataDir               string
+	StaticDir             string
+	AgentSocket           string
+	SecureCookie          bool
+	locks                 sync.Map
+	limiter               loginLimiter
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -98,7 +99,29 @@ func (s *Server) Handler() http.Handler {
 		jsonResponse(w, 200, session)
 	})
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
-		session, err := s.Identity.Session(r.Context(), cookieToken(r))
+		var session Session
+		var err error
+		if r.Header.Get("X-Drive-Auth-Mode") == "platform" {
+			adapter, ok := s.Identity.(interface {
+				PlatformSession(context.Context, string) (Session, error)
+			})
+			if !s.AllowPlatformSessions || !ok {
+				fail(w, 403, "Adapter phiên nền tảng không được bật.")
+				return
+			}
+			if r.URL.Path == "/api/logout" {
+				fail(w, 403, "Đăng xuất tại desktop.")
+				return
+			}
+			cookie, e := r.Cookie("minhanos_session")
+			if e != nil {
+				fail(w, 401, "Phiên desktop đã hết hạn.")
+				return
+			}
+			session, err = adapter.PlatformSession(r.Context(), cookie.Value)
+		} else {
+			session, err = s.Identity.Session(r.Context(), cookieToken(r))
+		}
 		if err != nil {
 			if errors.Is(err, ErrUnauthorized) {
 				fail(w, 401, "Vui lòng đăng nhập Drive.")
@@ -316,6 +339,10 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		}
 	case "move":
 		err = e.Rename(p, b.Destination)
+	case "copy":
+		var item Entry
+		item, err = e.Copy(p, b.Destination)
+		result["item"] = item
 	case "trash":
 		var item TrashItem
 		item, err = e.Trash(p)

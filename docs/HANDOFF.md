@@ -1,3 +1,22 @@
+# Current handoff — native File Station + context menus
+
+Branch: file-station-desktop. Desktop 8081 now renders File Station inside its native application host.
+Drive 8082 still runs independently. Both import packages/files-app; no iframe and no duplicated file UI.
+Embedded mode uses the desktop session through /api/drive/*; standalone mode uses its own Drive session.
+The shared package imports no desktop code; API base and foreground lifecycle are explicit props.
+Read docs/drive.md and docs/api.md for the adapter/gateway boundary and current limits.
+
+Menu, overflow, toolbar and keyboard dispatch shared action IDs. Multi-select: Ctrl/Cmd or Shift.
+Copy supports regular files <=128 MiB; folder copy remains disabled. Cut/move supports same-root folders.
+Clipboard is application memory, not the OS clipboard; it survives Home/app switching but not closing/reloading the app.
+Modals/menu are rendered through body portals, scoped to this UI and hidden when the instance is backgrounded.
+Desktop close checks canClose for unsaved text/uploads; explicit accepted close cancels browser-owned uploads.
+Container queries handle narrow desktop windows, independent of browser viewport size.
+
+Backup before change: /opt/minhanos-backups/before-files-desktop.tgz and .sql (root-only).
+The sections below are history and may describe the previous external-tab launcher.
+
+---
 # Current handoff — Drive 0.1 / branch file-station-v1
 
 Read docs/drive.md first for current Files behavior, architecture and operational limits.
@@ -83,3 +102,8 @@ Admin must be able to manage Debian system files. Read the appended section of d
 Add a distinct privileged «Hệ thống Debian» location and restricted host file agent; keep desktop/API non-root.
 No host filesystem functionality has been implemented or deployed. The existing interactive mockup predates this requirement.
 Feature gap inventory now includes desktop file interactions, archive tools, transfer recovery and cloud collaboration.
+
+Verification caveat: the native browser confirm for pending changes could not complete in automated UI control.
+The close guard is implemented centrally in store.close/logout and called from titlebar/switcher paths,
+but manual acceptance/cancellation across browsers is still required. Draft retention itself was verified.
+Browser automation Ctrl+X did not trigger; Cut through the shared action/menu did pass.

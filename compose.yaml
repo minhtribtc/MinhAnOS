@@ -12,6 +12,7 @@ services:
       DATABASE_URL: "postgres://minhanos:${POSTGRES_PASSWORD}@db:5432/minhanos?sslmode=disable"
       BOOTSTRAP_PASSWORD_FILE: /run/secrets/bootstrap_password
       COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+      DRIVE_INTERNAL_URL: http://drive:8082
     secrets:
       - bootstrap_password
     volumes:
@@ -35,6 +36,7 @@ services:
       BOOTSTRAP_PASSWORD_FILE: /run/secrets/bootstrap_password
       COOKIE_SECURE: "${COOKIE_SECURE:-false}"
       DRIVE_AGENT_SOCKET: /run/minhanos-files/agent.sock
+      ALLOW_PLATFORM_SESSIONS: "true"
     secrets: [bootstrap_password]
     volumes:
       - drive-files:/data

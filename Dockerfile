@@ -3,6 +3,7 @@ WORKDIR /src
 COPY apps/desktop/package*.json ./
 RUN npm ci
 COPY apps/desktop/ ./
+COPY packages/ /packages/
 ARG VITE_DRIVE_URL
 ENV VITE_DRIVE_URL=$VITE_DRIVE_URL
 RUN npm run build

@@ -57,3 +57,12 @@ No desktop HTTP call, UI state, iframe or parent-window messaging is required.
 Host files are a separate privileged Unix-socket service; the web container remains uid 10001 without a host root mount.
 Private files and trash are filesystem-backed under immutable user IDs. Request audit uses PostgreSQL; host outcomes use journald.
 This release does not add durable transfers/jobs or claim power-loss transactionality; see drive.md for limits.
+
+## Native Files host / shared action architecture
+
+Shared UI now lives in packages/files-app, consumed by apps/drive and desktop AppContent through a source alias.
+It owns file navigation, selection, menu/action registry and API client, with no desktop imports.
+The desktop host controls visibility and calls exposed canClose; native instance stays mounted when backgrounded.
+/api/drive/* is an authenticated same-origin gateway to the independent Drive service. An optional SQL identity adapter
+uses platform sessions only in integrated mode; standalone deployment keeps its existing independent identity behavior.
+Copy is a bounded regular-file operation using temp/finalize/no-replace semantics. Recursive copy/durable jobs remain pending.
