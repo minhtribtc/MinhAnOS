@@ -82,3 +82,36 @@ a third driver adds a project-ID allocator, UI branches and a larger test matrix
 ext4 possible later. Btrfs is limited to single/RAID1/RAID10 profiles (no RAID5/6). Existing
 `/data/users/{id}` on the ext4 Docker volume must move to a ZFS/Btrfs data volume, so the test VM needs an
 extra disk either way.
+
+## Review 2026-10-30: Codex "soft quota first" strategy (analysis only, no code)
+
+Verdict: adopt soft (application) quota as the default user-visible layer, with three corrections.
+
+1. **Keep S1.** The ZFS/Btrfs drivers and storage agent already are the requested "Storage Backend Interface
+   and Capability Registry" (point 7). Nothing to undo; just do not wire hard quota into Files yet (point 8).
+2. **No full file-metadata index in v1.** Files is path-based (no fileId/file table). A Nextcloud-style file cache
+   would be a large project and the classic source of DB/filesystem drift. Use a usage ledger per quota scope +
+   reservations instead:
+   - `quota_policies(scope, limit, warn %)`, `quota_usage(scope, bytes, version)`,
+     `quota_reservations(id, scope, bytes, expires_at)`, events to audit/outbox.
+   - Write path (single process today: Drive, per-user lock): reserve declared size → write → commit actual size
+     and release in one transaction; failure releases; expired reservations are released automatically.
+   - Truth source: on ZFS/Btrfs units the backend `Usage()` is exact and cheap, so reconciliation is O(1);
+     on plain directories (ext4, today's Docker volume) a bounded background walk repairs drift. Reconciliation
+     only repairs; enforcement is the ledger + reservations (point 3 satisfied).
+3. **Scope rules kept simple first:** personal data → owner's user scope; Shared Folder data → the share's scope
+   (not the uploader); trash counts until purged, restore does not change usage; move inside a scope = 0,
+   across scopes = debit/credit checked against the target; copy = new bytes. Group quota in v1 is a template
+   for members' default user quota, not a pooled limit (pooled group quota adds cross-user locking for little
+   value). An operation must pass every applicable scope and the volume's free space. Logical, physical,
+   reserved, snapshot and filesystem-free bytes are reported separately (point 6).
+
+Consequences / decisions needed:
+- Soft quota makes ext4 viable again as a data volume (no project quota needed). This reverses the earlier
+  "ZFS + Btrfs only" decision for quota; snapshots remain ZFS/Btrfs only. Needs user confirmation.
+- Enforcement is "application-enforced": valid while the File Service is the only write path. The host-operator
+  system root is outside quota; SMB/NFS/WebDAV/SSH would bypass it until hard quota (set slightly above the soft
+  limit) is enabled on ZFS/Btrfs (point 9). Never label it hard quota.
+- Proposed order: Q1 quota service + Files integration for personal homes in place (no data migration);
+  Q2 Account Center quota UI, notices at 80/95/100 % through the outbox, audit; Q3 Shared Folders with share
+  scopes; Q4 homes on ZFS/Btrfs units with optional hard quota.
