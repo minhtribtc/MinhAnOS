@@ -7,8 +7,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -66,7 +68,27 @@ type unitInfo struct {
 	Usage
 }
 
-func AgentHandler(volumes map[string]Volume) http.Handler {
+// Owner, when set, receives every new unit root (mode 0750) so the unprivileged Files service can use it.
+type Owner struct {
+	UID, GID int
+	Set      bool
+}
+
+// ParseOwner reads "uid:gid" (empty = keep root ownership).
+func ParseOwner(spec string) (Owner, error) {
+	if spec == "" {
+		return Owner{}, nil
+	}
+	u, g, ok := strings.Cut(spec, ":")
+	uid, e1 := strconv.Atoi(u)
+	gid, e2 := strconv.Atoi(g)
+	if !ok || e1 != nil || e2 != nil || uid <= 0 || gid <= 0 {
+		return Owner{}, fmt.Errorf("invalid owner %q", spec)
+	}
+	return Owner{uid, gid, true}, nil
+}
+
+func AgentHandler(volumes map[string]Volume, owner Owner) http.Handler {
 	mux := http.NewServeMux()
 	reply := func(w http.ResponseWriter, status int, body any) {
 		w.Header().Set("Content-Type", "application/json")
@@ -143,9 +165,19 @@ func AgentHandler(volumes map[string]Volume) http.Handler {
 			fail(w, r, e)
 			return
 		}
-		if _, e := v.Create(r.Context(), in.Class, in.ID); e != nil {
+		path, e := v.Create(r.Context(), in.Class, in.ID)
+		if e != nil {
 			fail(w, r, e)
 			return
+		}
+		if owner.Set {
+			if e = os.Chown(path, owner.UID, owner.GID); e == nil {
+				e = os.Chmod(path, 0750)
+			}
+			if e != nil {
+				fail(w, r, e)
+				return
+			}
 		}
 		log.Printf("storage-agent created %s/%s/%s", r.PathValue("volume"), in.Class, in.ID)
 		describe(w, r, v, in.Class, in.ID, 201)

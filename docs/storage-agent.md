@@ -32,7 +32,7 @@ confirmation. Nothing user-visible yet: Files still stores data in its Docker vo
    -O mountpoint=/srv/minhanos/zfs mnzfs /dev/disk/by-id/...scsi1` (10 GB), then `zfs create mnzfs/minhanos`.
 3. Btrfs: `mkfs.btrfs -L mnbtrfs /dev/disk/by-id/...scsi2` (11 GB), fstab by UUID at `/srv/minhanos/btrfs`
    (`noatime,compress=zstd:3`), `btrfs quota enable`, root dir `/srv/minhanos/btrfs/minhanos`.
-4. `/etc/minhanos/storage-agent.env` (0600):
+4. `/etc/minhanos/storage-agent.env` (0600), plus `MINHANOS_STORAGE_OWNER=10001:10001` so new units belong to the service account:
    `MINHANOS_STORAGE_VOLUMES=tank=zfs:mnzfs/minhanos,fast=btrfs:/srv/minhanos/btrfs/minhanos`.
 5. Binary to `/usr/local/libexec/minhanos-storage-agent`; unit `deploy/minhanos-storage-agent.service`.
 

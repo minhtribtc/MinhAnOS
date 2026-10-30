@@ -1,5 +1,7 @@
 Release status: Phase 5 (3869353) deployed to VM 10.1.1.20 after DB backup; identity SQL 009 applied; all services healthy. Browser acceptance pending user.
 
+Storage Q1 (current): read [storage quota](storage-quota.md). storage module (registry, soft quota ledger, reservations, audit), identity SQL 010 storage.manage, Files enforces home quota, Storage Manager app, default quota in Settings. Next Q2: share permissions + File Station share roots + quota folders.
+
 Storage S1 (current): ZFS and Btrfs drivers in internal/storage and a root storage agent on the test VM (pool mnzfs on scsi1, Btrfs on scsi2). Read [storage agent](storage-agent.md). Not wired into Files yet; next S2 homes on units + quota.
 
 # Handoff — Phase 5 complete (current)

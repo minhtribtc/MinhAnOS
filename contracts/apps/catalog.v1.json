@@ -73,10 +73,14 @@
       "displayName": "Storage Manager",
       "moduleName": "minhanos-storage",
       "appId": "com.minhanos.storage",
-      "implementation": "planned",
+      "implementation": "partial",
       "legacyRegistryIds": [],
       "legacyDisplayNames": [],
-      "currentPaths": []
+      "currentPaths": [
+        "packages/storage-app",
+        "internal/storagecore",
+        "internal/storage"
+      ]
     },
     {
       "key": "app-center",

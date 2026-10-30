@@ -1,2 +1,2 @@
-import { LayoutDashboard, Folder, Settings, Boxes, Network, Activity, NotebookPen, Info, Users, ShieldCheck } from 'lucide-vue-next'
-export const icons: Record<string, typeof LayoutDashboard> = { overview: LayoutDashboard, files: Folder, settings: Settings, apps: Boxes, connections: Network, activity: Activity, notes: NotebookPen, about: Info, users: Users, shield: ShieldCheck, 'com.minhanos.account-center':ShieldCheck }
+import { HardDrive, LayoutDashboard, Folder, Settings, Boxes, Network, Activity, NotebookPen, Info, Users, ShieldCheck } from 'lucide-vue-next'
+export const icons: Record<string, typeof LayoutDashboard> = { overview: LayoutDashboard, files: Folder, settings: Settings, apps: Boxes, connections: Network, activity: Activity, notes: NotebookPen, about: Info, users: Users, shield: ShieldCheck, 'com.minhanos.account-center':ShieldCheck, storage: HardDrive }

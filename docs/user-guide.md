@@ -1,3 +1,10 @@
+## Storage Manager và quota
+
+- **Storage Manager** (chỉ System Admin): tab *Shared Folder* tạo thư mục dùng chung trên volume ZFS/Btrfs và đặt quota tổng; tab *Vùng riêng người dùng* đặt quota cho từng người, *Đo lại* khi dung lượng hiển thị sai; tab *Volume* xem nơi lưu dữ liệu. Mỗi thay đổi cần nhập mật khẩu của bạn.
+- **Quota mặc định:** Cài đặt → Storage Manager → Quota mặc định, áp dụng cho người dùng mới.
+- **Files** hiện *Dung lượng của bạn*; khi hết quota, tải lên/sao chép báo *Đã hết dung lượng được cấp*. Giảm quota xuống dưới mức đang dùng không xóa dữ liệu nhưng chặn ghi thêm.
+- Quota do ứng dụng kiểm soát khi ghi qua Files; ghi trực tiếp trên máy chủ không được tính. Shared Folder chưa mở được trong File Station (bước tiếp theo).
+
 ## Account Center — quyền truy cập ứng dụng
 
 Account Center → **Ứng dụng** (System Admin): xem ai được dùng ứng dụng nào. Với **MinhAnOS Files**, bấm *Chặn truy cập* rồi chọn người dùng, nhóm hoặc vai trò; họ không mở được Files (kể cả qua Desktop, biểu tượng Files bị ẩn). *Bỏ chặn* để khôi phục. Quy tắc chặn áp dụng cả với admin. Account Center không có quy tắc chặn để tránh khóa toàn bộ quản trị viên.

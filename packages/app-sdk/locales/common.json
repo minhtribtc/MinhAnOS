@@ -30,7 +30,8 @@
     "common.errors.PRECONDITION_REQUIRED": "Cần phiên bản hiện tại của dữ liệu trước khi sửa.",
     "common.auth.currentPassword": "Mật khẩu hiện tại của bạn",
     "common.auth.adminReauthHint": "Xác thực lại để cấp quyền quản trị web. Quyền operator host được cấp riêng.",
-    "common.errors.PASSWORD_CHANGE_REQUIRED": "Cần đổi mật khẩu trước khi tiếp tục."
+    "common.errors.PASSWORD_CHANGE_REQUIRED": "Cần đổi mật khẩu trước khi tiếp tục.",
+    "common.errors.QUOTA_EXCEEDED": "Đã hết dung lượng được cấp."
   },
   "en-US": {
     "common.errors.INVALID_REQUEST": "Invalid request.",
@@ -63,6 +64,7 @@
     "common.errors.PRECONDITION_REQUIRED": "The current data version is required before editing.",
     "common.auth.currentPassword": "Your current password",
     "common.auth.adminReauthHint": "Verify again to grant web administration. Host operator access is granted separately.",
-    "common.errors.PASSWORD_CHANGE_REQUIRED": "Change your password before continuing."
+    "common.errors.PASSWORD_CHANGE_REQUIRED": "Change your password before continuing.",
+    "common.errors.QUOTA_EXCEEDED": "Your storage quota is full."
   }
 }

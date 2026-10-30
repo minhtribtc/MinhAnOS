@@ -1,0 +1,52 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.storage",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/storage",
+  "nameKey": "storage.app.name",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [
+    "storage.manage"
+  ],
+  "navigation": [
+    {
+      "id": "shares",
+      "labelKey": "storage.nav.shares",
+      "path": "/shares",
+      "requiredPermission": "storage.manage"
+    },
+    {
+      "id": "homes",
+      "labelKey": "storage.nav.homes",
+      "path": "/homes",
+      "requiredPermission": "storage.manage"
+    },
+    {
+      "id": "volumes",
+      "labelKey": "storage.nav.volumes",
+      "path": "/volumes",
+      "requiredPermission": "storage.manage"
+    }
+  ],
+  "settingsIntegration": [
+    {
+      "id": "defaults",
+      "labelKey": "storage.settings.defaults",
+      "path": "/defaults",
+      "requiredPermission": "storage.manage"
+    }
+  ],
+  "lifecycle": {
+    "version": "1",
+    "supports": [
+      "foreground",
+      "background",
+      "requestClose"
+    ]
+  }
+}

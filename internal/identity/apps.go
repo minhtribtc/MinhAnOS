@@ -130,3 +130,20 @@ func (s *Service) AppAccess(ctx context.Context, realm Realm, token, app, ruleID
 		return Result{Body: canonicalJSON(rule), Status: 201}, nil
 	})
 }
+
+// Fresh reports whether the session reauthenticated within five minutes (administrative writes outside
+// Account Center, e.g. Storage Manager, use the same rule).
+func (s *Service) Fresh(ctx context.Context, realm Realm, token string) error {
+	tx, e := s.db.Begin(ctx)
+	if e != nil {
+		return e
+	}
+	defer tx.Rollback(ctx)
+	if _, e = lockSession(ctx, tx, realm, token); e != nil {
+		return e
+	}
+	if e = fresh(ctx, tx, realm, token); e != nil {
+		return e
+	}
+	return tx.Commit(ctx)
+}

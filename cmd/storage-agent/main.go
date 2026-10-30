@@ -18,6 +18,10 @@ func main() {
 	if err != nil {
 		log.Fatal("MINHANOS_STORAGE_VOLUMES: ", err)
 	}
+	owner, err := storage.ParseOwner(os.Getenv("MINHANOS_STORAGE_OWNER"))
+	if err != nil {
+		log.Fatal("MINHANOS_STORAGE_OWNER: ", err)
+	}
 	socket := os.Getenv("STORAGE_AGENT_SOCKET")
 	if socket == "" {
 		socket = "/run/minhanos-storage/agent.sock"
@@ -45,7 +49,7 @@ func main() {
 	if err = os.Chmod(socket, 0660); err != nil {
 		log.Fatal(err)
 	}
-	server := &http.Server{Handler: storage.AgentHandler(volumes), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 2 * time.Minute}
+	server := &http.Server{Handler: storage.AgentHandler(volumes, owner), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 2 * time.Minute}
 	log.Printf("storage-agent ready on Unix socket %s with %d volume(s)", socket, len(volumes))
 	log.Fatal(server.Serve(listener))
 }

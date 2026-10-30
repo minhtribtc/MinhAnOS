@@ -36,8 +36,11 @@ var adminSessionsSQL string
 //go:embed migrations/009_files_policy.sql
 var filesPolicySQL string
 
+//go:embed migrations/010_storage_policy.sql
+var storagePolicySQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}, {ID: 5, Name: "identity_policy", SQL: policySQL}, {ID: 6, Name: "auth_audit", SQL: authAuditSQL}, {ID: 7, Name: "security_log", SQL: securityLogSQL}, {ID: 8, Name: "admin_sessions", SQL: adminSessionsSQL}, {ID: 9, Name: "files_policy", SQL: filesPolicySQL}}}
+	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}, {ID: 5, Name: "identity_policy", SQL: policySQL}, {ID: 6, Name: "auth_audit", SQL: authAuditSQL}, {ID: 7, Name: "security_log", SQL: securityLogSQL}, {ID: 8, Name: "admin_sessions", SQL: adminSessionsSQL}, {ID: 9, Name: "files_policy", SQL: filesPolicySQL}, {ID: 10, Name: "storage_policy", SQL: storagePolicySQL}}}
 }
 
 // ApplySchema must be called after the legacy bootstrap transaction commits.

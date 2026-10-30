@@ -6,6 +6,7 @@ import (
 	"log"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/drive"
+	"minhanos.local/platform/internal/storagecore"
 	"net/http"
 	"os"
 	"os/signal"
@@ -44,11 +45,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if err = storagecore.ApplySchema(ctx, db); err != nil {
+		log.Fatal(err)
+	}
 	profile, err := coreprofile.New(ctx, db)
 	if err != nil {
 		log.Fatal(err)
 	}
-	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: env("DRIVE_DATA_DIR", "/data"), StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true"}
+	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: env("DRIVE_DATA_DIR", "/data"), StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: storagecore.Store{DB: db}}
 	server := &http.Server{Addr: env("DRIVE_LISTEN", ":8082"), Handler: app.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 5 * time.Minute, WriteTimeout: 5 * time.Minute, IdleTimeout: 60 * time.Second}
 	go func() {
 		<-ctx.Done()

@@ -10,3 +10,8 @@
 [data-mn-theme="dark"] .files-app .drive-sidebar,[data-mn-theme="dark"] .files-app .file-inspector,[data-mn-theme="dark"] .files-app .file-item,[data-mn-theme="dark"] .files-app .breadcrumbs,[data-mn-theme="dark"] .files-app .files-footer{background:var(--mn-color-canvas);color:var(--mn-color-text-primary);border-color:var(--mn-color-border)}
 
 .files-app .files-profile-controls{position:sticky;top:0;z-index:9}.files-app.embedded .drive-layout{min-height:0}.files-app .inspector-preview{background:var(--mn-color-canvas)}[data-mn-theme="dark"] .files-app .drive-sidebar>button.active{background:var(--mn-color-selection);color:var(--mn-color-text-primary)}
+
+.files-quota{display:flex;flex-direction:column;gap:6px;padding:10px 12px;font-size:12px}
+.files-quota-bar{height:6px;border-radius:3px;background:var(--mn-color-border);overflow:hidden}
+.files-quota-bar i{display:block;height:100%;background:var(--mn-color-action-primary)}
+.files-quota-bar i.full{background:var(--mn-color-danger)}

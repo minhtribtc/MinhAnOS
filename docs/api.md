@@ -1,3 +1,7 @@
+## Storage API (Desktop host, 2026-10-31)
+
+/api/storage: GET volumes, shares, homes, settings; POST shares {key,name,volume,limitBytes}; PUT shares/{id}/quota {version,limitBytes}; PUT homes/{userId}/quota {limitBytes}; POST homes/{userId}/measure; PUT settings {defaultHomeLimitBytes}. storage.manage required; writes need reauthentication within 5 minutes. Drive /api/roots returns quota {limitBytes,usedBytes,reservedBytes,measured}; personal writes over quota return 507 QUOTA_EXCEEDED.
+
 ## Identity Phase 5 — 40 active operations
 
 GET /api/v1/identity/applications (identityListApplications), GET|POST /api/v1/identity/applications/{appId}/access, DELETE /api/v1/identity/applications/{appId}/access/{ruleId}. Files (/api/roots, /api/files/*) returns 403 APP_ACCESS_DENIED / APP_PERMISSION_DENIED / IDENTITY_PERMISSION_DENIED from the identity policy before resource checks.

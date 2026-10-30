@@ -1,3 +1,5 @@
+[Storage Q1 — soft quota and Storage Manager](storage-quota.md)
+
 [Storage agent (S1)](storage-agent.md) — ZFS/Btrfs drivers, restricted storage agent, install and verification.
 
 [Phase 5 report](account-center/PHASE5_REPORT.md) — Files authorization through identity policy, app access rules.

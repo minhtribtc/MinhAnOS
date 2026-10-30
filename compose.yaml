@@ -13,10 +13,13 @@ services:
       BOOTSTRAP_PASSWORD_FILE: /run/secrets/bootstrap_password
       COOKIE_SECURE: "${COOKIE_SECURE:-false}"
       DRIVE_INTERNAL_URL: http://drive:8082
+      STORAGE_AGENT_SOCKET: /run/minhanos-storage/agent.sock
     secrets:
       - bootstrap_password
     volumes:
       - desktop-data:/data
+      # Storage Manager talks to the root storage agent (docs/storage-agent.md); absent agent = plain volume only.
+      - /run/minhanos-storage:/run/minhanos-storage:ro
     depends_on:
       db:
         condition: service_healthy

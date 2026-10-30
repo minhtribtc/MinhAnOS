@@ -24,6 +24,9 @@ const AccountApp = "com.minhanos.account-center"
 // FilesApp is the first app whose requests are authorized by the identity policy (Phase 5).
 const FilesApp = "com.minhanos.files"
 
+// StorageApp is the Storage Manager; storage.manage is System Admin only (identity SQL 010).
+const StorageApp = "com.minhanos.storage"
+
 // governedApps are first-party apps whose access rules Account Center may edit. Account Center itself is
 // governed by roles only, so a deny rule can never lock every administrator out of identity management.
 var governedApps = map[string]string{FilesApp: "MinhAnOS Files"}
@@ -32,6 +35,9 @@ var governedApps = map[string]string{FilesApp: "MinhAnOS Files"}
 func appForPermission(permission string) string {
 	if strings.HasPrefix(permission, "files.") {
 		return FilesApp
+	}
+	if strings.HasPrefix(permission, "storage.") {
+		return StorageApp
 	}
 	return AccountApp
 }

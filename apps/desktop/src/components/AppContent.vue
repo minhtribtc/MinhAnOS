@@ -10,11 +10,13 @@ import AppIcon from './AppIcon.vue'
 import FilesApp from '@minhanos/files-app'
 import AccountsApp from '@minhanos/accounts-app'
 import SettingsApp from '@minhanos/settings-app'
+import StorageApp from '@minhanos/storage-app'
 import { installedSettingsProviders } from '../settings'
 const filesInstance=ref<InstanceType<typeof FilesApp>|null>(null)
 const accountsInstance=ref<InstanceType<typeof AccountsApp>|null>(null)
 const settingsInstance=ref<InstanceType<typeof SettingsApp>|null>(null)
-defineExpose({canClose:()=>settingsInstance.value?.canClose() ?? accountsInstance.value?.canClose() ?? filesInstance.value?.canClose() ?? true})
+const storageInstance=ref<InstanceType<typeof StorageApp>|null>(null)
+defineExpose({canClose:()=>storageInstance.value?.canClose() ?? settingsInstance.value?.canClose() ?? accountsInstance.value?.canClose() ?? filesInstance.value?.canClose() ?? true})
 const props = defineProps<{ app: AppDefinition; foreground?:boolean }>()
 const desktop = useDesktop()
 const activity = ref<AuditEntry[]>([])
@@ -88,6 +90,7 @@ onBeforeUnmount(() => clearInterval(sampler))
   </main>
 
   <AccountsApp v-else-if="app.id === 'com.minhanos.account-center'" ref="accountsInstance" embedded :active="props.foreground!==false" />
+  <StorageApp v-else-if="app.id === 'com.minhanos.storage'" ref="storageInstance" :active="props.foreground!==false" />
   <FilesApp v-else-if="app.id === 'files'" ref="filesInstance" :active="props.foreground!==false" embedded api-base="/api/drive" />
 
   <main v-else-if="app.id === 'activity'" class="standard-content"><div class="page-eyebrow">ACTIVITY LOG</div><div class="section-label"><h1>Những gì đã diễn ra.</h1><button class="secondary-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{spinning:loading}" /> Làm mới</button></div><p class="muted">{{ desktop.user?.role === 'admin' ? '60 hoạt động xác thực và quản trị gần nhất.' : 'Hoạt động xác thực của tài khoản bạn.' }}</p><p v-if="error" class="inline-error">{{ error }}</p><div class="audit-list"><div v-for="entry in activity" :key="entry.id" class="audit-row"><span class="audit-icon"><component :is="entry.action === 'user.create' ? Users : ShieldCheck" :size="18" /></span><div><strong>{{ entry.detail }}</strong><p>{{ entry.actor }} <span>· {{ entry.action }}</span></p></div><time>{{ new Date(entry.createdAt).toLocaleString('vi-VN',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) }}</time></div></div><div v-if="!activity.length && !loading && !error" class="empty-state"><Activity :size="36" /><h3>Chưa có hoạt động</h3></div></main>

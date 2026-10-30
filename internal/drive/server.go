@@ -10,6 +10,7 @@ import (
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/identity"
 	"minhanos.local/platform/internal/requestid"
+	"minhanos.local/platform/internal/storagecore"
 	"net"
 	"net/http"
 	"net/url"
@@ -31,8 +32,10 @@ type Server struct {
 	StaticDir             string
 	AgentSocket           string
 	SecureCookie          bool
-	locks                 sync.Map
-	limiter               loginLimiter
+	// Quota is the soft quota of personal homes; nil disables it (tests, standalone without a ledger).
+	Quota   QuotaLedger
+	locks   sync.Map
+	limiter loginLimiter
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -210,7 +213,28 @@ func (s *Server) Handler() http.Handler {
 			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
 				roots = append(roots, map[string]string{"id": "system", "name": "Hệ thống Debian"})
 			}
-			jsonResponse(w, 200, map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText})
+			body := map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
+			if s.Quota != nil && validID(session.User.ID) {
+				v, _ := s.locks.LoadOrStore(session.User.ID, &sync.RWMutex{})
+				lock := v.(*sync.RWMutex)
+				lock.Lock()
+				userDir := filepath.Join(s.DataDir, "users", session.User.ID)
+				err = os.MkdirAll(userDir, 0750)
+				if err == nil {
+					err = s.syncMeasure(r.Context(), session.User.ID, userDir)
+				}
+				var usage storagecore.Usage
+				if err == nil {
+					usage, err = s.Quota.HomeUsage(r.Context(), session.User.ID)
+				}
+				lock.Unlock()
+				if err != nil {
+					quotaFailure(w, err)
+					return
+				}
+				body["quota"] = usage
+			}
+			jsonResponse(w, 200, body)
 			return
 		}
 		if !strings.HasPrefix(r.URL.Path, "/api/files/") {
@@ -294,9 +318,39 @@ func (s *Server) Handler() http.Handler {
 		}
 		defer fs.Close()
 		engine := &Engine{Root: fs}
+		// Soft quota: reserve what the write may add on the home and the homes share, then commit the
+		// actual bytes or release on failure. The user's write lock is held for the whole operation.
+		var reservation *storagecore.Reservation
+		if mutation && s.Quota != nil {
+			if err = s.syncMeasure(r.Context(), session.User.ID, userDir); err != nil {
+				quotaFailure(w, err)
+				return
+			}
+			if size := quotaSize(r, engine); size > 0 {
+				res, e := s.Quota.Reserve(r.Context(), session.User.ID, size)
+				if e != nil {
+					quotaFailure(w, e)
+					return
+				}
+				reservation = &res
+			}
+		}
 		if err = ServeEngine(w, r, engine); err != nil {
 			handleFileError(w, err)
 			log.Printf("drive actor=%s operation=%s target=%q error=%v", session.User.Username, r.URL.Path, target, err)
+		}
+		if reservation != nil {
+			// Use a fresh context: the client may already have gone, but the ledger must still settle.
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			if err == nil {
+				err = s.Quota.Commit(ctx, *reservation, quotaActual(r, engine, reservation.Bytes))
+			} else {
+				err = s.Quota.Release(ctx, *reservation)
+			}
+			if err != nil {
+				log.Printf("drive quota settle failed actor=%s: %v", session.User.Username, err)
+			}
 		}
 	})
 	mux.Handle("/", http.FileServer(http.Dir(s.StaticDir)))

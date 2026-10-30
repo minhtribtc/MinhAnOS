@@ -1,3 +1,7 @@
+## Storage Q1 soft quota — 2026-10-31
+
+VM /opt/minhanos-q1: gofmt (4 files reformatted), go vet, go test PASS incl. drive TestPersonalWritesUseSoftQuota; migrations-integration PASS incl. storagecore TestReserveCommitReleaseAndLimits, TestConcurrentReservationsNeverExceedLimit (12 parallel, limit for 5), TestExpiredReservationAndMeasurement, TestCreateShareRollsBackOnAgentFailure (two test bugs fixed first: reading a rolled-back row, UPDATE on an empty table not firing the row trigger). Clean npm ci + build PASS after removing a cmd/ path the app catalog schema rejects. Storage agent with MINHANOS_STORAGE_OWNER: new ZFS and Btrfs units are 10001:10001 mode 750.
+
 ## Storage S1 — 2026-10-30
 
 Test VM: ZFS 2.1.11 pool mnzfs (10 GB) and Btrfs (11 GB, quota on). internal/storage contract tests PASS on both (quota enforcement with random data, snapshots, destroy), agent handler tests PASS, live socket smoke PASS on both. Found and fixed: systemd sandbox options gave the agent a private mount namespace so ZFS mounts were invisible on the host. apicontract test failed only in a partial source upload without contracts/ fixtures (not a regression).

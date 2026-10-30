@@ -75,7 +75,7 @@ func call(h http.Handler, method, path, body string) (int, map[string]any) {
 
 func TestAgentTypedOperations(t *testing.T) {
 	vol := &memVolume{units: map[string]Usage{}, snaps: map[string][]Snapshot{}}
-	h := AgentHandler(map[string]Volume{"tank": vol, "plain": &memVolume{units: map[string]Usage{}, snaps: map[string][]Snapshot{}, noSnapshots: true}})
+	h := AgentHandler(map[string]Volume{"tank": vol, "plain": &memVolume{units: map[string]Usage{}, snaps: map[string][]Snapshot{}, noSnapshots: true}}, Owner{})
 	if code, out := call(h, "GET", "/v1/volumes", ""); code != 200 || len(out["items"].([]any)) != 2 {
 		t.Fatal(code, out)
 	}
@@ -126,6 +126,20 @@ func TestParseVolumes(t *testing.T) {
 	}
 	for _, bad := range []string{"tank=zfs:mnzfs", "tank=zfs:pool/../x;rm", "x=btrfs:relative", "x=btrfs:/srv/../etc", "x=ext4:/srv", "Bad=zfs:a/b", "a=zfs:p/a,a=zfs:p/b", "x=btrfs:/"} {
 		if _, e = ParseVolumes(bad); e == nil {
+			t.Fatal("accepted", bad)
+		}
+	}
+}
+
+func TestParseOwner(t *testing.T) {
+	if o, e := ParseOwner("10001:10001"); e != nil || !o.Set || o.UID != 10001 {
+		t.Fatal(o, e)
+	}
+	if o, e := ParseOwner(""); e != nil || o.Set {
+		t.Fatal(o, e)
+	}
+	for _, bad := range []string{"0:0", "root:root", "10001", "-1:5"} {
+		if _, e := ParseOwner(bad); e == nil {
 			t.Fatal("accepted", bad)
 		}
 	}

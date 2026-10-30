@@ -23,3 +23,6 @@
 .mn-settings .st-row:last-child{border-bottom:0}
 .mn-settings .st-row select{font:inherit;min-height:34px;max-width:100%;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-canvas);color:var(--mn-color-text-primary);padding:0 8px}
 .mn-settings .st-error{margin:0;color:var(--mn-color-danger)}
+.mn-settings .st-row input{font:inherit;min-height:34px;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-canvas);color:var(--mn-color-text-primary);padding:0 8px}
+.mn-settings .st-save{font:inherit;min-height:36px;padding:0 14px;border:0;border-radius:var(--mn-radius-control);background:var(--mn-color-action-primary);color:var(--mn-color-on-action);cursor:pointer}
+.mn-settings .st-save:disabled{opacity:.5;cursor:default}

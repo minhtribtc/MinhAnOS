@@ -1,3 +1,7 @@
+## Storage Q1 (current)
+
+internal/storagecore owns the storage registry and soft quota ledger (module storage). Drive reserves/commits per write under the user lock; the Desktop host serves the Storage Manager API and talks to the storage agent over its socket (mounted read-only into the Desktop container). See [storage quota](storage-quota.md).
+
 ## Storage layer (S1)
 
 internal/storage abstracts ZFS datasets and Btrfs subvolumes as units (homes/shares) with quota, usage and snapshots. Only cmd/storage-agent (root, Unix socket, typed API, no delete, no shell) executes them; platform services will authorize and audit before calling it. See [storage agent](storage-agent.md).

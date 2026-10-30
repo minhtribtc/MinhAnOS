@@ -200,6 +200,12 @@
       "resourceTypes": [
         "identity"
       ]
+    },
+    "storage.manage": {
+      "description": "storage.manage",
+      "resourceTypes": [
+        "storage"
+      ]
     }
   },
   "rules": [

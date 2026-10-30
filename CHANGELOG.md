@@ -1,3 +1,9 @@
+## Quota lưu trữ và Storage Manager — 2026-10-31
+
+- Quota cho vùng tệp riêng của từng người dùng: Files chặn tải lên, sao chép, lưu văn bản khi hết dung lượng và hiển thị thanh dung lượng.
+- Ứng dụng Storage Manager (admin): tạo Shared Folder trên ZFS/Btrfs, đặt quota cho share và từng người dùng, xem volume.
+- Cài đặt → Storage Manager → Quota mặc định cho người dùng mới.
+
 ## Phase 5: phân quyền Files và quyền truy cập ứng dụng — 2026-10-30
 
 - Files kiểm tra quyền qua Account Center trên mọi yêu cầu (vai trò, quyền ứng dụng, quy tắc chặn).

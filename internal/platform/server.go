@@ -12,6 +12,7 @@ import (
 	"minhanos.local/platform/internal/coreprofile"
 	identityschema "minhanos.local/platform/internal/identity"
 	"minhanos.local/platform/internal/requestid"
+	"minhanos.local/platform/internal/storagecore"
 	"net"
 	"net/http"
 	"net/url"
@@ -64,6 +65,7 @@ type App struct {
 	profile         *coreprofile.Store
 	authCore        *identityschema.AuthCore
 	identityService *identityschema.Service
+	storage         storagecore.Manager
 }
 type attempt struct {
 	Count int
@@ -110,6 +112,7 @@ type AppDefinition struct {
 }
 
 var registry = []AppDefinition{
+	{"com.minhanos.storage", "Storage Manager", "Volume, shared folder, quota", "storage", "teal", "Hệ thống", "ready"},
 	{"com.minhanos.account-center", "Account Center", "MinhAnOS", "shield", "blue", "MinhAnOS", "ready"},
 	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
 	{"files", "File Station", "Mở trực tiếp trong desktop · Drive độc lập", "files", "amber", "Dữ liệu", "ready"},
@@ -167,6 +170,10 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	if err = identityschema.ApplySchema(ctx, db); err != nil {
 		return nil, err
 	}
+	if err = storagecore.ApplySchema(ctx, db); err != nil {
+		return nil, err
+	}
+	a.storage = storagecore.Manager{Store: storagecore.Store{DB: db}, Agent: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
 	a.authCore, err = identityschema.NewAuthCore(db)
 	if err != nil {
 		return nil, err
@@ -202,6 +209,7 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
 	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(a.apps)))
+	mux.Handle("/api/storage/", a.auth(a.storageHandler()))
 	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
@@ -390,12 +398,21 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 // apps lists the launcher; Files is hidden when the identity policy denies it to this user.
 func (a *App) apps(w http.ResponseWriter, r *http.Request) {
 	if a.identityService == nil {
-		writeJSON(w, 200, registry)
+		visible := []AppDefinition{}
+		for _, app := range registry {
+			if app.ID != identityschema.StorageApp {
+				visible = append(visible, app)
+			}
+		}
+		writeJSON(w, 200, visible)
 		return
 	}
 	visible := make([]AppDefinition, 0, len(registry))
 	for _, app := range registry {
 		if app.ID == "files" && a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.FilesApp, "files.read") != nil {
+			continue
+		}
+		if app.ID == identityschema.StorageApp && a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.StorageApp, "storage.manage") != nil {
 			continue
 		}
 		visible = append(visible, app)
