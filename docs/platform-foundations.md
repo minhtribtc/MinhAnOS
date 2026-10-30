@@ -1,7 +1,7 @@
 # Nền tảng MinhAnOS: kiến trúc, i18n và Theme
 
-Ngày chốt định hướng: 2026-10-30. Trạng thái: **quyết định kiến trúc và đặc tả để triển khai**.
-Tài liệu này không xác nhận các package/API mô tả bên dưới đã tồn tại.
+Ngày chốt định hướng: 2026-10-30. Trạng thái: **triển khai từng phần**.
+Các phần dưới vẫn là yêu cầu đích; xem [bảng trạng thái thực tế](extension-contracts.md) để phân biệt đã làm và còn thiếu.
 
 ## 1. Kiến trúc đích
 
@@ -26,7 +26,7 @@ SDK/shared packages cần version và compatibility policy rõ; không tạo chu
 
 Đã có: Vue desktop host, Drive độc lập, package `files-app` dùng lại, API tệp độc lập,
 adapter phiên tích hợp và agent file đặc quyền tách khỏi web app.
-Chưa có package App SDK, Shared Design System, i18n hay hệ Theme Tokens hoàn chỉnh.
+Đã có package i18n, SDK adapter và Theme Tokens đầu tiên; SDK/Design System và chuyển đổi UI chưa hoàn chỉnh.
 Auth/session còn hai chế độ có adapter; jobs/notifications bền vững chưa được coi là hoàn tất.
 
 ## 2. Sáu nguyên tắc i18n bắt buộc
@@ -77,7 +77,7 @@ Ví dụ catalog **định hướng**:
 ```
 
 ICU xử lý nội dung/số nhiều; Intl xử lý format. Không tự viết parser ICU tùy tiện.
-Chốt thư viện sau khi kiểm tra khả năng build, license và kiểm thử; tài liệu này chưa lựa chọn dependency cụ thể.
+Bước đầu dùng intl-messageformat (FormatJS, BSD-3-Clause), khóa phiên bản trong root package-lock.json; build/tests ICU đã được bổ sung.
 
 ### Chọn và đồng bộ locale
 

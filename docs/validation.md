@@ -1,3 +1,38 @@
+# Kiểm chứng foundation preview — 2026-10-30
+
+Nhánh platform-foundations-v1. Kiểm tra thực tế trên VM 10.1.1.20.
+
+- Docker build Desktop và Drive thành công: vue-tsc, Vite; cả hai build chạy kiểm tra foundation.
+- Go test ./... và go vet ./... qua trong Docker build, gồm 17 tests và coreprofile/apicontract mới.
+- Foundation tests qua: ICU plural, vi/en formatting, timezone, namespace ownership/unregister,
+  catalog key/ICU/parameter mismatch, provider isolation, unknown error fallback, CSRF client isolation và dependency boundaries.
+- profile-smoke qua: hai user cô lập, phiên đăng nhập khác nhận lại locale/theme/timezone,
+  Desktop/native gateway/Drive cùng DB chia sẻ profile; từ chối locale/timezone/body không hợp lệ,
+  thiếu CSRF, Origin lạ; logout thu hồi quyền. Đã dọn đúng hai tài khoản thử.
+- API smoke: 10 nhóm qua. Files gateway: 4 nhóm qua, gồm assert code CONFLICT trên copy trùng tên.
+  Drive smoke: 10 nhóm qua, gồm file agent Debian và backup/concurrency. Đã dọn fixtures/users cụ thể.
+- Action registry và Files client tests qua sau chuyển shared API client.
+- Dừng Desktop thật: Drive frontend/login/files/logout vẫn qua; Desktop đã khởi động lại.
+- Đã cập nhật host files-agent binary, restart systemd. Desktop/Drive/DB đều healthy.
+- Browser: chọn English cập nhật menu/action labels, nhãn hồ sơ và đồng hồ; đổi dark cập nhật Files/menu portal.
+  Drive standalone cũng đã kiểm tra dark theme thực tế trong browser.
+  Bộ lọc "Tài" còn khi đổi locale/theme và khi Home → mở lại Files. Đã khôi phục vi-VN/light sau thử.
+  Bằng chứng cục bộ ignored: artifacts/foundations-files-dark.jpg. Không phát sinh thao tác thay đổi tệp từ UI test.
+
+- Kiểm tra 31 liên kết tài liệu nội bộ qua; git diff --check sạch sau chuẩn hóa newline.
+
+Giới hạn: chưa kiểm tra đang upload khi đổi locale, draft editor/Terminal, contrast/keyboard audit toàn diện,
+chưa kiểm tra fresh standalone DB lại trong đợt này; test độc lập dùng DB hiện có.
+Workflow GitHub CI đã cấu hình; chưa coi là CI xanh khi chưa đọc kết quả trên GitHub.
+
+Một lần api-smoke dùng default 127.0.0.1:8081 thất bại ECONNREFUSED vì VM chỉ bind 10.1.1.20;
+đã chạy lại với TEST_URL=http://10.1.1.20:8081 và qua đủ 10 nhóm. Đây là lỗi cấu hình test invocation.
+Một test fallback locale mới ban đầu giả định môi trường Node mặc định vi-VN và làm build dừng;
+đã sửa assertion theo navigator languages thực tế, giữ đúng thứ tự fallback quy định và chạy lại build.
+Chuyển đổi UI vẫn từng phần, không nghiệm thu toàn bộ Foundation/i18n V0.1.
+
+---
+
 # Kiểm chứng bản desktop 0.1
 
 ## Bổ sung: Fluent và focus workspace

@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "node ../../tests/foundations.mjs && vue-tsc --noEmit && vite build",
     "test:e2e": "playwright test"
   },
   "dependencies": {
     "vue": "^3.5.0",
     "pinia": "^3.0.0",
-    "lucide-vue-next": "^0.468.0"
+    "lucide-vue-next": "^0.468.0",
+    "@minhanos/app-sdk": "0.1.0",
+    "@minhanos/files-app": "0.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

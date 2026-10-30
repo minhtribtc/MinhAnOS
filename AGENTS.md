@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is file-station-desktop.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is platform-foundations-v1; also read docs/extension-contracts.md.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
 
@@ -38,7 +38,7 @@ Do not run docker compose down -v on this VM.
 
 ## Verification
 
-Frontend: apps/desktop, npm ci && npm run build (Node 22.12+).
+Frontend: root npm ci && npm run build (Node 22.12+); use the root lockfile only.
 Backend: go test ./... and go vet ./... (Go 1.26+), also run during Docker build.
 Integration: tests/api-smoke.mjs against the test VM only; creates a disposable user, restore preferences and remove that exact test user.
 Browser: Home, app opening, search, switcher, Control Center, dark theme, mobile overflow and draft retention across Home/app changes.
@@ -48,10 +48,10 @@ Use real browser evidence; screenshots and generated runtime artifacts stay igno
 
 - New UI text must use structured translation keys (e.g. files.actions.delete), never Vietnamese sentences as keys.
 - Catalogs belong to their apps; keep Core/common catalogs minimal. Shared Files/Drive UI shares files.* catalogs.
-- Build the planned independent @minhanos/i18n foundation before introducing a new per-app translation workaround.
+- Use @minhanos/i18n and @minhanos/app-sdk; do not add per-app translation/provider workarounds.
 - Persist locale through the user profile; support unauthenticated fallback and keep timezone separate from locale.
 - Use ICU/Intl for messages, plural forms and locale formatting; do not concatenate translated sentence fragments.
 - Add stable backend error codes; migrate compatibly from existing error strings. UI behavior must not parse translated messages.
 - Theme provider/tokens and localization must not depend on Desktop. Apps must work under another Shell or standalone host.
 - Migrate existing hardcoded strings/colors incrementally and record remaining debt. Do not claim i18n/theme completion prematurely.
-- Once foundation tooling exists, run catalog/parameter/token checks with the normal build and document the results.
+- Run npm run check and normal builds (catalog/ICU/parameter/boundary checks); full hardcoded-text/token scanning is still pending.

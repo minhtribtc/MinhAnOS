@@ -1,0 +1,12 @@
+{
+  "name": "@minhanos/ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    ".": "./src/index.js"
+  },
+  "dependencies": {},
+  "peerDependencies": {}
+}

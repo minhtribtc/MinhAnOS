@@ -1,0 +1,1 @@
+{"name":"minhanos","private":true,"type":"module","workspaces":["apps/*","packages/*"],"engines":{"node":">=22.12"},"scripts":{"check":"node tests/foundations.mjs","build":"npm run check && npm run build --workspace=minhanos-desktop && npm run build --workspace=minhanos-drive"}}

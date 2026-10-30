@@ -1,0 +1,40 @@
+{
+  "vi-VN": {
+    "common.errors.INVALID_REQUEST": "Dữ liệu yêu cầu không hợp lệ.",
+    "common.errors.AUTH_REQUIRED": "Vui lòng đăng nhập lại.",
+    "common.errors.INVALID_CREDENTIALS": "Tên đăng nhập hoặc mật khẩu chưa đúng.",
+    "common.errors.ACCESS_DENIED": "Bạn không có quyền thực hiện thao tác này.",
+    "common.errors.NOT_FOUND": "Không tìm thấy tài nguyên.",
+    "common.errors.METHOD_NOT_ALLOWED": "Phương thức không được hỗ trợ.",
+    "common.errors.CONFLICT": "Dữ liệu đã thay đổi hoặc tên đã tồn tại. Hãy làm mới và thử lại.",
+    "common.errors.PAYLOAD_TOO_LARGE": "Dữ liệu vượt giới hạn cho phép.",
+    "common.errors.RATE_LIMITED": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+    "common.errors.SERVICE_UNAVAILABLE": "Dịch vụ tạm thời chưa sẵn sàng.",
+    "common.errors.PROFILE_INVALID": "Ngôn ngữ, giao diện hoặc múi giờ không hợp lệ.",
+    "common.errors.REQUEST_FAILED": "Không thể hoàn thành yêu cầu.",
+    "common.errors.INTERNAL_ERROR": "Không thể hoàn thành yêu cầu. Vui lòng thử lại.",
+    "common.errors.INVALID_RESPONSE": "Máy chủ trả về phản hồi không hợp lệ.",
+    "common.errors.UNSUPPORTED_MEDIA_TYPE": "Loại dữ liệu không được hỗ trợ.",
+    "common.errors.RESOURCE_LIMIT": "Tài nguyên vượt giới hạn cho phép.",
+    "common.errors.STORAGE_FULL": "Không đủ dung lượng lưu trữ."
+  },
+  "en-US": {
+    "common.errors.INVALID_REQUEST": "Invalid request.",
+    "common.errors.AUTH_REQUIRED": "Please sign in again.",
+    "common.errors.INVALID_CREDENTIALS": "Incorrect username or password.",
+    "common.errors.ACCESS_DENIED": "You do not have permission for this action.",
+    "common.errors.NOT_FOUND": "Resource not found.",
+    "common.errors.METHOD_NOT_ALLOWED": "Method not allowed.",
+    "common.errors.CONFLICT": "The data changed or the name already exists. Refresh and try again.",
+    "common.errors.PAYLOAD_TOO_LARGE": "The request exceeds the size limit.",
+    "common.errors.RATE_LIMITED": "Too many requests. Please try again later.",
+    "common.errors.SERVICE_UNAVAILABLE": "The service is temporarily unavailable.",
+    "common.errors.PROFILE_INVALID": "Invalid language, theme or time zone.",
+    "common.errors.REQUEST_FAILED": "The request could not be completed.",
+    "common.errors.INTERNAL_ERROR": "The request failed. Please try again.",
+    "common.errors.INVALID_RESPONSE": "The server returned an invalid response.",
+    "common.errors.UNSUPPORTED_MEDIA_TYPE": "Unsupported data type.",
+    "common.errors.RESOURCE_LIMIT": "The resource exceeds the supported limit.",
+    "common.errors.STORAGE_FULL": "Not enough storage space."
+  }
+}

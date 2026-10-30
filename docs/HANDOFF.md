@@ -1,3 +1,28 @@
+# Handoff hiện tại — foundation 0.1, chuyển đổi từng phần
+
+Nhánh `platform-foundations-v1`, dựa trên `file-station-desktop`.
+Đọc [extension-contracts.md](extension-contracts.md) trước khi thêm app: bảng rà soát, hợp đồng mở rộng và nợ chuyển đổi.
+Đã có các package i18n/ui/app-sdk đầu tiên, npm workspace và lockfile chung, `/api/profile` dùng chung,
+backend error codes tương thích. Phần hướng dẫn cũ bên dưới là lịch sử; câu "packages do not exist" không còn đúng.
+
+Locale/theme/timezone lưu trong `user_profiles` theo session user ID; không nhận ID đích từ client.
+Khởi tạo schema dưới advisory lock 681023. GET fallback theme preferences cũ nếu chưa có profile;
+PUT yêu cầu đủ locale/theme/timeZone, lưu toàn bộ hồ sơ. Locale vi-VN/en-US; theme light/dark/system.
+Auth, CSRF/Origin và isolation giữ nguyên. Drive dùng coreprofile, không import platform.
+Theme hồ sơ ưu tiên hơn preferences.theme cũ; trường cũ còn được giữ để tương thích.
+
+Files có bộ chọn ngôn ngữ/theme, menu/action labels và errors dùng catalog; Desktop dùng profile cho đồng hồ/theme.
+Chọn English chưa dịch toàn bộ app. Còn hardcoded text, palette, một số catch cũ và Settings chưa tập trung hết hồ sơ.
+SDK hiện là host/profile/client adapter, chưa có manifest/lifecycle hoàn chỉnh. Không đổi keyed v-for/v-show.
+Không có durable/resumable transfers, Terminal hay OIDC mới trong thay đổi này.
+
+Build mới: chạy npm ci ở root; npm run build. Docker dùng root workspace, không cần lockfile riêng từng app.
+`npm run check` kiểm tra catalog ICU/key/parameter, provider isolation, CSRF, unknown codes và boundary imports.
+Workflow `.github/workflows/verify.yml` cấu hình build/test Go/frontend trên push/PR; chỉ ghi CI xanh khi có kết quả thực tế.
+Kiểm chứng và triển khai thực tế ghi ở đầu docs/validation.md. Không chạy compose down -v.
+Backup trước thay đổi: /opt/minhanos-backups/before-foundations.tgz và before-foundations.sql, quyền 0600.
+
+
 # Current direction — Platform foundations and living documentation
 
 Accepted target: Platform Core + Shared Design System + App SDK + peer apps + replaceable Shells.

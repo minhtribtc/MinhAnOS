@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Search, Wifi, LogOut, ArrowRight, ShieldCheck, Eye, EyeOff, X, Monitor, LoaderCircle, Home, Layers, SlidersHorizontal, Moon, Sun, Settings, Check } from 'lucide-vue-next'
+import {useHost,ApiError} from '@minhanos/app-sdk'
 import { api, setCSRF, type User } from './api'
 import { useDesktop } from './store'
 import AppIcon from './components/AppIcon.vue'
 import DesktopWindow from './components/DesktopWindow.vue'
 import HomeScreen from './components/HomeScreen.vue'
 import AppSwitcher from './components/AppSwitcher.vue'
+const systemDark=ref(globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
+const themeMedia=globalThis.matchMedia('(prefers-color-scheme: dark)')
+const themeChanged=(e:MediaQueryListEvent)=>systemDark.value=e.matches
+themeMedia.addEventListener('change',themeChanged)
+onBeforeUnmount(()=>themeMedia.removeEventListener('change',themeChanged))
+const host=useHost()
 const desktop = useDesktop()
+watch(()=>host.profile.value.theme,theme=>{if(theme!=='system'){desktop.preferences.theme=theme}})
 const initializing = ref(true), loginBusy = ref(false), loginError = ref(''), username = ref(''), password = ref(''), showPassword = ref(false)
 const home = ref(true)
 const panel = ref<'search' | 'switcher' | 'control' | null>(null)
 const query = ref(''), searchInput = ref<HTMLInputElement | null>(null), now = ref(new Date())
-const time = computed(() => now.value.toLocaleTimeString('vi-VN', {timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'}))
-const longDate = computed(() => now.value.toLocaleDateString('vi-VN', {timeZone:'Asia/Bangkok',weekday:'long',day:'numeric',month:'long'}))
+const time = computed(() => (host.profile.value.locale,host.i18n.formatDate(now.value,{hour:'2-digit',minute:'2-digit'})))
+const longDate = computed(() => (host.profile.value.locale,host.i18n.formatDate(now.value,{weekday:'long',day:'numeric',month:'long'})))
 const dockApps = computed(() => [...new Set([...desktop.preferences.pinned, ...desktop.preferences.windows.map(w => w.id)])].map(id => desktop.apps.find(a => a.id === id)).filter((a): a is NonNullable<typeof a> => !!a))
 const results = computed(() => desktop.apps.filter(a => `${a.title} ${a.subtitle}`.toLocaleLowerCase('vi').includes(query.value.toLocaleLowerCase('vi'))))
 let restoreFocus: HTMLElement | null = null
@@ -27,14 +35,14 @@ function launch(id: string) { desktop.open(id); home.value = false; panel.value 
 function goHome() { home.value = true; panel.value = null }
 async function search() { panel.value = panel.value === 'search' ? null : 'search'; query.value = ''; if (panel.value) { await nextTick(); searchInput.value?.focus() } }
 function togglePanel(value: 'switcher' | 'control') { panel.value = panel.value === value ? null : value }
-function setTheme(theme: 'light' | 'dark') { desktop.preferences.theme = theme; desktop.saveSoon() }
+function setTheme(theme: 'light' | 'dark') { void host.updateProfile(api,{theme}).catch(e=>desktop.toast(e.message)); desktop.preferences.theme = theme; desktop.saveSoon() }
 async function login() {
   loginBusy.value = true; loginError.value = ''
-  try { const result = await api<{user: User; csrfToken: string}>('/login', {method:'POST',body:JSON.stringify({username:username.value,password:password.value})}); setCSRF(result.csrfToken); password.value = ''; await desktop.loadSession(); home.value = !new URLSearchParams(location.search).has('app') }
-  catch(e) { loginError.value = e instanceof Error ? e.message : 'Không thể đăng nhập.' }
+  try { const result = await api<{user: User; csrfToken: string}>('/login', {method:'POST',body:JSON.stringify({username:username.value,password:password.value})}); setCSRF(result.csrfToken); password.value = ''; await desktop.loadSession(); await host.loadProfile(api); home.value = !new URLSearchParams(location.search).has('app') }
+  catch(e) { loginError.value = host.errorMessage(e) }
   finally { loginBusy.value = false }
 }
-async function logout() { panel.value = null; try { await desktop.logout(); username.value = ''; password.value = ''; home.value = true } catch(e) { desktop.toast(e instanceof Error ? e.message : 'Không đăng xuất được.') } }
+async function logout() { panel.value = null; try { await desktop.logout(); username.value = ''; password.value = ''; home.value = true } catch(e) { desktop.toast(host.errorMessage(e)) } }
 function keyboard(e: KeyboardEvent) {
   if (!desktop.ready) return
   if ((e.ctrlKey || e.metaKey) && e.code === 'Space') { e.preventDefault(); void search() }
@@ -46,13 +54,13 @@ function keyboard(e: KeyboardEvent) {
   }
   if (e.altKey && e.key === 'Tab') { e.preventDefault(); const wins = desktop.preferences.windows; if (wins.length) launch(wins[(wins.findIndex(w => w.id === desktop.active) + 1) % wins.length].id) }
 }
-onMounted(async () => { globalThis.addEventListener('keydown', keyboard); try { await desktop.loadSession(); home.value = !new URLSearchParams(location.search).has('app') } catch(e) { if (e instanceof Error && !e.message.includes('Phiên đăng nhập')) loginError.value = e.message } finally { initializing.value = false } })
+onMounted(async () => { globalThis.addEventListener('keydown', keyboard); try { await desktop.loadSession(); await host.loadProfile(api); home.value = !new URLSearchParams(location.search).has('app') } catch(e) { if (e instanceof Error && !(e instanceof ApiError && e.code==='AUTH_REQUIRED')) loginError.value = host.errorMessage(e) } finally { initializing.value = false } })
 const clockTimer = setInterval(() => { now.value = new Date() }, 10000)
 const systemTimer = setInterval(() => { if (desktop.ready) void desktop.refreshSystem() }, 10000)
 onBeforeUnmount(() => { clearInterval(clockTimer); clearInterval(systemTimer); globalThis.removeEventListener('keydown', keyboard) })
 </script>
 <template>
-  <div :class="['platform', 'tablet-shell', desktop.ready ? desktop.preferences.wallpaper : 'mountain', {'dark-mode':desktop.ready && desktop.preferences.theme === 'dark','focus-workspace':desktop.ready && desktop.preferences.mode === 'focus'}]">
+  <div :class="['platform', 'tablet-shell', desktop.ready ? desktop.preferences.wallpaper : 'mountain', {'dark-mode':desktop.ready && (host.profile.value.theme==='dark'||(host.profile.value.theme==='system'&&systemDark)),'focus-workspace':desktop.ready && desktop.preferences.mode === 'focus'}]">
     <div class="wallpaper"></div><div class="wallpaper-shade"></div>
     <div v-if="initializing" class="initial-loader"><img src="/mark.svg" alt="MinhAnOS" width="58" height="58"><LoaderCircle :size="24" class="spinning" /><span>Đang mở không gian của bạn…</span></div>
     <template v-else-if="!desktop.ready">

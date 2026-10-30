@@ -35,3 +35,12 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Recorded Core/Design System/App SDK/peer-app/replaceable-Shell architecture and accepted i18n/theme principles.
 - Added foundation milestones, account-locale/error-code migration requirements and mandatory agent documentation updates.
 - Documentation only; no new runtime i18n, theme package or API behavior in this change.
+
+
+## 2026-10-30 — foundation preview
+
+- Thêm locale/theme/timezone theo tài khoản cho Desktop và Drive, có bộ chọn trong Files.
+- Thêm i18n ICU/Intl vi/en, catalog menu Files, semantic theme tokens và host SDK adapter độc lập Shell.
+- Backend thêm code lỗi tương thích; bỏ phân tích chuỗi tiếng Việt để xác định phiên đăng nhập trong App/Files.
+- Một npm workspace/lockfile, kiểm tra catalog/boundary trong build và workflow CI.
+- Chuyển đổi từng phần; chưa dịch toàn bộ giao diện hoặc hoàn thành SDK/Design System.

@@ -63,7 +63,8 @@ write API kiểm tra CSRF và Origin, password hash PBKDF2-SHA256 với salt ri�
 
 ```sh
 # Có Node 22.12+ và Go 1.26+
-cd apps/desktop && npm ci && npm run build
+npm ci
+npm run build --workspace=minhanos-desktop
 # Tại root repository
 go test ./...
 go vet ./...
@@ -90,3 +91,7 @@ Nguồn mới không chứa lõi PHP làm rối của bản tham chiếu. Chưa 
 phân phối riêng cho mã ứng dụng; cần chốt trước khi cấp phép phân phối lại.
 
 Bản thiết kế ứng dụng quản lý tệp: [File Station](docs/file-station-design.md) — đang đề xuất, chưa kết nối dữ liệu thật.
+
+
+Foundation preview: npm workspace/lockfile chung, profile locale/theme và shared i18n/ui/SDK adapters.
+Đây là chuyển đổi từng phần. Xem [mức độ đáp ứng và quy ước mở rộng](docs/extension-contracts.md).

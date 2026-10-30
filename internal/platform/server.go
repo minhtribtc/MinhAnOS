@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"minhanos.local/platform/internal/apicontract"
+	"minhanos.local/platform/internal/coreprofile"
 	"net"
 	"net/http"
 	"net/url"
@@ -57,6 +59,7 @@ type App struct {
 	secureCookie bool
 	limiterMu    sync.Mutex
 	attempts     map[string]attempt
+	profile      *coreprofile.Store
 	dummyHash    string
 }
 type attempt struct {
@@ -103,7 +106,7 @@ type AppDefinition struct {
 
 var registry = []AppDefinition{
 	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
-	{"files", "File Station", "Drive độc lập · mở trong tab riêng", "files", "amber", "Dữ liệu", "ready"},
+	{"files", "File Station", "Mở trực tiếp trong desktop · Drive độc lập", "files", "amber", "Dữ liệu", "ready"},
 	{"apps", "Trung tâm ứng dụng", "Khám phá MinhAnOS", "apps", "blue", "Hệ thống", "ready"},
 	{"connections", "Kết nối", "NetBird · Authentik · 1Panel", "connections", "violet", "Quản trị", "planned"},
 	{"settings", "Cài đặt", "Cá nhân hóa desktop", "settings", "slate", "Hệ thống", "ready"},
@@ -159,6 +162,10 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	if err = tx.Commit(ctx); err != nil {
 		return nil, err
 	}
+	a.profile, err = coreprofile.New(ctx, db)
+	if err != nil {
+		return nil, err
+	}
 	return a, nil
 }
 
@@ -178,6 +185,7 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
 	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, registry) })))
+	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
 	mux.Handle("GET /api/system", a.auth(http.HandlerFunc(a.system)))
@@ -323,7 +331,7 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 	valid := verifyPassword(body.Password, hash)
 	if err != nil || !valid {
-		writeError(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.")
+		writeError(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
 		return
 	}
 	sessionToken, csrf := token(), token()
@@ -599,8 +607,8 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
 }
-func writeError(w http.ResponseWriter, status int, message string) {
-	writeJSON(w, status, map[string]string{"error": message})
+func writeError(w http.ResponseWriter, status int, message string, code ...string) {
+	writeJSON(w, status, apicontract.Error(status, message, code...))
 }
 func internalError(w http.ResponseWriter, err error) {
 	log.Print("request failed: ", err)

@@ -565,7 +565,7 @@ func validID(id string) bool {
 func handleFileError(w http.ResponseWriter, err error) {
 	var fe *FileError
 	if errors.As(err, &fe) {
-		jsonResponse(w, fe.Status, map[string]string{"error": fe.Message})
+		fail(w, fe.Status, fe.Message)
 		return
 	}
 	status := 500
@@ -596,7 +596,7 @@ func handleFileError(w http.ResponseWriter, err error) {
 		status = 507
 		message = "Không đủ dung lượng lưu trữ."
 	}
-	jsonResponse(w, status, map[string]string{"error": message})
+	fail(w, status, message)
 }
 func checksum(value string) string {
 	h := sha256.Sum256([]byte(value))

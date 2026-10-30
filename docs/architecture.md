@@ -1,3 +1,13 @@
+## Cập nhật kiến trúc nền tảng 0.1 (2026-10-30)
+
+Bản hiện tại dùng npm workspace và một lockfile root. Các package đầu tiên: i18n (ICU/Intl), ui (tokens/theme),
+app-sdk (Vue host provider, profile, API client). Đây là đợt tách foundation, chưa phải SDK/UI kit đầy đủ.
+Backend dùng chung coreprofile và apicontract; không tạo phụ thuộc Drive → platform.
+Locale/theme/timezone thuộc Core profile, layout/wallpaper/notes vẫn thuộc Desktop preferences.
+Xem [bảng mức độ đáp ứng và hợp đồng mở rộng](extension-contracts.md).
+Các mô tả Desktop 0.1 bên dưới là lịch sử; trạng thái Files/agent mới nhất ở các phần bổ sung và drive.md.
+
+
 # Kiến trúc MinhAnOS
 
 Kiến trúc đích đã chốt: Platform Core + Shared Design System + App SDK + ứng dụng ngang hàng + nhiều Shell thay thế.

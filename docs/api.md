@@ -70,3 +70,23 @@ The accepted future error-code/params contract is in platform-foundations.md, se
 Existing {error:string} endpoints still work unchanged. Add stable codes compatibly before removing legacy messages;
 frontend translations must use code mappings and a safe unknown-code fallback, not parsing localized error strings.
 No locale/profile endpoint or schema migration was implemented by the documentation update.
+
+
+## Đã triển khai: profile và mã lỗi nền tảng 0.1
+
+GET/PUT `/api/profile` trên Desktop và Drive; native gateway là `/api/drive/profile`.
+Xác thực bằng cookie của host, write yêu cầu CSRF/Origin hiện có. Không nhận user ID đích.
+Body PUT đầy đủ: `{"locale":"vi-VN","theme":"system","timeZone":"Asia/Bangkok"}`.
+Locale chỉ vi-VN/en-US; theme light/dark/system; timezone phải hợp lệ, không nhận Local/rỗng.
+GET trả profile mặc định nếu chưa lưu, ưu tiên legacy preferences.theme hợp lệ nếu có.
+Cùng DB sẽ có cùng hồ sơ dù cookie Desktop/Drive độc lập; Drive standalone chỉ cần DB của chính nó.
+Chưa có tự push cập nhật tới các tab đã đăng nhập, revision hoặc UI timezone.
+
+Lỗi hiện trả `{code:string,error:string}`; `error` tạm giữ tương thích.
+Code chung: INVALID_REQUEST, AUTH_REQUIRED, ACCESS_DENIED, NOT_FOUND, METHOD_NOT_ALLOWED,
+CONFLICT, PAYLOAD_TOO_LARGE, UNSUPPORTED_MEDIA_TYPE, RESOURCE_LIMIT, STORAGE_FULL,
+RATE_LIMITED, SERVICE_UNAVAILABLE, INTERNAL_ERROR, REQUEST_FAILED.
+Login sai credential dùng INVALID_CREDENTIALS; profile không hợp lệ dùng PROFILE_INVALID.
+Các code chung được chọn từ HTTP status, không suy từ chuỗi tiếng Việt; chưa phân loại mọi lỗi nghiệp vụ chi tiết.
+Runtime frontend mới dịch code, code lạ dùng lỗi chung. `params` và `requestId` là phần hợp đồng tiếp theo,
+chưa được server phát ra. Phần Planned error-code migration bên trên là lịch sử trước đợt triển khai này.

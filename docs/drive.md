@@ -87,7 +87,8 @@ Operations serialize per user, and host operations serialize through the agent; 
 ```sh
 go test ./...
 go vet ./...
-cd apps/drive && npm ci && npm run build
+npm ci
+npm run build --workspace=minhanos-drive
 # From repository root on test deployment only:
 TEST_PASSWORD_FILE=secrets/bootstrap_password node tests/drive-smoke.mjs
 sh tests/drive-cleanup.sh

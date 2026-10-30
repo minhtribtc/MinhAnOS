@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"log"
+	"minhanos.local/platform/internal/apicontract"
+	"minhanos.local/platform/internal/coreprofile"
 	"net"
 	"net/http"
 	"net/url"
@@ -20,6 +22,7 @@ import (
 const CookieName = "minhanos_drive_session"
 
 type Server struct {
+	Profile               *coreprofile.Store
 	AllowPlatformSessions bool
 	Identity              IdentityStore
 	DataDir               string
@@ -35,8 +38,8 @@ func jsonResponse(w http.ResponseWriter, status int, value any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
 }
-func fail(w http.ResponseWriter, status int, message string) {
-	jsonResponse(w, status, map[string]string{"error": message})
+func fail(w http.ResponseWriter, status int, message string, code ...string) {
+	jsonResponse(w, status, apicontract.Error(status, message, code...))
 }
 func decodeBody(r *http.Request, out any) error {
 	d := json.NewDecoder(io.LimitReader(r.Body, MaxText*6+8192))
@@ -89,7 +92,7 @@ func (s *Server) Handler() http.Handler {
 		session, token, err := s.Identity.Login(r.Context(), b.Username, b.Password)
 		if err != nil {
 			if errors.Is(err, ErrUnauthorized) {
-				fail(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.")
+				fail(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
 			} else {
 				fail(w, 503, "Dịch vụ danh tính chưa sẵn sàng.")
 			}
@@ -145,6 +148,10 @@ func (s *Server) Handler() http.Handler {
 			}
 			s.setCookie(w, "", -1)
 			jsonResponse(w, 200, map[string]bool{"ok": true})
+			return
+		}
+		if r.URL.Path == "/api/profile" && s.Profile != nil {
+			s.Profile.Handle(w, r, session.User.ID)
 			return
 		}
 		if r.URL.Path == "/api/roots" && r.Method == "GET" {

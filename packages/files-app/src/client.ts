@@ -1,19 +1,16 @@
+import {createApiClient,ApiError} from '@minhanos/app-sdk'
 export interface User {id:string;username:string;displayName:string;role:'admin'|'user'}
 export interface Entry {name:string;path:string;kind:'file'|'folder'|'symlink'|'special';size:number;modified:string;mode:string;uid:number;gid:number;etag:string}
 export interface TrashItem {id:string;path:string;name:string;deleted:string}
 export interface Root {id:string;name:string}
 export function createFilesClient(base='/api'){
+const client=createApiClient(base)
 let csrf=''
-function setCSRF(value:string){csrf=value}
-async function request<T>(path:string,options:RequestInit={}):Promise<T>{
- const response=await fetch(`${base}${path}`,{...options,credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf,...options.headers}})
- const data=await response.json().catch(()=>({error:'Phản hồi không hợp lệ.'}))
- if(!response.ok)throw new Error(data.error||'Không thực hiện được yêu cầu.')
- return data
-}
+function setCSRF(value:string){csrf=value;client.setCSRF(value)}
+const request=client.request
 function upload(root:string,path:string,file:File,onProgress:(value:number)=>void){
  const xhr=new XMLHttpRequest()
- const done=new Promise<void>((resolve,reject)=>{xhr.open('POST',`${base}${endpoint('upload',root,path,file.name)}`);xhr.withCredentials=true;xhr.setRequestHeader('X-CSRF-Token',csrf);xhr.setRequestHeader('Content-Type','application/octet-stream');xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(Math.round(e.loaded/e.total*100))};xhr.onerror=()=>reject(new Error('Mất kết nối.'));xhr.onabort=()=>reject(new Error('Đã hủy.'));xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{let message='Tải lên thất bại.';try{message=JSON.parse(xhr.responseText).error||message}catch{}reject(new Error(message))}};xhr.send(file)})
+ const done=new Promise<void>((resolve,reject)=>{xhr.open('POST',`${base}${endpoint('upload',root,path,file.name)}`);xhr.withCredentials=true;xhr.setRequestHeader('X-CSRF-Token',csrf);xhr.setRequestHeader('Content-Type','application/octet-stream');xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(Math.round(e.loaded/e.total*100))};xhr.onerror=()=>reject(new Error('Mất kết nối.'));xhr.onabort=()=>reject(new Error('Đã hủy.'));xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{let message='Tải lên thất bại.';try{message=JSON.parse(xhr.responseText).error||message}catch{}reject(new ApiError(xhr.status,(()=>{try{return JSON.parse(xhr.responseText)}catch{return {error:message,code:'INVALID_RESPONSE'}}})()))}};xhr.send(file)})
  return {xhr,done}
 }
 

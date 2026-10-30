@@ -15,18 +15,7 @@
     "types": [
       "vite/client"
     ],
-    "baseUrl": ".",
-    "paths": {
-      "lucide-vue-next": [
-        "./node_modules/lucide-vue-next"
-      ],
-      "@minhanos/files-app": [
-        "../../packages/files-app/src/index.ts"
-      ],
-      "vue": [
-        "./node_modules/vue"
-      ]
-    }
+    "baseUrl": "."
   },
   "include": [
     "src/**/*.ts",

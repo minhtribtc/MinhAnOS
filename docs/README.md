@@ -7,6 +7,7 @@ Tài liệu phải được cập nhật trong cùng commit với thay đổi li
 |---|---|
 | [Hướng dẫn sử dụng](user-guide.md) | Cách dùng bản hiện tại, giới hạn và xử lý lỗi thường gặp |
 | [Nền tảng, i18n và theme](platform-foundations.md) | Kiến trúc đích, quy tắc bắt buộc và lộ trình nền tảng |
+| [Rà soát và hợp đồng mở rộng](extension-contracts.md) | Mức độ đáp ứng thực tế, API/package conventions và việc tiếp theo |
 | [Kiến trúc](architecture.md) | Các thành phần và ranh giới đã triển khai |
 | [Drive / File Station](drive.md) | Khả năng, cách triển khai độc lập, agent và lưu trữ |
 | [API](api.md) | Hợp đồng API hiện tại và các bổ sung được đánh dấu rõ |

@@ -1,3 +1,16 @@
+## Bổ sung: ngôn ngữ và theme tài khoản (foundation preview)
+
+Mở File Station trong Desktop hoặc Drive độc lập. Thanh đầu ứng dụng có **Ngôn ngữ** và **Giao diện**.
+Có Tiếng Việt/English và Sáng/Tối/Theo thiết bị. Lựa chọn lưu theo tài khoản; đăng nhập ở thiết bị khác
+hoặc mở Drive dùng cùng DB sẽ nhận lại. Thay đổi trong một tab được thấy ở tab khác khi tải lại/đăng nhập lại.
+Đổi locale/theme không đóng app hoặc xóa bộ lọc hiện tại. Trước đăng nhập, locale chọn theo lựa chọn khách,
+ngôn ngữ trình duyệt được hỗ trợ, rồi vi-VN. Đổi ngôn ngữ không đổi tên tệp hay nội dung tài liệu.
+
+Đây là bản chuyển đổi từng phần: menu thao tác Files, nhãn hồ sơ, lỗi chung và đồng hồ đã dùng nền đa ngôn ngữ;
+các trang cũ còn nhiều tiếng Việt. Dark theme đã có tokens cho Files và portal, còn màu nhấn/bề mặt cũ cần tiếp tục rà soát.
+Múi giờ được lưu riêng qua API nhưng chưa có màn hình chỉnh. Upload hiện tại vẫn do trình duyệt quản lý.
+
+
 # Hướng dẫn sử dụng MinhAnOS
 
 Cập nhật: 2026-10-30. Phạm vi: nhánh `file-station-desktop`, bản desktop và File Station đang chạy thử.

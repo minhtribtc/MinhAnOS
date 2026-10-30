@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {useHost} from '@minhanos/app-sdk'
+const host=useHost()
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { ArrowUpRight, ArrowRight, Check, ChevronRight, Circle, Database, HardDrive, Cpu, RefreshCw, ShieldCheck, Globe, Server, ExternalLink, Clock3, LockKeyhole, Plus, Search, CheckCircle2, AlertCircle, Monitor, Palette, Users, Leaf, Layers3, FileText, Cloud, FolderOpen, NotebookPen, LogOut, Activity } from 'lucide-vue-next'
 import type { AppDefinition, AuditEntry, User } from '../api'
@@ -41,7 +43,7 @@ async function createUser() {
   catch (e) { error.value = e instanceof Error ? e.message : 'Không tạo được tài khoản.' }
   finally { createBusy.value = false }
 }
-function setTheme(theme: 'light' | 'dark') { desktop.preferences.theme = theme; desktop.saveSoon() }
+function setTheme(theme: 'light' | 'dark') { void host.updateProfile(api,{theme}).catch(e=>desktop.toast(host.errorMessage(e))); desktop.preferences.theme = theme; desktop.saveSoon() }
 function setWallpaper(wallpaper: 'mountain' | 'midnight' | 'sage') { desktop.preferences.wallpaper = wallpaper; desktop.saveSoon() }
 function togglePin(id: string) { const pinned = desktop.preferences.pinned; desktop.preferences.pinned = pinned.includes(id) ? pinned.filter(a => a !== id) : [...pinned, id]; desktop.saveSoon() }
 function sample() { if (desktop.system) memoryHistory.value = [...memoryHistory.value, desktop.system.heapBytes].slice(-18) }

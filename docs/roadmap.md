@@ -121,3 +121,11 @@ Foundation V0.2: enforce missing/invalid catalog checks at build, versioned plug
 Commercial stage: additional locales and reviewed community translation contributions.
 These foundation milestones are distinct from existing desktop release numbering and are not implemented by this documentation update.
 The user guide and documentation index must accompany every relevant feature change.
+
+
+## Foundation 0.1 — triển khai bước đầu
+
+Đã có workspace/lockfile chung, i18n ICU/Intl, catalog validation trong build, host SDK adapter,
+semantic theme tokens, account profile và lỗi có code. Chưa nghiệm thu toàn bộ Foundation V0.1:
+catalog Desktop/Files, Settings chung và chuyển hết text/colors còn dang dở.
+Thứ tự mở rộng và bảng khoảng cách: [extension-contracts.md](extension-contracts.md).
