@@ -1,3 +1,5 @@
+[File Station compliance review + first-run storage rule](files-app-review.md)
+
 [Storage Q1 — soft quota and Storage Manager](storage-quota.md)
 
 [Storage agent (S1)](storage-agent.md) — ZFS/Btrfs drivers, restricted storage agent, install and verification.
