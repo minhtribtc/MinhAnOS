@@ -1,3 +1,10 @@
+## Account Center UI v1 (Phase 4) — 2026-10-30
+
+- Thêm ứng dụng Account Center dùng chung: hồ sơ, người dùng, nhóm, role, phiên, bảo mật và nhật ký; chạy trong Desktop và độc lập tại `/accounts/` trên cả Desktop (8081) lẫn Drive (8082).
+- Thêm API đọc một nhóm (`GET /api/v1/identity/groups/{groupId}`): 33 operation.
+- Đổi mật khẩu hoặc thu hồi phiên hiện tại sẽ đưa Desktop về màn đăng nhập; dữ liệu phiên cũ không ghi đè phiên mới.
+- Chỉnh quyền truy cập ứng dụng vẫn chưa mở.
+
 ## Account Center Phase 3B — 2026-10-30
 
 - Mở API phiên, đổi mật khẩu, metadata credential, nhóm/thành viên, role tùy biến/binding và đọc quyền thực tế: tổng 32 operation.

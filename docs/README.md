@@ -1,3 +1,5 @@
+[Account Center UI v1 report](account-center/UI_V1_REPORT.md) — shared native/standalone UI, 33 operations, limits and next steps.
+
 [Phase 3B report](account-center/PHASE3B_REPORT.md) · [ADR 0006 — security and bounded delegation](adr/0006-identity-security-and-delegation-apis.md). Current backend APIs, limits and frontend next steps.
 
 [Phase 3A implementation report](account-center/PHASE3_REPORT.md) · [ADR 0005 — policy and host operators](adr/0005-identity-policy-and-host-operators.md). Active v1 subset and remaining Phase 3 work.

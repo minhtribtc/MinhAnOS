@@ -7,6 +7,8 @@ import {resolveTheme} from '../packages/ui/src/index.js'
 const root=new URL('../',import.meta.url)
 const files=JSON.parse(await readFile(new URL('packages/files-app/locales/catalogs.json',root),'utf8'))
 const common=JSON.parse(await readFile(new URL('packages/app-sdk/locales/common.json',root),'utf8'))
+const accounts=JSON.parse(await readFile(new URL('packages/accounts-app/locales/catalogs.json',root),'utf8'));validateCatalog('accounts',accounts);
+const accountManifest=JSON.parse(await readFile(new URL('contracts/manifests/accounts.app.json',root),'utf8'));for(const item of [...accountManifest.navigation,...accountManifest.settingsIntegration])assert(item.labelKey in accounts['vi-VN']);
 validateCatalog('files',files);validateCatalog('common',common)
 const a=createI18n('en-US'),b=createI18n('vi-VN');const unregister=a.registerCatalog('files',files);b.registerCatalog('files',files)
 assert.equal(a.t('files.actions.copy'),'Copy');assert.equal(b.t('files.actions.copy'),'Sao chép')
@@ -31,5 +33,5 @@ globalThis.fetch=async()=>({ok:false,status:401,json:async()=>({code:'AUTH_REQUI
 }finally{globalThis.fetch=original}
 // Enforce architectural boundaries in the normal frontend build. A Drive-only image may omit desktop source.
 async function walk(url){let names;try{names=await readdir(url,{withFileTypes:true})}catch(e){if(e.code==='ENOENT')return [];throw e}const result=[];for(const entry of names){if(['node_modules','dist','.git'].includes(entry.name))continue;const next=new URL(entry.name+(entry.isDirectory()?'/':''),url);if(entry.isDirectory())result.push(...await walk(next));else result.push(next)}return result}
-for(const dir of ['packages/','apps/drive/','internal/drive/','cmd/drive/'])for(const file of await walk(new URL(dir,root))){if(!/\.(vue|ts|js|go)$/.test(file.pathname))continue;const source=await readFile(file,'utf8');assert(!/from\s*['"][^'"]*(?:apps\/desktop|desktop\/src)|internal\/platform(?:["/])/.test(source),'Shell dependency: '+fileURLToPath(file))}
+for(const dir of ['packages/','apps/accounts/','apps/drive/','internal/drive/','cmd/drive/'])for(const file of await walk(new URL(dir,root))){if(!/\.(vue|ts|js|go)$/.test(file.pathname))continue;const source=await readFile(file,'utf8');assert(!/from\s*['"][^'"]*(?:apps\/desktop|desktop\/src)|internal\/platform(?:["/])/.test(source),'Shell dependency: '+fileURLToPath(file))}
 console.log('PASS foundations: ICU/catalogs, provider isolation, locale/Intl, unknown errors, CSRF isolation, theme and dependency boundaries')

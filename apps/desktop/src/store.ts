@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api, setCSRF, type User, type AppDefinition, type Preferences, type DesktopWindow, type SystemInfo } from './api'
 
+function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['overview', 'files', 'apps', 'settings'] }}
+
 export const useDesktop = defineStore('desktop', () => {
   const user = ref<User | null>(null)
   const apps = ref<AppDefinition[]>([])
-  const preferences = ref<Preferences>({ theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['overview', 'files', 'apps', 'settings'] })
+  const preferences = ref<Preferences>(freshPreferences())
   const system = ref<SystemInfo | null>(null)
   const active = ref('overview')
   const order = ref<string[]>([])
@@ -17,6 +19,7 @@ export const useDesktop = defineStore('desktop', () => {
   function registerCloseGuard(id:string,guard:()=>boolean){closeGuards.set(id,guard);return ()=>closeGuards.delete(id)}
   let timer: ReturnType<typeof setTimeout> | undefined
   let noticeTimer: ReturnType<typeof setTimeout> | undefined
+  let sessionEpoch=0
   let revision = 0
   let savedRevision = 0
   let savePromise: Promise<void> | null = null
@@ -26,17 +29,19 @@ export const useDesktop = defineStore('desktop', () => {
   function saveSoon() { revision++; clearTimeout(timer); timer = setTimeout(() => void persist(), 500) }
   async function persist(): Promise<void> {
     clearTimeout(timer)
-    if (savePromise) { await savePromise; if (savedRevision < revision) await persist(); return }
+    const epoch=sessionEpoch
+    if (savePromise) { await savePromise; if(epoch!==sessionEpoch)return; if (savedRevision < revision) await persist(); return }
     if (!user.value || savedRevision >= revision) return
     const sentRevision = revision
     const payload = JSON.stringify(preferences.value)
     saving.value = true
     savePromise = (async () => {
-      try { await api('/preferences', { method: 'PUT', body: payload }); savedRevision = sentRevision; saveError.value = '' }
-      catch (error) { saveError.value = error instanceof Error ? error.message : 'Không lưu được cài đặt' }
-      finally { saving.value = false; savePromise = null }
+      try { await api('/preferences', { method: 'PUT', body: payload }); if(epoch===sessionEpoch){savedRevision = sentRevision; saveError.value = ''} }
+      catch (error) { if(epoch===sessionEpoch)saveError.value = error instanceof Error ? error.message : 'Không lưu được cài đặt' }
+      finally { if(epoch===sessionEpoch){saving.value = false; savePromise = null} }
     })()
     await savePromise
+    if(epoch!==sessionEpoch)return
     if (savedRevision === sentRevision && revision > sentRevision) await persist()
   }
   function open(id: string) {
@@ -77,12 +82,18 @@ export const useDesktop = defineStore('desktop', () => {
     await refreshSystem()
   }
   async function refreshSystem() { try { system.value = await api<SystemInfo>('/system') } catch { /* individual panels expose disconnected state */ system.value = null } }
+  // A credential change/current-session revocation already ended the server
+  // session. Clear this host locally without trying another authenticated logout.
+  function expireSession(){
+    sessionEpoch++;savePromise=null
+    clearTimeout(timer);clearTimeout(noticeTimer);user.value=null;setCSRF('');ready.value=false;apps.value=[];system.value=null
+    preferences.value=freshPreferences();revision=0;savedRevision=0;order.value=[];active.value='';notice.value='';saveError.value='';saving.value=false
+  }
   async function logout() {
     for(const guard of closeGuards.values()){if(!guard())return}
     await persist()
     await api('/logout', { method: 'POST' })
-    user.value = null; setCSRF(''); ready.value = false; apps.value = []; system.value = null
-    revision = 0; savedRevision = 0; order.value = []; active.value = ''
+    expireSession()
   }
-  return { registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
+  return { expireSession, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
 })

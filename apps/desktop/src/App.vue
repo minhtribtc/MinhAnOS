@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Search, Wifi, LogOut, ArrowRight, ShieldCheck, Eye, EyeOff, X, Monitor, LoaderCircle, Home, Layers, SlidersHorizontal, Moon, Sun, Settings, Check } from 'lucide-vue-next'
 import {useHost,ApiError} from '@minhanos/app-sdk'
-import { api, setCSRF, type User } from './api'
+import { api, setCSRF, onAuthFailure, type User } from './api'
 import { useDesktop } from './store'
 import AppIcon from './components/AppIcon.vue'
 import DesktopWindow from './components/DesktopWindow.vue'
@@ -15,6 +15,8 @@ themeMedia.addEventListener('change',themeChanged)
 onBeforeUnmount(()=>themeMedia.removeEventListener('change',themeChanged))
 const host=useHost()
 const desktop = useDesktop()
+const stopAuthFailure=onAuthFailure(()=>desktop.expireSession())
+onBeforeUnmount(stopAuthFailure)
 watch(()=>host.profile.value.theme,theme=>{if(theme!=='system'){desktop.preferences.theme=theme}})
 const initializing = ref(true), loginBusy = ref(false), loginError = ref(''), username = ref(''), password = ref(''), showPassword = ref(false)
 const home = ref(true)

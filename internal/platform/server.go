@@ -107,6 +107,7 @@ type AppDefinition struct {
 }
 
 var registry = []AppDefinition{
+	{"com.minhanos.account-center", "Account Center", "MinhAnOS", "shield", "blue", "MinhAnOS", "ready"},
 	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
 	{"files", "File Station", "Mở trực tiếp trong desktop · Drive độc lập", "files", "amber", "Dữ liệu", "ready"},
 	{"apps", "Trung tâm ứng dụng", "Khám phá MinhAnOS", "apps", "blue", "Hệ thống", "ready"},
@@ -180,6 +181,7 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 
 func (a *App) Handler() http.Handler {
 	mux := http.NewServeMux()
+	identityschema.MountAccounts(mux)
 	if a.identityService != nil {
 		mux.Handle("/api/v1/identity/", a.identityService.HTTPHandler(identityschema.DesktopRealm))
 	}

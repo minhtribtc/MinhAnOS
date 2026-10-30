@@ -8,8 +8,11 @@ import { api, bytes } from '../api'
 import { useDesktop } from '../store'
 import AppIcon from './AppIcon.vue'
 import FilesApp from '@minhanos/files-app'
+import AccountsApp from '@minhanos/accounts-app'
 const filesInstance=ref<InstanceType<typeof FilesApp>|null>(null)
-defineExpose({canClose:()=>filesInstance.value?.canClose() ?? true})
+const accountsInstance=ref<InstanceType<typeof AccountsApp>|null>(null)
+defineExpose({canClose:()=>accountsInstance.value?.canClose() ?? filesInstance.value?.canClose() ?? true})
+function accountProfileChanged(name:string){if(desktop.user)desktop.user.displayName=name}
 const props = defineProps<{ app: AppDefinition; foreground?:boolean }>()
 const desktop = useDesktop()
 const settingsTab = ref('appearance')
@@ -100,6 +103,7 @@ onBeforeUnmount(() => clearInterval(sampler))
     <div class="page-eyebrow">INTEGRATIONS</div><h1>Một nơi. Mọi kết nối.</h1><p class="muted">Nền tảng cho mạng riêng, danh tính và máy chủ của bạn.</p><div class="integration-list"><article v-for="(item,index) in (desktop.system?.integrations || [{id:'netbird',name:'NetBird',description:'Quản lý thiết bị và mạng riêng'},{id:'authentik',name:'Authentik',description:'Đăng nhập tập trung và danh tính'},{id:'onepanel',name:'1Panel',description:'Máy chủ, container và ứng dụng'}])" :key="item.id" class="integration-card"><span :class="['integration-logo', ['blue','amber','teal'][index]]"><component :is="[Globe,ShieldCheck,Server][index]" :size="27" /></span><div><h2>{{ item.name }}</h2><p>{{ item.description }}</p></div><span class="soft-badge neutral"><Circle :size="8" /> Chưa kết nối</span></article></div><div class="info-panel"><LockKeyhole :size="21" /><div><strong>Kết nối thật, trong bước tiếp theo</strong><p>Bản này chưa gọi API của ba dịch vụ. Cần xác minh endpoint, phiên bản và quyền trước khi cấu hình. Không có dữ liệu dịch vụ giả hoặc khóa API lưu ở trình duyệt.</p></div></div><button class="secondary-button" @click="desktop.open('about')">Xem lộ trình phát triển <ArrowRight :size="15" /></button>
   </main>
 
+  <AccountsApp v-else-if="app.id === 'com.minhanos.account-center'" ref="accountsInstance" embedded :active="props.foreground!==false" @session-ended="desktop.expireSession()" @profile-changed="accountProfileChanged" />
   <FilesApp v-else-if="app.id === 'files'" ref="filesInstance" :active="props.foreground!==false" embedded api-base="/api/drive" />
 
   <main v-else-if="app.id === 'activity'" class="standard-content"><div class="page-eyebrow">ACTIVITY LOG</div><div class="section-label"><h1>Những gì đã diễn ra.</h1><button class="secondary-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{spinning:loading}" /> Làm mới</button></div><p class="muted">{{ desktop.user?.role === 'admin' ? '60 hoạt động xác thực và quản trị gần nhất.' : 'Hoạt động xác thực của tài khoản bạn.' }}</p><p v-if="error" class="inline-error">{{ error }}</p><div class="audit-list"><div v-for="entry in activity" :key="entry.id" class="audit-row"><span class="audit-icon"><component :is="entry.action === 'user.create' ? Users : ShieldCheck" :size="18" /></span><div><strong>{{ entry.detail }}</strong><p>{{ entry.actor }} <span>· {{ entry.action }}</span></p></div><time>{{ new Date(entry.createdAt).toLocaleString('vi-VN',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) }}</time></div></div><div v-if="!activity.length && !loading && !error" class="empty-state"><Activity :size="36" /><h3>Chưa có hoạt động</h3></div></main>

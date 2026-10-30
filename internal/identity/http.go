@@ -101,6 +101,9 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			if len(parts) == 3 && parts[0] == "groups" && parts[2] == "members" {
 				kind, target = "members", parts[1]
 			}
+			if len(parts) == 2 && parts[0] == "groups" {
+				kind, target = "group", parts[1]
+			}
 			limit := 50
 			if v := r.URL.Query().Get("limit"); v != "" {
 				limit, e = strconv.Atoi(v)

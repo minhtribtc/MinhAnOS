@@ -18,8 +18,6 @@
     "identity.groups.write",
     "identity.roles.read",
     "identity.roles.write",
-    "identity.apps.read",
-    "identity.apps.write",
     "identity.sessions.read",
     "identity.sessions.revoke",
     "identity.password.change",
@@ -27,9 +25,9 @@
   ],
   "navigation": [
     {
-      "id": "overview",
-      "labelKey": "accounts.nav.overview",
-      "path": "/overview",
+      "id": "profile",
+      "labelKey": "accounts.nav.profile",
+      "path": "/profile",
       "requiredPermission": "identity.self.read"
     },
     {
@@ -49,12 +47,6 @@
       "labelKey": "accounts.nav.roles",
       "path": "/roles",
       "requiredPermission": "identity.roles.read"
-    },
-    {
-      "id": "applications",
-      "labelKey": "accounts.nav.applications",
-      "path": "/applications",
-      "requiredPermission": "identity.apps.read"
     },
     {
       "id": "sessions",
@@ -78,8 +70,8 @@
   "settingsIntegration": [
     {
       "id": "my-account",
-      "labelKey": "accounts.nav.myAccount",
-      "path": "/me",
+      "labelKey": "accounts.nav.profile",
+      "path": "/accounts/",
       "requiredPermission": "identity.self.read"
     }
   ],

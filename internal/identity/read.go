@@ -31,12 +31,19 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	if a.PublicID == "" {
 		return Result{}, ErrNotReady
 	}
-	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read"}[kind]
+	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "group": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read"}[kind]
 	if permission == "" {
 		return Result{}, fault(404, "IDENTITY_NOT_FOUND")
 	}
 	if e = authorize(ctx, tx, a, permission); e != nil {
 		return Result{}, e
+	}
+	if kind == "group" {
+		g, e := readGroup(ctx, tx, target)
+		if e != nil {
+			return Result{}, e
+		}
+		return result(g, 200, g.Version), tx.Commit(ctx)
 	}
 	if kind == "me" || kind == "user" {
 		if kind == "me" {

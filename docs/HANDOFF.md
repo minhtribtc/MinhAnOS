@@ -1,3 +1,12 @@
+Release status: Account Center UI v1 committed on account-center-ui-v1; see deployment line in the UI v1 handoff below.
+
+# Handoff — Account Center UI v1 / Phase 4 (current)
+
+Branch account-center-ui-v1. Read [UI v1 report](account-center/UI_V1_REPORT.md); it supersedes the Phase 3B "next step" note. Shared @minhanos/accounts-app is rendered natively in Desktop (app com.minhanos.account-center) and standalone at /accounts/ on both 8081 and 8082 via identity.MountAccounts. 33 v1 operations (new identityGetGroup); status.v1.json accountCenterUIEnabled=true.
+package-lock.json now includes apps/accounts and packages/accounts-app (npm ci failed before). Identity client regenerated with npm run contracts:generate. No migration beyond 005.
+Checks once in a separate VM source folder: gofmt, go vet, go test, tests/migrations-integration.sh (disposable DB), clean npm ci + npm run build (check, contracts, three builds): PASS. No browser trial loop.
+Next: wire Files/registry resource enforcement, then expose app access policy editing; migrate remaining Desktop hardcoded strings; consider retiring Settings → Users once Account Center covers it.
+
 Release status: Phase 3B images built and deployed once; Desktop, Drive and DB healthy. No extra browser/runtime trial loop.
 
 # Handoff — Phase 3B (current)

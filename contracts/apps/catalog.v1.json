@@ -45,7 +45,9 @@
       "legacyRegistryIds": [],
       "legacyDisplayNames": [],
       "currentPaths": [
-        "apps/desktop/src/components/AppContent.vue"
+        "packages/accounts-app",
+        "apps/accounts",
+        "internal/identity"
       ]
     },
     {

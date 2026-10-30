@@ -24,6 +24,13 @@ func groupTest(t *testing.T, s *Service, token, name string) Group {
 	if e = json.Unmarshal(out.Body, &g); e != nil {
 		t.Fatal(e)
 	}
+	fetched, e := securityHTTP(t, s, token, "GET", "groups/"+g.ID, nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if fetched.ETag != "\"1\"" || !strings.Contains(string(fetched.Body), g.ID) {
+		t.Fatal("group detail/version contract", string(fetched.Body))
+	}
 	return g
 }
 func pageItems(t *testing.T, out Result) []json.RawMessage {

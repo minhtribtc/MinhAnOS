@@ -1,8 +1,8 @@
 {
   "contractVersion": "1",
-  "implementation": "phase3b session/password/group/custom-role APIs; app policy and UI planned",
+  "implementation": "phase4 Account Center UI and 33 Identity operations",
   "httpEndpointsEnabled": true,
-  "accountCenterUIEnabled": false,
+  "accountCenterUIEnabled": true,
   "authorizationEnforcement": "direct System Admin or bounded user-admin/custom roles AND registered app grant; explicit system scope, target ceilings and separate host operator",
   "uuidBackfill": "operator-driven batches; nullable expansion until separately approved contract step",
   "posixProvisioningEnabled": false,
@@ -18,6 +18,7 @@
     "identityDeleteRoleBinding",
     "identityDisableUser",
     "identityEnableUser",
+    "identityGetGroup",
     "identityGetMe",
     "identityGetMyAccess",
     "identityGetUser",

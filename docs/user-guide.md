@@ -1,3 +1,15 @@
+## Account Center (Phase 4 UI v1)
+
+Mở **Account Center** từ Desktop, hoặc truy cập riêng tại `http://<host>:8081/accounts/` (Desktop) hay `http://<host>:8082/accounts/` (Drive). Bản riêng đăng nhập bằng tài khoản của chính host đó.
+
+- **Tài khoản của tôi**: đổi tên hiển thị, xem quyền thực tế.
+- **Người dùng / Nhóm / Role** (cần quyền quản trị phù hợp): tạo, sửa, vô hiệu hóa, xóa mềm user; quản lý nhóm, thành viên, role tùy biến và gán role. Thao tác chính sách yêu cầu nhập lại mật khẩu.
+- **Phiên**: xem và thu hồi phiên; thu hồi phiên hiện tại sẽ đăng xuất ngay.
+- **Bảo mật**: đổi mật khẩu — mọi phiên ở cả Desktop và Drive bị đăng xuất, cần đăng nhập lại.
+- **Nhật ký**: xem sự kiện audit theo quyền.
+
+Đóng app khi có biểu mẫu chưa lưu sẽ hỏi xác nhận; chuyển app khác thì biểu mẫu được giữ. Chưa có: chỉnh quyền truy cập ứng dụng, MFA, SSO, admin reset mật khẩu. Settings → Người dùng vẫn hoạt động song song.
+
 ## Backend tài khoản Phase 3B
 
 API đã hỗ trợ xem/thu hồi phiên của chính mình ở cả Desktop và Drive, đổi mật khẩu, quản lý nhóm, role tùy biến có giới hạn và đọc quyền thực tế. Giao diện Account Center mới chưa được đưa vào launcher; Settings hiện tại vẫn dùng như trước.
@@ -182,7 +194,7 @@ Desktop vẫn chạy ở 8081, Drive/Files độc lập ở 8082. Dữ liệu v�
 Các tên Storage Manager, Container Manager, Resource Monitor đang được dành cho ứng dụng tương lai, chưa có chức năng mới.
 
 
-## Account Center — đang thiết kế
+## Account Center — checkpoint kiến trúc (lịch sử, xem mục Phase 4 ở đầu)
 
 Account Center mới đang ở checkpoint kiến trúc, chưa có ứng dụng/URL mới để sử dụng.
 Quản lý users hiện tại vẫn nằm trong Settings như trước. Chưa có disable/reset password/MFA/SSO/provision Linux mới.

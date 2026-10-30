@@ -73,6 +73,7 @@ func (s *Server) setCookie(w http.ResponseWriter, value string, age int) {
 }
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	identity.MountAccounts(mux)
 	if adapter, ok := s.Identity.(interface{ IdentityHandler() http.Handler }); ok {
 		mux.Handle("/api/v1/identity/", adapter.IdentityHandler())
 	}

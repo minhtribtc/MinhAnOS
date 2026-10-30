@@ -2156,6 +2156,51 @@
           }
         ],
         "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
+      },
+      "get": {
+        "operationId": "identityGetGroup",
+        "summary": "Read one authorized group with current version",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/groups/{groupId}/members": {

@@ -3,13 +3,15 @@ WORKDIR /workspace
 COPY package.json package-lock.json ./
 COPY apps/desktop/package.json apps/desktop/package.json
 COPY apps/drive/package.json apps/drive/package.json
+COPY apps/accounts/package.json apps/accounts/package.json
 COPY packages/ packages/
 RUN npm ci
 COPY apps/desktop/ apps/desktop/
+COPY apps/accounts/ apps/accounts/
 COPY tests/ tests/
 COPY contracts/ contracts/
 COPY scripts/ scripts/
-RUN npm run build --workspace=minhanos-desktop
+RUN npm run build --workspace=minhanos-desktop && npm run build --workspace=minhanos-accounts
 
 FROM golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308 AS backend
 WORKDIR /src
@@ -25,6 +27,7 @@ RUN apk add --no-cache ca-certificates tzdata && addgroup -g 10001 minhanos && a
 COPY --from=backend /minhanos /app/minhanos
 COPY --from=backend /identity-recovery /app/identity-recovery
 COPY --from=desktop /workspace/apps/desktop/dist /app/web
+COPY --from=desktop /workspace/apps/accounts/dist /app/accounts
 USER 10001:10001
 ENV STATIC_DIR=/app/web TZ=Asia/Bangkok
 EXPOSE 8081

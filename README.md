@@ -1,3 +1,5 @@
+Account Center UI v1: ứng dụng quản lý tài khoản dùng chung trong Desktop và độc lập tại `/accounts/`. [Báo cáo](docs/account-center/UI_V1_REPORT.md).
+
 Identity Phase 3B: 32 API đã triển khai cho tài khoản, phiên, mật khẩu, nhóm và role/binding có giới hạn. Giao diện Account Center là bước tiếp theo. [Báo cáo hiện hành](docs/account-center/PHASE3B_REPORT.md).
 
 Phase 3A đã triển khai lõi policy + 14 Identity v1 operations và tách host operators trên VM. Account Center UI/Phase 3 nâng cao chưa hoàn tất. [Báo cáo Phase 3A](docs/account-center/PHASE3_REPORT.md).

@@ -1,0 +1,16 @@
+{
+  "name": "@minhanos/accounts-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "peerDependencies": {
+    "vue": "^3.5.0",
+    "lucide-vue-next": "^0.468.0"
+  },
+  "dependencies": {
+    "@minhanos/app-sdk": "0.1.0",
+    "@minhanos/api-client": "0.1.0",
+    "@minhanos/shared-types": "0.1.0"
+  }
+}

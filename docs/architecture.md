@@ -1,3 +1,7 @@
+## Account Center UI v1 (current)
+
+packages/accounts-app is the single Account Center UI (Vue, app-sdk host, generated identity client). Desktop embeds it natively; apps/accounts is a standalone Vite host mounted at /accounts/ by internal/platform and internal/drive via identity.MountAccounts. No Desktop imports in the package, no iframe, no new service. Desktop api.ts tracks an auth epoch and store.expireSession() clears local state when the server session ends.
+
 ## Identity Phase 3B (current)
 
 Shared security/group/delegation services extend the existing transaction wrapper; no schema or deployment dependency change. 32 operations now active, including current-user credential/session control and effective-access DTO. System Admin authority and host operator stay separate; custom governance delegation is capped. [ADR 0006](adr/0006-identity-security-and-delegation-apis.md).

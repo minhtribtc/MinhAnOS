@@ -1,3 +1,7 @@
+## Account Center UI v1 — 2026-10-30
+
+Ran once in separate VM folder /opt/minhanos-ui-claude (not the app DB): gofmt (7 unformatted files fixed), go vet ./..., go test ./... and tests/migrations-integration.sh on its disposable DB (0 FAIL, includes TestAccountsStandaloneAssets and group detail/ETag check): PASS. Clean npm ci initially FAILED because package-lock.json lacked the new workspaces; regenerated lockfile, then npm ci + npm run build (foundations, accounts-session-state, contracts, identity contracts after contracts:generate, desktop/files/accounts builds): PASS. No browser/VM stop-start trials.
+
 ## Phase 3B — 2026-10-30
 
 One full Go/vet + isolated PostgreSQL regression and root contract/type checks passed in a separate source folder. Targeted affected security/group tests additionally checked actual HTTP requests and group-deletion audit/effective-access behavior. No browser/VM stop-start trials or production credential mutations. Existing unused IdentityLink warning remains. Deployment health is not a substitute for the recorded isolated checks. [Report](account-center/PHASE3B_REPORT.md).

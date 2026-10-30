@@ -1,3 +1,7 @@
+## Identity Phase 4 — 33 active operations
+
+Added GET /api/v1/identity/groups/{groupId} (identityGetGroup, permission identity.groups.read, ETag = group version) for Account Center detail/edit. Static GET /accounts/ is served by both hosts from ACCOUNTS_STATIC_DIR (default /app/accounts); it is a frontend only and uses the host's existing cookie realm.
+
 ## Identity Phase 3B — 32 active operations
 
 Runtime inventory: contracts/identity/status.v1.json. Added GET me/sessions, DELETE me/sessions/{handle}, POST me/sessions/revoke-others, POST me/password, GET me/credentials; groups GET/POST/PATCH/DELETE and members GET/POST/DELETE; roles POST; role-bindings GET/POST/DELETE; GET me/access and users/{uuid}/access. All under /api/v1/identity, in both cookie hosts.

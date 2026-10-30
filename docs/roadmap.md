@@ -1,3 +1,5 @@
+Current: Phase 4 Account Center UI v1 implemented (native + standalone). Next: Files/registry resource enforcement, then app access policy editing. [Details](account-center/UI_V1_REPORT.md).
+
 Current Phase 3B backend slice implemented. Next: shared native/standalone Account Center UI; app policy requires Files/resource enforcement and registry integration first. [Details](account-center/PHASE3B_REPORT.md).
 
 Current: Phase 3A Users/My Account policy/API and host split implemented. Remaining Phase 3B: group/custom-role/app policy, role assignment reads and complete session/password/credential v1 adapters; then Phase 4 shared Account Center UI. [Phase 3 report](account-center/PHASE3_REPORT.md).
