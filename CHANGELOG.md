@@ -1,3 +1,11 @@
+## Quyền Shared Folder và thư mục chia sẻ trong Files — 2026-10-31
+
+- Storage Manager: nút *Quyền truy cập* trên mỗi Shared Folder để cấp quyền Đọc, Đọc và ghi hoặc Từ chối cho tài khoản hoặc nhóm. Từ chối thắng Ghi, Ghi thắng Đọc; không có dòng nào là không có quyền. Người tạo Shared Folder được quyền ghi.
+- Files hiện các Shared Folder bạn được cấp quyền trong thanh bên, mỗi thư mục có thùng rác riêng và tính vào quota của Shared Folder. Thư mục chỉ có quyền xem được đánh dấu *Chỉ xem*.
+- Khi tạo Shared Folder có thể chọn *Chứa vùng riêng của người dùng*: mỗi tài khoản có thư mục riêng bên trong (chỉ một Shared Folder giữ vai trò này).
+- Máy mới cài: chưa có vùng riêng mặc định; Storage Manager nhắc tạo Shared Folder chứa vùng riêng người dùng, Files hiện *Chưa có nơi lưu trữ* cho đến lúc đó. Máy đang có dữ liệu giữ nguyên.
+- Chưa có: thư mục quota (quota folder) — để bước sau.
+
 ## Trung tâm thông báo và Trung tâm nhật ký (bản tối giản) — 2026-10-31
 
 - Chuông thông báo trên thanh trạng thái Desktop, có số thông báo chưa đọc; bấm vào để xem 8 thông báo mới nhất, đánh dấu đã đọc hoặc mở Trung tâm thông báo.

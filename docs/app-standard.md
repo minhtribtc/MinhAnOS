@@ -46,7 +46,6 @@ an app satisfies rows 11–12 by writing its outbox/audit correctly and register
 | 19 | All apps | No per-app backup list; backups so far were manual `pg_dump` before migrations; Files/ZFS/Btrfs data restore untested |
 | 17 | All apps | No user data export/removal flow; retention documented only for identity audit and notices |
 | 22 | Desktop, Files, Storage Manager | No accessibility checks in the test suite (Account Center dialogs have a focus trap) |
-| 21 | Files | No first-run "no storage yet" state (required by the first-run rule) |
 | 23 | Files | "MinhAnOS Drive", "File Station · Preview" in UI |
 | 11–12 | Files, Storage | Files sends no notices (quota thresholds) and its `drive_audit` is not a Log Center source; storage audit has no retention policy |
 | 12 | Desktop | Legacy "Nhật ký" app still reads the legacy `audit` table; to be replaced by a per-user activity view |

@@ -60,7 +60,7 @@ measurer holds the user's read lock, which excludes that user's writes while the
 is measured, writes are checked against its last known usage.
 
 The storage agent now gives new units to the service account (`MINHANOS_STORAGE_OWNER=10001:10001`, mode 0750).
-Shares are created but not yet browsable in File Station (Q2: share permissions and roots).
+Shares became browsable in File Station in Q2 ([storage Q2](storage-q2.md)); quota folders moved to Q3.
 
 ## Verification
 

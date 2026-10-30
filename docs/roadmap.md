@@ -1,4 +1,4 @@
-Current: Notification Center + Log Center minimal v1 (bell, inbox, read-only audit of identity and storage). Next: Storage Q2 (first-run storage, share roots in Files), Files notices/audit source, notification preferences, MFA, Phase 6. [Details](notification-log-center.md).
+Current: Storage Q2 (share permissions, Shared Folders in Files, homes share, first-run). Next: Storage Q3 (quota folders, share measurement, moving homes), Files notices/audit source, notification preferences, MFA, Phase 6. [Details](storage-q2.md).
 
 Current: Phase 5 done — Files authorized by identity policy, app access rules, Phase A audit/notice foundation, admin sessions. Next: Notification Center, Log Center, shared folders, MFA, Phase 6. [Details](account-center/PHASE5_REPORT.md).
 

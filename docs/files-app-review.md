@@ -20,7 +20,7 @@ Checked against the [app standard checklist](app-standard.md) (incl. notificatio
 | Notifications | ❌ | no outbox events: quota 80/95/100 %, failed uploads, admin changes to a user's storage are not queued; only transient error text |
 | Logs | ❌ | operational errors use unstructured `log.Printf` without request ID; `drive_audit` is private to Files (not readable by a Log Center adapter as structured data) |
 | Naming (ADR 0003) | ❌ | UI shows "MinhAnOS Drive", "File Station · Preview 0.1", "Drive độc lập"; product name is **MinhAnOS Files** |
-| Storage model | ❌ | homes fixed at `DataDir/users/{id}`; cannot open Shared Folders; contradicts the first-run rule below |
+| Storage model | ✅ | Q2: Shared Folders as roots (share permissions, own trash, share quota), homes on the homes share (units on ZFS/Btrfs, legacy directory kept on upgrades), "No storage yet" state ([storage Q2](storage-q2.md)) |
 | Tests | ⚠️ | Go engine/authorization/quota tests and node action/client tests exist; no component test of the Vue app |
 
 Verdict: secure core (authorization, quota, path safety) is compliant; the app layer is not yet. Priority fixes:

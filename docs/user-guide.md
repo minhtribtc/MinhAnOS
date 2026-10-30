@@ -10,7 +10,10 @@
 - **Storage Manager** (chỉ System Admin): tab *Shared Folder* tạo thư mục dùng chung trên volume ZFS/Btrfs và đặt quota tổng; tab *Vùng riêng người dùng* đặt quota cho từng người, *Đo lại* khi dung lượng hiển thị sai; tab *Volume* xem nơi lưu dữ liệu. Mỗi thay đổi cần nhập mật khẩu của bạn.
 - **Quota mặc định:** Cài đặt → Storage Manager → Quota mặc định, áp dụng cho người dùng mới.
 - **Files** hiện *Dung lượng của bạn*; khi hết quota, tải lên/sao chép báo *Đã hết dung lượng được cấp*. Giảm quota xuống dưới mức đang dùng không xóa dữ liệu nhưng chặn ghi thêm.
-- Quota do ứng dụng kiểm soát khi ghi qua Files; ghi trực tiếp trên máy chủ không được tính. Shared Folder chưa mở được trong File Station (bước tiếp theo).
+- Quota do ứng dụng kiểm soát khi ghi qua Files; ghi trực tiếp trên máy chủ không được tính.
+- **Quyền Shared Folder:** Storage Manager → Shared Folder → *Quyền truy cập*: thêm tài khoản hoặc nhóm, chọn Đọc, Đọc và ghi hoặc Từ chối (Từ chối thắng; không có dòng nào là không có quyền), nhập mật khẩu để lưu.
+- **Files:** các Shared Folder được cấp quyền nằm trong thanh bên; thư mục *Chỉ xem* không cho tạo, tải lên, đổi tên, xóa. Thùng rác là của thư mục đang mở.
+- **Vùng riêng người dùng:** chỉ một Shared Folder chứa vùng riêng (chọn *Chứa vùng riêng của người dùng* khi tạo). Máy mới chưa có vùng riêng nào; Files báo *Chưa có nơi lưu trữ* cho đến khi admin tạo. Thư mục quota sẽ có ở bước sau.
 
 ## Account Center — quyền truy cập ứng dụng
 
