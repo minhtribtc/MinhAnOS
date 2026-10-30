@@ -1,6 +1,7 @@
 ## Central Settings thin slice — 2026-10-30
 
 Hybrid amendment: clean npm ci + contracts:generate + npm run build PASS on VM check folder; the new test first FAILED on shorthand provider syntax `{language}` and its pattern was widened. No lockfile/generated drift.
+Deployed 9cf4075 to VM: containers healthy, / returns 200 on 8081 and 8082. Browser acceptance was skipped at the user's request and is NOT performed.
 VM check folder /opt/minhanos-settings-claude: clean npm ci + npm run build PASS (foundations, accounts-session-state, new settings-standard, contracts after contracts:generate for manifest nameKey, identity contracts, vue-tsc + desktop/files/accounts builds). First run FAILED twice and was fixed: an escaped regex in the new test, and shared-types drift until regeneration. No Go changes, so Go tests not rerun. Not yet deployed; no browser pass yet.
 
 ## Account Center UI v1 — 2026-10-30

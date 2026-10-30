@@ -1,10 +1,10 @@
-Release status: settings-central-v1 (hybrid, 9cf4075) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. Browser acceptance pending user sign-in.
+Release status: settings-central-v1 (hybrid, 9cf4075) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. Browser acceptance skipped by user decision (not performed).
 
 # Handoff — Central Settings thin slice (current)
 
 Branch settings-central-v1. Read [ADR 0007](adr/0007-central-settings.md) including the accepted hybrid ownership amendment (Language & Region panel, admin Users only in Account Center, embedded apps link to Settings for locale/theme) and AGENTS.md "Central Settings standard". Settings is now @minhanos/settings-app, built from manifest settingsIntegration; Desktop provides Appearance, Account Center provides profile/security/sessions/users panels, Files declares none. Legacy Settings "Users" UI removed (backend /api/admin/users unchanged). New manifests desktop.app.json, settings.app.json; optional manifest nameKey; shared-types regenerated.
 app-sdk: useCatalog (refcount, fixes crash when an app and its panel mount together), host events session-ended/profile-changed, openSettings deep links. tests/settings-standard.mjs enforces the standard in npm run check.
-Checks: clean npm ci + npm run build on VM check folder PASS (no Go change). Not yet done: deploy and one browser acceptance pass. Next: generic settings storage API when Files needs settings; then Phase 5.
+Checks: clean npm ci + npm run build on VM check folder PASS (no Go change). Deployed; browser acceptance skipped by user, not performed. Next: generic settings storage API when Files needs settings; then Phase 5.
 
 # Handoff — Account Center UI v1 / Phase 4 (previous)
 
