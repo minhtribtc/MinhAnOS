@@ -50,3 +50,25 @@ of Storage Manager. Corrections below are required before it becomes a design.
 3. Homes as datasets (mounted at current paths) + home quota; Shared Folders + share quota + per-share trash.
 4. Share records / Shared with Me (persistent file IDs).
 5. Phase 6 POSIX identities, filesystem ACL mapping, then SMB/NFS; per-user quota inside shares last.
+
+## Decision 2026-10-30: production backends ZFS, ext4 and Btrfs
+
+The user confirmed real installs will run ZFS, ext4 and Btrfs, so storage is a capability-based abstraction with
+three drivers from the start (plus "unsupported" for anything else). One install may have volumes of different
+types; homes live on one configured home volume, each share chooses its volume.
+
+| Capability | ZFS | Btrfs | ext4 |
+|---|---|---|---|
+| Unit for a home/share | dataset | subvolume | directory + project ID |
+| Hard quota (referenced data) | `refquota` | qgroup referenced limit (quota must be enabled) | project quota (`project`,`quota` features + `prjquota` mount) |
+| Usage report | `referenced`/`used` | qgroup show | quotactl / `repquota -P` |
+| Snapshots | yes | yes (read-only subvolume snapshot) | no — reported unsupported |
+| New unit visible in Drive container | needs mount propagation (`rslave`) or mount under parent | appears as directory | appears as directory |
+
+Rules: same user-visible meaning of quota on every backend (hard limit on the unit's own data, snapshots shown
+separately); ext4 project IDs are allocated and stored in PostgreSQL, never reused; Btrfs quota accounting cost is
+measured before enabling by default; every operation goes through typed storage-agent calls, never a shell.
+
+Test plan: one extra virtual disk on the disposable test VM, split into a ZFS pool, a Btrfs filesystem and an ext4
+filesystem with project quota, so all three drivers run the same contract tests. Loop files on the current 36 GB
+root disk (71% used) are a fallback only.
