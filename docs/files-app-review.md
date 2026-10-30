@@ -1,6 +1,6 @@
 # File Station (MinhAnOS Files) — compliance review (2026-10-31)
 
-Checked against AGENTS.md (app structure, central Settings, i18n/theme, SDK, error codes, identity, audit).
+Checked against the [app standard checklist](app-standard.md) (incl. notifications and logs).
 
 | Area | Status | Evidence |
 |---|---|---|
@@ -17,13 +17,16 @@ Checked against AGENTS.md (app structure, central Settings, i18n/theme, SDK, err
 | SDK host events | ❌ | expired Desktop session inside Files shows Files' own login instead of `host.emit('session-ended')` |
 | Stable error codes | ❌ | 59 Drive errors carry only Vietnamese text (23 `fail` + 36 `problem` without code); the UI maps unknown codes to a generic "request failed", so users lose the real reason and nothing is translatable |
 | Audit | ❌ | `drive_audit` (username + free text, no request/correlation ID, not append-only) instead of the Phase A structured store |
+| Notifications | ❌ | no outbox events: quota 80/95/100 %, failed uploads, admin changes to a user's storage are not queued; only transient error text |
+| Logs | ❌ | operational errors use unstructured `log.Printf` without request ID; `drive_audit` is private to Files (not readable by a Log Center adapter as structured data) |
 | Naming (ADR 0003) | ❌ | UI shows "MinhAnOS Drive", "File Station · Preview 0.1", "Drive độc lập"; product name is **MinhAnOS Files** |
 | Storage model | ❌ | homes fixed at `DataDir/users/{id}`; cannot open Shared Folders; contradicts the first-run rule below |
 | Tests | ⚠️ | Go engine/authorization/quota tests and node action/client tests exist; no component test of the Vue app |
 
 Verdict: secure core (authorization, quota, path safety) is compliant; the app layer is not yet. Priority fixes:
 storage model + share roots (needed for the first-run rule), stable error codes + i18n, `useCatalog` and
-`session-ended`, structured audit, naming, theme tokens, manifest entrypoint/navigation/lifecycle.
+`session-ended`, structured audit + outbox notices (quota thresholds) + structured logs, naming, theme tokens,
+manifest entrypoint/navigation/lifecycle.
 
 ## First-run rule (user requirement 2026-10-31)
 

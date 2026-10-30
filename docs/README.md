@@ -1,3 +1,5 @@
+[App standard checklist](app-standard.md) · [Desktop compliance review](desktop-review.md)
+
 [File Station compliance review + first-run storage rule](files-app-review.md)
 
 [Storage Q1 — soft quota and Storage Manager](storage-quota.md)
