@@ -1,6 +1,6 @@
 ## Storage Q1 soft quota — 2026-10-31
 
-VM /opt/minhanos-q1: gofmt (4 files reformatted), go vet, go test PASS incl. drive TestPersonalWritesUseSoftQuota; migrations-integration PASS incl. storagecore TestReserveCommitReleaseAndLimits, TestConcurrentReservationsNeverExceedLimit (12 parallel, limit for 5), TestExpiredReservationAndMeasurement, TestCreateShareRollsBackOnAgentFailure (two test bugs fixed first: reading a rolled-back row, UPDATE on an empty table not firing the row trigger). Clean npm ci + build PASS after removing a cmd/ path the app catalog schema rejects. Storage agent with MINHANOS_STORAGE_OWNER: new ZFS and Btrfs units are 10001:10001 mode 750.
+VM /opt/minhanos-q1: gofmt (4 files reformatted), go vet, go test PASS incl. drive TestPersonalWritesUseSoftQuota; migrations-integration PASS incl. storagecore TestReserveCommitReleaseAndLimits, TestConcurrentReservationsNeverExceedLimit (12 parallel, limit for 5), TestExpiredReservationAndMeasurement, TestCreateShareRollsBackOnAgentFailure (two test bugs fixed first: reading a rolled-back row, UPDATE on an empty table not firing the row trigger). Clean npm ci + build PASS after removing a cmd/ path the app catalog schema rejects. Storage agent with MINHANOS_STORAGE_OWNER: new ZFS and Btrfs units are 10001:10001 mode 750. Deployed 3b7930c: live DB has volume files (directory) and share homes; storage agent socket visible in the Desktop container (group 10001); /api/storage without session 401. End-to-end Storage Manager use in a browser not performed.
 
 ## Storage S1 — 2026-10-30
 
