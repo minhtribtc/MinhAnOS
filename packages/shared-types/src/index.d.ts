@@ -468,3 +468,35 @@ export interface IdentityResetPassword {
   newPassword: string;
   requireChange?: boolean;
 }
+
+export interface IdentityAppAccessRule {
+  id: string;
+  appId: string;
+  effect: "deny";
+  subject: {
+    kind: "user" | "group" | "role";
+    id: string;
+  };
+  version: number;
+}
+
+export interface IdentityAppAccessPage {
+  items: {
+    id: string;
+    appId: string;
+    effect: "deny";
+    subject: {
+      kind: "user" | "group" | "role";
+      id: string;
+    };
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityCreateAppAccess {
+  subject: {
+    kind: "user" | "group" | "role";
+    id: string;
+  };
+}

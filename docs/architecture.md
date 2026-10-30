@@ -1,3 +1,7 @@
+## Phase 5 authorization (current)
+
+identity.authorizeApp(app, permission) = app grant AND no deny rule (user, group, role) AND entitlement (admin, reserved standard-user role permissions, bounded bindings). Account Center keeps its self-service allow-list. Drive calls Service.CheckApp(FilesApp) per request through the required IdentityStore.Authorize; resource rules (namespace, host operator) remain in Drive.
+
 ## Central Settings (current)
 
 packages/settings-app renders Settings from manifest settingsIntegration and provider panels exported by app packages (app-sdk defineSettingsProvider). apps/desktop/src/settings.ts lists compiled first-party providers filtered by the backend registry; permissions from /api/v1/identity/me/access only filter the list. App-to-Shell bridge in app-sdk: useCatalog refcount, session-ended/profile-changed events, openSettings deep links. See [ADR 0007](adr/0007-central-settings.md).

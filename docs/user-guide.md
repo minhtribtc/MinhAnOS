@@ -1,3 +1,7 @@
+## Account Center — quyền truy cập ứng dụng
+
+Account Center → **Ứng dụng** (System Admin): xem ai được dùng ứng dụng nào. Với **MinhAnOS Files**, bấm *Chặn truy cập* rồi chọn người dùng, nhóm hoặc vai trò; họ không mở được Files (kể cả qua Desktop, biểu tượng Files bị ẩn). *Bỏ chặn* để khôi phục. Quy tắc chặn áp dụng cả với admin. Account Center không có quy tắc chặn để tránh khóa toàn bộ quản trị viên.
+
 ## Account Center — quản trị người dùng
 
 - **Phiên của người dùng:** trang chi tiết liệt kê phiên Desktop/Files; nút *Đăng xuất khỏi mọi thiết bị* kết thúc tất cả.

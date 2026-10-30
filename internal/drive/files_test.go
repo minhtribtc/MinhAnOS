@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"minhanos.local/platform/internal/identity"
 )
 
 func testEngine(t *testing.T) *Engine {
@@ -164,6 +166,7 @@ func TestTrashConflictDoesNotOverwrite(t *testing.T) {
 type fakeIdentity struct {
 	role       string
 	mustChange bool
+	denied     string // permission refused by Authorize
 }
 
 func (f fakeIdentity) Session(_ context.Context, t string) (Session, error) {
@@ -175,7 +178,13 @@ func (f fakeIdentity) Session(_ context.Context, t string) (Session, error) {
 func (f fakeIdentity) Login(context.Context, string, string) (Session, string, error) {
 	return Session{}, "", ErrUnauthorized
 }
-func (f fakeIdentity) Logout(context.Context, string) error              { return nil }
+func (f fakeIdentity) Logout(context.Context, string) error { return nil }
+func (f fakeIdentity) Authorize(_ context.Context, _ User, permission string) error {
+	if permission == f.denied {
+		return &identity.Fault{Status: 403, Code: "APP_ACCESS_DENIED"}
+	}
+	return nil
+}
 func (f fakeIdentity) Audit(context.Context, User, string, string) error { return nil }
 func TestAuthorizationBoundary(t *testing.T) {
 	s := &Server{Identity: fakeIdentity{role: "user"}, DataDir: t.TempDir(), StaticDir: t.TempDir()}

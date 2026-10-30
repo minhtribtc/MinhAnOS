@@ -1,3 +1,7 @@
+## Phase 5 Files authorization and app access — 2026-10-30
+
+VM /opt/minhanos-m3: gofmt (3 files reformatted), go vet, go test PASS incl. drive TestFilesRequestsUseIdentityPolicy; migrations-integration PASS incl. TestFilesPolicyEntitlementGrantAndDenyRules, TestAppAccessGuards and existing TestDriveProxyRequiresDesktopSession with real SQLIdentity; clean npm ci + contracts:generate + npm run build PASS (vue-tsc). Browser acceptance not performed (requires user sign-in).
+
 ## M2 admin sessions and forced password change — 2026-10-30
 
 VM /opt/minhanos-m2: gofmt clean, vet, go test PASS (incl. drive TestFilesClosedWhilePasswordChangeRequired); migrations-integration PASS incl. TestResetRequiresPasswordChangeUntilUserChangesIt and TestAdminListsAndRevokesAnotherUsersSessions after tightening two old leak checks that matched any "password" substring; clean npm ci + contracts:generate + build PASS incl. new docker-context test.

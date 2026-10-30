@@ -136,6 +136,18 @@
     {
       "file": "reset-password.v1.schema.json",
       "type": "IdentityResetPassword"
+    },
+    {
+      "file": "app-access-rule.v1.schema.json",
+      "type": "IdentityAppAccessRule"
+    },
+    {
+      "file": "app-access-page.v1.schema.json",
+      "type": "IdentityAppAccessPage"
+    },
+    {
+      "file": "create-app-access.v1.schema.json",
+      "type": "IdentityCreateAppAccess"
     }
   ]
 }

@@ -1,3 +1,7 @@
+## Identity Phase 5 — 40 active operations
+
+GET /api/v1/identity/applications (identityListApplications), GET|POST /api/v1/identity/applications/{appId}/access, DELETE /api/v1/identity/applications/{appId}/access/{ruleId}. Files (/api/roots, /api/files/*) returns 403 APP_ACCESS_DENIED / APP_PERMISSION_DENIED / IDENTITY_PERMISSION_DENIED from the identity policy before resource checks.
+
 ## Identity — 34 active operations
 
 Added POST /api/v1/identity/users/{userId}/password (identityResetUserPassword; body {newPassword}; If-Match, Idempotency-Key, reauthentication; 409 IDENTITY_USE_OWN_PASSWORD, 403 IDENTITY_HOST_OPERATOR_PROTECTED). GET groups accepts member=<userId>; GET audit-events accepts target=<userId> (actor or target) and is ordered newest first. Audit outcome adds failure; details may include realm and count.

@@ -1,4 +1,8 @@
-Release status: Account Center usable v1 (a0b1248) deployed to VM 10.1.1.20 after pg_dump backup /opt/minhanos-backups/before-identity-006.sql; identity SQL 006 applied; Desktop, Drive, DB healthy. Browser acceptance pending user.
+Release status: Phase 5 (Files authorization + app access rules) on settings-central-v1; see deployment line in validation.
+
+# Handoff — Phase 5 complete (current)
+
+Read [Phase 5 report](account-center/PHASE5_REPORT.md) and [Phase A report](account-center/PHASE_A_REPORT.md). Identity SQL 001–009 immutable (009 files_policy). 40 operations. Files requests go through Service.CheckApp (entitlement AND app grant AND deny rules) before resource rules; app access rules editable for Files only. Next candidates: Notification Center (consume identity_notification_outbox), Log Center (read identity_admin_events + legacy adapters), shared folders/storage (storage review), MFA, Phase 6.
 
 M2 (current): identity SQL 008 admin_sessions, 36 operations; forced password change after reset enforced in Identity, Desktop and Drive hosts; admin user session list/revoke. See Phase A report M2 section.
 

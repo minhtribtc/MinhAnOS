@@ -20,6 +20,22 @@ import (
 )
 
 const AccountApp = "com.minhanos.account-center"
+
+// FilesApp is the first app whose requests are authorized by the identity policy (Phase 5).
+const FilesApp = "com.minhanos.files"
+
+// governedApps are first-party apps whose access rules Account Center may edit. Account Center itself is
+// governed by roles only, so a deny rule can never lock every administrator out of identity management.
+var governedApps = map[string]string{FilesApp: "MinhAnOS Files"}
+
+// appForPermission maps a permission to the registered app that holds its grant.
+func appForPermission(permission string) string {
+	if strings.HasPrefix(permission, "files.") {
+		return FilesApp
+	}
+	return AccountApp
+}
+
 const policyLock = 681026
 
 type Fault struct {
@@ -69,8 +85,14 @@ func actor(ctx context.Context, tx pgx.Tx, id string) (Actor, error) {
 // Only registered first-party Account Center endpoints supply this app context.
 // Same-origin JavaScript is trusted code, not sandboxed by an appId header.
 func authorize(ctx context.Context, tx pgx.Tx, a Actor, permission string) error {
+	return authorizeApp(ctx, tx, a, AccountApp, permission)
+}
+
+// authorizeApp decides user entitlement AND app grant AND app access rules for a server-side
+// app context (never a client-supplied appId). Deny rules override every allow.
+func authorizeApp(ctx context.Context, tx pgx.Tx, a Actor, app, permission string) error {
 	var grant bool
-	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_app_grants WHERE app_id=$1 AND permission_key=$2 AND state='enabled' AND scope='{"kind":"system","id":null}'::jsonb)`, AccountApp, permission).Scan(&grant)
+	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_app_grants WHERE app_id=$1 AND permission_key=$2 AND state='enabled' AND scope='{"kind":"system","id":null}'::jsonb)`, app, permission).Scan(&grant)
 	if e != nil {
 		return e
 	}
@@ -78,7 +100,7 @@ func authorize(ctx context.Context, tx pgx.Tx, a Actor, permission string) error
 		return fault(403, "APP_PERMISSION_DENIED")
 	}
 	var deny bool
-	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_app_access x WHERE app_id=$1 AND effect='deny' AND (user_id::text=$2 OR group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$2) OR role_id IN (SELECT r.id FROM identity_roles r WHERE r.key=CASE WHEN $3='admin' THEN 'system-admin' ELSE 'standard-user' END) OR role_id IN (SELECT role_id FROM identity_role_bindings WHERE user_id::text=$2 OR group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$2))))`, AccountApp, a.PublicID, a.Role).Scan(&deny)
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_app_access x WHERE app_id=$1 AND effect='deny' AND (user_id::text=$2 OR group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$2) OR role_id IN (SELECT r.id FROM identity_roles r WHERE r.key=CASE WHEN $3='admin' THEN 'system-admin' ELSE 'standard-user' END) OR role_id IN (SELECT role_id FROM identity_role_bindings WHERE user_id::text=$2 OR group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$2))))`, app, a.PublicID, a.Role).Scan(&deny)
 	if e != nil {
 		return e
 	}
@@ -88,9 +110,20 @@ func authorize(ctx context.Context, tx pgx.Tx, a Actor, permission string) error
 	if a.Role == "admin" {
 		return nil
 	}
-	switch permission {
-	case "identity.self.read", "identity.self.write", "identity.sessions.read", "identity.sessions.revoke", "identity.password.change":
-		return nil
+	if app == AccountApp {
+		switch permission {
+		case "identity.self.read", "identity.self.write", "identity.sessions.read", "identity.sessions.revoke", "identity.password.change":
+			return nil
+		}
+	} else {
+		// Other apps: what every standard account may do comes from the reserved standard-user role.
+		var base bool
+		if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM identity_role_permissions p JOIN identity_roles r ON r.id=p.role_id WHERE r.key='standard-user' AND p.permission_key=$1)", permission).Scan(&base); e != nil {
+			return e
+		}
+		if base {
+			return nil
+		}
 	}
 	// Initial delegated role is bounded to managing standard users. Unknown scope,
 	// custom/reserved privilege inheritance and implicit System Admin groups deny.
@@ -232,6 +265,11 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 }
 func actionName(route string) string {
 	switch {
+	case strings.Contains(route, "/applications/"):
+		if strings.HasPrefix(route, "DELETE ") {
+			return "app.access.removed"
+		}
+		return "app.access.denied"
 	case strings.Contains(route, "/users/") && strings.HasSuffix(route, "/sessions/revoke"):
 		return "user.sessions.revoked"
 	case strings.Contains(route, "/users/") && strings.HasSuffix(route, "/password"):

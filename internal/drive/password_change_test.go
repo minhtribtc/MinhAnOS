@@ -26,3 +26,29 @@ func TestFilesClosedWhilePasswordChangeRequired(t *testing.T) {
 		}
 	}
 }
+
+func TestFilesRequestsUseIdentityPolicy(t *testing.T) {
+	for _, test := range []struct {
+		denied, method, path string
+		want                 int
+	}{
+		{"files.read", "GET", "/api/roots", 403},
+		{"files.read", "GET", "/api/files/list?root=personal", 403},
+		{"files.write", "GET", "/api/files/list?root=personal", 200},
+		{"files.write", "POST", "/api/files/mkdir?root=personal", 403},
+	} {
+		s := &Server{Identity: fakeIdentity{role: "user", denied: test.denied}, DataDir: t.TempDir(), StaticDir: t.TempDir()}
+		r := httptest.NewRequest(test.method, "http://drive.test"+test.path, strings.NewReader(`{"name":"x"}`))
+		r.AddCookie(&http.Cookie{Name: CookieName, Value: "valid"})
+		r.Header.Set("X-CSRF-Token", "csrf")
+		r.Header.Set("Origin", "http://drive.test")
+		w := httptest.NewRecorder()
+		s.Handler().ServeHTTP(w, r)
+		if w.Code != test.want {
+			t.Fatalf("denied %s %s %s: want %d got %d %s", test.denied, test.method, test.path, test.want, w.Code, w.Body.String())
+		}
+		if test.want == 403 && !strings.Contains(w.Body.String(), "APP_ACCESS_DENIED") {
+			t.Fatal("policy code missing", w.Body.String())
+		}
+	}
+}

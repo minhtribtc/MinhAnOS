@@ -34,6 +34,9 @@ type IdentityStore interface {
 	Login(context.Context, string, string) (Session, string, error)
 	Logout(context.Context, string) error
 	Audit(context.Context, User, string, string) error
+	// Authorize applies the identity policy for the Files app (Phase 5). Required, so a new
+	// adapter cannot silently skip authorization.
+	Authorize(context.Context, User, string) error
 }
 
 var ErrUnauthorized = identity.ErrUnauthorized
@@ -123,6 +126,12 @@ func (s *SQLIdentity) LoginRotating(ctx context.Context, name, password, old str
 }
 func (s *SQLIdentity) Logout(ctx context.Context, token string) error {
 	return s.core.Logout(ctx, identity.DriveRealm, token)
+}
+func (s *SQLIdentity) Authorize(ctx context.Context, u User, permission string) error {
+	if s.policy == nil {
+		return identity.ErrNotReady
+	}
+	return s.policy.CheckApp(ctx, u.ID, identity.FilesApp, permission)
 }
 func (s *SQLIdentity) Audit(ctx context.Context, u User, action, target string) error {
 	_, err := s.db.Exec(ctx, "INSERT INTO drive_audit(user_id,actor,action,target) VALUES($1,$2,$3,$4)", u.ID, u.Username, action, target)

@@ -1,4 +1,4 @@
-Current: Phase 4 Account Center UI v1 implemented (native + standalone). Next: Files/registry resource enforcement, then app access policy editing. [Details](account-center/UI_V1_REPORT.md).
+Current: Phase 5 done — Files authorized by identity policy, app access rules, Phase A audit/notice foundation, admin sessions. Next: Notification Center, Log Center, shared folders, MFA, Phase 6. [Details](account-center/PHASE5_REPORT.md).
 
 Current Phase 3B backend slice implemented. Next: shared native/standalone Account Center UI; app policy requires Files/resource enforcement and registry integration first. [Details](account-center/PHASE3B_REPORT.md).
 

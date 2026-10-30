@@ -112,6 +112,9 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			if len(parts) == 3 && parts[0] == "users" && parts[2] == "sessions" {
 				kind, target = "user/sessions", parts[1]
 			}
+			if len(parts) == 3 && parts[0] == "applications" && parts[2] == "access" {
+				kind, target = "app/access", parts[1]
+			}
 			limit := 50
 			if v := r.URL.Query().Get("limit"); v != "" {
 				limit, e = strconv.Atoi(v)
@@ -336,6 +339,26 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 					operation = parts[2]
 				}
 				out, e = s.ChangeUser(ctx, realm, token, parts[1], operation, "", match, key, requestID, raw)
+			case len(parts) == 3 && parts[0] == "applications" && parts[2] == "access" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input AppAccessInput
+				if e = decode(&input); e == nil {
+					out, e = s.AppAccess(ctx, realm, token, parts[1], "", key, requestID, input, raw, false)
+				}
+			case len(parts) == 4 && parts[0] == "applications" && parts[2] == "access" && r.Method == "DELETE":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.AppAccess(ctx, realm, token, parts[1], parts[3], key, requestID, AppAccessInput{}, raw, true)
 			case len(parts) == 4 && parts[0] == "users" && parts[2] == "sessions" && parts[3] == "revoke" && r.Method == "POST":
 				if key == "" {
 					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")

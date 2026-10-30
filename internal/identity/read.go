@@ -32,7 +32,7 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	if a.PublicID == "" {
 		return Result{}, ErrNotReady
 	}
-	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "group": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read", "user/sessions": "identity.users.sessions.read"}[kind]
+	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "group": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read", "user/sessions": "identity.users.sessions.read", "applications": "identity.apps.read", "app/access": "identity.apps.read"}[kind]
 	if permission == "" {
 		return Result{}, fault(404, "IDENTITY_NOT_FOUND")
 	}
@@ -63,6 +63,12 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	}
 	if kind == "me/access" {
 		return s.ownAccess(ctx, tx, a)
+	}
+	if kind == "applications" {
+		return s.applications(ctx, tx, a)
+	}
+	if kind == "app/access" {
+		return s.appAccess(ctx, tx, target)
 	}
 	if kind == "user/access" {
 		u, role, e := userRow(ctx, tx, target)
@@ -197,7 +203,7 @@ func (s *Service) ownAccess(ctx context.Context, tx pgx.Tx, a Actor) (Result, er
 		if !active {
 			break
 		}
-		if e = authorize(ctx, tx, a, k); e == nil {
+		if e = authorizeApp(ctx, tx, a, appForPermission(k), k); e == nil {
 			permissions = append(permissions, k)
 		} else {
 			var f *Fault

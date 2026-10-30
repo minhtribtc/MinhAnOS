@@ -201,7 +201,7 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("/api/drive/", a.driveProxy())
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
-	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, registry) })))
+	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(a.apps)))
 	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
@@ -385,6 +385,22 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, &http.Cookie{Name: "minhanos_session", Value: sessionToken, Path: "/", HttpOnly: true, Secure: a.secureCookie, SameSite: http.SameSiteStrictMode, MaxAge: 86400})
 	writeJSON(w, 200, map[string]any{"user": user, "csrfToken": csrf, "passwordChangeRequired": v.Principal.PasswordChangeRequired})
+}
+
+// apps lists the launcher; Files is hidden when the identity policy denies it to this user.
+func (a *App) apps(w http.ResponseWriter, r *http.Request) {
+	if a.identityService == nil {
+		writeJSON(w, 200, registry)
+		return
+	}
+	visible := make([]AppDefinition, 0, len(registry))
+	for _, app := range registry {
+		if app.ID == "files" && a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.FilesApp, "files.read") != nil {
+			continue
+		}
+		visible = append(visible, app)
+	}
+	writeJSON(w, 200, visible)
 }
 func (a *App) session(w http.ResponseWriter, r *http.Request) {
 	i := identity(r)

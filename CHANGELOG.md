@@ -1,3 +1,8 @@
+## Phase 5: phân quyền Files và quyền truy cập ứng dụng — 2026-10-30
+
+- Files kiểm tra quyền qua Account Center trên mọi yêu cầu (vai trò, quyền ứng dụng, quy tắc chặn).
+- Tab Ứng dụng trong Account Center: chặn hoặc bỏ chặn người dùng, nhóm, vai trò khỏi Files; Desktop ẩn Files với người bị chặn.
+
 ## Quản lý phiên và bắt buộc đổi mật khẩu — 2026-10-30
 
 - Admin xem và đăng xuất người dùng khỏi mọi thiết bị từ trang chi tiết.

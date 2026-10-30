@@ -2666,8 +2666,8 @@
     "/api/v1/identity/applications": {
       "get": {
         "operationId": "identityListApplications",
-        "summary": "Read permission-filtered metadata, never secrets",
-        "x-implementation": "planned",
+        "summary": "First-party apps and whether the caller may use them",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2716,7 +2716,8 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Requires identity.apps.read. allowed = entitlement AND app grant AND no deny rule for the caller."
       }
     },
     "/api/v1/identity/audit-events": {
@@ -3489,6 +3490,202 @@
           }
         ],
         "description": "Requires identity.users.sessions.revoke, reauthentication within five minutes and Idempotency-Key. Never the caller (use me/sessions). Audited as user.sessions.revoked; queues a sessions.revoked notice."
+      }
+    },
+    "/api/v1/identity/applications/{appId}/access": {
+      "get": {
+        "operationId": "identityListAppAccess",
+        "summary": "Deny rules of one governed app",
+        "description": "Requires identity.apps.read. Account Center is governed by roles only and has no editable rules.",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAppAccessPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "identityCreateAppAccess",
+        "summary": "Deny a user, group or role access to an app",
+        "description": "System Admin with identity.apps.write, reauthentication within five minutes and Idempotency-Key. Never Account Center (IDENTITY_PROTECTED_POLICY). Audited as app.access.denied.",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAppAccessRule"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateAppAccess"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/identity/applications/{appId}/access/{ruleId}": {
+      "delete": {
+        "operationId": "identityDeleteAppAccess",
+        "summary": "Remove a deny rule",
+        "description": "Same requirements as creating a rule. Audited as app.access.removed.",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+            }
+          },
+          {
+            "name": "ruleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
       }
     }
   },
@@ -5067,6 +5264,157 @@
         },
         "required": [
           "newPassword"
+        ]
+      },
+      "IdentityAppAccessRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "appId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+          },
+          "effect": {
+            "enum": [
+              "deny"
+            ]
+          },
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "user",
+                  "group",
+                  "role"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "appId",
+          "effect",
+          "subject",
+          "version"
+        ]
+      },
+      "IdentityAppAccessPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "appId": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+                },
+                "effect": {
+                  "enum": [
+                    "deny"
+                  ]
+                },
+                "subject": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "user",
+                        "group",
+                        "role"
+                      ]
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "id",
+                "appId",
+                "effect",
+                "subject",
+                "version"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityCreateAppAccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "user",
+                  "group",
+                  "role"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "subject"
         ]
       }
     }

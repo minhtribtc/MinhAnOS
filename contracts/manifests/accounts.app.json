@@ -22,7 +22,9 @@
     "identity.sessions.read",
     "identity.sessions.revoke",
     "identity.password.change",
-    "identity.audit.read"
+    "identity.audit.read",
+    "identity.apps.read",
+    "identity.apps.write"
   ],
   "navigation": [
     {
@@ -50,6 +52,12 @@
       "requiredPermission": "identity.roles.read"
     },
     {
+      "id": "apps",
+      "labelKey": "accounts.nav.apps",
+      "path": "/apps",
+      "requiredPermission": "identity.apps.read"
+    },
+    {
       "id": "sessions",
       "labelKey": "accounts.nav.sessions",
       "path": "/sessions",
@@ -69,9 +77,24 @@
     }
   ],
   "settingsIntegration": [
-    {"id": "profile", "labelKey": "accounts.nav.profile", "path": "/profile", "requiredPermission": "identity.self.read"},
-    {"id": "security", "labelKey": "accounts.nav.security", "path": "/security", "requiredPermission": "identity.self.read"},
-    {"id": "sessions", "labelKey": "accounts.nav.sessions", "path": "/sessions", "requiredPermission": "identity.sessions.read"}
+    {
+      "id": "profile",
+      "labelKey": "accounts.nav.profile",
+      "path": "/profile",
+      "requiredPermission": "identity.self.read"
+    },
+    {
+      "id": "security",
+      "labelKey": "accounts.nav.security",
+      "path": "/security",
+      "requiredPermission": "identity.self.read"
+    },
+    {
+      "id": "sessions",
+      "labelKey": "accounts.nav.sessions",
+      "path": "/sessions",
+      "requiredPermission": "identity.sessions.read"
+    }
   ],
   "lifecycle": {
     "version": "1",

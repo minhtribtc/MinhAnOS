@@ -40,6 +40,28 @@ func jsonResponse(w http.ResponseWriter, status int, value any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
 }
+
+// authorized applies the identity policy (user entitlement AND Files app grant AND access rules)
+// before the resource rules of each root (own namespace, host operator for the system root).
+func (s *Server) authorized(w http.ResponseWriter, r *http.Request, u User, permission string) bool {
+	e := s.Identity.Authorize(r.Context(), u, permission)
+	if e == nil {
+		return true
+	}
+	var f *identity.Fault
+	switch {
+	case errors.As(e, &f):
+		fail(w, f.Status, "Bạn không có quyền dùng Files cho thao tác này.", f.Code)
+	case errors.Is(e, identity.ErrUnauthorized):
+		fail(w, 401, "Vui lòng đăng nhập Drive.")
+	case errors.Is(e, identity.ErrNotReady):
+		fail(w, 503, "Dữ liệu định danh chưa sẵn sàng.", "IDENTITY_NOT_READY")
+	default:
+		log.Printf("drive authorization failed: %v", e)
+		fail(w, 503, "Không thể kiểm tra quyền.")
+	}
+	return false
+}
 func fail(w http.ResponseWriter, status int, message string, code ...string) {
 	jsonResponse(w, status, apicontract.Error(status, message, code...))
 }
@@ -178,11 +200,14 @@ func (s *Server) Handler() http.Handler {
 			return
 		}
 		if r.URL.Path == "/api/roots" && r.Method == "GET" {
+			if !s.authorized(w, r, session.User, "files.read") {
+				return
+			}
 			roots := []map[string]string{{"id": "personal", "name": "Tệp của tôi"}}
 			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {
 				fail(w, 503, "Không thể kiểm tra quyền host.")
 				return
-			} else if allowed && s.AgentSocket != "" {
+			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
 				roots = append(roots, map[string]string{"id": "system", "name": "Hệ thống Debian"})
 			}
 			jsonResponse(w, 200, map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText})
@@ -211,6 +236,19 @@ func (s *Server) Handler() http.Handler {
 		}
 		if root != "personal" && root != "system" {
 			fail(w, 400, "Không gian lưu trữ không hợp lệ.")
+			return
+		}
+		permission := "files.read"
+		if mutation {
+			permission = "files.write"
+		}
+		if root == "system" {
+			permission = "files.system.read"
+			if mutation {
+				permission = "files.system.write"
+			}
+		}
+		if !s.authorized(w, r, session.User, permission) {
 			return
 		}
 		if mutation {
