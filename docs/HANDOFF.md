@@ -1,4 +1,4 @@
-Release status: Account Center UI v1 committed on account-center-ui-v1; see deployment line in the UI v1 handoff below.
+Release status: Account Center UI v1 (964e75a) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. No migration.
 
 # Handoff — Account Center UI v1 / Phase 4 (current)
 
