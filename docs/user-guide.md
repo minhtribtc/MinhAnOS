@@ -6,7 +6,7 @@ Mở **Cài đặt** từ Desktop. Thanh bên trái nhóm theo ứng dụng; gõ
 - **Hệ thống → Ngôn ngữ & Khu vực**: ngôn ngữ và múi giờ, áp dụng cho mọi ứng dụng của tài khoản.
 - **Account Center → Tài khoản của tôi, Bảo mật, Phiên**: cùng chức năng như trong app Account Center. Mục Phiên chỉ hiện khi bạn có quyền.
 
-Chuyển giữa các mục giữ nguyên biểu mẫu đang nhập; đóng Cài đặt khi còn thay đổi chưa lưu sẽ hỏi xác nhận. Trang "Người dùng" cũ trong Cài đặt đã được thay bằng mục của Account Center; nhóm, role và nhật ký vẫn quản lý trong app Account Center.
+Chuyển giữa các mục giữ nguyên biểu mẫu đang nhập; đóng Cài đặt khi còn thay đổi chưa lưu sẽ hỏi xác nhận. Quản lý người dùng, nhóm, role và nhật ký nằm trong app **Account Center** (không còn trong Cài đặt). Khi mở Account Center trong Desktop, ngôn ngữ và giao diện được chỉnh qua Cài đặt; bản Account Center độc lập (`/accounts/`) vẫn có bộ chọn riêng.
 
 ## Account Center (Phase 4 UI v1)
 

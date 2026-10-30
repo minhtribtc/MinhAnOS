@@ -1,4 +1,4 @@
-Release status: settings-central-v1 committed, NOT yet deployed. VM still runs Account Center UI v1 (964e75a).
+Release status: settings-central-v1 (hybrid, 9cf4075) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. Browser acceptance pending user sign-in.
 
 # Handoff — Central Settings thin slice (current)
 
