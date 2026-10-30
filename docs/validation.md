@@ -1,3 +1,7 @@
+## Fix: dialogs on plain HTTP — 2026-10-30
+
+User reported create account/group/role not working. Live DB showed no create or denied events after sign-in, so requests never reached the API. Root cause: AccountsApp called crypto.randomUUID (secure contexts only) in open(), the idempotency-key watchers and changePassword; on http://10.1.1.20 it is undefined, so every dialog threw. Node-based tests had randomUUID and missed it. Fix: createIdempotencyKey (api-client, re-exported by app-sdk) with getRandomValues fallback; new tests/insecure-context.mjs removes crypto.randomUUID and scans frontend sources. Clean npm ci + npm run build PASS on VM. Browser confirmation by the user still pending.
+
 ## Account Center usable v1 — 2026-10-30
 
 VM check folder /opt/minhanos-ac-usable: gofmt clean, go vet, go test PASS; tests/migrations-integration.sh on disposable DB PASS incl. new TestAdminPasswordResetRevokesBothRealmsAndAudits, TestPasswordResetCannotTakeOverHostOperator, TestPasswordResetHTTPRoute, TestSignInAuditBoundedOrderedAndFiltered, TestGroupsFilteredByMember; adjusted TestProtectedPolicyCeilingsAndAuditRollback (sign-in now audits transactionally). Clean npm ci + contracts:generate + npm run build PASS. VM network was briefly unreachable during the work (no reboot). Deployed a0b1248 after private pg_dump; live DB shows the widened outcome constraint and new indexes, existing events intact; /accounts/ 200 on 8081 and 8082. Browser acceptance not performed (requires user sign-in).

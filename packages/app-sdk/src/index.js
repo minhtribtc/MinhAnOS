@@ -4,7 +4,7 @@ import {createI18n,resolveLocale} from '@minhanos/i18n'
 import {resolveTheme} from '@minhanos/ui'
 export const sdkVersion=1
 const hostKey=Symbol('minhanos.host.v1')
-export {ApiError,createApiClient} from '@minhanos/api-client'
+export {ApiError,createApiClient,createIdempotencyKey} from '@minhanos/api-client'
 import {ApiError} from '@minhanos/api-client'
 export function createHost(){
  let guest;try{guest=localStorage.getItem('minhanos.locale')||undefined}catch{}

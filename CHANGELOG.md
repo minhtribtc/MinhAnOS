@@ -1,3 +1,7 @@
+## Sửa lỗi Account Center trên HTTP — 2026-10-30
+
+- Sửa lỗi mọi hộp thoại (tạo tài khoản, nhóm, vai trò, gán vai trò, sửa, khóa, đặt lại/đổi mật khẩu) không mở khi truy cập qua địa chỉ HTTP thường như http://10.1.1.20:8081.
+
 ## Account Center dùng được — 2026-10-30
 
 - Admin đặt lại mật khẩu người dùng (thu hồi mọi phiên của họ, có audit); không áp dụng cho operator máy chủ.

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,reactive,ref,watch,nextTick} from 'vue'
 import {ShieldCheck,UserRound,Users,Layers3,KeyRound,Monitor,ScrollText,RefreshCw,Plus,Search,ChevronRight,X,LogOut,Check,LockKeyhole,ArrowLeft} from 'lucide-vue-next'
-import {useHost,createApiClient,ApiError} from '@minhanos/app-sdk'
+import {useHost,createApiClient,createIdempotencyKey,ApiError} from '@minhanos/app-sdk'
 import {createIdentityClient} from '@minhanos/api-client/identity'
 import type {IdentityUser,IdentityAccess,IdentityGroup,IdentityRole,IdentityRoleBinding,IdentitySession,IdentityCredentialRef,IdentityAuditEvent,IdentityPermission} from '@minhanos/shared-types'
 import catalogs from '../locales/catalogs.json'
@@ -66,10 +66,10 @@ async function navigate(next:Tab){if(busy.value||dialog.value)return;tab.value=n
 async function saveProfile(){if(!me.value||busy.value)return;busy.value=true;error.value='';try{const u=await api.identityPatchMe({ifMatch:etag(me.value.version),body:{displayName:profileName.value}});me.value=u;profileName.value=u.displayName;if(sessionUser.value)sessionUser.value.displayName=u.displayName;emit('profile-changed',u.displayName);host.emit('profile-changed',{displayName:u.displayName});notice.value=t('saved')}catch(e){error.value=message(e)}finally{busy.value=false}}
 async function profilePreference(event:Event,field:'locale'|'theme'){if(busy.value)return;busy.value=true;try{const value=(event.target as HTMLSelectElement).value;if(sessionUser.value)await host.updateProfile(legacy.request,{[field]:value});else host.applyProfile({...host.profile.value,[field]:value})}catch(e){error.value=message(e)}finally{busy.value=false}}
 function open(title:string,kind:string,submit:()=>Promise<void>,values:Record<string,string>={},reauth=true,hint?:string){
- if(busy.value)return;priorFocus=document.activeElement as HTMLElement|null;for(const key of Object.keys(fields))delete fields[key];Object.assign(fields,values);rolePermissions.value=[];userOptions.value=[];reauthPassword.value='';error.value='';dialog.value={title,kind,submit,reauth,hint,key:crypto.randomUUID()};void nextTick(()=>dialogPanel.value?.querySelector<HTMLElement>('input,select,button')?.focus())
+ if(busy.value)return;priorFocus=document.activeElement as HTMLElement|null;for(const key of Object.keys(fields))delete fields[key];Object.assign(fields,values);rolePermissions.value=[];userOptions.value=[];reauthPassword.value='';error.value='';dialog.value={title,kind,submit,reauth,hint,key:createIdempotencyKey()};void nextTick(()=>dialogPanel.value?.querySelector<HTMLElement>('input,select,button')?.focus())
 }
-watch(fields,()=>{if(dialog.value&&!busy.value)dialog.value.key=crypto.randomUUID()},{deep:true})
-watch(rolePermissions,()=>{if(dialog.value&&!busy.value)dialog.value.key=crypto.randomUUID()},{deep:true})
+watch(fields,()=>{if(dialog.value&&!busy.value)dialog.value.key=createIdempotencyKey()},{deep:true})
+watch(rolePermissions,()=>{if(dialog.value&&!busy.value)dialog.value.key=createIdempotencyKey()},{deep:true})
 watch(()=>props.active,active=>{if(!active)reauthPassword.value=''})
 function closeDialog(){if(busy.value)return;dialog.value=null;reauthPassword.value='';fields.password='';fields.repeat='';priorFocus?.focus()}
 async function submitDialog(){if(!dialog.value||busy.value)return;const action=dialog.value;busy.value=true;error.value='';try{if(action.reauth)await api.identityReauthenticate({body:{password:reauthPassword.value}});reauthPassword.value='';await action.submit();if(!disposed){dialog.value=null;fields.password='';fields.repeat='';notice.value=t('saved');priorFocus?.focus()}}catch(e){error.value=message(e)}finally{reauthPassword.value='';busy.value=false}}
@@ -103,7 +103,7 @@ function newBinding(){open(t('actions.bind'),'binding',async()=>{await api.ident
 function removeBinding(b:IdentityRoleBinding){open(t('actions.remove'),'confirm',async()=>{await api.identityDeleteRoleBinding({bindingId:b.id,ifMatch:etag(b.version),idempotencyKey:dialog.value!.key});await load('roles')},{},true,roleName(b.roleId))}
 function revokeSession(s:IdentitySession){open(t('actions.revoke'),'confirm',async()=>{await api.identityRevokeMySession({sessionId:s.id});if(s.current){expire();return}await load('sessions')},{},false,t('confirm.revoke'))}
 function revokeOthers(){open(t('actions.revokeOthers'),'confirm',async()=>{await api.identityRevokeOtherSessions({idempotencyKey:dialog.value!.key});await load('sessions')},{},false,t('confirm.revokeOthers'))}
-async function changePassword(){if(busy.value)return;error.value='';if(newPassword.value!==repeatPassword.value){error.value=t('errors.passwordMismatch');return}if([...newPassword.value].length<12||new TextEncoder().encode(newPassword.value).length>256){error.value=t('errors.invalidPassword');return}busy.value=true;try{await api.identityChangePassword({idempotencyKey:crypto.randomUUID(),body:{currentPassword:currentPassword.value,newPassword:newPassword.value}});expire()}catch(e){error.value=message(e)}finally{currentPassword.value='';newPassword.value='';repeatPassword.value='';busy.value=false}}
+async function changePassword(){if(busy.value)return;error.value='';if(newPassword.value!==repeatPassword.value){error.value=t('errors.passwordMismatch');return}if([...newPassword.value].length<12||new TextEncoder().encode(newPassword.value).length>256){error.value=t('errors.invalidPassword');return}busy.value=true;try{await api.identityChangePassword({idempotencyKey:createIdempotencyKey(),body:{currentPassword:currentPassword.value,newPassword:newPassword.value}});expire()}catch(e){error.value=message(e)}finally{currentPassword.value='';newPassword.value='';repeatPassword.value='';busy.value=false}}
 function roleName(id:string){const role=roles.value.find(r=>r.id===id);return role?translated('roles.'+role.key,role.name):id}
 function person(id:string){const u=users.value.find(v=>v.id===id)||userOptions.value.find(v=>v.id===id);return u?u.displayName+' · @'+u.username:id}
 function canClose(){return !busy.value&&(!dirty.value||globalThis.confirm(t('confirm.discard')))}

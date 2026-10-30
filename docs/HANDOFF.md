@@ -1,5 +1,7 @@
 Release status: Account Center usable v1 (a0b1248) deployed to VM 10.1.1.20 after pg_dump backup /opt/minhanos-backups/before-identity-006.sql; identity SQL 006 applied; Desktop, Drive, DB healthy. Browser acceptance pending user.
 
+Fix (current): Account Center dialogs failed on plain HTTP because of crypto.randomUUID; use createIdempotencyKey from app-sdk. tests/insecure-context.mjs guards it.
+
 # Handoff — Account Center usable v1 (current)
 
 Read [usable v1 report](account-center/USABLE_V1_REPORT.md). Adds admin password reset (identityResetUserPassword, 34 operations), user detail page (groups?member=, audit-events?target=), sign-in audit (identity SQL 006 auth_audit; SQL 001–006 now immutable) and newest-first audit ordering. Host operators cannot have their password reset by web admins.

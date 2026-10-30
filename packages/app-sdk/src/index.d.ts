@@ -3,7 +3,7 @@ import type {Catalogs,I18n,Locale} from '@minhanos/i18n'
 import type {AccountProfile} from '@minhanos/shared-types'
 export type Profile=AccountProfile
 export type Request=<T=any>(path:string,options?:RequestInit)=>Promise<T>
-export {ApiError,createApiClient} from '@minhanos/api-client'
+export {ApiError,createApiClient,createIdempotencyKey} from '@minhanos/api-client'
 /** Host-wide notifications shared by every app rendered in the same Shell. */
 export interface HostEvents {'session-ended':void;'profile-changed':{displayName:string}}
 export interface SettingsEntry {id:string;labelKey:string;path:string;requiredPermission?:string}
