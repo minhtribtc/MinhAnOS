@@ -125,3 +125,11 @@ ghi rõ chức năng đã chạy, giới hạn và phần chưa có. Không đ�
 Đợt này thêm schema và kiểm tra phát triển, không đổi thao tác sử dụng hiện tại.
 Chưa có upload tiếp tục sau reload, OCR/job nền, ACL mới, app PDF Viewer hay cài plugin từ manifest.
 Các đường dẫn /api/v1 trong OpenAPI là đặc tả planned; không dùng như API đang chạy.
+
+
+## Khi nâng cấp gặp lỗi migration
+
+Bản này bổ sung ledger migration và kiểm tra bảng hồ sơ; thao tác Files/Desktop không đổi.
+Nếu log báo checksum drift, unsupported history hoặc incompatible user_profiles, hãy giữ nguyên dữ liệu/volume,
+kiểm tra phiên bản đang chạy và đọc [chính sách migration](migration-policy.md).
+Không xóa ledger, sửa checksum hoặc xóa bảng để buộc server khởi động. Cần bản migration sửa chữa được kiểm chứng.

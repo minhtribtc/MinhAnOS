@@ -136,3 +136,9 @@ Thứ tự mở rộng và bảng khoảng cách: [extension-contracts.md](exten
 Đã có machine-readable schemas, generated types, API client độc lập và kiểm tra schema/SDK/OpenAPI compatibility.
 Triển khai tiếp: module migration runner + app grants/delegation → file identity/ETag/ACL → durable uploads/jobs
 → outbox/events → viewer integrations. [ADR](adr/0001-platform-contracts-v1.md) ghi ranh giới bảo mật và tương thích.
+
+
+## Migration runner bước đầu
+
+Đã có shared transactional runner và profile adoption. Còn identity adoption, operator workflow cho backfill/contract,
+backup/restore rehearsal và schema compatibility cho các module tương lai. Xem ADR 0002.

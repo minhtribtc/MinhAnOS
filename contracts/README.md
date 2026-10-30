@@ -9,7 +9,7 @@ The SDK package is currently 0.1.0; manifests requiring ^1.0.0 are rejected unti
 | App Manifest | manifests/app-manifest.v1.schema.json | Schema + sample + CI checks; registry/entrypoint integration pending |
 | Authorization | authz/permissions.yaml, check.v1.schema.json | Planned user AND app grant enforcement; no new authz endpoint |
 | API | api/openapi.yaml | Only /api/profile is represented as implemented; other legacy routes remain documented in docs/api.md |
-| Migration | ../docs/migration-policy.md | Policy + module plan; migration runner pending |
+| Migration | ../docs/migration-policy.md | Transactional runner + profile adoption; full legacy/module adoption pending |
 | Jobs | jobs/jobs.v1.yaml, job.v1.schema.json | Planned; no worker/job API |
 | Upload | uploads/uploads.v1.yaml, upload.v1.schema.json | Planned; existing uploads remain browser-owned |
 | File Resource | files/file-resource.v1.schema.json | Planned persistent IDs/version/ACL; current path-based API unchanged |

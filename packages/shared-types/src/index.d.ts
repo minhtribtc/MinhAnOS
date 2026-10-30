@@ -1,5 +1,5 @@
 // Generated from contracts/*.schema.json. Run npm run contracts:generate. Do not edit.
-export interface HttpsSchemasMinhanosLocalAppManifestV1 {
+export interface AppManifest {
   manifestVersion: "1";
   id: string;
   version: string;
@@ -26,7 +26,7 @@ export interface HttpsSchemasMinhanosLocalAppManifestV1 {
   };
 }
 
-export interface HttpsSchemasMinhanosLocalErrorV1 {
+export interface ApiErrorEnvelope {
   error: {
     code: string;
     message: string;
@@ -37,18 +37,18 @@ export interface HttpsSchemasMinhanosLocalErrorV1 {
   };
 }
 
-export interface HttpsSchemasMinhanosLocalErrorLegacy {
+export interface LegacyErrorEnvelope {
   code: string;
   error: string;
 }
 
-export interface HttpsSchemasMinhanosLocalProfile {
+export interface AccountProfile {
   locale: "vi-VN" | "en-US";
   theme: "light" | "dark" | "system";
   timeZone: string;
 }
 
-export interface HttpsSchemasMinhanosLocalFileResourceV1 {
+export interface FileResource {
   fileId: string;
   name: string;
   parentId: string | null;
@@ -61,7 +61,7 @@ export interface HttpsSchemasMinhanosLocalFileResourceV1 {
   permissions: ("read" | "write" | "delete" | "share")[];
 }
 
-export interface HttpsSchemasMinhanosLocalAclV1 {
+export interface FileAcl {
   fileId: string;
   version: number;
   etag: string;
@@ -77,7 +77,7 @@ export interface HttpsSchemasMinhanosLocalAclV1 {
   }[];
 }
 
-export interface HttpsSchemasMinhanosLocalJobV1 {
+export interface Job {
   id: string;
   type: string;
   state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
@@ -100,7 +100,7 @@ export interface HttpsSchemasMinhanosLocalJobV1 {
   } | null;
 }
 
-export interface HttpsSchemasMinhanosLocalUploadV1 {
+export interface UploadSession {
   id: string;
   state: "created" | "uploading" | "completing" | "completed" | "cancelled" | "expired" | "failed";
   size: number;
@@ -111,7 +111,7 @@ export interface HttpsSchemasMinhanosLocalUploadV1 {
   fileId: string | null;
 }
 
-export interface HttpsSchemasMinhanosLocalAuthzCheckV1 {
+export interface AuthorizationCheck {
   action:
     | "files.read"
     | "files.write"
@@ -129,7 +129,7 @@ export interface HttpsSchemasMinhanosLocalAuthzCheckV1 {
   };
 }
 
-export type HttpsSchemasMinhanosLocalEventV1 = {
+export type PlatformEvent = {
   [k: string]: unknown;
 } & {
   eventId: string;

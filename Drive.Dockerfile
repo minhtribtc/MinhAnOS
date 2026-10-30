@@ -19,6 +19,7 @@ RUN go mod download
 COPY internal/drive/ internal/drive/
 COPY internal/authn/ internal/authn/
 COPY internal/coreprofile/ internal/coreprofile/
+COPY internal/migrate/ internal/migrate/
 COPY internal/apicontract/ internal/apicontract/
 COPY cmd/drive/ cmd/drive/
 COPY cmd/files-agent/ cmd/files-agent/

@@ -32,3 +32,6 @@ Không ghi chức năng là hoàn thành chỉ vì đã có thiết kế hoặc 
 - [Contracts và trạng thái runtime](../contracts/README.md)
 - [ADR 0001](adr/0001-platform-contracts-v1.md)
 - [Chính sách migration](migration-policy.md)
+
+
+- [ADR 0002: transactional migration runner](adr/0002-transactional-migration-runner.md)

@@ -91,3 +91,10 @@ Nguồn hợp đồng tại [contracts](../contracts/README.md), quyết định
 @minhanos/shared-types sinh từ JSON Schema và được SDK dùng cho Profile.
 Manifest schema/protocol version không phải SDK package version. Runtime manifest registry, app grants, file identity,
 jobs/uploads/event transport và module migration runner còn planned; không thay thế kiểm tra quyền backend hiện có.
+
+
+## Transactional migrations — profile-first
+
+Runner dùng chung internal/migrate, ledger platform_migrations, SQL thuộc coreprofile/migrations.
+Desktop và Drive dùng cùng advisory transaction lock; history/checksum được kiểm trước pending SQL.
+Identity/bootstrap/schema_version cũ chưa chuyển. Xem [ADR 0002](adr/0002-transactional-migration-runner.md).

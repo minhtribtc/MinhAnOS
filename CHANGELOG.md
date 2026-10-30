@@ -52,3 +52,13 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Sinh shared-types từ schema; tách api-client khỏi Vue SDK, đọc cả legacy và nested-v1 errors.
 - Thêm kiểm tra schema, SDK semver/capability, generated drift, OpenAPI lint và breaking-change guard trong CI.
 - Các dịch vụ /api/v1 vẫn planned; không thay API legacy, DB hay chức năng upload đang chạy.
+
+
+## 2026-10-30 — transactional migration runner
+
+- Thêm module DAG validation, immutable checksum ledger và khóa chống startup đồng thời.
+- Profile schema dùng migration embedded; tiếp nhận dữ liệu hiện có sau kiểm tra tương thích.
+- Thêm integration tests PostgreSQL riêng cho rollback/cancellation/concurrency/connection loss và adoption.
+- Chưa chuyển identity bootstrap; chưa có destructive/down/backfill runner hoặc grants/jobs/upload mới.
+
+- Sửa generator shared-types để xuất đúng tên công khai và newline ổn định; thêm TypeScript contract check không dùng skipLibCheck.

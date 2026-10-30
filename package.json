@@ -13,7 +13,7 @@
     "check": "node tests/foundations.mjs && npm run contracts:check",
     "build": "npm run check && npm run build --workspace=minhanos-desktop && npm run build --workspace=minhanos-drive",
     "contracts:generate": "node scripts/generate-contract-types.mjs",
-    "contracts:check": "node tests/contracts.mjs && redocly lint --extends=minimal contracts/api/openapi.yaml"
+    "contracts:check": "node tests/contracts.mjs && tsc --project tests/tsconfig.contracts.json && redocly lint --extends=minimal contracts/api/openapi.yaml"
   },
   "devDependencies": {
     "ajv": "^8.17.1",
@@ -21,6 +21,7 @@
     "yaml": "^2.8.0",
     "semver": "^7.7.0",
     "json-schema-to-typescript": "^15.0.0",
-    "@redocly/cli": "^2.0.0"
+    "@redocly/cli": "^2.0.0",
+    "typescript": "^5.9.0"
   }
 }

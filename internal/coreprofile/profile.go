@@ -21,19 +21,7 @@ type Profile struct {
 type Store struct{ DB *pgxpool.Pool }
 
 func New(ctx context.Context, db *pgxpool.Pool) (*Store, error) {
-	tx, e := db.Begin(ctx)
-	if e != nil {
-		return nil, e
-	}
-	defer tx.Rollback(ctx)
-	if _, e = tx.Exec(ctx, "SELECT pg_advisory_xact_lock(681023)"); e != nil {
-		return nil, e
-	}
-	_, e = tx.Exec(ctx, `CREATE TABLE IF NOT EXISTS user_profiles(user_id text PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,locale text NOT NULL DEFAULT 'vi-VN' CHECK(locale IN ('vi-VN','en-US')),theme text NOT NULL DEFAULT 'light' CHECK(theme IN ('light','dark','system')),time_zone text NOT NULL DEFAULT 'Asia/Bangkok');`)
-	if e != nil {
-		return nil, e
-	}
-	if e = tx.Commit(ctx); e != nil {
+	if e := migrateProfile(ctx, db); e != nil {
 		return nil, e
 	}
 	return &Store{db}, nil

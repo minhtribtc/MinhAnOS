@@ -1,3 +1,32 @@
+# Bổ sung kiểm tra types và rehearsal
+
+Đã sửa generator lấy tên type từ `$id`: nay xuất đúng AppManifest/AccountProfile/... theo tên public,
+chuẩn hóa một newline cuối file. tests/shared-types.ts + tsconfig.contracts.json chạy skipLibCheck=false,
+kiểm tra Profile không thành any và enum locale/job state vẫn chặt. Root contracts:check chạy tsc riêng.
+Backup DB trước nâng cấp và source Git trước thay đổi ở /opt/minhanos-backups/before-migration-runner.* (0600).
+Đã restore DB copy trong container tách biệt và kiểm tra fingerprint users/profiles không đổi sau adoption.
+Không tương đương chứng nhận recovery dữ liệu volume Files. Binaries legacy chưa dùng runner cần deployment gate riêng.
+
+# Handoff — transactional migrations, profile-first
+
+Nhánh platform-migrations-v1 kế thừa platform-contracts-v1.
+Đọc docs/adr/0002-transactional-migration-runner.md. Runner Go trong internal/migrate đã có DAG validation,
+version bounds, immutable checksum/history, advisory lock 681024, atomic DDL+ledger và timeout.
+Core profile dùng embedded migration SQL 001 để tạo mới hoặc kiểm tra/tiếp nhận bảng user_profiles hiện có.
+Không rewrite user/profile IDs hay preferences. Drive vẫn độc lập, chỉ thêm shared internal/migrate vào image.
+
+platform_migrations là ledger mới; legacy schema_version và identity bootstrap chưa chuyển.
+contracts/migrations/modules.v1.yaml vẫn là kế hoạch registry tương lai, không phải applied runtime ledger.
+Không có down/destructive/nontransactional/backfill runner. Chỉ chạy SQL additive được review và embed.
+Không sửa migration đã áp dụng; thêm step mới. Khi checksum/history lệch, startup phải dừng để chẩn đoán.
+
+CI thêm sh tests/migrations-integration.sh: DB/network disposable riêng, không publish port, không dùng secret production.
+Thông số MIGRATION_TEST_DATABASE_URL chỉ dành cho test DB riêng. go test thường bỏ qua integration nếu không có biến.
+Không chạy test này trực tiếp vào DB người dùng. Kết quả, deployment và giới hạn ghi đầu docs/validation.md.
+Các bước tiếp: adopt identity có kiểm chứng → grants/delegation → file identity/ACL → durable uploads/jobs → events.
+Nợ i18n/Desktop/Files từ các handoff trước vẫn tồn tại.
+
+
 # Handoff — Platform Contracts v1
 
 Nhánh platform-contracts-v1, kế thừa platform-foundations-v1. Đọc contracts/README.md,

@@ -1,3 +1,30 @@
+# Kiểm chứng migration runner — 2026-10-30
+
+Nhánh platform-migrations-v1. Kết quả thực tế trên VM và PostgreSQL disposable riêng.
+
+- Plan validation qua: DAG order, duplicate/missing modules, cycle, version bounds và gap IDs.
+- DB integration qua: sáu concurrent Apply chỉ ghi một lần; sửa checksum bị từ chối;
+  SQL lỗi/hủy context rollback DDL+history; binary runner-aware cũ bị chặn khi schema mới hơn.
+- Đã terminate PostgreSQL backend giữa transaction: DDL không commit; cùng migration chạy lại thành công.
+- Profile fresh/adopt giữ nguyên locale/theme/timezone; schema không tương thích bị từ chối và không để ledger dở.
+- Backup DB thật restore vào DB/network riêng qua psql ON_ERROR_STOP; profile upgrade qua và fingerprint
+  toàn bộ users/profiles không thay đổi. Container rehearsal không publish port và đã được dọn.
+- Docker build Desktop/Drive qua: Go tests/vet và Vue/TypeScript. Tests DB opt-in được chạy riêng;
+  go test thông thường skip các tests không có biến môi trường, không coi skipped là passed.
+- Root npm run check qua: foundation, schemas, generated types, strict TypeScript contract check, OpenAPI lint.
+- Đã phát hiện/sửa lỗi cũ: generator xuất tên từ $id thay vì tên public, thêm newline cuối file không ổn định;
+  kiểm tra mới xác nhận SDK Profile không phải any và enum không bị nới lỏng.
+- Live profile smoke qua sau migration: schema thật, hai-user isolation, CSRF/Origin, Desktop/Drive profile.
+  Files gateway smoke đủ bốn nhóm qua. Disposable users đã dọn theo IDs cụ thể.
+- Dừng Desktop thật: Drive frontend/login/files/logout vẫn qua; Desktop đã khởi động lại.
+- Runtime ledger có đúng profile v1 applied, runner_version=1; services Desktop/Drive/DB healthy.
+
+Chưa triển khai identity adoption, nontransactional/backfill/destructive/down runner, app grants, jobs/upload
+bền vững hay event bus. Không kiểm thử recovery volume Files, không chạy race detector Go hoặc kiểm thử UI mới.
+Workflow GitHub thêm DB integration; chưa xác nhận trạng thái remote CI.
+
+---
+
 # Kiểm chứng Platform Contracts v1 — 2026-10-30
 
 Nhánh platform-contracts-v1. Kiểm tra thực tế trên VM, chưa xác nhận trạng thái workflow GitHub.

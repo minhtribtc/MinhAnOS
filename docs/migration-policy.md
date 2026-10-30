@@ -1,6 +1,7 @@
 # Chính sách migration theo module
 
-Trạng thái: chính sách đã chốt; runner theo module chưa triển khai. Schema startup hiện tại vẫn hoạt động như trước.
+Trạng thái: runner transactional đã triển khai cho profile; identity và các module khác còn dùng bootstrap cũ.
+Xem [ADR 0002](adr/0002-transactional-migration-runner.md) cho phạm vi hiện tại.
 
 Mỗi module sở hữu migration bất biến, có ID tăng dần, checksum, phiên bản yêu cầu và dependency constraints.
 Platform lập DAG phụ thuộc, phát hiện chu trình/thiếu module/phiên bản không tương thích, lấy advisory lock rồi chạy
@@ -23,3 +24,16 @@ kiểm thử nâng từ DB phiên bản trước, fresh DB và restore thật. C
 
 Ledger module mới phải tiếp nhận schema_version cũ bằng migration adoption có kiểm chứng, không tạo lại users,
 không đổi user IDs và không xóa profile/sessions/files. Bí mật backup không đưa vào Git.
+
+
+## Phần đã triển khai
+
+internal/migrate quản lý plan DAG, checksum và platform_migrations; profile schema v1 dùng runner thật.
+Áp dụng plan trong transaction với lock 681024; lỗi/hủy/mất kết nối không lưu DDL hoặc history dở dang.
+Timeout lock 30s, statement 120s. Không có quyền tự rollback schema đã commit hoặc thực thi SQL từ plugin.
+Chỉ phần profile đã được tiếp nhận; không gắn nhãn toàn bộ legacy identity/files là migrated.
+
+
+Rehearsal cho profile upgrade: `MIGRATION_UPGRADE_DUMP=/private/pre-upgrade.sql sh tests/migration-upgrade.sh`.
+Script restore dump vào container/network riêng và so sánh fingerprint user/profile trước/sau migration.
+Không dùng dump công khai, không commit dump, không trỏ test vào DB ứng dụng. Đây không phải chứng nhận khôi phục volume tệp.

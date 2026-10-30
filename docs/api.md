@@ -100,3 +100,9 @@ Giữ legacy `{code,error:string}`; client mới đọc thêm `{error:{code,mess
 Không đổi sang error object trên /api hiện tại. RequestId v1 phải được server sinh/ghi log, không do frontend tự giả lập.
 Cursor/idempotency/deprecation policy nằm trong OpenAPI extensions và [ADR](adr/0001-platform-contracts-v1.md).
 Body authz không nhận subject; appId chỉ là ngữ cảnh yêu cầu, backend cần xác minh app principal/delegation riêng.
+
+
+## Migration startup
+
+Không thêm endpoint hoặc đổi response trong đợt migration runner. /api/profile vẫn giữ hợp đồng hiện có.
+Startup kiểm tra profile schema/history trước khi phục vụ; schema không tương thích làm tiến trình dừng thay vì tự sửa dữ liệu.

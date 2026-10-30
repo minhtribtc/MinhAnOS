@@ -70,3 +70,8 @@ Các mục chưa hiện thực ở trên là quyết định/việc tiếp theo,
 bằng migration tương thích → manifest/lifecycle → migration runner + API schema → jobs/capabilities.
 
 Tham khảo thư viện ICU chính thức: [FormatJS Intl MessageFormat](https://formatjs.github.io/docs/intl-messageformat/).
+
+
+Cập nhật migration: shared runner transactional đã có, áp dụng profile-first; identity adoption còn pending.
+Xem [ADR 0002](adr/0002-transactional-migration-runner.md). Generated shared types đã được kiểm tra tên export
+và SDK Profile không suy thành any bằng một TypeScript check riêng không bỏ qua declaration errors.

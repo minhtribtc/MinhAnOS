@@ -100,3 +100,7 @@ Foundation preview: npm workspace/lockfile chung, profile locale/theme và share
 [Platform Contracts v1](contracts/README.md): machine-readable schemas, generated shared-types và OpenAPI CI.
 Chạy npm run contracts:generate sau khi đổi schema, npm run contracts:check trước khi phát hành.
 Các route v1 là planned, chưa phải chức năng có trên VM.
+
+
+Migration profile hiện dùng runner transactional; xem [ADR 0002](docs/adr/0002-transactional-migration-runner.md).
+Test riêng: sh tests/migrations-integration.sh (Docker; tạo DB disposable, không dùng DB ứng dụng).
