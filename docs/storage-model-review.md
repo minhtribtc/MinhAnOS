@@ -72,3 +72,13 @@ measured before enabling by default; every operation goes through typed storage-
 Test plan: one extra virtual disk on the disposable test VM, split into a ZFS pool, a Btrfs filesystem and an ext4
 filesystem with project quota, so all three drivers run the same contract tests. Loop files on the current 36 GB
 root disk (71% used) are a fallback only.
+
+## Recommendation 2026-10-30: ext4 only as system disk, not as a managed data volume (pending confirmation)
+
+Managed data volumes (homes, shares, quota, snapshots) on ZFS and Btrfs only. ext4 remains supported as the
+Debian system disk (OS, PostgreSQL, containers) and may be shown as a plain volume without quota/snapshots.
+Reasons: no checksums or snapshots for NAS data; project quota needs offline `tune2fs` plus a `prjquota` mount;
+a third driver adds a project-ID allocator, UI branches and a larger test matrix. The driver interface keeps
+ext4 possible later. Btrfs is limited to single/RAID1/RAID10 profiles (no RAID5/6). Existing
+`/data/users/{id}` on the ext4 Docker volume must move to a ZFS/Btrfs data volume, so the test VM needs an
+extra disk either way.
