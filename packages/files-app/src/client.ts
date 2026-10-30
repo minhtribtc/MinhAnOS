@@ -2,7 +2,8 @@ import {createApiClient,ApiError} from '@minhanos/api-client'
 export interface User {id:string;username:string;displayName:string;role:'admin'|'user'}
 export interface Entry {name:string;path:string;kind:'file'|'folder'|'symlink'|'special';size:number;modified:string;mode:string;uid:number;gid:number;etag:string}
 export interface TrashItem {id:string;path:string;name:string;deleted:string}
-export interface Root {id:string;name:string}
+// A storage root: the personal home, a Shared Folder (id "share:<key>", access read or write) or the host system.
+export interface Root {id:string;name:string;kind?:'home'|'share'|'system';access?:'read'|'write'}
 export function createFilesClient(base='/api'){
 const client=createApiClient(base)
 let csrf=''

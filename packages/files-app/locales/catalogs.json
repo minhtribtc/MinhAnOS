@@ -31,7 +31,16 @@
     "files.passwordChange.open": "Mở Account Center",
     "files.quota.title": "Dung lượng của bạn",
     "files.quota.used": "{used} / {limit}",
-    "files.quota.usedUnlimited": "Đã dùng {used} (không giới hạn)"
+    "files.quota.usedUnlimited": "Đã dùng {used} (không giới hạn)",
+    "files.roots.personal": "Tệp của tôi",
+    "files.roots.shareEyebrow": "THƯ MỤC CHIA SẺ",
+    "files.roots.shareHint": "Thư mục dùng chung; mọi người có quyền đều thấy thay đổi.",
+    "files.roots.shareReadHint": "Thư mục dùng chung; bạn chỉ có quyền xem.",
+    "files.roots.noneShort": "Chưa có không gian lưu trữ.",
+    "files.roots.noneTitle": "Chưa có nơi lưu trữ",
+    "files.roots.noneHint": "Quản trị viên cần tạo Shared Folder chứa vùng riêng người dùng trong Storage Manager, hoặc cấp quyền một Shared Folder cho bạn.",
+    "files.share.readOnly": "Thư mục chia sẻ này chỉ cho phép xem.",
+    "files.share.readOnlyBadge": "Chỉ xem"
   },
   "en-US": {
     "files.app.name": "MinhAnOS Files",
@@ -65,6 +74,15 @@
     "files.passwordChange.open": "Open Account Center",
     "files.quota.title": "Your storage",
     "files.quota.used": "{used} of {limit}",
-    "files.quota.usedUnlimited": "{used} used (no limit)"
+    "files.quota.usedUnlimited": "{used} used (no limit)",
+    "files.roots.personal": "My files",
+    "files.roots.shareEyebrow": "SHARED FOLDER",
+    "files.roots.shareHint": "A shared folder; everyone with access sees changes.",
+    "files.roots.shareReadHint": "A shared folder; you can only view it.",
+    "files.roots.noneShort": "No storage yet.",
+    "files.roots.noneTitle": "No storage yet",
+    "files.roots.noneHint": "An administrator needs to create the shared folder that hosts user homes in Storage Manager, or give you access to a shared folder.",
+    "files.share.readOnly": "This shared folder is view-only.",
+    "files.share.readOnlyBadge": "View only"
   }
 }

@@ -174,6 +174,12 @@ func AgentHandler(volumes map[string]Volume, owner Owner) http.Handler {
 			if e = os.Chown(path, owner.UID, owner.GID); e == nil {
 				e = os.Chmod(path, 0750)
 			}
+			// The class directory (homes/, shares/) stays root-owned but the service group may traverse it.
+			if class := filepath.Dir(path); e == nil {
+				if e = os.Chown(class, 0, owner.GID); e == nil {
+					e = os.Chmod(class, 0750)
+				}
+			}
 			if e != nil {
 				fail(w, r, e)
 				return

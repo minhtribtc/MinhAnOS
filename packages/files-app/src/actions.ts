@@ -1,9 +1,15 @@
 import catalogs from '../locales/catalogs.json' with {type:'json'}
 export type ActionID='open'|'download'|'copy'|'cut'|'paste'|'rename'|'move'|'delete'|'properties'|'restore'|'mkdir'|'upload'|'refresh'|'grid'|'list'|'select-all'
 export interface FileAction {id:ActionID;label:string;shortcut?:string;disabled?:boolean;danger?:boolean;divider?:boolean}
-export interface ActionContext {kind:'empty'|'file'|'folder'|'special'|'trash';count:number;system:boolean;canPaste:boolean;canCopy:boolean}
+export interface ActionContext {kind:'empty'|'file'|'folder'|'special'|'trash';count:number;system:boolean;canPaste:boolean;canCopy:boolean;readOnly?:boolean}
+// A read-only Shared Folder (storage Q2) keeps viewing actions only; the server refuses writes anyway.
+const writes=new Set<ActionID>(['mkdir','upload','paste','cut','rename','move','delete','restore'])
 // Menus, toolbar, overflow controls and keyboard all dispatch these same action IDs.
 export function fileActions(c:ActionContext,t:(key:string)=>string=(key)=>catalogs['vi-VN'][key as keyof typeof catalogs['vi-VN']]||'['+key+']'):FileAction[]{
+ const list=actionList(c,t)
+ return c.readOnly?list.map(a=>writes.has(a.id)?{...a,disabled:true}:a):list
+}
+function actionList(c:ActionContext,t:(key:string)=>string):FileAction[]{
  if(c.kind==='empty')return [{id:'mkdir',label:t('files.actions.mkdir')},{id:'upload',label:t('files.actions.upload')},{id:'paste',label:t('files.actions.paste'),shortcut:'Ctrl+V',disabled:!c.canPaste,divider:true},{id:'select-all',label:t('files.actions.selectAll'),shortcut:'Ctrl+A'},{id:'grid',label:t('files.actions.grid'),divider:true},{id:'list',label:t('files.actions.list')},{id:'refresh',label:t('files.actions.refresh')}]
  if(c.kind==='trash')return [{id:'restore',label:t('files.actions.restore')},{id:'properties',label:t('files.actions.properties')}]
  return [{id:'open',label:c.kind==='folder'?t('files.actions.openFolder'):t('files.actions.viewText'),shortcut:'Enter',disabled:c.count!==1||c.kind==='special'},

@@ -44,6 +44,18 @@
     {
       "file": "home-page.v1.schema.json",
       "type": "StorageHomePage"
+    },
+    {
+      "file": "share-access.v1.schema.json",
+      "type": "StorageShareAccess"
+    },
+    {
+      "file": "share-access-input.v1.schema.json",
+      "type": "StorageShareAccessInput"
+    },
+    {
+      "file": "subject-page.v1.schema.json",
+      "type": "StorageSubjectPage"
     }
   ]
 }

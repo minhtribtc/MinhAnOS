@@ -61,7 +61,15 @@ func (s *Server) measurePending(ctx context.Context) error {
 		v, _ := s.locks.LoadOrStore(home, &sync.RWMutex{})
 		lock := v.(*sync.RWMutex)
 		lock.RLock()
-		n, e := measureHome(filepath.Join(s.DataDir, "users", home))
+		dir, e := s.homeDir(ctx, home, false)
+		var n int64
+		if e == nil {
+			n, e = measureHome(dir)
+		}
+		if errors.Is(e, storagecore.ErrNoHomes) {
+			lock.RUnlock()
+			return nil // nothing to measure until a share hosts homes
+		}
 		if errors.Is(e, fs.ErrNotExist) {
 			n, e = 0, nil
 		}

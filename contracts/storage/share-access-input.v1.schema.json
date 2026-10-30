@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-share-access-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subjectType": {
+            "enum": [
+              "user",
+              "group"
+            ]
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "access": {
+            "enum": [
+              "read",
+              "write",
+              "deny"
+            ]
+          }
+        },
+        "required": [
+          "subjectType",
+          "subjectId",
+          "access"
+        ]
+      }
+    }
+  },
+  "required": [
+    "entries"
+  ]
+}

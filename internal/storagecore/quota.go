@@ -20,8 +20,11 @@ var registrySQL string
 //go:embed migrations/002_contract.sql
 var contractSQL string
 
+//go:embed migrations/003_share_access.sql
+var shareAccessSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}}}
+	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}, {ID: 3, Name: "share_access", SQL: shareAccessSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -53,7 +56,10 @@ type Reservation struct {
 
 func (s Store) homesShare(ctx context.Context, tx pgx.Tx) (string, error) {
 	var id string
-	e := tx.QueryRow(ctx, "SELECT id::text FROM storage_shares WHERE key='homes'").Scan(&id)
+	e := tx.QueryRow(ctx, "SELECT id::text FROM storage_shares WHERE kind='homes'").Scan(&id)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return "", ErrNoHomes
+	}
 	return id, e
 }
 
@@ -71,9 +77,28 @@ func releaseExpired(ctx context.Context, tx pgx.Tx) error {
 	return e
 }
 
-// Reserve holds bytes on the user's home and on the homes share before a write. Both scopes must fit
-// (used + reserved + bytes <= limit) or nothing is reserved.
+// Reserve holds bytes on the user's home and on the share hosting homes before a write. Both scopes must
+// fit (used + reserved + bytes <= limit) or nothing is reserved.
 func (s Store) Reserve(ctx context.Context, home string, bytes int64) (Reservation, error) {
+	return s.reserve(ctx, home, "", bytes)
+}
+
+// ReserveShare holds bytes on a Shared Folder (its total quota) before a write into it.
+func (s Store) ReserveShare(ctx context.Context, share string, bytes int64) (Reservation, error) {
+	return s.reserve(ctx, "", share, bytes)
+}
+
+type scope struct{ kind, id string }
+
+// scopes are the ledger rows a reservation touches: the home (if any) and its share.
+func (r Reservation) scopes() []scope {
+	if r.Home == "" {
+		return []scope{{"share", r.Share}}
+	}
+	return []scope{{"home", r.Home}, {"share", r.Share}}
+}
+
+func (s Store) reserve(ctx context.Context, home, share string, bytes int64) (Reservation, error) {
 	if bytes < 0 {
 		return Reservation{}, fmt.Errorf("negative reservation")
 	}
@@ -85,14 +110,15 @@ func (s Store) Reserve(ctx context.Context, home string, bytes int64) (Reservati
 	if e = releaseExpired(ctx, tx); e != nil {
 		return Reservation{}, e
 	}
-	if e = ensureHome(ctx, tx, home); e != nil {
-		return Reservation{}, e
+	if home != "" {
+		if e = ensureHome(ctx, tx, home); e != nil {
+			return Reservation{}, e
+		}
+		if share, e = s.homesShare(ctx, tx); e != nil {
+			return Reservation{}, e
+		}
 	}
-	share, e := s.homesShare(ctx, tx)
-	if e != nil {
-		return Reservation{}, e
-	}
-	for _, scope := range []struct{ kind, id string }{{"home", home}, {"share", share}} {
+	for _, scope := range (Reservation{Home: home, Share: share}).scopes() {
 		tag, e := tx.Exec(ctx, "UPDATE storage_quota SET reserved_bytes=reserved_bytes+$3 WHERE scope_type=$1 AND scope_id=$2 AND (limit_bytes IS NULL OR used_bytes+reserved_bytes+$3<=limit_bytes)", scope.kind, scope.id, bytes)
 		if e != nil {
 			return Reservation{}, e
@@ -123,7 +149,7 @@ func (s Store) settle(ctx context.Context, r Reservation, actual int64) error {
 	} else if e != nil {
 		return e
 	}
-	for _, scope := range []struct{ kind, id string }{{"home", r.Home}, {"share", r.Share}} {
+	for _, scope := range r.scopes() {
 		if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=greatest(0,used_bytes+$3),reserved_bytes=greatest(0,reserved_bytes-$4) WHERE scope_type=$1 AND scope_id=$2", scope.kind, scope.id, actual, held); e != nil {
 			return e
 		}

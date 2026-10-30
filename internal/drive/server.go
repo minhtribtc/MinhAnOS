@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/fs"
 	"log"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
@@ -34,6 +35,10 @@ type Server struct {
 	SecureCookie          bool
 	// Quota is the soft quota of personal homes; nil disables it (tests, standalone without a ledger).
 	Quota QuotaLedger
+	// Shares and Units place homes and Shared Folders (storage Q2); nil keeps the legacy layout only.
+	Shares ShareRegistry
+	Units  UnitAgent
+	units  sync.Map
 	// measureKick wakes the background measurer (set by RunMeasurer).
 	measureKick chan struct{}
 	locks       sync.Map
@@ -208,15 +213,39 @@ func (s *Server) Handler() http.Handler {
 			if !s.authorized(w, r, session.User, "files.read") {
 				return
 			}
-			roots := []map[string]string{{"id": "personal", "name": "Tệp của tôi"}}
+			// Roots: the personal home once a share hosts homes, the Shared Folders the user may open (names
+			// are the share names; access read or write), and the host system root for operators.
+			roots := []map[string]string{}
+			homes := true
+			if _, e := s.homeDir(r.Context(), session.User.ID, false); errors.Is(e, storagecore.ErrNoHomes) {
+				homes = false
+			} else if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				log.Printf("drive homes lookup failed: %v", e)
+				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
+				return
+			}
+			if homes {
+				roots = append(roots, map[string]string{"id": "personal", "kind": "home", "name": "Tệp của tôi", "access": "write"})
+			}
+			if s.Shares != nil {
+				shares, e := s.Shares.UserShares(r.Context(), session.User.ID)
+				if e != nil {
+					log.Printf("drive shares lookup failed: %v", e)
+					fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
+					return
+				}
+				for _, share := range shares {
+					roots = append(roots, map[string]string{"id": "share:" + share.Key, "kind": "share", "name": share.Name, "access": share.Access})
+				}
+			}
 			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {
 				fail(w, 503, "Không thể kiểm tra quyền host.")
 				return
 			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
-				roots = append(roots, map[string]string{"id": "system", "name": "Hệ thống Debian"})
+				roots = append(roots, map[string]string{"id": "system", "kind": "system", "name": "Hệ thống Debian", "access": "write"})
 			}
-			body := map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
-			if s.Quota != nil && validID(session.User.ID) {
+			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
+			if homes && s.Quota != nil && validID(session.User.ID) {
 				// Never measure here: large homes are walked by the background measurer.
 				usage, err := s.Quota.HomeUsage(r.Context(), session.User.ID)
 				if err != nil {
@@ -252,7 +281,8 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 		}
-		if root != "personal" && root != "system" {
+		shareKey, isShare := strings.CutPrefix(root, "share:")
+		if root != "personal" && root != "system" && !isShare {
 			fail(w, 400, "Không gian lưu trữ không hợp lệ.")
 			return
 		}
@@ -268,6 +298,25 @@ func (s *Server) Handler() http.Handler {
 		}
 		if !s.authorized(w, r, session.User, permission) {
 			return
+		}
+		// A Shared Folder needs a share permission on top of the Files grant: read for GET, write otherwise.
+		var share storagecore.UserShare
+		if isShare {
+			found, ok, e := s.userShare(r.Context(), session.User.ID, shareKey)
+			if e != nil {
+				log.Printf("drive share lookup failed: %v", e)
+				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
+				return
+			}
+			if !ok {
+				fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
+				return
+			}
+			if mutation && found.Access != "write" {
+				fail(w, 403, "Thư mục chia sẻ này chỉ cho phép xem.", "SHARE_READ_ONLY")
+				return
+			}
+			share = found
 		}
 		if mutation {
 			if err = s.Identity.Audit(r.Context(), session.User, "files.request."+path.Base(r.URL.Path), target); err != nil {
@@ -287,7 +336,12 @@ func (s *Server) Handler() http.Handler {
 			fail(w, 403, "Định danh người dùng không hợp lệ.")
 			return
 		}
-		v, _ := s.locks.LoadOrStore(session.User.ID, &sync.RWMutex{})
+		// One lock per home or share: writes are serialized with each other and with measurements.
+		lockKey := session.User.ID
+		if isShare {
+			lockKey = "share:" + share.ID
+		}
+		v, _ := s.locks.LoadOrStore(lockKey, &sync.RWMutex{})
 		lock := v.(*sync.RWMutex)
 		if mutation {
 			lock.Lock()
@@ -296,28 +350,51 @@ func (s *Server) Handler() http.Handler {
 			lock.RLock()
 			defer lock.RUnlock()
 		}
-		userDir := filepath.Join(s.DataDir, "users", session.User.ID)
-		if err = os.MkdirAll(filepath.Join(userDir, "files"), 0750); err != nil {
+		var dir string
+		if isShare {
+			dir, err = s.unitPath(r.Context(), share.Volume, "shares", share.Key, false)
+		} else {
+			dir, err = s.homeDir(r.Context(), session.User.ID, true)
+		}
+		switch {
+		case errors.Is(err, storagecore.ErrNoHomes):
+			fail(w, 409, "Chưa có thư mục chứa dữ liệu người dùng; quản trị viên cần tạo trong Storage Manager.", "STORAGE_NOT_READY")
+			return
+		case errors.Is(err, fs.ErrNotExist):
+			fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
+			return
+		case err != nil:
+			log.Printf("drive storage unit failed root=%s: %v", root, err)
+			fail(w, 503, "Không mở được vùng lưu trữ.", "SERVICE_UNAVAILABLE")
+			return
+		}
+		if err = os.MkdirAll(filepath.Join(dir, "files"), 0750); err != nil {
 			handleFileError(w, err)
 			return
 		}
-		if err = os.MkdirAll(filepath.Join(userDir, "trash"), 0700); err != nil {
+		if err = os.MkdirAll(filepath.Join(dir, "trash"), 0700); err != nil {
 			handleFileError(w, err)
 			return
 		}
-		fs, err := os.OpenRoot(userDir)
+		rootFS, err := os.OpenRoot(dir)
 		if err != nil {
 			handleFileError(w, err)
 			return
 		}
-		defer fs.Close()
-		engine := &Engine{Root: fs}
-		// Soft quota: reserve what the write may add on the home and the homes share, then commit the
-		// actual bytes or release on failure. The user's write lock is held for the whole operation.
+		defer rootFS.Close()
+		engine := &Engine{Root: rootFS}
+		// Soft quota: reserve what the write may add on the home and the homes share (or on the Shared
+		// Folder), then commit the actual bytes or release on failure. The write lock is held throughout.
 		var reservation *storagecore.Reservation
-		if mutation && s.Quota != nil {
+		if mutation && s.Quota != nil && (!isShare || s.Shares != nil) {
 			if size := quotaSize(r, engine); size > 0 {
-				res, e := s.Quota.Reserve(r.Context(), session.User.ID, size)
+				var res storagecore.Reservation
+				var e error
+				if isShare {
+					res, e = s.Shares.ReserveShare(r.Context(), share.ID, size)
+				} else {
+					res, e = s.Quota.Reserve(r.Context(), session.User.ID, size)
+				}
 				if e != nil {
 					quotaFailure(w, e)
 					return

@@ -22,4 +22,8 @@ const usage={limitBytes:null,usedBytes:0,reservedBytes:0,measured:true}
 assert(v.StorageHome({userId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',username:'u',displayName:'U',share:'homes',version:1,usage}))
 assert(!v.StorageHome({userId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',username:'u',displayName:'U',share:'homes',version:1,usage,path:'/data/users/x'}),'no physical paths in DTOs')
 assert(!v.StorageCreateShare({key:'Bad Key',name:'x',volume:'tank',limitBytes:null}))
+assert(v.StorageCreateShare({key:'homes',name:'Homes',volume:'tank',limitBytes:null,hostsHomes:true}))
+assert(v.StorageShareAccessInput({entries:[{subjectType:'group',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'read'}]}))
+assert(!v.StorageShareAccessInput({entries:[{subjectType:'role',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'read'}]}),'only users and groups')
+assert(!v.StorageShareAccessInput({entries:[{subjectType:'user',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'owner'}]}))
 console.log('PASS Storage contracts: schemas = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes, no paths in DTOs')

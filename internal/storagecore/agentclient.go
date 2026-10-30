@@ -83,11 +83,20 @@ func (c AgentClient) Volumes(ctx context.Context) ([]AgentVolume, error) {
 }
 
 func (c AgentClient) CreateShare(ctx context.Context, volume, key string) (AgentUnit, error) {
-	var out AgentUnit
-	return out, c.do(ctx, "POST", "/v1/volumes/"+volume+"/units", map[string]string{"class": "shares", "id": key}, &out)
+	return c.CreateUnit(ctx, volume, "shares", key)
 }
 
 func (c AgentClient) Share(ctx context.Context, volume, key string) (AgentUnit, error) {
+	return c.Unit(ctx, volume, "shares", key)
+}
+
+// CreateUnit creates a unit (class homes or shares); the agent validates names and owns the paths.
+func (c AgentClient) CreateUnit(ctx context.Context, volume, class, id string) (AgentUnit, error) {
 	var out AgentUnit
-	return out, c.do(ctx, "GET", "/v1/volumes/"+volume+"/units/shares/"+key, nil, &out)
+	return out, c.do(ctx, "POST", "/v1/volumes/"+volume+"/units", map[string]string{"class": class, "id": id}, &out)
+}
+
+func (c AgentClient) Unit(ctx context.Context, volume, class, id string) (AgentUnit, error) {
+	var out AgentUnit
+	return out, c.do(ctx, "GET", "/v1/volumes/"+volume+"/units/"+class+"/"+id, nil, &out)
 }

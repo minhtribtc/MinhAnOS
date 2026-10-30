@@ -39,7 +39,7 @@ func (a *App) storageHandler() http.Handler {
 				internalError(w, err)
 				return
 			}
-			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 4096))
+			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 32768))
 			if err != nil {
 				v1Error(w, r, 413, "PAYLOAD_TOO_LARGE")
 				return
@@ -125,11 +125,12 @@ func (a *App) storageHandler() http.Handler {
 			Name       string `json:"name"`
 			Volume     string `json:"volume"`
 			LimitBytes *int64 `json:"limitBytes"`
+			HostsHomes bool   `json:"hostsHomes"`
 		}
 		if !decodeStrict(w, r, raw, &body) {
 			return
 		}
-		share, err := a.storage.CreateShare(r.Context(), actor, body.Key, body.Name, body.Volume, body.LimitBytes)
+		share, err := a.storage.CreateShare(r.Context(), actor, body.Key, body.Name, body.Volume, body.LimitBytes, body.HostsHomes)
 		if err != nil {
 			a.storageFailure(w, r, err)
 			return
@@ -151,6 +152,41 @@ func (a *App) storageHandler() http.Handler {
 		}
 		accepted(w, 200)
 	}))
+	mux.HandleFunc("GET /api/v1/storage/shares/{id}/access", func(w http.ResponseWriter, r *http.Request) {
+		list, err := a.storage.ShareAccess(r.Context(), r.PathValue("id"))
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		w.Header().Set("ETag", fmt.Sprintf(`"%d"`, list.Version))
+		writeJSON(w, 200, list)
+	})
+	mux.HandleFunc("PUT /api/v1/storage/shares/{id}/access", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		version, ok := ifMatch(w, r)
+		var body struct {
+			Entries []storagecore.AccessEntry `json:"entries"`
+		}
+		if !ok || !decodeStrict(w, r, raw, &body) {
+			return
+		}
+		if body.Entries == nil {
+			v1Error(w, r, 400, "INVALID_REQUEST")
+			return
+		}
+		if err := a.storage.SetShareAccess(r.Context(), actor, r.PathValue("id"), version, body.Entries); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 200)
+	}))
+	mux.HandleFunc("GET /api/v1/storage/subjects", func(w http.ResponseWriter, r *http.Request) {
+		items, err := a.storage.Subjects(r.Context())
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		writeJSON(w, 200, map[string]any{"items": items})
+	})
 	mux.HandleFunc("GET /api/v1/storage/homes", func(w http.ResponseWriter, r *http.Request) {
 		homes, err := a.storage.Homes(r.Context())
 		if err != nil {
@@ -262,6 +298,10 @@ func (a *App) storageFailure(w http.ResponseWriter, r *http.Request, err error) 
 		v1Error(w, r, 404, "STORAGE_NOT_FOUND")
 	case errors.Is(err, storagecore.ErrExists):
 		v1Error(w, r, 409, "STORAGE_EXISTS")
+	case errors.Is(err, storagecore.ErrHomesExists):
+		v1Error(w, r, 409, "STORAGE_HOMES_EXISTS")
+	case errors.Is(err, storagecore.ErrNoHomes):
+		v1Error(w, r, 409, "STORAGE_NOT_READY")
 	case errors.Is(err, storagecore.ErrConflict):
 		v1Error(w, r, 412, "VERSION_CONFLICT")
 	case errors.Is(err, storagecore.ErrNoAgent):

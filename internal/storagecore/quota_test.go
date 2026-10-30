@@ -49,6 +49,9 @@ func fixture(t *testing.T) Store {
 	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text,display_name text,status text)"); e != nil {
 		t.Fatal(e)
 	}
+	if _, e = db.Exec(ctx, "CREATE TABLE identity_groups(id uuid PRIMARY KEY,key text,name text); CREATE TABLE identity_group_members(group_id uuid,user_id uuid)"); e != nil {
+		t.Fatal(e)
+	}
 	if e = ApplySchema(ctx, db); e != nil {
 		t.Fatal(e)
 	}
@@ -218,7 +221,7 @@ func TestCreateShareRollsBackOnAgentFailure(t *testing.T) {
 	ctx := context.Background()
 	s.DB.Exec(ctx, "INSERT INTO storage_volumes(name,kind) VALUES('tank','zfs')")
 	m := Manager{Store: s, Agent: fakeAgent(t, 500, "STORAGE_FAILED")}
-	if _, e := m.CreateShare(ctx, "", "projects", "Projects", "tank", nil); e == nil {
+	if _, e := m.CreateShare(ctx, "", "projects", "Projects", "tank", nil, false); e == nil {
 		t.Fatal("agent failure ignored")
 	}
 	var n int
@@ -227,19 +230,19 @@ func TestCreateShareRollsBackOnAgentFailure(t *testing.T) {
 		t.Fatal("registry kept a share the agent did not create")
 	}
 	m.Agent = fakeAgent(t, 201, "")
-	share, e := m.CreateShare(ctx, "", "projects", "Projects", "tank", nil)
+	share, e := m.CreateShare(ctx, "", "projects", "Projects", "tank", nil, false)
 	if e != nil || share.ID == "" {
 		t.Fatal(e)
 	}
-	if _, e = m.CreateShare(ctx, "", "projects", "Again", "tank", nil); !errors.Is(e, ErrExists) {
+	if _, e = m.CreateShare(ctx, "", "projects", "Again", "tank", nil, false); !errors.Is(e, ErrExists) {
 		t.Fatal("duplicate key", e)
 	}
 	for _, bad := range []struct{ key, volume string }{{"homes", "tank"}, {"Bad Key", "tank"}, {"ok", "files"}} {
-		if _, e = m.CreateShare(ctx, "", bad.key, "X", bad.volume, nil); !errors.Is(e, ErrInvalid) {
+		if _, e = m.CreateShare(ctx, "", bad.key, "X", bad.volume, nil, false); !errors.Is(e, ErrInvalid) {
 			t.Fatal("accepted", bad, e)
 		}
 	}
-	if _, e = m.CreateShare(ctx, "", "nowhere", "X", "missing", nil); !errors.Is(e, ErrNotFound) {
+	if _, e = m.CreateShare(ctx, "", "nowhere", "X", "missing", nil, false); !errors.Is(e, ErrNotFound) {
 		t.Fatal("unknown volume", e)
 	}
 }

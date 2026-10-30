@@ -24,6 +24,9 @@
       ],
       "minimum": 0,
       "maximum": 1152921504606847000
+    },
+    "hostsHomes": {
+      "type": "boolean"
     }
   },
   "required": [

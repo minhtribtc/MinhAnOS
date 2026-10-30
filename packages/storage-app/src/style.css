@@ -36,4 +36,10 @@
 .mn-storage fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .mn-storage label{display:flex;flex-direction:column;gap:4px}
 .mn-storage input,.mn-storage select{min-height:36px;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-canvas);color:var(--mn-color-text-primary);padding:0 10px}
+.mn-storage .sm-first-run{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-selection);padding:12px 14px;margin-bottom:12px}
+.mn-storage .sm-first-run strong{display:block;margin-bottom:2px}
+.mn-storage .sm-check{flex-direction:row;align-items:flex-start;gap:10px}
+.mn-storage .sm-check input{min-height:auto;margin-top:3px}
+.mn-storage .sm-access{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
+.mn-storage .sm-access li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
 @container (max-width:720px){.mn-storage{grid-template-columns:1fr}.mn-storage .sm-sidebar{border-right:0;border-bottom:1px solid var(--mn-color-border)}}

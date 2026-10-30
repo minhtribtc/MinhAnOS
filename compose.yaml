@@ -39,11 +39,20 @@ services:
       BOOTSTRAP_PASSWORD_FILE: /run/secrets/bootstrap_password
       COOKIE_SECURE: "${COOKIE_SECURE:-false}"
       DRIVE_AGENT_SOCKET: /run/minhanos-files/agent.sock
+      STORAGE_AGENT_SOCKET: /run/minhanos-storage/agent.sock
       ALLOW_PLATFORM_SESSIONS: "true"
     secrets: [bootstrap_password]
     volumes:
       - drive-files:/data
       - /run/minhanos-files:/run/minhanos-files:ro
+      # Storage Q2: homes and Shared Folders on ZFS/Btrfs units (paths come from the storage agent).
+      - /run/minhanos-storage:/run/minhanos-storage:ro
+      - type: bind
+        source: /srv/minhanos
+        target: /srv/minhanos
+        bind:
+          propagation: rslave
+          create_host_path: true
     depends_on:
       db:
         condition: service_healthy

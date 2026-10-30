@@ -132,10 +132,12 @@ func (m Manager) Shares(ctx context.Context) ([]Share, error) {
 func validLimit(limit *int64) bool { return limit == nil || (*limit >= 0 && *limit <= maxLimit) }
 
 // CreateShare reserves the key in a transaction, creates the ZFS dataset / Btrfs subvolume through the
-// agent, then commits; an agent failure rolls the registry back.
-func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume string, limit *int64) (Share, error) {
+// agent, then commits; an agent failure rolls the registry back. A share that hosts homes needs no unit of
+// its own: each home becomes a unit homes/<user> on the same volume when first used. The creator of an
+// ordinary share gets write access so it is usable at once (audited; editable in Storage Manager).
+func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume string, limit *int64, hostsHomes bool) (Share, error) {
 	name = strings.TrimSpace(name)
-	if !shareKey.MatchString(key) || key == "homes" || len([]rune(name)) < 1 || len([]rune(name)) > 100 || !validLimit(limit) {
+	if !shareKey.MatchString(key) || (key == "homes" && !hostsHomes) || len([]rune(name)) < 1 || len([]rune(name)) > 100 || !validLimit(limit) {
 		return Share{}, ErrInvalid
 	}
 	tx, e := m.Store.DB.Begin(ctx)
@@ -153,7 +155,17 @@ func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume strin
 		return Share{}, ErrInvalid // plain volumes only host the legacy homes area
 	}
 	s := Share{Key: key, Name: name, Volume: volume, Kind: "share", Version: 1}
-	e = tx.QueryRow(ctx, "INSERT INTO storage_shares(key,name,volume,kind) VALUES($1,$2,$3,'share') ON CONFLICT(key) DO NOTHING RETURNING id::text", key, name, volume).Scan(&s.ID)
+	if hostsHomes {
+		s.Kind = "homes"
+		var exists bool
+		if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM storage_shares WHERE kind='homes')").Scan(&exists); e != nil {
+			return Share{}, e
+		}
+		if exists {
+			return Share{}, ErrHomesExists
+		}
+	}
+	e = tx.QueryRow(ctx, "INSERT INTO storage_shares(key,name,volume,kind) VALUES($1,$2,$3,$4) ON CONFLICT(key) DO NOTHING RETURNING id::text", key, name, volume, s.Kind).Scan(&s.ID)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return Share{}, ErrExists
 	}
@@ -163,8 +175,17 @@ func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume strin
 	if _, e = tx.Exec(ctx, "INSERT INTO storage_quota(scope_type,scope_id,limit_bytes,measure_requested,measured_at) VALUES('share',$1,$2,false,now())", s.ID, limit); e != nil {
 		return Share{}, e
 	}
-	if e = event(ctx, tx, actor, "storage.share.created", s.ID, map[string]any{"key": key, "volume": volume}); e != nil {
+	if e = event(ctx, tx, actor, "storage.share.created", s.ID, map[string]any{"key": key, "volume": volume, "hostsHomes": hostsHomes}); e != nil {
 		return Share{}, e
+	}
+	if hostsHomes {
+		s.Usage = Usage{LimitBytes: limit, Measured: true}
+		return s, tx.Commit(ctx)
+	}
+	if uuidRE.MatchString(actor) {
+		if _, e = tx.Exec(ctx, "INSERT INTO storage_share_access(share_id,subject_type,subject_id,access) VALUES($1,'user',$2,'write')", s.ID, actor); e != nil {
+			return Share{}, e
+		}
 	}
 	if _, e = m.Agent.CreateShare(ctx, volume, key); e != nil {
 		var ae AgentError
@@ -209,6 +230,12 @@ func (m Manager) SetShareLimit(ctx context.Context, actor, id string, version in
 
 // Homes lists every non-deleted account with its home ledger (users without a row show unmeasured).
 func (m Manager) Homes(ctx context.Context) ([]Home, error) {
+	share := ""
+	if h, e := m.Store.HomesShare(ctx); e == nil {
+		share = h.Key
+	} else if !errors.Is(e, ErrNoHomes) {
+		return nil, e
+	}
 	rows, e := m.Store.DB.Query(ctx, `SELECT u.public_id::text,u.username,u.display_name,coalesce(q.version,1),q.limit_bytes,coalesce(q.used_bytes,0),coalesce(q.reserved_bytes,0),coalesce(NOT q.measure_requested,false) FROM users u LEFT JOIN storage_quota q ON q.scope_type='home' AND q.scope_id=u.id WHERE u.status<>'deleted' AND u.public_id IS NOT NULL ORDER BY u.username`)
 	if e != nil {
 		return nil, e
@@ -216,7 +243,7 @@ func (m Manager) Homes(ctx context.Context) ([]Home, error) {
 	defer rows.Close()
 	result := []Home{}
 	for rows.Next() {
-		h := Home{Share: "homes"}
+		h := Home{Share: share}
 		if e = rows.Scan(&h.UserID, &h.Username, &h.DisplayName, &h.Version, &h.Usage.LimitBytes, &h.Usage.UsedBytes, &h.Usage.ReservedBytes, &h.Usage.Measured); e != nil {
 			return nil, e
 		}

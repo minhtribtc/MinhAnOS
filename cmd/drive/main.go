@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"io/fs"
 	"log"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/drive"
@@ -10,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -52,7 +55,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: env("DRIVE_DATA_DIR", "/data"), StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: storagecore.Store{DB: db}}
+	store := storagecore.Store{DB: db}
+	dataDir := env("DRIVE_DATA_DIR", "/data")
+	// First-run rule (storage Q2): an install whose legacy Files data directory holds no home retires that
+	// homes registration; the first System Admin then creates the share hosting homes in Storage Manager.
+	users, err := os.ReadDir(filepath.Join(dataDir, "users"))
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		log.Fatal(err)
+	}
+	if retired, err := store.RetireEmptyLegacyHomes(ctx, len(users) > 0); err != nil {
+		log.Fatal(err)
+	} else if retired {
+		log.Print("storage: empty legacy homes share retired; create the share hosting homes in Storage Manager")
+	}
+	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: dataDir, StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: store, Shares: store, Units: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
 	app.StartMeasurer(ctx, 30*time.Second)
 	server := &http.Server{Addr: env("DRIVE_LISTEN", ":8082"), Handler: app.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 5 * time.Minute, WriteTimeout: 5 * time.Minute, IdleTimeout: 60 * time.Second}
 	go func() {

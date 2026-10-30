@@ -545,6 +545,7 @@ export interface StorageCreateShare {
   name: string;
   volume: string;
   limitBytes: number | null;
+  hostsHomes?: boolean;
 }
 
 export interface StorageSetQuota {
@@ -607,6 +608,39 @@ export interface StorageHomePage {
       reservedBytes: number;
       measured: boolean;
     };
+  }[];
+}
+
+export interface StorageShareAccess {
+  version: number;
+  /**
+   * @maxItems 200
+   */
+  entries: {
+    subjectType: "user" | "group";
+    subjectId: string;
+    name?: string;
+    access: "read" | "write" | "deny";
+  }[];
+}
+
+export interface StorageShareAccessInput {
+  /**
+   * @maxItems 200
+   */
+  entries: {
+    subjectType: "user" | "group";
+    subjectId: string;
+    access: "read" | "write" | "deny";
+  }[];
+}
+
+export interface StorageSubjectPage {
+  items: {
+    type: "user" | "group";
+    id: string;
+    name: string;
+    detail: string;
   }[];
 }
 

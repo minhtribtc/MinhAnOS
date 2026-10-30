@@ -3759,7 +3759,7 @@
       },
       "post": {
         "operationId": "storageCreateShare",
-        "summary": "Create a shared folder on a ZFS/Btrfs volume",
+        "summary": "Create a shared folder on a ZFS/Btrfs volume (or the share hosting user homes)",
         "x-implementation": "implemented",
         "security": [
           {
@@ -3890,6 +3890,159 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StorageSetQuota"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/shares/{shareId}/access": {
+      "get": {
+        "operationId": "storageGetShareAccess",
+        "summary": "Permissions of a shared folder (users and groups; deny > write > read)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageShareAccess"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shareId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "storageSetShareAccess",
+        "summary": "Replace the permissions of a shared folder",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shareId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageShareAccessInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/subjects": {
+      "get": {
+        "operationId": "storageListSubjects",
+        "summary": "Accounts and groups that can receive share permissions",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSubjectPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           }
@@ -6350,6 +6503,9 @@
             ],
             "minimum": 0,
             "maximum": 1152921504606847000
+          },
+          "hostsHomes": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -7097,6 +7253,136 @@
         "required": [
           "items",
           "nextCursor"
+        ]
+      },
+      "StorageShareAccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "subjectType": {
+                  "enum": [
+                    "user",
+                    "group"
+                  ]
+                },
+                "subjectId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "access": {
+                  "enum": [
+                    "read",
+                    "write",
+                    "deny"
+                  ]
+                }
+              },
+              "required": [
+                "subjectType",
+                "subjectId",
+                "access"
+              ]
+            }
+          }
+        },
+        "required": [
+          "version",
+          "entries"
+        ]
+      },
+      "StorageShareAccessInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "entries": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "subjectType": {
+                  "enum": [
+                    "user",
+                    "group"
+                  ]
+                },
+                "subjectId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "access": {
+                  "enum": [
+                    "read",
+                    "write",
+                    "deny"
+                  ]
+                }
+              },
+              "required": [
+                "subjectType",
+                "subjectId",
+                "access"
+              ]
+            }
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "StorageSubjectPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "enum": [
+                    "user",
+                    "group"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "id",
+                "name",
+                "detail"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
         ]
       }
     }
