@@ -9,7 +9,7 @@ const text=path=>readFile(new URL(path,root),'utf8')
 
 // Catalog owning each nameKey/labelKey namespace, and the source that registers each app's panels.
 const catalogs={desktop:'apps/desktop/locales/catalogs.json',accounts:'packages/accounts-app/locales/catalogs.json',files:'packages/files-app/locales/catalogs.json',settings:'packages/settings-app/locales/catalogs.json'}
-const providers={'com.minhanos.desktop':'apps/desktop/src/settings.ts','com.minhanos.account-center':'packages/accounts-app/src/settings.ts'}
+const providers={'com.minhanos.settings':'packages/settings-app/src/system.ts','com.minhanos.desktop':'apps/desktop/src/settings.ts','com.minhanos.account-center':'packages/accounts-app/src/settings.ts'}
 const registry=await text('apps/desktop/src/settings.ts')
 
 for(const file of (await readdir(new URL('contracts/manifests/',root))).filter(f=>f.endsWith('.app.json'))){
@@ -24,10 +24,12 @@ for(const file of (await readdir(new URL('contracts/manifests/',root))).filter(f
  if(manifest.settingsIntegration.length){
   const source=providers[manifest.id];assert(source,file+': declares settings but has no provider')
   const code=await text(source)
-  for(const entry of manifest.settingsIntegration)assert(new RegExp(String.raw`\b${entry.id}\s*:`).test(code),file+': panel '+entry.id+' not provided in '+source)
+  for(const entry of manifest.settingsIntegration)assert(new RegExp(String.raw`\b${entry.id}\s*[:,}]`).test(code),file+': panel '+entry.id+' not provided in '+source)
  }
- if(manifest.id!=='com.minhanos.settings')assert(registry.includes(file.replace('.app.json',''))||registry.includes(file),file+': app not registered with the Settings host (apps/desktop/src/settings.ts)')
+ assert(registry.includes(file.replace('.app.json',''))||registry.includes(file),file+': app not registered with the Settings host (apps/desktop/src/settings.ts)')
 }
+// Hybrid model: account administration is not a Settings panel; Platform-owned locale/theme selectors are not duplicated in embedded apps.
+assert(!(await json('contracts/manifests/accounts.app.json')).settingsIntegration.some(e=>e.id==='users'),'Users administration belongs to Account Center, not Settings')
 // Settings must not regain hardcoded tabs.
 assert(!/settingsTab/.test(await text('apps/desktop/src/components/AppContent.vue')),'Hardcoded Settings tabs found in AppContent.vue')
 
@@ -36,7 +38,7 @@ const host=createHost(),demo={'vi-VN':{'demo.x':'X'},'en-US':{'demo.x':'X'}}
 const r1=host.useCatalog('demo',demo),r2=host.useCatalog('demo',demo)
 assert.throws(()=>host.useCatalog('demo',structuredClone(demo)));r1();r1();assert.equal(host.i18n.t('demo.x'),'X');r2();assert.equal(host.i18n.t('demo.x'),'[demo.x]')
 let seen;const off=host.on('profile-changed',p=>{seen=p});host.emit('profile-changed',{displayName:'A'});off();host.emit('profile-changed',{displayName:'B'});assert.equal(seen.displayName,'A')
-assert.equal(host.openSettings('com.minhanos.files'),false);let opened;const stop=host.setSettingsOpener((a,p)=>{opened=a+'/'+p});assert(host.openSettings('com.minhanos.desktop','appearance'));assert.equal(opened,'com.minhanos.desktop/appearance');stop();assert.equal(host.openSettings('x'),false)
+assert.equal(host.openSettings('com.minhanos.files'),false);assert.equal(host.canOpenSettings(),false);let opened;const stop=host.setSettingsOpener((a,p)=>{opened=a+'/'+p});assert(host.openSettings('com.minhanos.desktop','appearance'));assert.equal(opened,'com.minhanos.desktop/appearance');stop();assert.equal(host.openSettings('x'),false)
 assert.throws(()=>defineSettingsProvider({manifest:{id:'com.minhanos.x',settingsIntegration:[{id:'a',labelKey:'x.a',path:'/a'}]},panels:{}}))
 host.dispose()
 console.log('PASS settings standard: manifests declare Settings entries, panels provided, labels in vi/en, no hardcoded tabs, SDK catalog/events/opener')

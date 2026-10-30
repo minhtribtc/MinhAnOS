@@ -1,5 +1,6 @@
 {
   "vi-VN": {
+    "accounts.profile.openSettings": "Ngôn ngữ và giao diện trong Cài đặt",
     "accounts.title": "Account Center",
     "accounts.subtitle": "Tài khoản và bảo mật",
     "accounts.workspace": "MinhAnOS Identity",
@@ -181,6 +182,7 @@
     "accounts.audit.actions.identity.denied": "Từ chối yêu cầu"
   },
   "en-US": {
+    "accounts.profile.openSettings": "Language and appearance in Settings",
     "accounts.title": "Account Center",
     "accounts.subtitle": "Accounts and security",
     "accounts.workspace": "MinhAnOS Identity",

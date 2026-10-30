@@ -40,6 +40,7 @@ export function createHost(){
   on(type,listener){if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(listener);return ()=>listeners.get(type)?.delete(listener)},
   emit(type,payload){for(const listener of [...(listeners.get(type)||[])])listener(payload)},
   setSettingsOpener(opener){settingsOpener=opener;return ()=>{if(settingsOpener===opener)settingsOpener=undefined}},
+  canOpenSettings(){return !!settingsOpener},
   openSettings(appId,panelId){if(!settingsOpener)return false;settingsOpener(appId,panelId);return true},
   async loadProfile(request){applyProfile(await request('/profile'))},
   async updateProfile(request,patch){

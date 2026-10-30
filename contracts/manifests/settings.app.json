@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "sdk": "^0.1.0",
   "entrypoint": "/apps/settings",
-  "nameKey": "settings.title",
+  "nameKey": "settings.system",
   "display": [
     "window",
     "maximized",
     "fullscreen"
   ],
   "capabilities": [],
-  "settingsIntegration": []
+  "settingsIntegration": [
+    {"id": "language", "labelKey": "settings.language.title", "path": "/language"}
+  ]
 }

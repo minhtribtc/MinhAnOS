@@ -39,3 +39,27 @@ iOS/macOS/Android. Before this ADR Settings tabs were hardcoded in `apps/desktop
 
 Adding an app now requires: manifest `nameKey` + `settingsIntegration` (or `[]`), catalog keys in both locales,
 a provider export when it has panels, and registration in the Shell's provider list.
+
+## Amendment: hybrid ownership model (accepted by user 2026-10-30)
+
+User chose the hybrid model after reviewing Codex "Settings Ownership Policy V1". Implemented: Language & Region panel (com.minhanos.settings, Platform-owned locale/time zone), admin Users panel removed from Settings, Account Center shows a Settings link instead of its own locale/theme selectors when embedded (standalone keeps them), display name "MinhAnOS Settings". Codex rule 7 is replaced by the hybrid rule below.
+
+Adopt (compatible with this ADR):
+- Each setting has one owning module and namespace (`desktop.*`, `system.*`, `files.*`, `identity.*`, `storage.*`);
+  the future Configuration Service stores them but writes go only through the owner's API/permission. No global
+  `setSetting` for every namespace.
+- Cross-app settings (locale, theme, date/time format, notification rules) are Platform-owned, edited once in
+  Settings, read reactively by every app via app-sdk. Today locale/theme also have selectors inside Account Center
+  (`profilePreference`) — now replaced by a Settings link when embedded; Language & Region panel added.
+- Settings' own system menu as a roadmap: Appearance, Language & Region, Date & Time, Notifications, Network,
+  Power, Updates, About — each shown only when a real backend exists (Network/Power need the restricted host agent).
+- Display name "MinhAnOS Settings"/"Cài đặt" instead of "Control Center" (App ID unchanged).
+
+Resolved conflicts:
+- Codex rule 7 ("do not require apps to register settings in Settings") contradicts the user's rule that every app
+  integrates into central Settings. Hybrid: the app owns its settings UI/API and also shows it in its
+  own preferences; Settings renders the same exported component (no duplication, no access to app internals).
+  Every manifest still declares `settingsIntegration` (empty allowed), so the rule stays test-enforced.
+- Users: keep personal account entries (profile, security, sessions) in Settings
+  as Account Center panels, like the account section in iOS/Windows Settings, and move admin "Users" back to
+  Account Center only.

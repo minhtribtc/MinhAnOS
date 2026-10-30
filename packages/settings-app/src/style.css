@@ -16,3 +16,10 @@
 .mn-settings .st-panel{flex:1;min-height:0;display:flex;flex-direction:column}
 .mn-settings .st-muted{margin:0;padding:8px 10px;color:var(--mn-color-text-secondary)}
 @container (max-width:720px){.mn-settings{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.mn-settings .st-sidebar{border-right:0;border-bottom:1px solid var(--mn-color-border);max-height:45cqh}}
+.mn-settings .st-page{padding:20px 24px;display:flex;flex-direction:column;gap:12px;max-width:720px}
+.mn-settings .st-page h2{margin:0;font-size:22px;font-weight:650;letter-spacing:-.4px}
+.mn-settings .st-rows{border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-surface);overflow:hidden}
+.mn-settings .st-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border-bottom:1px solid var(--mn-color-border);flex-wrap:wrap}
+.mn-settings .st-row:last-child{border-bottom:0}
+.mn-settings .st-row select{font:inherit;min-height:34px;max-width:100%;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-canvas);color:var(--mn-color-text-primary);padding:0 8px}
+.mn-settings .st-error{margin:0;color:var(--mn-color-danger)}

@@ -2,7 +2,7 @@ Release status: settings-central-v1 committed, NOT yet deployed. VM still runs A
 
 # Handoff — Central Settings thin slice (current)
 
-Branch settings-central-v1. Read [ADR 0007](adr/0007-central-settings.md) and AGENTS.md "Central Settings standard". Settings is now @minhanos/settings-app, built from manifest settingsIntegration; Desktop provides Appearance, Account Center provides profile/security/sessions/users panels, Files declares none. Legacy Settings "Users" UI removed (backend /api/admin/users unchanged). New manifests desktop.app.json, settings.app.json; optional manifest nameKey; shared-types regenerated.
+Branch settings-central-v1. Read [ADR 0007](adr/0007-central-settings.md) including the accepted hybrid ownership amendment (Language & Region panel, admin Users only in Account Center, embedded apps link to Settings for locale/theme) and AGENTS.md "Central Settings standard". Settings is now @minhanos/settings-app, built from manifest settingsIntegration; Desktop provides Appearance, Account Center provides profile/security/sessions/users panels, Files declares none. Legacy Settings "Users" UI removed (backend /api/admin/users unchanged). New manifests desktop.app.json, settings.app.json; optional manifest nameKey; shared-types regenerated.
 app-sdk: useCatalog (refcount, fixes crash when an app and its panel mount together), host events session-ended/profile-changed, openSettings deep links. tests/settings-standard.mjs enforces the standard in npm run check.
 Checks: clean npm ci + npm run build on VM check folder PASS (no Go change). Not yet done: deploy and one browser acceptance pass. Next: generic settings storage API when Files needs settings; then Phase 5.
 

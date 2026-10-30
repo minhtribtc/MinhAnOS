@@ -17,6 +17,7 @@ export interface Host {errorMessage(error:unknown):string;version:number;profile
  on<K extends keyof HostEvents>(type:K,listener:(payload:HostEvents[K])=>void):()=>void
  emit<K extends keyof HostEvents>(type:K,...payload:HostEvents[K] extends void?[]:[HostEvents[K]]):void
  setSettingsOpener(opener:(appId:string,panelId?:string)=>void):()=>void
+ canOpenSettings():boolean
  /** Opens the central Settings at an app panel; false when no Settings host is present (standalone). */
  openSettings(appId:string,panelId?:string):boolean
 }

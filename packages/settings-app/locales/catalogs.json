@@ -1,16 +1,28 @@
 {
   "vi-VN": {
     "settings.title": "Cài đặt",
+    "settings.system": "Hệ thống",
     "settings.search": "Tìm trong cài đặt",
     "settings.noResults": "Không có mục cài đặt phù hợp.",
     "settings.empty": "Chưa có mục cài đặt nào bạn được phép xem.",
-    "settings.missingPanel": "Ứng dụng chưa cung cấp màn hình cho mục này."
+    "settings.missingPanel": "Ứng dụng chưa cung cấp màn hình cho mục này.",
+    "settings.language.title": "Ngôn ngữ & Khu vực",
+    "settings.language.hint": "Áp dụng cho mọi ứng dụng MinhAnOS của tài khoản này.",
+    "settings.language.locale": "Ngôn ngữ",
+    "settings.language.timeZone": "Múi giờ",
+    "settings.language.preview": "Xem trước"
   },
   "en-US": {
     "settings.title": "Settings",
+    "settings.system": "System",
     "settings.search": "Search settings",
     "settings.noResults": "No matching settings.",
     "settings.empty": "There are no settings you are allowed to view.",
-    "settings.missingPanel": "This app does not provide a screen for this entry yet."
+    "settings.missingPanel": "This app does not provide a screen for this entry yet.",
+    "settings.language.title": "Language & Region",
+    "settings.language.hint": "Applies to every MinhAnOS app for this account.",
+    "settings.language.locale": "Language",
+    "settings.language.timeZone": "Time zone",
+    "settings.language.preview": "Preview"
   }
 }

@@ -1,5 +1,7 @@
 ## Cài đặt trung tâm — 2026-10-30
 
+- Thêm mục Ngôn ngữ & Khu vực (ngôn ngữ, múi giờ) dùng chung cho mọi ứng dụng; tên ứng dụng đổi thành MinhAnOS Settings.
+- Quản lý người dùng chuyển về Account Center; Cài đặt chỉ giữ mục tài khoản cá nhân.
 - Cài đặt được dựng từ khai báo của từng ứng dụng; có tìm kiếm và mở thẳng tới mục (ví dụ Cá nhân hóa → Giao diện).
 - Mục tài khoản, bảo mật, phiên và người dùng do Account Center cung cấp; bỏ trang Người dùng trùng lặp cũ.
 - Sửa lỗi có thể xảy ra khi một ứng dụng và mục cài đặt của nó cùng mở (đăng ký bản dịch trùng).

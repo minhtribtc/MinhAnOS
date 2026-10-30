@@ -52,7 +52,7 @@
     },
     {
       "key": "settings",
-      "displayName": "Control Center",
+      "displayName": "MinhAnOS Settings",
       "moduleName": "minhanos-settings",
       "appId": "com.minhanos.settings",
       "implementation": "partial",
@@ -60,7 +60,8 @@
         "settings"
       ],
       "legacyDisplayNames": [
-        "Cài đặt"
+        "Cài đặt",
+        "Control Center"
       ],
       "currentPaths": [
         "packages/settings-app",
