@@ -1,3 +1,5 @@
+[Storage model review](storage-model-review.md) — evaluation of the DSM shared-folder + Nextcloud proposal, corrections and order.
+
 [ADR 0007 — central Settings](adr/0007-central-settings.md) — Settings contract every app must follow.
 
 [Account Center review 2026-10-30](account-center/REVIEW_2026-10-30.md) — progress, design assessment and central Settings app standard.
