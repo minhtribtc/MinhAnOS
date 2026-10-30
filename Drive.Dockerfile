@@ -23,6 +23,7 @@ COPY internal/authn/ internal/authn/
 COPY internal/coreprofile/ internal/coreprofile/
 COPY internal/migrate/ internal/migrate/
 COPY internal/identity/ internal/identity/
+COPY internal/requestid/ internal/requestid/
 COPY cmd/identity-admin/ cmd/identity-admin/
 COPY cmd/identity-recovery/ cmd/identity-recovery/
 COPY internal/apicontract/ internal/apicontract/
