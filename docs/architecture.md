@@ -1,4 +1,10 @@
-# Desktop 0.1 — kiến trúc đã triển khai
+# Kiến trúc MinhAnOS
+
+Kiến trúc đích đã chốt: Platform Core + Shared Design System + App SDK + ứng dụng ngang hàng + nhiều Shell thay thế.
+Quyết định, ranh giới, i18n và Theme/Design Tokens: [platform-foundations.md](platform-foundations.md).
+Các phần bên dưới mô tả triển khai và lịch sử; không có nghĩa mọi năng lực nền tảng đích đã được xây xong.
+
+## Desktop 0.1 — kiến trúc đã triển khai
 
 - Frontend Vue 3/TypeScript/Pinia, Vite. Không phụ thuộc kodbox hoặc 1Panel.
 - Go net/http phục vụ cùng origin cho API và static assets; không cần reverse

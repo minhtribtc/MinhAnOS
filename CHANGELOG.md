@@ -28,3 +28,10 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Added authenticated same-origin gateway using desktop identity, context/overflow menus, multi-select and shared keyboard actions.
 - Added bounded regular-file copy and same-root clipboard operations without overwrite.
 - Preserved mounted state across Home/app switches; closing asks when text or uploads are pending.
+
+## Platform documentation — 2026-10-30
+
+- Added a maintained user guide and documentation index.
+- Recorded Core/Design System/App SDK/peer-app/replaceable-Shell architecture and accepted i18n/theme principles.
+- Added foundation milestones, account-locale/error-code migration requirements and mandatory agent documentation updates.
+- Documentation only; no new runtime i18n, theme package or API behavior in this change.

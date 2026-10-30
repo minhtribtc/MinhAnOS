@@ -1,3 +1,19 @@
+# Current direction — Platform foundations and living documentation
+
+Accepted target: Platform Core + Shared Design System + App SDK + peer apps + replaceable Shells.
+Read docs/platform-foundations.md before new foundation or UI work. It records the six i18n principles,
+vi-VN/en-US foundation V0.1, account locale/fallback, ICU/Intl, stable backend error codes,
+V0.2 build validation/plugin catalogs and independent Theme/Design Tokens.
+These are accepted design requirements, not newly implemented runtime capabilities.
+@minhanos/i18n, the official App SDK and unified theme tokens do not exist yet.
+Next foundation work should establish these contracts and migrate Files/Drive/Desktop without remounting state.
+
+User-facing guide: docs/user-guide.md. Update it whenever features, workflows, limits or settings change.
+Documentation index: docs/README.md. AGENTS.md now requires maintaining the guide/index in the same implementation commit.
+This change is documentation only; running apps, API and database were not modified or redeployed.
+Earlier implementation handoffs follow below.
+
+---
 # Current handoff — native File Station + context menus
 
 Branch: file-station-desktop. Desktop 8081 now renders File Station inside its native application host.

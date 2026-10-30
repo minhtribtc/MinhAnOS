@@ -63,3 +63,10 @@ Integrated Drive requires ALLOW_PLATFORM_SESSIONS=true; desktop requires DRIVE_I
 Standalone users continue to use /api/* on 8082 and independent Drive cookies.
 POST /api/files/copy (or embedded /api/drive/files/copy): query root/path, JSON {destination}.
 Only regular files <=128 MiB, same root; 409 if destination exists; folders/special files not supported.
+
+## Planned error-code migration
+
+The accepted future error-code/params contract is in platform-foundations.md, section 4.
+Existing {error:string} endpoints still work unchanged. Add stable codes compatibly before removing legacy messages;
+frontend translations must use code mappings and a safe unknown-code fallback, not parsing localized error strings.
+No locale/profile endpoint or schema migration was implemented by the documentation update.

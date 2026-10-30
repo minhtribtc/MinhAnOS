@@ -1,5 +1,7 @@
 # MinhAnOS Desktop + Drive
 
+[Hướng dẫn sử dụng](docs/user-guide.md) · [Danh mục tài liệu](docs/README.md) · [Kiến trúc nền tảng, i18n và theme](docs/platform-foundations.md)
+
 **Drive 0.1 is available at http://10.1.1.20:8082** on branch `file-station-desktop`.
 It is an independent Vue/Go application with its own login, API, build and deployment.
 File Station opens natively inside desktop 8081; both hosts share packages/files-app. See [Drive setup, capabilities and limitations](docs/drive.md).

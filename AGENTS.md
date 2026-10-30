@@ -1,6 +1,9 @@
 # MinhAnOS development contract
 
 Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before editing.
+Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
+Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
+Do not treat planned packages/contracts as implemented; document actual migration status.
 For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is file-station-desktop.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
@@ -8,6 +11,8 @@ or internal/platform into internal/drive/cmd/drive. Desktop renders packages/fil
 ## Mandatory documentation on every change
 
 - Update docs/HANDOFF.md with current behavior, verification, limitations and next steps before handing work back.
+- Update docs/user-guide.md in the same commit whenever user-visible behavior, commands, settings, limits or troubleshooting change.
+- Maintain docs/README.md as the documentation index; add links for new documents.
 - Update CHANGELOG.md for user-visible changes. Update README.md when setup or usage changes.
 - Update docs/architecture.md and docs/api.md when architecture or API contracts change.
 - Record actual checks and failures in docs/validation.md. Never mark an unperformed test passed.
@@ -38,3 +43,15 @@ Backend: go test ./... and go vet ./... (Go 1.26+), also run during Docker build
 Integration: tests/api-smoke.mjs against the test VM only; creates a disposable user, restore preferences and remove that exact test user.
 Browser: Home, app opening, search, switcher, Control Center, dark theme, mobile overflow and draft retention across Home/app changes.
 Use real browser evidence; screenshots and generated runtime artifacts stay ignored.
+
+## i18n and theme contract
+
+- New UI text must use structured translation keys (e.g. files.actions.delete), never Vietnamese sentences as keys.
+- Catalogs belong to their apps; keep Core/common catalogs minimal. Shared Files/Drive UI shares files.* catalogs.
+- Build the planned independent @minhanos/i18n foundation before introducing a new per-app translation workaround.
+- Persist locale through the user profile; support unauthenticated fallback and keep timezone separate from locale.
+- Use ICU/Intl for messages, plural forms and locale formatting; do not concatenate translated sentence fragments.
+- Add stable backend error codes; migrate compatibly from existing error strings. UI behavior must not parse translated messages.
+- Theme provider/tokens and localization must not depend on Desktop. Apps must work under another Shell or standalone host.
+- Migrate existing hardcoded strings/colors incrementally and record remaining debt. Do not claim i18n/theme completion prematurely.
+- Once foundation tooling exists, run catalog/parameter/token checks with the normal build and document the results.

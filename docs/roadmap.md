@@ -110,3 +110,14 @@ Earlier sections describing Files as a placeholder/design-only are historical.
 File Station now opens inside the desktop using shared packages/files-app. Drive remains independently runnable.
 Implemented contextual actions, overflow controls, basic multi-select, same-root clipboard copy/cut/paste and keyboard actions.
 Next: recursive copy via durable jobs, resumable uploads/quota and shared ACL/previews.
+
+## Current foundation priority — i18n and theme
+
+Accepted architecture: Core + Design System + App SDK + peer apps + replaceable Shells.
+See [platform-foundations.md](platform-foundations.md) for scope and acceptance criteria.
+Foundation/i18n V0.1: independent @minhanos/i18n, vi-VN/en-US, account locale/fallback, ICU/Intl,
+stable backend error codes and first semantic Theme Tokens. Then migrate shared Files/Drive and Desktop/Settings.
+Foundation V0.2: enforce missing/invalid catalog checks at build, versioned plugin catalog registration and namespace isolation.
+Commercial stage: additional locales and reviewed community translation contributions.
+These foundation milestones are distinct from existing desktop release numbering and are not implemented by this documentation update.
+The user guide and documentation index must accompany every relevant feature change.

@@ -145,3 +145,10 @@ No backend/source runtime behavior changed; Go/API tests were not repeated for d
 - Backups: before-files-desktop.tgz and before-files-desktop.sql in /opt/minhanos-backups, root-only. No schema/data migration required.
 - Final shared UI loaded in both desktop (?app=files on 8081) and standalone Drive (8082) using existing sessions.
 - Evidence image: artifacts/files-in-desktop.jpg (local, ignored). No iframe, URL navigation to Drive, or second login required for the embedded view.
+
+## Documentation foundations — 2026-10-30
+
+Added user guide, documentation index and platform-foundations specification; updated agent rules and handoff.
+The guide distinguishes shipped functionality from planned i18n/theme/SDK behavior and retains known test limitations.
+No application code/schema/deployment changed, so runtime builds and API suites were not repeated for this documentation-only update.
+- Documentation checks passed: 13 Markdown documents, 25 local links resolved; git diff --check passed.
