@@ -1,3 +1,7 @@
+## Storage S1 — 2026-10-30
+
+Test VM: ZFS 2.1.11 pool mnzfs (10 GB) and Btrfs (11 GB, quota on). internal/storage contract tests PASS on both (quota enforcement with random data, snapshots, destroy), agent handler tests PASS, live socket smoke PASS on both. Found and fixed: systemd sandbox options gave the agent a private mount namespace so ZFS mounts were invisible on the host. apicontract test failed only in a partial source upload without contracts/ fixtures (not a regression).
+
 ## Phase 5 Files authorization and app access — 2026-10-30
 
 VM /opt/minhanos-m3: gofmt (3 files reformatted), go vet, go test PASS incl. drive TestFilesRequestsUseIdentityPolicy; migrations-integration PASS incl. TestFilesPolicyEntitlementGrantAndDenyRules, TestAppAccessGuards and existing TestDriveProxyRequiresDesktopSession with real SQLIdentity; clean npm ci + contracts:generate + npm run build PASS (vue-tsc). Browser acceptance not performed (requires user sign-in). Deployed 3869353 after pg_dump before-identity-009.sql: all containers healthy; live DB role grants standard-user/user-admin files.read+write, system-admin all four; 4 Files app grants enabled; Drive /api/roots without session 401.

@@ -1,3 +1,7 @@
+## Storage layer (S1)
+
+internal/storage abstracts ZFS datasets and Btrfs subvolumes as units (homes/shares) with quota, usage and snapshots. Only cmd/storage-agent (root, Unix socket, typed API, no delete, no shell) executes them; platform services will authorize and audit before calling it. See [storage agent](storage-agent.md).
+
 ## Phase 5 authorization (current)
 
 identity.authorizeApp(app, permission) = app grant AND no deny rule (user, group, role) AND entitlement (admin, reserved standard-user role permissions, bounded bindings). Account Center keeps its self-service allow-list. Drive calls Service.CheckApp(FilesApp) per request through the required IdentityStore.Authorize; resource rules (namespace, host operator) remain in Drive.

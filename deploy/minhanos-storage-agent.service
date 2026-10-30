@@ -1,0 +1,20 @@
+[Unit]
+Description=MinhAnOS restricted storage agent (ZFS/Btrfs data units)
+After=local-fs.target zfs-mount.service
+Wants=zfs-mount.service
+[Service]
+EnvironmentFile=/etc/minhanos/storage-agent.env
+ExecStart=/usr/local/libexec/minhanos-storage-agent
+User=root
+Group=10001
+RuntimeDirectory=minhanos-storage
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+Restart=on-failure
+# No PrivateTmp/Protect*/ProtectSystem: they give the service its own mount namespace, and the
+# ZFS datasets it creates would then be mounted only there, invisible to the host and to Files.
+NoNewPrivileges=true
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+UMask=0077
+[Install]
+WantedBy=multi-user.target

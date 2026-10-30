@@ -73,7 +73,7 @@ Test plan: one extra virtual disk on the disposable test VM, split into a ZFS po
 filesystem with project quota, so all three drivers run the same contract tests. Loop files on the current 36 GB
 root disk (71% used) are a fallback only.
 
-## Recommendation 2026-10-30: ext4 only as system disk, not as a managed data volume (pending confirmation)
+## Decision 2026-10-30: ext4 only as system disk, not as a managed data volume (user proceeded by adding ZFS and Btrfs test disks)
 
 Managed data volumes (homes, shares, quota, snapshots) on ZFS and Btrfs only. ext4 remains supported as the
 Debian system disk (OS, PostgreSQL, containers) and may be shown as a plain volume without quota/snapshots.

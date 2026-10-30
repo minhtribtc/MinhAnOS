@@ -1,5 +1,7 @@
 Release status: Phase 5 (3869353) deployed to VM 10.1.1.20 after DB backup; identity SQL 009 applied; all services healthy. Browser acceptance pending user.
 
+Storage S1 (current): ZFS and Btrfs drivers in internal/storage and a root storage agent on the test VM (pool mnzfs on scsi1, Btrfs on scsi2). Read [storage agent](storage-agent.md). Not wired into Files yet; next S2 homes on units + quota.
+
 # Handoff — Phase 5 complete (current)
 
 Read [Phase 5 report](account-center/PHASE5_REPORT.md) and [Phase A report](account-center/PHASE_A_REPORT.md). Identity SQL 001–009 immutable (009 files_policy). 40 operations. Files requests go through Service.CheckApp (entitlement AND app grant AND deny rules) before resource rules; app access rules editable for Files only. Next candidates: Notification Center (consume identity_notification_outbox), Log Center (read identity_admin_events + legacy adapters), shared folders/storage (storage review), MFA, Phase 6.
