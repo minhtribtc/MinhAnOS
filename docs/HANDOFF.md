@@ -1,4 +1,4 @@
-Release status: Phase 5 (Files authorization + app access rules) on settings-central-v1; see deployment line in validation.
+Release status: Phase 5 (3869353) deployed to VM 10.1.1.20 after DB backup; identity SQL 009 applied; all services healthy. Browser acceptance pending user.
 
 # Handoff — Phase 5 complete (current)
 

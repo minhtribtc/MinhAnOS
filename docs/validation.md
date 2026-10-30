@@ -1,6 +1,6 @@
 ## Phase 5 Files authorization and app access — 2026-10-30
 
-VM /opt/minhanos-m3: gofmt (3 files reformatted), go vet, go test PASS incl. drive TestFilesRequestsUseIdentityPolicy; migrations-integration PASS incl. TestFilesPolicyEntitlementGrantAndDenyRules, TestAppAccessGuards and existing TestDriveProxyRequiresDesktopSession with real SQLIdentity; clean npm ci + contracts:generate + npm run build PASS (vue-tsc). Browser acceptance not performed (requires user sign-in).
+VM /opt/minhanos-m3: gofmt (3 files reformatted), go vet, go test PASS incl. drive TestFilesRequestsUseIdentityPolicy; migrations-integration PASS incl. TestFilesPolicyEntitlementGrantAndDenyRules, TestAppAccessGuards and existing TestDriveProxyRequiresDesktopSession with real SQLIdentity; clean npm ci + contracts:generate + npm run build PASS (vue-tsc). Browser acceptance not performed (requires user sign-in). Deployed 3869353 after pg_dump before-identity-009.sql: all containers healthy; live DB role grants standard-user/user-admin files.read+write, system-admin all four; 4 Files app grants enabled; Drive /api/roots without session 401.
 
 ## M2 admin sessions and forced password change — 2026-10-30
 
