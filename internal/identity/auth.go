@@ -38,7 +38,11 @@ func table(realm Realm) (string, error) {
 }
 
 // Principal is internal compatibility data. Never serialize this as a v1 User.
-type Principal struct{ StorageID, Username, DisplayName, Role string }
+type Principal struct {
+	StorageID, Username, DisplayName, Role string
+	// PasswordChangeRequired limits the session to changing the password (set by an admin reset).
+	PasswordChangeRequired bool
+}
 type AuthSession struct {
 	Principal Principal
 	CSRF      string
@@ -143,7 +147,7 @@ func (a *AuthCore) Authenticate(ctx context.Context, realm Realm, token string) 
 	if !validToken(token) {
 		return s, ErrUnauthorized
 	}
-	e = a.db.QueryRow(ctx, `SELECT u.id,u.username,u.display_name,u.role,s.csrf_token FROM `+t+` s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND u.status='active' AND s.auth_epoch=u.auth_epoch`, authn.Digest(token)).Scan(&s.Principal.StorageID, &s.Principal.Username, &s.Principal.DisplayName, &s.Principal.Role, &s.CSRF)
+	e = a.db.QueryRow(ctx, `SELECT u.id,u.username,u.display_name,u.role,u.password_change_required,s.csrf_token FROM `+t+` s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND u.status='active' AND s.auth_epoch=u.auth_epoch`, authn.Digest(token)).Scan(&s.Principal.StorageID, &s.Principal.Username, &s.Principal.DisplayName, &s.Principal.Role, &s.Principal.PasswordChangeRequired, &s.CSRF)
 	return s, noRows(e)
 }
 
@@ -192,7 +196,7 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 	// issuance with password changes/revocation without holding a lock during KDF.
 	var currentHash, currentStatus string
 	var currentEpoch int64
-	e = tx.QueryRow(ctx, "SELECT password_hash,status,auth_epoch,display_name,role FROM users WHERE id=$1 FOR UPDATE", s.Principal.StorageID).Scan(&currentHash, &currentStatus, &currentEpoch, &s.Principal.DisplayName, &s.Principal.Role)
+	e = tx.QueryRow(ctx, "SELECT password_hash,status,auth_epoch,display_name,role,password_change_required FROM users WHERE id=$1 FOR UPDATE", s.Principal.StorageID).Scan(&currentHash, &currentStatus, &currentEpoch, &s.Principal.DisplayName, &s.Principal.Role, &s.Principal.PasswordChangeRequired)
 	if e != nil {
 		return AuthSession{}, "", noRows(e)
 	}
@@ -446,7 +450,7 @@ func (a *AuthCore) ChangePassword(ctx context.Context, realm Realm, token, curre
 	if fresh != hash {
 		return ErrUnauthorized
 	}
-	if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", id, nextHash); e != nil {
+	if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1,password_change_required=false WHERE id=$1", id, nextHash); e != nil {
 		return e
 	}
 	if e = revoke(ctx, tx, id); e != nil {
@@ -580,7 +584,7 @@ func (a *AuthCore) ConsumeRecoveryLocal(ctx context.Context, name, raw, next str
 	if e != nil {
 		return noRows(e)
 	}
-	tag, e := tx.Exec(ctx, "UPDATE users SET password_hash=$3,auth_epoch=auth_epoch+1,recovery_token_hash=NULL,recovery_expires_at=NULL,recovery_auth_epoch=NULL WHERE id=$1 AND recovery_token_hash=$2 AND recovery_expires_at>now() AND recovery_auth_epoch=auth_epoch", id, authn.Digest(raw), hash)
+	tag, e := tx.Exec(ctx, "UPDATE users SET password_hash=$3,auth_epoch=auth_epoch+1,password_change_required=false,recovery_token_hash=NULL,recovery_expires_at=NULL,recovery_auth_epoch=NULL WHERE id=$1 AND recovery_token_hash=$2 AND recovery_expires_at>now() AND recovery_auth_epoch=auth_epoch", id, authn.Digest(raw), hash)
 	if e != nil {
 		return e
 	}

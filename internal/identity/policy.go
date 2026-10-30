@@ -232,6 +232,8 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 }
 func actionName(route string) string {
 	switch {
+	case strings.Contains(route, "/users/") && strings.HasSuffix(route, "/sessions/revoke"):
+		return "user.sessions.revoked"
 	case strings.Contains(route, "/users/") && strings.HasSuffix(route, "/password"):
 		return "user.password.reset"
 	case strings.Contains(route, "/me/password"):
@@ -292,7 +294,7 @@ func userRow(ctx context.Context, tx pgx.Tx, id string) (User, string, error) {
 	if !uuidPattern.MatchString(id) {
 		return u, "", fault(404, "IDENTITY_NOT_FOUND")
 	}
-	e := tx.QueryRow(ctx, "SELECT public_id::text,username,display_name,status,version,role FROM users WHERE public_id=$1", id).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Status, &u.Version, &role)
+	e := tx.QueryRow(ctx, "SELECT public_id::text,username,display_name,status,version,role,password_change_required FROM users WHERE public_id=$1", id).Scan(&u.ID, &u.Username, &u.DisplayName, &u.Status, &u.Version, &role, &u.PasswordChangeRequired)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return u, "", fault(404, "IDENTITY_NOT_FOUND")
 	}

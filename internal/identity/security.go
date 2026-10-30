@@ -88,7 +88,7 @@ func (s *Service) Password(ctx context.Context, realm Realm, token, key, request
 		if freshHash != expected {
 			return Result{}, ErrUnauthorized
 		}
-		if _, e := tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", a.StorageID, hash); e != nil {
+		if _, e := tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1,password_change_required=false WHERE id=$1", a.StorageID, hash); e != nil {
 			return Result{}, e
 		}
 		if e := revoke(ctx, tx, a.StorageID); e != nil {
@@ -103,6 +103,8 @@ func (s *Service) Password(ctx context.Context, realm Realm, token, key, request
 
 type PasswordReset struct {
 	NewPassword string `json:"newPassword"`
+	// RequireChange (default true) makes the user choose their own password at next sign-in.
+	RequireChange *bool `json:"requireChange"`
 }
 
 // ResetPassword lets an administrator set another user's password without knowing the old one.
@@ -148,7 +150,7 @@ func (s *Service) ResetPassword(ctx context.Context, realm Realm, token, target,
 		if operator {
 			return Result{}, fault(403, "IDENTITY_HOST_OPERATOR_PROTECTED")
 		}
-		if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", storageID, hash); e != nil {
+		if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1,password_change_required=$3 WHERE id=$1", storageID, hash, input.RequireChange == nil || *input.RequireChange); e != nil {
 			return Result{}, e
 		}
 		if e = revoke(ctx, tx, storageID); e != nil {
@@ -162,4 +164,43 @@ func (s *Service) ResetPassword(ctx context.Context, realm Realm, token, target,
 		}
 		return result(u, 200, u.Version), nil
 	})
+}
+
+// RevokeUserSessions signs another user out of both realms (e.g. a lost device). It needs
+// identity.users.sessions.revoke, recent reauthentication and the usual target ceiling.
+func (s *Service) RevokeUserSessions(ctx context.Context, realm Realm, token, target, key, requestID string, raw []byte) (Result, error) {
+	route := "POST /api/v1/identity/users/" + target + "/sessions/revoke"
+	return s.mutate(ctx, realm, token, "identity.users.sessions.revoke", requestID, key, route, raw, true, func(tx pgx.Tx, a Actor) (Result, error) {
+		if target == a.PublicID {
+			return Result{}, fault(409, "IDENTITY_USE_OWN_SESSIONS")
+		}
+		u, role, e := userRow(ctx, tx, target)
+		if e != nil {
+			return Result{}, e
+		}
+		if e = targetAllowed(ctx, tx, a, u, role); e != nil {
+			return Result{}, e
+		}
+		storageID, e := storageIDOf(ctx, tx, target)
+		if e != nil {
+			return Result{}, e
+		}
+		if e = revoke(ctx, tx, storageID); e != nil {
+			return Result{}, e
+		}
+		if e = notify(ctx, tx, storageID, "sessions.revoked", "warning", true, nil); e != nil {
+			return Result{}, e
+		}
+		return result(map[string]bool{"accepted": true}, 200, 0), nil
+	})
+}
+
+// passwordChangeAllowed lists what a session may do while an administrative reset requires
+// the user to choose a new password: read themselves and change the password.
+func passwordChangeAllowed(method, path string) bool {
+	switch method + " " + path {
+	case "GET me", "GET me/access", "GET me/credentials", "POST reauthenticate", "POST me/password":
+		return true
+	}
+	return false
 }

@@ -1,5 +1,7 @@
 ## Account Center — quản trị người dùng
 
+- **Phiên của người dùng:** trang chi tiết liệt kê phiên Desktop/Files; nút *Đăng xuất khỏi mọi thiết bị* kết thúc tất cả.
+- **Bắt buộc đổi mật khẩu:** khi đặt lại mật khẩu, ô *Yêu cầu đổi mật khẩu ở lần đăng nhập tới* được chọn sẵn. Người dùng đăng nhập sẽ chỉ thấy màn hình đổi mật khẩu (Files độc lập hướng dẫn mở /accounts/).
 - **Xem chi tiết:** Account Center → Người dùng → bấm vào tên. Trang chi tiết có vai trò, quyền thực tế, nhóm và hoạt động gần đây (đăng nhập, đăng nhập thất bại, thay đổi).
 - **Đặt lại mật khẩu:** trong trang chi tiết bấm *Đặt lại mật khẩu*, nhập mật khẩu mới hai lần (ít nhất 12 ký tự) và mật khẩu hiện tại của bạn. Người dùng bị đăng xuất khỏi mọi nơi; hãy gửi mật khẩu mới cho họ qua kênh an toàn. Không áp dụng cho chính bạn (dùng mục Bảo mật) và cho operator máy chủ (họ tự đổi hoặc dùng công cụ khôi phục).
 - **Nhật ký:** hiển thị mới nhất trước, gồm đăng nhập/đăng xuất. Đăng nhập sai chỉ được ghi ở lần thử 1, 5, 10, 20 trong 10 phút để tránh tràn nhật ký.

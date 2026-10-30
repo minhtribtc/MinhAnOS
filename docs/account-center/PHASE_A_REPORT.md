@@ -34,3 +34,20 @@ Goal: make Account Center ready for the Notification Center and Log Center (see
 ## Verification
 
 See [validation](../validation.md).
+
+## M2 — admin session control and forced password change
+
+- Identity SQL 008 (`admin_sessions`): `users.password_change_required`; permissions
+  `identity.users.sessions.read|revoke` granted to System Admin and User Admin (target ceilings still apply).
+- `GET /users/{id}/sessions` (`identityListUserSessions`) and `POST /users/{id}/sessions/revoke`
+  (`identityRevokeUserSessions`, reauthentication, never the caller, audited `user.sessions.revoked`, notice
+  `sessions.revoked`). 36 active operations.
+- Admin reset sets `password_change_required` unless `requireChange:false`. While set, the session may only read
+  itself and change the password: Identity v1 allow-list, Desktop host (`/api/session`, `/api/logout`,
+  `/api/profile`) and Drive host return `403 PASSWORD_CHANGE_REQUIRED` otherwise. Any own change or local
+  recovery clears it. Session/login responses and the user DTO expose `passwordChangeRequired`.
+- UI: Desktop shows a "change your password to continue" screen with the Account Center security panel;
+  standalone Files links to `/accounts/`; Account Center limits navigation to Security; user detail shows
+  sessions, "sign out everywhere", a must-change badge and a reset option. Files hides its own language/theme
+  selectors inside a Shell that has Settings (hybrid ownership rule).
+- `tests/docker-context.mjs` checks that Drive.Dockerfile copies every Go package the Drive binaries import.

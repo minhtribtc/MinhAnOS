@@ -3358,6 +3358,138 @@
         },
         "description": "Requires identity.users.write, reauthentication within five minutes, If-Match and Idempotency-Key. Same target ceiling as other user changes; never the caller (use me/password) and never an enabled host operator. Audited as user.password.reset."
       }
+    },
+    "/api/v1/identity/users/{userId}/sessions": {
+      "get": {
+        "operationId": "identityListUserSessions",
+        "summary": "List another user's sessions in both realms (never current, no secrets)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitySessionPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Requires identity.users.sessions.read and the usual target ceiling."
+      }
+    },
+    "/api/v1/identity/users/{userId}/sessions/revoke": {
+      "post": {
+        "operationId": "identityRevokeUserSessions",
+        "summary": "Sign another user out of both realms",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Requires identity.users.sessions.revoke, reauthentication within five minutes and Idempotency-Key. Never the caller (use me/sessions). Audited as user.sessions.revoked; queues a sessions.revoked notice."
+      }
     }
   },
   "components": {
@@ -3868,6 +4000,9 @@
           "version": {
             "type": "integer",
             "minimum": 1
+          },
+          "passwordChangeRequired": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -4925,6 +5060,9 @@
             "type": "string",
             "minLength": 12,
             "maxLength": 256
+          },
+          "requireChange": {
+            "type": "boolean"
           }
         },
         "required": [

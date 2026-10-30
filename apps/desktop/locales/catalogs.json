@@ -1,10 +1,16 @@
 {
   "vi-VN": {
     "desktop.app.name": "MinhAnOS Desktop",
-    "desktop.settings.appearance": "Giao diện"
+    "desktop.settings.appearance": "Giao diện",
+    "desktop.passwordChange.title": "Đổi mật khẩu để tiếp tục",
+    "desktop.passwordChange.hint": "Quản trị viên đã đặt lại mật khẩu của bạn. Hãy đặt mật khẩu mới; sau đó đăng nhập lại.",
+    "desktop.passwordChange.logout": "Đăng xuất"
   },
   "en-US": {
     "desktop.app.name": "MinhAnOS Desktop",
-    "desktop.settings.appearance": "Appearance"
+    "desktop.settings.appearance": "Appearance",
+    "desktop.passwordChange.title": "Change your password to continue",
+    "desktop.passwordChange.hint": "An administrator reset your password. Choose a new one, then sign in again.",
+    "desktop.passwordChange.logout": "Sign out"
   }
 }

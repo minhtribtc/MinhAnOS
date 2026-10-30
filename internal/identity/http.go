@@ -90,6 +90,10 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 		}
 		path := strings.TrimPrefix(r.URL.Path, "/api/v1/identity/")
 		parts := strings.Split(path, "/")
+		if session.Principal.PasswordChangeRequired && !passwordChangeAllowed(r.Method, path) {
+			fail(fault(403, "PASSWORD_CHANGE_REQUIRED"))
+			return
+		}
 		var out Result
 		if r.Method == "GET" {
 			kind, target := path, ""
@@ -104,6 +108,9 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			}
 			if len(parts) == 2 && parts[0] == "groups" {
 				kind, target = "group", parts[1]
+			}
+			if len(parts) == 3 && parts[0] == "users" && parts[2] == "sessions" {
+				kind, target = "user/sessions", parts[1]
 			}
 			limit := 50
 			if v := r.URL.Query().Get("limit"); v != "" {
@@ -329,6 +336,17 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 					operation = parts[2]
 				}
 				out, e = s.ChangeUser(ctx, realm, token, parts[1], operation, "", match, key, requestID, raw)
+			case len(parts) == 4 && parts[0] == "users" && parts[2] == "sessions" && parts[3] == "revoke" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.RevokeUserSessions(ctx, realm, token, parts[1], key, requestID, raw)
 			case len(parts) == 3 && parts[0] == "users" && parts[2] == "password" && r.Method == "POST":
 				if key == "" {
 					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")

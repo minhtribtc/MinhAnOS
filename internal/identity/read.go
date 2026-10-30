@@ -32,7 +32,7 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	if a.PublicID == "" {
 		return Result{}, ErrNotReady
 	}
-	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "group": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read"}[kind]
+	permission := map[string]string{"me": "identity.self.read", "user": "identity.users.read", "users": "identity.users.read", "roles": "identity.roles.read", "permissions": "identity.roles.read", "audit-events": "identity.audit.read", "me/sessions": "identity.sessions.read", "me/credentials": "identity.self.read", "groups": "identity.groups.read", "group": "identity.groups.read", "members": "identity.groups.read", "role-bindings": "identity.roles.read", "me/access": "identity.self.read", "user/access": "identity.users.read", "user/sessions": "identity.users.sessions.read"}[kind]
 	if permission == "" {
 		return Result{}, fault(404, "IDENTITY_NOT_FOUND")
 	}
@@ -81,13 +81,27 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	if (kind == "groups" || kind == "audit-events") && search != "" && !uuidPattern.MatchString(search) {
 		return Result{}, fault(400, "INVALID_REQUEST")
 	}
+	sessionOwner, sessionEpoch, sessionHash, ownerPublic := a.StorageID, a.Epoch, authn.Digest(token), a.PublicID
+	if kind == "user/sessions" {
+		u, role, e := userRow(ctx, tx, target)
+		if e != nil {
+			return Result{}, e
+		}
+		if e = targetAllowed(ctx, tx, a, u, role); e != nil {
+			return Result{}, e
+		}
+		if e = tx.QueryRow(ctx, "SELECT id,auth_epoch FROM users WHERE public_id=$1", target).Scan(&sessionOwner, &sessionEpoch); e != nil {
+			return Result{}, e
+		}
+		sessionHash, ownerPublic = "", u.ID // never "current" for another user's list
+	}
 	if kind == "members" {
 		if _, e = readGroup(ctx, tx, target); e != nil {
 			return Result{}, e
 		}
 	}
 	cursorKind := kind
-	if kind == "members" {
+	if kind == "members" || kind == "user/sessions" {
 		cursorKind += "/" + target
 	}
 	after, e := s.decodeCursor(page, a, cursorKind, search)
@@ -96,8 +110,8 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	}
 	var rows pgx.Rows
 	switch kind {
-	case "me/sessions":
-		rows, e = tx.Query(ctx, `SELECT handle,jsonb_build_object('id',handle,'userId',$2::uuid,'realm',realm,'current',(realm=$3 AND token_hash=$4),'createdAt',created_at,'lastSeenAt',NULL,'expiresAt',expires_at,'deviceHint',NULL) FROM (SELECT 'desktop' realm,'desktop:'||public_id::text handle,s.* FROM sessions s UNION ALL SELECT 'files' realm,'files:'||public_id::text handle,s.* FROM drive_sessions s) s WHERE user_id=$1 AND auth_epoch=$5 AND expires_at>now() AND handle>$6 ORDER BY handle LIMIT $7`, a.StorageID, a.PublicID, string(realm), authn.Digest(token), a.Epoch, after, limit+1)
+	case "me/sessions", "user/sessions":
+		rows, e = tx.Query(ctx, `SELECT handle,jsonb_build_object('id',handle,'userId',$2::uuid,'realm',realm,'current',(realm=$3 AND token_hash=$4),'createdAt',created_at,'lastSeenAt',NULL,'expiresAt',expires_at,'deviceHint',NULL) FROM (SELECT 'desktop' realm,'desktop:'||public_id::text handle,s.* FROM sessions s UNION ALL SELECT 'files' realm,'files:'||public_id::text handle,s.* FROM drive_sessions s) s WHERE user_id=$1 AND auth_epoch=$5 AND expires_at>now() AND handle>$6 ORDER BY handle LIMIT $7`, sessionOwner, ownerPublic, string(realm), sessionHash, sessionEpoch, after, limit+1)
 	case "me/credentials":
 		rows, e = tx.Query(ctx, `SELECT password_credential_id::text,jsonb_build_object('id',password_credential_id,'userId',public_id,'kind','password','state','active','lastChangedAt',password_changed_at) FROM users WHERE id=$1 AND password_credential_id::text>$2 ORDER BY password_credential_id::text LIMIT $3`, a.StorageID, after, limit+1)
 	case "groups":
@@ -107,7 +121,7 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	case "role-bindings":
 		rows, e = tx.Query(ctx, `SELECT id::text,jsonb_build_object('id',id,'roleId',role_id,'subject',jsonb_build_object('kind',CASE WHEN user_id IS NOT NULL THEN 'user' ELSE 'group' END,'id',coalesce(user_id,group_id)),'scope',scope,'version',version) FROM identity_role_bindings WHERE id::text>$1 ORDER BY id::text LIMIT $2`, after, limit+1)
 	case "users":
-		rows, e = tx.Query(ctx, `SELECT public_id::text,jsonb_build_object('id',public_id,'username',username,'displayName',display_name,'status',status,'version',version) FROM users u WHERE public_id IS NOT NULL AND public_id::text>$1 AND position($2 in username)>0 AND ($3 OR (role='user' AND NOT EXISTS(SELECT 1 FROM identity_role_bindings b WHERE b.user_id=u.public_id OR b.group_id IN (SELECT group_id FROM identity_group_members WHERE user_id=u.public_id)))) ORDER BY public_id::text LIMIT $4`, after, normalize(search), a.Role == "admin", limit+1)
+		rows, e = tx.Query(ctx, `SELECT public_id::text,jsonb_build_object('id',public_id,'username',username,'displayName',display_name,'status',status,'version',version,'passwordChangeRequired',password_change_required) FROM users u WHERE public_id IS NOT NULL AND public_id::text>$1 AND position($2 in username)>0 AND ($3 OR (role='user' AND NOT EXISTS(SELECT 1 FROM identity_role_bindings b WHERE b.user_id=u.public_id OR b.group_id IN (SELECT group_id FROM identity_group_members WHERE user_id=u.public_id)))) ORDER BY public_id::text LIMIT $4`, after, normalize(search), a.Role == "admin", limit+1)
 	case "roles":
 		rows, e = tx.Query(ctx, `SELECT r.id::text,jsonb_build_object('id',r.id,'key',r.key,'name',r.name,'protected',r.protected,'permissions',(SELECT coalesce(jsonb_agg(permission_key ORDER BY permission_key),'[]'::jsonb) FROM identity_role_permissions WHERE role_id=r.id),'version',r.version) FROM identity_roles r WHERE id::text>$1 ORDER BY id::text LIMIT $2`, after, limit+1)
 	case "permissions":

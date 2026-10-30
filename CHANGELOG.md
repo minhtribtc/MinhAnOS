@@ -1,3 +1,8 @@
+## Quản lý phiên và bắt buộc đổi mật khẩu — 2026-10-30
+
+- Admin xem và đăng xuất người dùng khỏi mọi thiết bị từ trang chi tiết.
+- Sau khi admin đặt lại mật khẩu, người dùng phải tự đặt mật khẩu mới trước khi dùng Desktop hoặc Files (có thể tắt khi đặt lại).
+
 ## Nền tảng nhật ký và thông báo (Phase A) — 2026-10-30
 
 - Mỗi yêu cầu có mã truy vết (X-Request-ID, X-Correlation-ID) được lưu cùng nhật ký bảo mật.

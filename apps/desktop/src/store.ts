@@ -10,6 +10,8 @@ export const useDesktop = defineStore('desktop', () => {
   const preferences = ref<Preferences>(freshPreferences())
   const system = ref<SystemInfo | null>(null)
   const active = ref('overview')
+  // After an administrative reset the server allows only session, logout, profile and the password change.
+  const passwordChangeRequired = ref(false)
   const settingsTarget = ref<{ appId: string; panelId?: string; seq: number } | null>(null)
   let settingsSeq = 0
   const order = ref<string[]>([])
@@ -69,8 +71,10 @@ export const useDesktop = defineStore('desktop', () => {
   function maximize(id: string) { const window = preferences.value.windows.find(w => w.id === id); if (window) window.maximized = !window.maximized; focus(id); saveSoon() }
   function setMode(mode: 'focus' | 'windows') { preferences.value.mode = mode; saveSoon() }
   async function loadSession() {
-    const session = await api<{user: User; csrfToken: string}>('/session')
+    const session = await api<{user: User; csrfToken: string; passwordChangeRequired?: boolean}>('/session')
     user.value = session.user; setCSRF(session.csrfToken)
+    passwordChangeRequired.value = !!session.passwordChangeRequired
+    if (passwordChangeRequired.value) return
     const [registry, prefs] = await Promise.all([api<AppDefinition[]>('/apps'), api<Preferences>('/preferences')])
     apps.value = registry
     preferences.value = prefs
@@ -91,7 +95,7 @@ export const useDesktop = defineStore('desktop', () => {
   function expireSession(){
     sessionEpoch++;savePromise=null
     clearTimeout(timer);clearTimeout(noticeTimer);user.value=null;setCSRF('');ready.value=false;apps.value=[];system.value=null
-    preferences.value=freshPreferences();revision=0;savedRevision=0;order.value=[];active.value='';settingsTarget.value=null;notice.value='';saveError.value='';saving.value=false
+    preferences.value=freshPreferences();revision=0;savedRevision=0;order.value=[];active.value='';settingsTarget.value=null;passwordChangeRequired.value=false;notice.value='';saveError.value='';saving.value=false
   }
   async function logout() {
     for(const guard of closeGuards.values()){if(!guard())return}
@@ -99,5 +103,5 @@ export const useDesktop = defineStore('desktop', () => {
     await api('/logout', { method: 'POST' })
     expireSession()
   }
-  return { expireSession, openSettings, settingsTarget, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
+  return { expireSession, openSettings, settingsTarget, passwordChangeRequired, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
 })

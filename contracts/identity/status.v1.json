@@ -1,6 +1,6 @@
 {
   "contractVersion": "1",
-  "implementation": "phase4 Account Center UI, admin password reset and sign-in audit; 34 Identity operations",
+  "implementation": "Account Center usable v1, Phase A audit foundation, admin session control and forced password change; 36 Identity operations",
   "httpEndpointsEnabled": true,
   "accountCenterUIEnabled": true,
   "authorizationEnforcement": "direct System Admin or bounded user-admin/custom roles AND registered app grant; explicit system scope, target ceilings and separate host operator",
@@ -31,6 +31,7 @@
     "identityListPermissions",
     "identityListRoleBindings",
     "identityListRoles",
+    "identityListUserSessions",
     "identityListUsers",
     "identityPatchGroup",
     "identityPatchMe",
@@ -40,6 +41,7 @@
     "identityResetUserPassword",
     "identityRevokeMySession",
     "identityRevokeOtherSessions",
+    "identityRevokeUserSessions",
     "identitySetUserRole",
     "identitySoftDeleteUser"
   ],

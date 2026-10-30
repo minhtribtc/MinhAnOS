@@ -1,3 +1,7 @@
+## M2 admin sessions and forced password change — 2026-10-30
+
+VM /opt/minhanos-m2: gofmt clean, vet, go test PASS (incl. drive TestFilesClosedWhilePasswordChangeRequired); migrations-integration PASS incl. TestResetRequiresPasswordChangeUntilUserChangesIt and TestAdminListsAndRevokesAnotherUsersSessions after tightening two old leak checks that matched any "password" substring; clean npm ci + contracts:generate + build PASS incl. new docker-context test.
+
 ## Phase A audit/event foundation — 2026-10-30
 
 VM check folder /opt/minhanos-m1: gofmt (auth.go reformatted), go vet, go test PASS incl. new internal/requestid tests; migrations-integration on disposable DB PASS incl. TestSecurityLogAppendOnlyRetentionAndRetiredLedger, TestSignInUsesRequestAndCorrelationIDs, TestSecurityNoticesQueuedWithTheChange and updated TestCredentialChangeRollsBackIfAuditFails; clean npm ci + contracts:generate + npm run build PASS.

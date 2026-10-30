@@ -17,6 +17,8 @@ type User struct {
 	DisplayName string `json:"displayName"`
 	Status      string `json:"status"`
 	Version     int64  `json:"version"`
+	// Set after an administrative reset until the user changes the password.
+	PasswordChangeRequired bool `json:"passwordChangeRequired"`
 }
 type Repository struct{ DB *pgxpool.Pool }
 type BackfillStatus struct {
@@ -47,7 +49,7 @@ func (r Repository) BackfillBatch(ctx context.Context, limit int) (int64, error)
 func (r Repository) PublicUser(ctx context.Context, legacyID string) (User, error) {
 	var u User
 	var id pgtype.Text
-	e := r.DB.QueryRow(ctx, "SELECT public_id::text,username,display_name,status,version FROM users WHERE id=$1", legacyID).Scan(&id, &u.Username, &u.DisplayName, &u.Status, &u.Version)
+	e := r.DB.QueryRow(ctx, "SELECT public_id::text,username,display_name,status,version,password_change_required FROM users WHERE id=$1", legacyID).Scan(&id, &u.Username, &u.DisplayName, &u.Status, &u.Version, &u.PasswordChangeRequired)
 	if e != nil {
 		return u, e
 	}

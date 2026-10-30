@@ -188,6 +188,18 @@
       "resourceTypes": [
         "log"
       ]
+    },
+    "identity.users.sessions.read": {
+      "description": "identity.users.sessions.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.users.sessions.revoke": {
+      "description": "identity.users.sessions.revoke",
+      "resourceTypes": [
+        "identity"
+      ]
     }
   },
   "rules": [

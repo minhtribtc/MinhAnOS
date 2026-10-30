@@ -177,6 +177,7 @@ export interface IdentityUser {
   displayName: string;
   status: "active" | "disabled" | "deleted";
   version: number;
+  passwordChangeRequired?: boolean;
 }
 
 export interface IdentityGroup {
@@ -292,6 +293,7 @@ export interface IdentityUserPage {
     displayName: string;
     status: "active" | "disabled" | "deleted";
     version: number;
+    passwordChangeRequired?: boolean;
   }[];
   nextCursor: string | null;
 }
@@ -464,4 +466,5 @@ export interface IdentityAccess {
 
 export interface IdentityResetPassword {
   newPassword: string;
+  requireChange?: boolean;
 }

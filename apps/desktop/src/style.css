@@ -26,3 +26,8 @@
 
 /* Keep the creation action compact when reauthentication adds a taller grid row. */
 .create-user-form>.primary-button{grid-column:1/-1;align-self:start;justify-self:start}
+
+.password-change-screen{position:absolute;inset:0;display:grid;place-items:center;padding:16px;z-index:5;overflow:auto}
+.password-change-card{width:min(760px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:20px;background:var(--mn-color-surface);color:var(--mn-color-text-primary);box-shadow:var(--mn-shadow-panel);overflow:auto}
+.password-change-card h1{margin:0;font-size:24px}.password-change-card p{margin:4px 0 0;color:var(--mn-color-text-secondary)}
+.password-change-card .mn-accounts{min-height:420px}

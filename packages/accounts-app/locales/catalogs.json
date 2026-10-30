@@ -194,7 +194,18 @@
     "accounts.audit.actions.user.password.reset": "Đặt lại mật khẩu",
     "accounts.audit.attempts": "Lần thử thứ {count}",
     "accounts.errors.IDENTITY_USE_OWN_PASSWORD": "Hãy đổi mật khẩu của chính bạn trong mục Bảo mật.",
-    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "Không thể đặt lại mật khẩu của operator máy chủ. Operator tự đổi mật khẩu hoặc dùng công cụ khôi phục trên máy chủ."
+    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "Không thể đặt lại mật khẩu của operator máy chủ. Operator tự đổi mật khẩu hoặc dùng công cụ khôi phục trên máy chủ.",
+    "accounts.users.mustChange": "Phải đổi mật khẩu",
+    "accounts.users.requireChange": "Yêu cầu đổi mật khẩu ở lần đăng nhập tới",
+    "accounts.users.signOutEverywhere": "Đăng xuất khỏi mọi thiết bị",
+    "accounts.users.signOutHint": "Mọi phiên của người dùng này trên Desktop và Files sẽ kết thúc ngay.",
+    "accounts.users.noSessions": "Không có phiên đang hoạt động.",
+    "accounts.security.changeRequired": "Quản trị viên đã đặt lại mật khẩu của bạn. Hãy đặt mật khẩu mới để tiếp tục.",
+    "accounts.errors.IDENTITY_USE_OWN_SESSIONS": "Hãy quản lý phiên của chính bạn trong mục Phiên.",
+    "accounts.errors.PASSWORD_CHANGE_REQUIRED": "Cần đổi mật khẩu trước khi tiếp tục.",
+    "accounts.audit.actions.user.sessions.revoked": "Đăng xuất người dùng khỏi mọi thiết bị",
+    "accounts.audit.actions.recovery.issued": "Cấp mã khôi phục (operator)",
+    "accounts.audit.actions.recovery.consumed": "Khôi phục mật khẩu (operator)"
   },
   "en-US": {
     "accounts.profile.openSettings": "Language and appearance in Settings",
@@ -391,6 +402,17 @@
     "accounts.audit.actions.user.password.reset": "Password reset",
     "accounts.audit.attempts": "Attempt {count}",
     "accounts.errors.IDENTITY_USE_OWN_PASSWORD": "Change your own password under Security.",
-    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "A host operator’s password cannot be reset here. Operators change it themselves or use the server recovery tool."
+    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "A host operator’s password cannot be reset here. Operators change it themselves or use the server recovery tool.",
+    "accounts.users.mustChange": "Must change password",
+    "accounts.users.requireChange": "Require a new password at next sign-in",
+    "accounts.users.signOutEverywhere": "Sign out everywhere",
+    "accounts.users.signOutHint": "All of this user’s Desktop and Files sessions end immediately.",
+    "accounts.users.noSessions": "No active sessions.",
+    "accounts.security.changeRequired": "An administrator reset your password. Choose a new password to continue.",
+    "accounts.errors.IDENTITY_USE_OWN_SESSIONS": "Manage your own sessions under Sessions.",
+    "accounts.errors.PASSWORD_CHANGE_REQUIRED": "Change your password before continuing.",
+    "accounts.audit.actions.user.sessions.revoked": "Signed user out everywhere",
+    "accounts.audit.actions.recovery.issued": "Recovery code issued (operator)",
+    "accounts.audit.actions.recovery.consumed": "Password recovered (operator)"
   }
 }

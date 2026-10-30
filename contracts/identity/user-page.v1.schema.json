@@ -37,6 +37,9 @@
           "version": {
             "type": "integer",
             "minimum": 1
+          },
+          "passwordChangeRequired": {
+            "type": "boolean"
           }
         },
         "required": [

@@ -25,7 +25,10 @@
     "files.settings.theme": "Giao diện",
     "files.settings.light": "Sáng",
     "files.settings.dark": "Tối",
-    "files.settings.system": "Theo thiết bị"
+    "files.settings.system": "Theo thiết bị",
+    "files.passwordChange.title": "Cần đổi mật khẩu",
+    "files.passwordChange.hint": "Quản trị viên đã đặt lại mật khẩu của bạn. Hãy đặt mật khẩu mới trong Account Center rồi đăng nhập lại.",
+    "files.passwordChange.open": "Mở Account Center"
   },
   "en-US": {
     "files.app.name": "MinhAnOS Files",
@@ -53,6 +56,9 @@
     "files.settings.theme": "Appearance",
     "files.settings.light": "Light",
     "files.settings.dark": "Dark",
-    "files.settings.system": "System"
+    "files.settings.system": "System",
+    "files.passwordChange.title": "Password change required",
+    "files.passwordChange.hint": "An administrator reset your password. Choose a new password in Account Center, then sign in again.",
+    "files.passwordChange.open": "Open Account Center"
   }
 }

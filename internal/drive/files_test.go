@@ -161,13 +161,16 @@ func TestTrashConflictDoesNotOverwrite(t *testing.T) {
 	}
 }
 
-type fakeIdentity struct{ role string }
+type fakeIdentity struct {
+	role       string
+	mustChange bool
+}
 
 func (f fakeIdentity) Session(_ context.Context, t string) (Session, error) {
 	if t != "valid" {
 		return Session{}, ErrUnauthorized
 	}
-	return Session{User: User{ID: strings.Repeat("a", 64), Username: "test", Role: f.role}, CSRF: "csrf"}, nil
+	return Session{User: User{ID: strings.Repeat("a", 64), Username: "test", Role: f.role}, CSRF: "csrf", PasswordChangeRequired: f.mustChange}, nil
 }
 func (f fakeIdentity) Login(context.Context, string, string) (Session, string, error) {
 	return Session{}, "", ErrUnauthorized

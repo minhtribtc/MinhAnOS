@@ -78,6 +78,8 @@ type User struct {
 type Identity struct {
 	User User
 	CSRF string
+	// PasswordChangeRequired: only session, logout and profile work until the password is changed.
+	PasswordChangeRequired bool
 }
 type identityKey struct{}
 type Window struct {
@@ -271,7 +273,7 @@ func (a *App) auth(next http.Handler) http.Handler {
 			return
 		}
 		v, err := a.authCore.Authenticate(r.Context(), identityschema.DesktopRealm, cookie.Value)
-		i := Identity{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF}
+		i := Identity{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF, PasswordChangeRequired: v.Principal.PasswordChangeRequired}
 		if err != nil {
 			if !errors.Is(err, identityschema.ErrUnauthorized) {
 				log.Print("session lookup failed: ", err)
@@ -283,6 +285,10 @@ func (a *App) auth(next http.Handler) http.Handler {
 		}
 		if r.Method != "GET" && r.Method != "HEAD" && subtle.ConstantTimeCompare([]byte(r.Header.Get("X-CSRF-Token")), []byte(i.CSRF)) != 1 {
 			writeError(w, 403, "Mã xác thực yêu cầu không hợp lệ.")
+			return
+		}
+		if i.PasswordChangeRequired && !(r.URL.Path == "/api/session" || r.URL.Path == "/api/logout" || r.URL.Path == "/api/profile") {
+			writeError(w, 403, "Cần đổi mật khẩu trước khi tiếp tục.", "PASSWORD_CHANGE_REQUIRED")
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), identityKey{}, i)))
@@ -378,11 +384,11 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: "minhanos_session", Value: sessionToken, Path: "/", HttpOnly: true, Secure: a.secureCookie, SameSite: http.SameSiteStrictMode, MaxAge: 86400})
-	writeJSON(w, 200, map[string]any{"user": user, "csrfToken": csrf})
+	writeJSON(w, 200, map[string]any{"user": user, "csrfToken": csrf, "passwordChangeRequired": v.Principal.PasswordChangeRequired})
 }
 func (a *App) session(w http.ResponseWriter, r *http.Request) {
 	i := identity(r)
-	writeJSON(w, 200, map[string]any{"user": i.User, "csrfToken": i.CSRF})
+	writeJSON(w, 200, map[string]any{"user": i.User, "csrfToken": i.CSRF, "passwordChangeRequired": i.PasswordChangeRequired})
 }
 func (a *App) logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("minhanos_session")

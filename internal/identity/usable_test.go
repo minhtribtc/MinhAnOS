@@ -15,7 +15,7 @@ import (
 )
 
 func resetPassword(s *Service, token string, u User, next string) (Result, error) {
-	input := PasswordReset{next}
+	input := PasswordReset{NewPassword: next}
 	raw, _ := json.Marshal(input)
 	return s.ResetPassword(context.Background(), DesktopRealm, token, u.ID, fmt.Sprintf("\"%d\"", u.Version), authn.Token(), authn.Token(), input, raw)
 }
@@ -54,7 +54,7 @@ func TestAdminPasswordResetRevokesBothRealmsAndAudits(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if after := decodeUser(t, out); after.Version <= u.Version || strings.Contains(string(out.Body), "password") {
+	if after := decodeUser(t, out); after.Version <= u.Version || strings.Contains(string(out.Body), "replacement-password-1") || strings.Contains(string(out.Body), "hash") {
 		t.Fatal("reset must bump version and never echo credentials", string(out.Body))
 	}
 	if _, e = s.Auth.Authenticate(ctx, DesktopRealm, desk); !errors.Is(e, ErrUnauthorized) {

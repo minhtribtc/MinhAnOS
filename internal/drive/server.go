@@ -173,6 +173,10 @@ func (s *Server) Handler() http.Handler {
 			s.Profile.Handle(w, r, session.User.ID)
 			return
 		}
+		if session.PasswordChangeRequired {
+			fail(w, 403, "Cần đổi mật khẩu trong Account Center trước khi tiếp tục.", "PASSWORD_CHANGE_REQUIRED")
+			return
+		}
 		if r.URL.Path == "/api/roots" && r.Method == "GET" {
 			roots := []map[string]string{{"id": "personal", "name": "Tệp của tôi"}}
 			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {

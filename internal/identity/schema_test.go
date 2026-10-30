@@ -102,7 +102,7 @@ func TestAdoptionBackfillAndCompatibility(t *testing.T) {
 		t.Fatal(storage, e)
 	}
 	raw, _ := json.Marshal(user)
-	if strings.Contains(string(raw), "password") || strings.Contains(string(raw), strings.Repeat("a", 64)) {
+	if strings.Contains(string(raw), `"password"`) || strings.Contains(string(raw), "password_hash") || strings.Contains(string(raw), "passwordHash") || strings.Contains(string(raw), strings.Repeat("a", 64)) {
 		t.Fatal("private identity data leaked")
 	}
 	if n, e := repo.BackfillBatch(ctx, 1); e != nil || n != 0 {

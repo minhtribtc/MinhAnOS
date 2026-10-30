@@ -24,6 +24,8 @@ type User struct {
 type Session struct {
 	User User   `json:"user"`
 	CSRF string `json:"csrfToken"`
+	// Set after an administrative password reset; Files stays closed until the password is changed.
+	PasswordChangeRequired bool `json:"passwordChangeRequired"`
 }
 
 // IdentityStore is the boundary for replacing shared PostgreSQL identities with OIDC later.
@@ -100,7 +102,7 @@ func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*S
 	return &SQLIdentity{db: db, core: core, policy: policy}, nil
 }
 func driveSession(v identity.AuthSession) Session {
-	return Session{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF}
+	return Session{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF, PasswordChangeRequired: v.Principal.PasswordChangeRequired}
 }
 func (s *SQLIdentity) Session(ctx context.Context, token string) (Session, error) {
 	v, e := s.core.Authenticate(ctx, identity.DriveRealm, token)
