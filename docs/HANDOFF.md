@@ -1,3 +1,11 @@
+Release status: Phase 3B images built and deployed once; Desktop, Drive and DB healthy. No extra browser/runtime trial loop.
+
+# Handoff — Phase 3B (current)
+
+Branch account-center-phase3b. Read [report](account-center/PHASE3B_REPORT.md), [ADR 0006](adr/0006-identity-security-and-delegation-apis.md) and contracts/identity/status.v1.json. 32 v1 operations active; schemas/client regenerated. Security APIs, groups, bounded custom roles/bindings and effective access are implemented. No new migration or UI application.
+System Admin stays canonical users.role; generic bindings cannot grant it. Governance writes remain System Admin + grant + freshness. Custom roles cannot delegate policy-governance writes; only exact system scope. Host operator remains separate. Password change signs out both realms/current session; owner-only revocation is transactional/audited. Unknown session/device metadata is null.
+Focused checks passed in separate source/disposable DB, no browser/stop-start test loops. Keep SQL 001–005/profile 001 immutable. Next: shared Account Center frontend/native+standalone. App policy editing waits for actual Files/registry enforcement; do not imply that a stored policy already blocks other apps.
+
 Delivery note: user requested stopping repeated interactive tests. Existing checks already passed; fresh-test resources cleaned and Desktop restarted. Continue with focused verification only when new work needs it.
 
 # Handoff — Phase 3A policy/users slice (current)

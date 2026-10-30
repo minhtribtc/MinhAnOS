@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase3; also read docs/extension-contracts.md.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase3b; also read docs/extension-contracts.md.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
 
@@ -92,3 +92,7 @@ Read docs/account-center/PHASE3_REPORT.md and ADR 0005 before changes. Identity 
 ## Verification preference
 
 User requested avoiding time-consuming repeated interactive test loops. Prefer focused automated checks once per meaningful change; do not repeat browser/VM smoke or stop-start loops after suitable checks pass unless a concrete failure or new change requires it. Finish implementation, documentation and delivery promptly.
+
+## Phase 3B continuation (current)
+
+Read docs/account-center/PHASE3B_REPORT.md and ADR 0006; supersedes earlier active-operation counts. 32 operations active, no migration beyond 005. Custom role/group bindings cannot grant canonical System Admin or host operator; governance permissions are capped and system scope exact. Password changes revoke both realms/current session; DTOs expose no credential/session secrets. Effective access differs from feature availability. Next shared native/standalone Account Center UI; app policy editing remains gated until resource enforcement/registry support. Respect focused verification preference: no repeated interactive/browser/stop-start trials after suitable checks pass.

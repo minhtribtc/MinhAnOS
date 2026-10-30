@@ -120,6 +120,18 @@
     {
       "file": "set-role.v1.schema.json",
       "type": "IdentitySetRole"
+    },
+    {
+      "file": "group-member-page.v1.schema.json",
+      "type": "IdentityGroupMemberPage"
+    },
+    {
+      "file": "role-binding-page.v1.schema.json",
+      "type": "IdentityRoleBindingPage"
+    },
+    {
+      "file": "access.v1.schema.json",
+      "type": "IdentityAccess"
     }
   ]
 }

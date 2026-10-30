@@ -1,3 +1,5 @@
+Current: 32 active operations, including owner security and bounded group/custom-role delegation. New IdentityAccess/role-binding/member pages are generated from canonical schemas. [ADR 0006](../../docs/adr/0006-identity-security-and-delegation-apis.md).
+
 Phase 3A: the exact active operation list is in status.v1.json; OpenAPI x-implementation matches it. User-management subset is real; other generated methods remain planned and unsupported. [Report](../../docs/account-center/PHASE3_REPORT.md) and [ADR 0005](../../docs/adr/0005-identity-policy-and-host-operators.md).
 
 Runtime Phase 2 now uses shared AuthCore for legacy authentication. Identity v1 HTTP remains planned. [ADR 0004](../../docs/adr/0004-shared-auth-core-and-recovery.md) records realm mapping, recovery policy and security boundaries.

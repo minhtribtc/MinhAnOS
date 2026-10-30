@@ -423,3 +423,34 @@ export interface IdentityReauthenticate {
 export interface IdentitySetRole {
   role: "system-admin" | "user-admin" | "standard-user";
 }
+
+export interface IdentityGroupMemberPage {
+  items: {
+    userId: string;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityRoleBindingPage {
+  items: {
+    id: string;
+    roleId: string;
+    subject: {
+      kind: "user" | "group";
+      id: string;
+    };
+    scope: {
+      kind: "system" | "user" | "storage";
+      id: string | null;
+    };
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityAccess {
+  userId: string;
+  baseRole: "system-admin" | "user-admin" | "standard-user";
+  permissions: string[];
+  hostOperator: boolean;
+}

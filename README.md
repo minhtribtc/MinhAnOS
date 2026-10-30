@@ -1,3 +1,5 @@
+Identity Phase 3B: 32 API đã triển khai cho tài khoản, phiên, mật khẩu, nhóm và role/binding có giới hạn. Giao diện Account Center là bước tiếp theo. [Báo cáo hiện hành](docs/account-center/PHASE3B_REPORT.md).
+
 Phase 3A đã triển khai lõi policy + 14 Identity v1 operations và tách host operators trên VM. Account Center UI/Phase 3 nâng cao chưa hoàn tất. [Báo cáo Phase 3A](docs/account-center/PHASE3_REPORT.md).
 
 AuthCore Phase 2 đã chạy trên test VM: shared authentication, session revocation primitives và OS-root recovery CLI. Account Center UI/API quản trị vẫn đang phát triển. [Báo cáo Phase 2](docs/account-center/PHASE2_REPORT.md).

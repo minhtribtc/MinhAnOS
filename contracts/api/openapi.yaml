@@ -3,7 +3,7 @@
   "info": {
     "title": "MinhAnOS Platform Contracts",
     "version": "0.1.0",
-    "description": "Contract-first preview. Only /api/profile is implemented here. Every /api/v1 operation is planned and must not be advertised as available."
+    "description": "Profile and the declared Identity operation subset are implemented. Consult x-implementation and contracts/identity/status.v1.json; remaining v1 operations are planned."
   },
   "servers": [
     {
@@ -1655,7 +1655,7 @@
       "get": {
         "operationId": "identityListMySessions",
         "summary": "List own session handles, never bearer tokens",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1704,14 +1704,15 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/me/sessions/{sessionId}": {
       "delete": {
         "operationId": "identityRevokeMySession",
         "summary": "Revoke an owned realm-qualified session",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1759,14 +1760,15 @@
               "minLength": 1
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/me/sessions/revoke-others": {
       "post": {
         "operationId": "identityRevokeOtherSessions",
         "summary": "Revoke other owned sessions across realms",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1815,14 +1817,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/me/password": {
       "post": {
         "operationId": "identityChangePassword",
         "summary": "Verify current credential and revoke all realms including current",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1881,14 +1884,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/groups": {
       "get": {
         "operationId": "identityListGroups",
         "summary": "List authorized groups",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1937,12 +1941,13 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       },
       "post": {
         "operationId": "identityCreateGroup",
         "summary": "Create a user group after permission checks",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2001,14 +2006,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/groups/{groupId}": {
       "patch": {
         "operationId": "identityPatchGroup",
         "summary": "Edit a group without changing identity",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2075,14 +2081,88 @@
               "minLength": 1
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
+      },
+      "delete": {
+        "operationId": "identityDeleteGroup",
+        "summary": "Delete user-owned group",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
       }
     },
     "/api/v1/identity/groups/{groupId}/members": {
       "post": {
         "operationId": "identityAddGroupMember",
         "summary": "Add a member with protected-role checks",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2159,7 +2239,72 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
+      },
+      "get": {
+        "operationId": "identityListGroupMembers",
+        "summary": "List group membership",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroupMemberPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
       }
     },
     "/api/v1/identity/roles": {
@@ -2221,7 +2366,7 @@
       "post": {
         "operationId": "identityCreateRole",
         "summary": "Create a custom role within actor permission ceiling",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2280,14 +2425,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/role-bindings": {
       "post": {
         "operationId": "identityCreateRoleBinding",
         "summary": "Bind a role within verified actor scope",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2346,7 +2492,63 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
+      },
+      "get": {
+        "operationId": "identityListRoleBindings",
+        "summary": "List explicit role bindings",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityRoleBindingPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
       }
     },
     "/api/v1/identity/permissions": {
@@ -2523,7 +2725,7 @@
       "get": {
         "operationId": "identityListMyCredentials",
         "summary": "Read permission-filtered metadata, never secrets",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2572,7 +2774,8 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
       }
     },
     "/api/v1/identity/users/{userId}/linux-identity": {
@@ -2757,6 +2960,249 @@
             "schema": {
               "type": "string",
               "minLength": 1
+            }
+          }
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
+      }
+    },
+    "/api/v1/identity/groups/{groupId}/members/{userId}": {
+      "delete": {
+        "operationId": "identityRemoveGroupMember",
+        "summary": "Remove group member",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
+      }
+    },
+    "/api/v1/identity/role-bindings/{bindingId}": {
+      "delete": {
+        "operationId": "identityDeleteRoleBinding",
+        "summary": "Remove a non-System-Admin binding",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bindingId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards."
+      }
+    },
+    "/api/v1/identity/me/access": {
+      "get": {
+        "operationId": "identityGetMyAccess",
+        "summary": "Read effective account access",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAccess"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Implemented Phase 3B; server-side actor/grant/target checks and bounded cursor pagination or mutation concurrency guards.",
+        "parameters": []
+      }
+    },
+    "/api/v1/identity/users/{userId}/access": {
+      "get": {
+        "operationId": "identityGetUserAccess",
+        "summary": "Read effective access of an authorized target user",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAccess"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -4149,6 +4595,158 @@
         },
         "required": [
           "role"
+        ]
+      },
+      "IdentityGroupMemberPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "required": [
+                "userId"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityRoleBindingPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "roleId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "subject": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "user",
+                        "group"
+                      ]
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id"
+                  ]
+                },
+                "scope": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "system",
+                        "user",
+                        "storage"
+                      ]
+                    },
+                    "id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "id",
+                "roleId",
+                "subject",
+                "scope",
+                "version"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityAccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseRole": {
+            "enum": [
+              "system-admin",
+              "user-admin",
+              "standard-user"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "hostOperator": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "userId",
+          "baseRole",
+          "permissions",
+          "hostOperator"
         ]
       }
     }

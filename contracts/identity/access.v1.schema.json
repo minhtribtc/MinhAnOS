@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-access.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "baseRole": {
+      "enum": [
+        "system-admin",
+        "user-admin",
+        "standard-user"
+      ]
+    },
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "hostOperator": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "userId",
+    "baseRole",
+    "permissions",
+    "hostOperator"
+  ]
+}

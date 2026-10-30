@@ -1,3 +1,9 @@
+## Backend tài khoản Phase 3B
+
+API đã hỗ trợ xem/thu hồi phiên của chính mình ở cả Desktop và Drive, đổi mật khẩu, quản lý nhóm, role tùy biến có giới hạn và đọc quyền thực tế. Giao diện Account Center mới chưa được đưa vào launcher; Settings hiện tại vẫn dùng như trước.
+Đổi mật khẩu cần mật khẩu hiện tại và làm hết hiệu lực mọi phiên, kể cả phiên vừa thực hiện. Thu hồi các phiên khác giữ phiên hiện tại. Thông tin thiết bị/lần hoạt động chưa thu thập được sẽ để trống, không suy đoán. Xóa nhóm không xóa tài khoản hay dữ liệu Files.
+System Admin và operator host không được cấp qua role tùy biến/nhóm. Scope user/storage và chỉnh chính sách truy cập ứng dụng chưa mở; không coi policy lưu sẵn là đã chặn Files. [Báo cáo](account-center/PHASE3B_REPORT.md).
+
 ## Tài khoản và quyền — Phase 3A
 
 Trong Settings → Người dùng, tạo user thường như trước. Khi chọn Quản trị viên, nhập thêm **mật khẩu hiện tại của bạn** để xác thực trước khi cấp quyền quản trị web. Mật khẩu xác thực được xóa khỏi trạng thái biểu mẫu sau thao tác; không lưu vào hồ sơ. Đây vẫn là trang Settings cũ; ứng dụng Account Center độc lập chưa xuất hiện trong launcher.

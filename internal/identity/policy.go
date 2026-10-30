@@ -94,7 +94,7 @@ func authorize(ctx context.Context, tx pgx.Tx, a Actor, permission string) error
 	// Initial delegated role is bounded to managing standard users. Unknown scope,
 	// custom/reserved privilege inheritance and implicit System Admin groups deny.
 	var delegated bool
-	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_role_bindings b JOIN identity_roles r ON r.id=b.role_id JOIN identity_role_permissions p ON p.role_id=r.id WHERE r.key='user-admin' AND p.permission_key=$2 AND b.scope='{"kind":"system","id":null}'::jsonb AND (b.user_id::text=$1 OR b.group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$1)))`, a.PublicID, permission).Scan(&delegated)
+	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM identity_role_bindings b JOIN identity_roles r ON r.id=b.role_id JOIN identity_role_permissions p ON p.role_id=r.id WHERE (r.key='user-admin' OR NOT r.protected) AND p.permission_key=$2 AND b.scope='{"kind":"system","id":null}'::jsonb AND (b.user_id::text=$1 OR b.group_id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$1)))`, a.PublicID, permission).Scan(&delegated)
 	if e != nil {
 		return e
 	}
@@ -228,6 +228,31 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 }
 func actionName(route string) string {
 	switch {
+	case strings.Contains(route, "/me/password"):
+		return "password.changed"
+	case strings.Contains(route, "/me/sessions"):
+		return "sessions.revoked"
+	case strings.Contains(route, "/role-bindings"):
+		if strings.HasPrefix(route, "DELETE ") {
+			return "role.binding.removed"
+		}
+		return "role.binding.created"
+	case strings.Contains(route, "/groups"):
+		if strings.HasPrefix(route, "DELETE ") && !strings.Contains(route, "/members") {
+			return "group.deleted"
+		}
+		if strings.Contains(route, "/members") {
+			if strings.HasPrefix(route, "DELETE ") {
+				return "group.member.removed"
+			}
+			return "group.member.added"
+		}
+		if strings.HasPrefix(route, "PATCH ") {
+			return "group.updated"
+		}
+		return "group.created"
+	case strings.HasSuffix(route, "/roles"):
+		return "role.created"
 	case strings.HasSuffix(route, "/disable"):
 		return "user.disabled"
 	case strings.HasSuffix(route, "/enable"):
@@ -436,7 +461,7 @@ func (s *Service) ChangeUser(ctx context.Context, realm Realm, token, target, op
 			}
 			if operation == "standard-user" {
 				var inherited bool
-				if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM identity_group_members m JOIN identity_role_bindings b ON b.group_id=m.group_id JOIN identity_roles r ON r.id=b.role_id WHERE m.user_id=$1 AND r.key='user-admin')", target).Scan(&inherited); e != nil {
+				if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM identity_group_members m JOIN identity_role_bindings b ON b.group_id=m.group_id JOIN identity_roles r ON r.id=b.role_id WHERE m.user_id=$1)", target).Scan(&inherited); e != nil {
 					return Result{}, e
 				}
 				if inherited {

@@ -1,3 +1,7 @@
+## Phase 3B — 2026-10-30
+
+One full Go/vet + isolated PostgreSQL regression and root contract/type checks passed in a separate source folder. Targeted affected security/group tests additionally checked actual HTTP requests and group-deletion audit/effective-access behavior. No browser/VM stop-start trials or production credential mutations. Existing unused IdentityLink warning remains. Deployment health is not a substitute for the recorded isolated checks. [Report](account-center/PHASE3B_REPORT.md).
+
 ## Phase 3A — 2026-10-30
 
 Go/unit/vet, PostgreSQL concurrency/policy/auth regression, HTTP adapters, contract/type/client generation, OpenAPI compatibility, restored pre-upgrade DB và VM smoke (Identity v1/legacy/profile/Files/agent): PASS. Browser thật kiểm tra trường current-password khi chọn admin và bố cục; không submit quyền qua browser. Replay byte-order test ban đầu fail do jsonb, đã canonicalize và rerun PASS. Một IdentityLink lint warning còn nguyên. [Report](account-center/PHASE3_REPORT.md) ghi phạm vi, migration và các kiểm tra cài mới độc lập.

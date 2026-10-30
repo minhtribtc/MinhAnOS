@@ -1,3 +1,9 @@
+## Identity Phase 3B — 32 active operations
+
+Runtime inventory: contracts/identity/status.v1.json. Added GET me/sessions, DELETE me/sessions/{handle}, POST me/sessions/revoke-others, POST me/password, GET me/credentials; groups GET/POST/PATCH/DELETE and members GET/POST/DELETE; roles POST; role-bindings GET/POST/DELETE; GET me/access and users/{uuid}/access. All under /api/v1/identity, in both cookie hosts.
+Pages use the existing signed owner/filter/collection-bound cursors. Member cursors also bind groupId. Policy writes require recent reauthentication; POST/DELETE policy operations use required idempotency keys and applicable If-Match versions. Password change proves currentPassword, validates newPassword, revokes both realms and returns accepted; then re-login is required. Revoke-others keeps the current session. Credential response is metadata only; lastSeen/device hints are unknown/null, not simulated.
+Generic bindings allow user-admin or custom role with exact {kind:system,id:null}; no System Admin assignment through groups. Custom roles reject governance-write permissions and unknown registry actions. Effective-access DTO is separate from User, does not expose physical IDs and returns no active permissions for inactive targets. App-access/grant mutation remains planned. [ADR 0006](adr/0006-identity-security-and-delegation-apis.md).
+
 ## Identity Phase 3A — active subset
 
 Implemented at /api/v1/identity in both Desktop and standalone Drive: me GET/PATCH; reauthenticate POST; users GET/POST; users/{uuid} GET/PATCH/DELETE; disable/enable POST; role PUT; roles/permissions/audit-events GET. See contracts/identity/status.v1.json for exact operation IDs; remaining OpenAPI operations stay planned.

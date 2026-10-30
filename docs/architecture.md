@@ -1,3 +1,7 @@
+## Identity Phase 3B (current)
+
+Shared security/group/delegation services extend the existing transaction wrapper; no schema or deployment dependency change. 32 operations now active, including current-user credential/session control and effective-access DTO. System Admin authority and host operator stay separate; custom governance delegation is capped. [ADR 0006](adr/0006-identity-security-and-delegation-apis.md).
+
 ## Identity Phase 3A (current)
 
 identity.Service + HTTP adapter dùng chung Desktop/Drive, không import Platform vào Drive. Một nguồn users/password và hai cookie realms giữ nguyên. Lõi Users dùng registered app grants, reserved web-role ceilings, transaction-time checks và explicit host operators. users.role là nguồn System Admin hiện hành; đầy đủ group/custom-role policy vẫn pending. [ADR 0005](adr/0005-identity-policy-and-host-operators.md) ghi ranh giới, concurrency và migration 005. Hợp đồng x-implementation chỉ bật 14 operation đã kiểm thử.

@@ -1,3 +1,5 @@
+Current: [Phase 3B report](PHASE3B_REPORT.md) — 32 backend operations; [ADR 0006](../adr/0006-identity-security-and-delegation-apis.md). Account Center frontend is next; app policy remains gated on actual resource enforcement.
+
 Current: [Phase 3A report](PHASE3_REPORT.md) — Users/policy/host split active, 14 v1 operations. Remaining Phase 3B and UI are explicitly pending. [ADR 0005](../adr/0005-identity-policy-and-host-operators.md).
 
 Current: Phase 2 shared AuthCore/local recovery deployed. [Phase 2 report](PHASE2_REPORT.md) · [ADR 0004](../adr/0004-shared-auth-core-and-recovery.md). Phần Phase 1 dưới đây là mốc trước đó, UI/API Identity v1 vẫn chưa bật.

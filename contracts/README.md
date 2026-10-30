@@ -1,3 +1,5 @@
+Phase 3B active inventory has 32 Identity operations. Effective permission prerequisites do not imply every planned feature is enabled; combine permission checks with the runtime operation inventory.
+
 Identity v1 has a Phase 3A active subset. Read identity/status.v1.json and per-operation x-implementation before calling a generated method; generation alone is not enablement. Host operator is separate from manifest capability/web role.
 
 Identity Phase 2 runtime shares AuthCore on existing legacy endpoints; no v1 Identity HTTP handlers enabled. [Current report](../docs/account-center/PHASE2_REPORT.md).

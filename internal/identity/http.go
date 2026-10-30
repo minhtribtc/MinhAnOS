@@ -95,6 +95,12 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			if len(parts) == 2 && parts[0] == "users" {
 				kind, target = "user", parts[1]
 			}
+			if len(parts) == 3 && parts[0] == "users" && parts[2] == "access" {
+				kind, target = "user/access", parts[1]
+			}
+			if len(parts) == 3 && parts[0] == "groups" && parts[2] == "members" {
+				kind, target = "members", parts[1]
+			}
 			limit := 50
 			if v := r.URL.Query().Get("limit"); v != "" {
 				limit, e = strconv.Atoi(v)
@@ -145,6 +151,124 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 					}
 					out = result(map[string]bool{"accepted": true}, 200, 0)
 				}
+			case path == "me/password" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input PasswordChange
+				if e = decode(&input); e == nil {
+					out, e = s.Password(ctx, realm, token, key, requestID, input, raw)
+				}
+			case path == "me/sessions/revoke-others" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.RevokeSession(ctx, realm, token, "", key, requestID, true, raw)
+			case len(parts) == 3 && parts[0] == "me" && parts[1] == "sessions" && r.Method == "DELETE":
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.RevokeSession(ctx, realm, token, parts[2], "", requestID, false, raw)
+			case path == "groups" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input GroupInput
+				if e = decode(&input); e == nil {
+					out, e = s.GroupWrite(ctx, realm, token, "", "create", "", match, key, requestID, input, raw)
+				}
+			case len(parts) == 2 && parts[0] == "groups" && r.Method == "PATCH":
+				var input struct {
+					Name *string `json:"name"`
+				}
+				if e = decode(&input); e != nil {
+					break
+				}
+				if input.Name == nil {
+					e = fault(400, "INVALID_REQUEST")
+					break
+				}
+				out, e = s.GroupWrite(ctx, realm, token, parts[1], "patch", "", match, "", requestID, GroupInput{Name: *input.Name}, raw)
+			case len(parts) == 2 && parts[0] == "groups" && r.Method == "DELETE":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.GroupWrite(ctx, realm, token, parts[1], "delete", "", match, key, requestID, GroupInput{}, raw)
+			case len(parts) == 3 && parts[0] == "groups" && parts[2] == "members" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input struct {
+					UserID string `json:"userId"`
+				}
+				if e = decode(&input); e == nil {
+					out, e = s.GroupWrite(ctx, realm, token, parts[1], "add", input.UserID, match, key, requestID, GroupInput{}, raw)
+				}
+			case len(parts) == 4 && parts[0] == "groups" && parts[2] == "members" && r.Method == "DELETE":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.GroupWrite(ctx, realm, token, parts[1], "remove", parts[3], match, key, requestID, GroupInput{}, raw)
+			case path == "roles" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input RoleInput
+				if e = decode(&input); e == nil {
+					out, e = s.CreateRole(ctx, realm, token, key, requestID, input, raw)
+				}
+			case path == "role-bindings" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input BindingInput
+				if e = decode(&input); e == nil {
+					var shape struct {
+						Scope map[string]json.RawMessage `json:"scope"`
+					}
+					_ = json.Unmarshal(raw, &shape)
+					if _, ok := shape.Scope["id"]; !ok {
+						e = fault(400, "INVALID_REQUEST")
+						break
+					}
+					out, e = s.BindRole(ctx, realm, token, "", match, key, requestID, input, raw, false)
+				}
+			case len(parts) == 2 && parts[0] == "role-bindings" && r.Method == "DELETE":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(raw) > 0 {
+					if e = decode(&struct{}{}); e != nil {
+						break
+					}
+				}
+				out, e = s.BindRole(ctx, realm, token, parts[1], match, key, requestID, BindingInput{}, raw, true)
 			case path == "users" && r.Method == "POST":
 				if key == "" {
 					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")

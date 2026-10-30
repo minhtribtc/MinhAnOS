@@ -106,7 +106,11 @@ func TestPolicyLastAdminConcurrentAndHostSplit(t *testing.T) {
 		go func(v struct {
 			token string
 			u     User
-		}) { defer wg.Done(); _, e := policyChange(s, v.token, v.u, "disable"); outcomes <- e }(v)
+		}) {
+			defer wg.Done()
+			_, e := policyChange(s, v.token, v.u, "disable")
+			outcomes <- e
+		}(v)
 	}
 	wg.Wait()
 	close(outcomes)

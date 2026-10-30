@@ -1,3 +1,9 @@
+## Account Center Phase 3B — 2026-10-30
+
+- Mở API phiên, đổi mật khẩu, metadata credential, nhóm/thành viên, role tùy biến/binding và đọc quyền thực tế: tổng 32 operation.
+- Giữ giới hạn owner, admin cuối cùng, operator host, audit/replay và permission ceiling; không thêm migration.
+- App policy editing và giao diện Account Center vẫn pending. Kiểm tra tập trung, không lặp thử nghiệm trình duyệt/VM.
+
 ## Account Center Phase 3A — 2026-10-30
 
 - Bật 14 Identity v1 operations cho Users/My Account/roles-permissions read/audit và reauthentication; thêm version/cursor/replay guards.

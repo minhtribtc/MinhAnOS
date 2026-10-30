@@ -29,3 +29,8 @@ void identityClient.identityReauthenticate({body:{password:'not-a-real-secret'}}
 void identityClient.identitySetUserRole({userId:'id',ifMatch:'"1"',idempotencyKey:'typed-example',body:{role:'user-admin'}})
 // @ts-expect-error Host operator is deliberately not a web role.
 void identityClient.identitySetUserRole({userId:'id',ifMatch:'"1"',idempotencyKey:'typed-example',body:{role:'host-root'}})
+
+void identityClient.identityListGroupMembers({groupId:'id'})
+void identityClient.identityGetMyAccess()
+// @ts-expect-error Session ownership is derived from the session, not a supplied user ID.
+void identityClient.identityListMySessions({userId:'forged'})
