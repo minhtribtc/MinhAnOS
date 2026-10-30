@@ -1,3 +1,16 @@
+# Handoff — App naming v1
+
+Nhánh platform-app-naming-v1. Đọc docs/adr/0003-app-naming-and-repository-policy.md.
+contracts/apps/catalog.v1.json chốt 8 tên/App ID, alias và trạng thái triển khai; schema/CI kiểm tra xung đột.
+Canonical brand Files là MinhAnOS Files; UI vẫn dùng File Station/Drive trong giai đoạn chuyển đổi.
+Workspace frontend apps/drive đổi tên npm minhanos-drive → minhanos-files, không đổi thư mục/URL/service/volume.
+Lệnh build standalone: npm run build --workspace=minhanos-files. Shared @minhanos/files-app giữ nguyên.
+Monorepo GitHub vẫn minhtribtc/MinhAnOS; minhanos-* là tên module, chưa tạo/tách/đổi tên repository GitHub.
+Legacy registry IDs files/apps/settings chưa chuyển sang reverse-DNS trong persisted state; catalog chưa là runtime resolver.
+classic/touch là Shell variants tương lai; light/dark/system là theme; focus/windows là layout modes.
+Không đổi UI Shell, nhãn quick panel, DB schema hoặc grant policy trong đợt này. Phần việc tiếp vẫn là Identity adoption/grants.
+
+
 CI xác nhận implementation commit `fbc07c4` đã qua toàn bộ workflow, gồm DB integration: [run 41003701847](https://github.com/minhtribtc/MinhAnOS/actions/runs/41003701847).
 
 # Bổ sung kiểm tra types và rehearsal

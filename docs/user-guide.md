@@ -133,3 +133,11 @@ Bản này bổ sung ledger migration và kiểm tra bảng hồ sơ; thao tác 
 Nếu log báo checksum drift, unsupported history hoặc incompatible user_profiles, hãy giữ nguyên dữ liệu/volume,
 kiểm tra phiên bản đang chạy và đọc [chính sách migration](migration-policy.md).
 Không xóa ledger, sửa checksum hoặc xóa bảng để buộc server khởi động. Cần bản migration sửa chữa được kiểm chứng.
+
+
+## Tên ứng dụng chuẩn
+
+Bộ tên đã chốt trong [ADR 0003](adr/0003-app-naming-and-repository-policy.md).
+MinhAnOS Files là tên sản phẩm chuẩn; bản UI hiện tại vẫn hiển thị File Station và MinhAnOS Drive.
+Desktop vẫn chạy ở 8081, Drive/Files độc lập ở 8082. Dữ liệu và các URL/API hiện tại giữ nguyên.
+Các tên Storage Manager, Container Manager, Resource Monitor đang được dành cho ứng dụng tương lai, chưa có chức năng mới.

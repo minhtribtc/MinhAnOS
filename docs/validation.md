@@ -1,3 +1,20 @@
+# Kiểm chứng app naming — 2026-10-30
+
+Nhánh platform-app-naming-v1. Thay đổi naming/catalog và npm workspace; không đổi runtime UI/API/DB.
+
+- npm ci và npm run build tại root qua cho cả Desktop và workspace mới minhanos-files.
+- Root check qua: catalog JSON Schema, uniqueness App ID/module/key/alias, actual source paths,
+  manifest membership và package name alignment; TypeScript/ICU/OpenAPI kiểm tra hiện có vẫn qua.
+- Compatibility tests chặn xóa App ID/alias và cho đổi display name; duplicate/traversal fixtures bị từ chối.
+- OpenAPI breaking check không phát hiện thay đổi API; catalog mới chưa có predecessor baseline.
+- Docker compose build drive qua bằng workspace mới; image runtime digest giống bản trước, không cần restart service.
+- Không rename repo GitHub/remote, source paths, ports, compose service, volumes, deployment folder hoặc URLs.
+- Vite còn warning import attributes JSON không đồng nhất đã có từ trước; build thành công.
+- Không chạy lại kiểm thử DB migration/backend API hoặc browser vì không sửa runtime/backend/UI trong đợt này.
+- GitHub CI cho nhánh naming chưa được xác nhận tại thời điểm ghi nhận này.
+
+---
+
 # Kiểm chứng migration runner — 2026-10-30
 
 Nhánh platform-migrations-v1. Kết quả thực tế trên VM và PostgreSQL disposable riêng.

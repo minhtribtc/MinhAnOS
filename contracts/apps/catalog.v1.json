@@ -1,0 +1,114 @@
+{
+  "catalogVersion": "1",
+  "repository": {
+    "strategy": "monorepo",
+    "fullName": "minhtribtc/MinhAnOS"
+  },
+  "apps": [
+    {
+      "key": "desktop",
+      "displayName": "MinhAnOS Desktop",
+      "moduleName": "minhanos-desktop",
+      "appId": "com.minhanos.desktop",
+      "implementation": "implemented",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": [
+        "apps/desktop"
+      ]
+    },
+    {
+      "key": "files",
+      "displayName": "MinhAnOS Files",
+      "moduleName": "minhanos-files",
+      "appId": "com.minhanos.files",
+      "implementation": "implemented",
+      "legacyRegistryIds": [
+        "files"
+      ],
+      "legacyDisplayNames": [
+        "File Station",
+        "MinhAnOS Drive"
+      ],
+      "currentPaths": [
+        "packages/files-app",
+        "apps/drive",
+        "internal/drive"
+      ]
+    },
+    {
+      "key": "accounts",
+      "displayName": "Account Center",
+      "moduleName": "minhanos-accounts",
+      "appId": "com.minhanos.account-center",
+      "implementation": "partial",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": [
+        "apps/desktop/src/components/AppContent.vue"
+      ]
+    },
+    {
+      "key": "settings",
+      "displayName": "Control Center",
+      "moduleName": "minhanos-settings",
+      "appId": "com.minhanos.settings",
+      "implementation": "partial",
+      "legacyRegistryIds": [
+        "settings"
+      ],
+      "legacyDisplayNames": [
+        "Cài đặt"
+      ],
+      "currentPaths": [
+        "apps/desktop/src/components/AppContent.vue"
+      ]
+    },
+    {
+      "key": "storage",
+      "displayName": "Storage Manager",
+      "moduleName": "minhanos-storage",
+      "appId": "com.minhanos.storage",
+      "implementation": "planned",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": []
+    },
+    {
+      "key": "app-center",
+      "displayName": "App Center",
+      "moduleName": "minhanos-app-center",
+      "appId": "com.minhanos.app-center",
+      "implementation": "partial",
+      "legacyRegistryIds": [
+        "apps"
+      ],
+      "legacyDisplayNames": [
+        "Trung tâm ứng dụng"
+      ],
+      "currentPaths": [
+        "apps/desktop/src/components/AppContent.vue"
+      ]
+    },
+    {
+      "key": "containers",
+      "displayName": "Container Manager",
+      "moduleName": "minhanos-containers",
+      "appId": "com.minhanos.containers",
+      "implementation": "planned",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": []
+    },
+    {
+      "key": "monitor",
+      "displayName": "Resource Monitor",
+      "moduleName": "minhanos-monitor",
+      "appId": "com.minhanos.monitor",
+      "implementation": "planned",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": []
+    }
+  ]
+}

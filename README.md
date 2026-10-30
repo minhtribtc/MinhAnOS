@@ -104,3 +104,7 @@ Các route v1 là planned, chưa phải chức năng có trên VM.
 
 Migration profile hiện dùng runner transactional; xem [ADR 0002](docs/adr/0002-transactional-migration-runner.md).
 Test riêng: sh tests/migrations-integration.sh (Docker; tạo DB disposable, không dùng DB ứng dụng).
+
+
+Naming: [ADR 0003](docs/adr/0003-app-naming-and-repository-policy.md) defines eight app identities in the existing monorepo.
+Standalone Files frontend: npm run build --workspace=minhanos-files (source remains apps/drive).

@@ -142,3 +142,9 @@ Triển khai tiếp: module migration runner + app grants/delegation → file id
 
 Đã có shared transactional runner và profile adoption. Còn identity adoption, operator workflow cho backfill/contract,
 backup/restore rehearsal và schema compatibility cho các module tương lai. Xem ADR 0002.
+
+
+## App naming v1
+
+Đã chốt 8 tên/App ID và kiểm tra CI; Files host npm workspace là minhanos-files.
+UI label rollout, runtime manifest/alias resolver và Shell variants còn pending. Xem ADR 0003.

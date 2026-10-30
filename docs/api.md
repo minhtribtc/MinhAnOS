@@ -106,3 +106,9 @@ Body authz không nhận subject; appId chỉ là ngữ cảnh yêu cầu, backe
 
 Không thêm endpoint hoặc đổi response trong đợt migration runner. /api/profile vẫn giữ hợp đồng hiện có.
 Startup kiểm tra profile schema/history trước khi phục vụ; schema không tương thích làm tiến trình dừng thay vì tự sửa dữ liệu.
+
+
+## Naming compatibility
+
+Chuẩn hóa tên/App ID không đổi endpoint, cookie hoặc registry IDs hiện có. /api/drive và Drive /api vẫn hoạt động.
+Catalog contracts/apps là metadata first-party, chưa có endpoint catalog/resolver mới. Chưa dùng alias từ client làm bằng chứng app identity.

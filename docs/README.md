@@ -35,3 +35,6 @@ Không ghi chức năng là hoàn thành chỉ vì đã có thiết kế hoặc 
 
 
 - [ADR 0002: transactional migration runner](adr/0002-transactional-migration-runner.md)
+
+
+- [ADR 0003: tên ứng dụng, module và repository](adr/0003-app-naming-and-repository-policy.md)

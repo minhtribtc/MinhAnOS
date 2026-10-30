@@ -62,3 +62,11 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Chưa chuyển identity bootstrap; chưa có destructive/down/backfill runner hoặc grants/jobs/upload mới.
 
 - Sửa generator shared-types để xuất đúng tên công khai và newline ổn định; thêm TypeScript contract check không dùng skipLibCheck.
+
+
+## 2026-10-30 — App naming v1
+
+- Chốt tên/App ID/module của 8 ứng dụng bằng catalog có schema và kiểm tra trùng ID/alias trong CI.
+- Đổi npm workspace host Files sang minhanos-files; shared package, thư mục, API và deployment giữ nguyên.
+- Chuẩn hóa thuật ngữ Desktop/Shell/Workspace; tách Shell variants khỏi theme/layout.
+- Tên UI File Station/Drive chưa đổi; các app planned chưa được tạo hoặc kích hoạt.

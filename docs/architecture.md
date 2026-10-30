@@ -98,3 +98,11 @@ jobs/uploads/event transport và module migration runner còn planned; không th
 Runner dùng chung internal/migrate, ledger platform_migrations, SQL thuộc coreprofile/migrations.
 Desktop và Drive dùng cùng advisory transaction lock; history/checksum được kiểm trước pending SQL.
 Identity/bootstrap/schema_version cũ chưa chuyển. Xem [ADR 0002](adr/0002-transactional-migration-runner.md).
+
+
+## App naming and repository policy
+
+[ADR 0003](adr/0003-app-naming-and-repository-policy.md) và contracts/apps/catalog.v1.json là nguồn tên/App ID chuẩn.
+Monorepo MinhAnOS chứa các module minhanos-*. apps/drive là host standalone với npm workspace minhanos-files;
+@minhanos/files-app là UI dùng chung. Catalog danh tính không phải runtime app registry hoặc hệ thống cấp quyền.
+Shell variant classic/touch, theme light/dark/system và workspace mode focus/windows là ba khái niệm riêng.

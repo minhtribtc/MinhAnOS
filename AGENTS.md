@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is platform-migrations-v1; also read docs/extension-contracts.md.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is platform-app-naming-v1; also read docs/extension-contracts.md.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
 
@@ -70,3 +70,9 @@ Do not advertise planned jobs/uploads/authz/events/fileId as implemented. Migrat
 Read docs/adr/0002-transactional-migration-runner.md before schema changes.
 Never edit an applied embedded migration; append a contiguous step. Do not bypass checksum/history failures.
 Run sh tests/migrations-integration.sh against its dedicated disposable DB, never the application database.
+
+
+Read docs/adr/0003-app-naming-and-repository-policy.md for names and App IDs.
+Validate first-party identity changes through contracts/apps/catalog.v1.json; never repurpose an existing App ID.
+Files host workspace is minhanos-files; its source folder/API/compose service remain drive for compatibility.
+Keep Shell variants classic/touch separate from appearance light/dark/system and workspace layout focus/windows.

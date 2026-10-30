@@ -48,3 +48,7 @@ No unknown API is exposed to make the specification appear implemented.
 References: [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0),
 [Redocly lint](https://redocly.com/docs/cli/commands/lint),
 [oasdiff Docker](https://github.com/oasdiff/oasdiff/blob/main/docs/DOCKER.md).
+
+
+First-party app identity catalog: [apps/catalog.v1.json](apps/catalog.v1.json), with JSON Schema and CI validation.
+This reserves product IDs and aliases; it is not a runtime registry, app installer or grant store.

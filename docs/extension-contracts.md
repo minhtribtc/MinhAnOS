@@ -25,7 +25,7 @@ Không coi package đầu tiên là SDK hoàn chỉnh hay Design System hoàn ch
 ## Cách dùng các package
 
 Chạy `npm ci` tại root, `npm run build` để kiểm tra/build cả hai host.
-`npm run build --workspace=minhanos-drive` chỉ build Drive; Docker image không cần mã Desktop frontend/backend.
+`npm run build --workspace=minhanos-files` chỉ build Drive; Docker image không cần mã Desktop frontend/backend.
 Docker builder có đọc manifest Desktop để tái tạo lockfile chung; đó không phải phụ thuộc runtime.
 Các lockfile riêng từng app đã được thay bằng `package-lock.json` tại root.
 
