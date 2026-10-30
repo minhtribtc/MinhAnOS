@@ -44,3 +44,11 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Backend thêm code lỗi tương thích; bỏ phân tích chuỗi tiếng Việt để xác định phiên đăng nhập trong App/Files.
 - Một npm workspace/lockfile, kiểm tra catalog/boundary trong build và workflow CI.
 - Chuyển đổi từng phần; chưa dịch toàn bộ giao diện hoặc hoàn thành SDK/Design System.
+
+
+## 2026-10-30 — Platform Contracts v1 preview
+
+- Thêm manifest/API/authz/files/jobs/uploads/events schemas và chính sách migration theo module.
+- Sinh shared-types từ schema; tách api-client khỏi Vue SDK, đọc cả legacy và nested-v1 errors.
+- Thêm kiểm tra schema, SDK semver/capability, generated drift, OpenAPI lint và breaking-change guard trong CI.
+- Các dịch vụ /api/v1 vẫn planned; không thay API legacy, DB hay chức năng upload đang chạy.

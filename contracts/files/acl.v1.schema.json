@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/acl.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fileId",
+    "version",
+    "etag",
+    "ownerId",
+    "inherit",
+    "entries"
+  ],
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "etag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inherit": {
+      "type": "boolean"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "principal",
+          "allow",
+          "deny"
+        ],
+        "properties": {
+          "principal": {
+            "type": "string",
+            "pattern": "^(user|group):[^\\s]+$"
+          },
+          "allow": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "read",
+                "write",
+                "delete",
+                "share"
+              ]
+            }
+          },
+          "deny": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "read",
+                "write",
+                "delete",
+                "share"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

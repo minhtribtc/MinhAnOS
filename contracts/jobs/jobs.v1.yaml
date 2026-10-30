@@ -1,0 +1,35 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "states": [
+    "queued",
+    "running",
+    "succeeded",
+    "failed",
+    "cancelled"
+  ],
+  "transitions": {
+    "queued": [
+      "running",
+      "cancelled"
+    ],
+    "running": [
+      "queued",
+      "succeeded",
+      "failed",
+      "cancelled"
+    ],
+    "succeeded": [],
+    "failed": [],
+    "cancelled": []
+  },
+  "delivery": "at-least-once",
+  "worker": {
+    "claim": "atomic claim with lease, heartbeat and monotonically increasing fencing token",
+    "recovery": "expired lease may requeue only retry-safe work within maxAttempts; otherwise fail with JOB_INTERRUPTED",
+    "sideEffects": "stage output, validate source ETag, commit atomically using fencing token and dedupe record",
+    "cancel": "cooperative; repeat request is idempotent; running state remains until worker confirms cancellation",
+    "retry": "bounded exponential backoff with jitter for classified transient errors; retries preserve job ID",
+    "guarantee": "No exactly-once guarantee. Never retry arbitrary host commands or external side effects without reconciliation."
+  }
+}

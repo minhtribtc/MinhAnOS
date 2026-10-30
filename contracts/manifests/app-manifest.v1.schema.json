@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/app-manifest.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": {
+      "const": "1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z](?:[a-z0-9-]*[a-z0-9])?){2,}$"
+    },
+    "version": {
+      "type": "string"
+    },
+    "sdk": {
+      "type": "string"
+    },
+    "entrypoint": {
+      "type": "string",
+      "pattern": "^/apps/[a-z0-9][a-z0-9/-]*$"
+    },
+    "display": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "window",
+          "maximized",
+          "fullscreen"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "fileHandlers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mimeTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9.+-]+/[a-z0-9.+*-]+$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "open",
+                "preview",
+                "edit"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "mimeTypes",
+          "actions"
+        ]
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*)+$"
+      },
+      "uniqueItems": true
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "supports"
+      ],
+      "properties": {
+        "version": {
+          "const": "1"
+        },
+        "supports": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "foreground",
+              "background",
+              "requestClose"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "manifestVersion",
+    "id",
+    "version",
+    "sdk",
+    "entrypoint",
+    "display",
+    "capabilities"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "defaultDecision": "deny",
+  "permissions": {
+    "files.read": {
+      "description": "files.read",
+      "resourceTypes": [
+        "file"
+      ]
+    },
+    "files.write": {
+      "description": "files.write",
+      "resourceTypes": [
+        "file"
+      ]
+    },
+    "files.system.read": {
+      "description": "files.system.read",
+      "resourceTypes": [
+        "file"
+      ]
+    },
+    "files.system.write": {
+      "description": "files.system.write",
+      "resourceTypes": [
+        "file"
+      ]
+    },
+    "jobs.read": {
+      "description": "jobs.read",
+      "resourceTypes": [
+        "job"
+      ]
+    },
+    "jobs.create": {
+      "description": "jobs.create",
+      "resourceTypes": [
+        "job"
+      ]
+    },
+    "jobs.cancel": {
+      "description": "jobs.cancel",
+      "resourceTypes": [
+        "job"
+      ]
+    },
+    "uploads.create": {
+      "description": "uploads.create",
+      "resourceTypes": [
+        "upload"
+      ]
+    },
+    "uploads.write": {
+      "description": "uploads.write",
+      "resourceTypes": [
+        "upload"
+      ]
+    },
+    "uploads.cancel": {
+      "description": "uploads.cancel",
+      "resourceTypes": [
+        "upload"
+      ]
+    }
+  },
+  "rules": [
+    "Resolve subject from verified session/token; reject client-supplied subject.",
+    "Resolve appId from verified app registration/delegation, never trust request context alone.",
+    "Allow only when user entitlement AND app grant AND resource scope all allow.",
+    "Requested manifest capabilities are not grants. Deny overrides allow.",
+    "Delegation must bind subject, appId, resource/action scope, audience and expiry; revocation must be checked.",
+    "Same-origin JavaScript applications are not isolated security principals. Untrusted apps require sandbox/origin isolation and scoped backend credentials."
+  ]
+}

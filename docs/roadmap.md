@@ -129,3 +129,10 @@ The user guide and documentation index must accompany every relevant feature cha
 semantic theme tokens, account profile và lỗi có code. Chưa nghiệm thu toàn bộ Foundation V0.1:
 catalog Desktop/Files, Settings chung và chuyển hết text/colors còn dang dở.
 Thứ tự mở rộng và bảng khoảng cách: [extension-contracts.md](extension-contracts.md).
+
+
+## Platform Contracts v1
+
+Đã có machine-readable schemas, generated types, API client độc lập và kiểm tra schema/SDK/OpenAPI compatibility.
+Triển khai tiếp: module migration runner + app grants/delegation → file identity/ETag/ACL → durable uploads/jobs
+→ outbox/events → viewer integrations. [ADR](adr/0001-platform-contracts-v1.md) ghi ranh giới bảo mật và tương thích.

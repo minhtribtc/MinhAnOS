@@ -1,4 +1,4 @@
-import {createApiClient} from '@minhanos/app-sdk'
+import {createApiClient} from '@minhanos/api-client'
 export interface User { id: string; username: string; displayName: string; role: 'admin' | 'user' }
 export interface AppDefinition { id: string; title: string; subtitle: string; icon: string; color: string; category: string; status: string }
 export interface DesktopWindow { id: string; x: number; y: number; width: number; height: number; minimized: boolean; maximized: boolean }

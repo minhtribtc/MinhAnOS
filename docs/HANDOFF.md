@@ -1,3 +1,19 @@
+# Handoff — Platform Contracts v1
+
+Nhánh platform-contracts-v1, kế thừa platform-foundations-v1. Đọc contracts/README.md,
+docs/adr/0001-platform-contracts-v1.md và docs/migration-policy.md.
+Đã thêm schema manifest/authz/error/profile/file/job/upload/event, OpenAPI 3.1, shared-types sinh tự động,
+api-client độc lập Vue và parser hỗ trợ cả lỗi legacy/nested v1. SDK re-export để tương thích.
+SDK package vẫn 0.1.0; sdkVersion=1 là host protocol, không phải package semver. Manifest sample dùng ^0.1.0.
+
+Không có backend jobs/upload session/ACL/grants/event bus mới. Các /api/v1 route là planned;
+/api/profile là endpoint hiện có duy nhất mô tả implemented trong OpenAPI này, các route legacy khác ở docs/api.md.
+Không đổi schema DB hay URL ứng dụng. File Station vẫn embedded, Drive vẫn độc lập.
+Run npm run contracts:generate khi đổi schema; npm run contracts:check kiểm tra generated drift/semver/schema.
+CI thêm OpenAPI compatibility bằng oasdiff digest pinned; lần đầu không có predecessor spec nên tự bootstrap baseline.
+Kiểm chứng và giới hạn thực tế xem đầu docs/validation.md. Cần tiếp tục hoàn tất i18n và triển khai các dịch vụ planned.
+
+
 # Handoff hiện tại — foundation 0.1, chuyển đổi từng phần
 
 Nhánh `platform-foundations-v1`, dựa trên `file-station-desktop`.

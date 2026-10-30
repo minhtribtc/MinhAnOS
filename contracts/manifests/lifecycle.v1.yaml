@@ -1,0 +1,23 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "foreground": "resume rendering/polling as needed without recreating application state",
+  "background": "may suspend rendering, never implicitly cancel a terminal, upload session or server job",
+  "requestClose": {
+    "input": {
+      "reason": [
+        "user",
+        "logout",
+        "workspace-close"
+      ],
+      "abortSignal": "host may cancel pending close request"
+    },
+    "output": [
+      "allow",
+      "deny",
+      "defer"
+    ],
+    "policy": "async handshake; timeout/error/defer retains app instance; never silently discard drafts or cancel durable jobs"
+  },
+  "currentRuntime": "boolean close guards remain; no asynchronous SDK lifecycle delivered here"
+}

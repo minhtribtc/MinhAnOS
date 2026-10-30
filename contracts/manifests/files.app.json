@@ -1,0 +1,18 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.files",
+  "version": "0.2.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/files",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [
+    "files.read",
+    "files.write",
+    "files.system.read",
+    "files.system.write"
+  ]
+}

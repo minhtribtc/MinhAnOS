@@ -1,0 +1,48 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned for /api/v1; legacy codes remain unchanged",
+  "unknownCodePolicy": "Clients must use a safe generic localized fallback. Never branch on message. Code list is extensible.",
+  "codes": {
+    "AUTH_REQUIRED": {
+      "httpStatus": 401
+    },
+    "FILES_PERMISSION_DENIED": {
+      "httpStatus": 403
+    },
+    "APP_GRANT_REQUIRED": {
+      "httpStatus": 403
+    },
+    "RESOURCE_NOT_FOUND": {
+      "httpStatus": 404
+    },
+    "RESOURCE_VERSION_CONFLICT": {
+      "httpStatus": 412
+    },
+    "IDEMPOTENCY_CONFLICT": {
+      "httpStatus": 409
+    },
+    "IDEMPOTENCY_IN_PROGRESS": {
+      "httpStatus": 409,
+      "retryAfter": true
+    },
+    "UPLOAD_SIZE_LIMIT": {
+      "httpStatus": 413
+    },
+    "UPLOAD_CHECKSUM_MISMATCH": {
+      "httpStatus": 422
+    },
+    "UPLOAD_EXPIRED": {
+      "httpStatus": 410
+    },
+    "JOB_INTERRUPTED": {
+      "httpStatus": 409
+    },
+    "STORAGE_FULL": {
+      "httpStatus": 507
+    },
+    "SERVICE_UNAVAILABLE": {
+      "httpStatus": 503,
+      "retryAfter": true
+    }
+  }
+}

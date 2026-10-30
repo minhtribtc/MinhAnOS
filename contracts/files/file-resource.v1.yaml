@@ -1,0 +1,11 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "identity": "Server-generated opaque fileId persists across rename/move; deletion retires ID, never reassign it; copy creates new ID. Existing path-based API does not provide this identity.",
+  "version": "Monotonic aggregate version; strong opaque ETag changes with content/metadata/ACL version. Writes require If-Match, missing returns 428, stale returns 412.",
+  "authorization": "User effective ACL AND app delegated scope must both allow. Metadata permissions are server-computed hints, never authorization proof.",
+  "acl": "Owner + inherited ACL + explicit entries; explicit deny overrides allow; changing owner/inheritance/ACL requires share authority and optimistic concurrency; prevent privilege escalation and loss of last administrative owner. Policy bootstrap for system roots must be separately reviewed.",
+  "paths": "Names/paths are presentation data and must not become host filesystem authority; backend resolves fileId in an authorized storage namespace.",
+  "events": "Publish fileId/version/etag through transactional outbox for create/update/delete. Consumers dedupe and tolerate out-of-order delivery using version.",
+  "content": "GET content uses authorized streaming and ETag; writes stage bytes and commit atomically; large writes use durable upload sessions. No direct host paths or executable inline HTML from arbitrary files."
+}

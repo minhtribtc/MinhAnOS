@@ -1,0 +1,37 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "envelopeSchema": "event.v1.schema.json",
+  "delivery": "at-least-once",
+  "ordering": "per resource aggregate version only; no global ordering",
+  "publication": "transactional outbox in same commit as domain change",
+  "consumption": "dedupe by eventId + consumer; commit dedupe and side effect together; bounded retry then dead letter",
+  "security": "authorize subscribers and filter resources server-side; event payload is not authorization proof; no secrets or file content",
+  "events": {
+    "files.created.v1": {
+      "dataRequired": [
+        "fileId",
+        "version",
+        "etag"
+      ]
+    },
+    "files.updated.v1": {
+      "dataRequired": [
+        "fileId",
+        "version",
+        "etag"
+      ]
+    },
+    "files.deleted.v1": {
+      "dataRequired": [
+        "fileId",
+        "version"
+      ]
+    },
+    "identity.user.disabled.v1": {
+      "dataRequired": [
+        "userId"
+      ]
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/upload.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "created",
+        "uploading",
+        "completing",
+        "completed",
+        "cancelled",
+        "expired",
+        "failed"
+      ]
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "partSize": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "receivedParts": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "uniqueItems": true
+    },
+    "checksum": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fileId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "state",
+    "size",
+    "partSize",
+    "receivedParts",
+    "checksum",
+    "expiresAt",
+    "fileId"
+  ]
+}

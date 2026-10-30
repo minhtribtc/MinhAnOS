@@ -90,3 +90,13 @@ Login sai credential dùng INVALID_CREDENTIALS; profile không hợp lệ dùng 
 Các code chung được chọn từ HTTP status, không suy từ chuỗi tiếng Việt; chưa phân loại mọi lỗi nghiệp vụ chi tiết.
 Runtime frontend mới dịch code, code lạ dùng lỗi chung. `params` và `requestId` là phần hợp đồng tiếp theo,
 chưa được server phát ra. Phần Planned error-code migration bên trên là lịch sử trước đợt triển khai này.
+
+
+## Platform Contracts v1 — đặc tả, chưa bật route v1
+
+[OpenAPI 3.1](../contracts/api/openapi.yaml) mô tả profile đang chạy và các API v1 planned.
+Các route jobs/uploads/authz/files v1 chưa tồn tại. Các route legacy khác vẫn theo tài liệu hiện tại.
+Giữ legacy `{code,error:string}`; client mới đọc thêm `{error:{code,message,requestId,details}}`.
+Không đổi sang error object trên /api hiện tại. RequestId v1 phải được server sinh/ghi log, không do frontend tự giả lập.
+Cursor/idempotency/deprecation policy nằm trong OpenAPI extensions và [ADR](adr/0001-platform-contracts-v1.md).
+Body authz không nhận subject; appId chỉ là ngữ cảnh yêu cầu, backend cần xác minh app principal/delegation riêng.

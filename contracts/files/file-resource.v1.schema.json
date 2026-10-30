@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/file-resource.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parentId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "kind": {
+      "enum": [
+        "file",
+        "folder"
+      ]
+    },
+    "mimeType": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "etag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modifiedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "read",
+          "write",
+          "delete",
+          "share"
+        ]
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "fileId",
+    "name",
+    "parentId",
+    "kind",
+    "mimeType",
+    "size",
+    "version",
+    "etag",
+    "modifiedAt",
+    "permissions"
+  ]
+}

@@ -1,4 +1,4 @@
-import {createApiClient,ApiError} from '@minhanos/app-sdk'
+import {createApiClient,ApiError} from '@minhanos/api-client'
 export interface User {id:string;username:string;displayName:string;role:'admin'|'user'}
 export interface Entry {name:string;path:string;kind:'file'|'folder'|'symlink'|'special';size:number;modified:string;mode:string;uid:number;gid:number;etag:string}
 export interface TrashItem {id:string;path:string;name:string;deleted:string}

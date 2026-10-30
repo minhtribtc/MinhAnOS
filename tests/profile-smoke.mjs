@@ -1,12 +1,14 @@
+import Ajv2020 from 'ajv/dist/2020.js'
 import assert from 'node:assert/strict'
 import {readFile,writeFile,mkdir} from 'node:fs/promises'
 import {randomBytes} from 'node:crypto'
+const ajv=new Ajv2020({strict:true});const checkProfile=ajv.compile(JSON.parse(await readFile('contracts/api/profile.schema.json','utf8')));const checkError=ajv.compile(JSON.parse(await readFile('contracts/api/error.legacy.schema.json','utf8')))
 const desktop='http://10.1.1.20:8081',drive='http://10.1.1.20:8082'
 const password=(await readFile('/run/bootstrap_password','utf8')).trim()
 class Client{
  cookie='';csrf=''
  constructor(base){this.base=base}
- async call(path,method='GET',body,token=true,origin){const headers={'Content-Type':'application/json',Cookie:this.cookie};if(token)headers['X-CSRF-Token']=this.csrf;if(origin)headers.Origin=origin;const response=await fetch(this.base+'/api'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});const cookie=response.headers.getSetCookie()[0];if(cookie)this.cookie=cookie.split(';')[0];return{status:response.status,body:await response.json()}}
+ async call(path,method='GET',body,token=true,origin){const headers={'Content-Type':'application/json',Cookie:this.cookie};if(token)headers['X-CSRF-Token']=this.csrf;if(origin)headers.Origin=origin;const response=await fetch(this.base+'/api'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});const cookie=response.headers.getSetCookie()[0];if(cookie)this.cookie=cookie.split(';')[0];const data=await response.json();if(response.status>=400)assert(checkError(data),JSON.stringify(checkError.errors));else if(path.endsWith('/profile'))assert(checkProfile(data),JSON.stringify(checkProfile.errors));return{status:response.status,body:data}}
  async login(username,password){const result=await this.call('/login','POST',{username,password});assert.equal(result.status,200);this.csrf=result.body.csrfToken;return result.body.user}
 }
 const guest=new Client(desktop);assert.equal((await guest.call('/profile')).body.code,'AUTH_REQUIRED')

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/profile",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "locale": {
+      "enum": [
+        "vi-VN",
+        "en-US"
+      ]
+    },
+    "theme": {
+      "enum": [
+        "light",
+        "dark",
+        "system"
+      ]
+    },
+    "timeZone": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    }
+  },
+  "required": [
+    "locale",
+    "theme",
+    "timeZone"
+  ]
+}

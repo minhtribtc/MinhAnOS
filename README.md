@@ -95,3 +95,8 @@ Bản thiết kế ứng dụng quản lý tệp: [File Station](docs/file-stati
 
 Foundation preview: npm workspace/lockfile chung, profile locale/theme và shared i18n/ui/SDK adapters.
 Đây là chuyển đổi từng phần. Xem [mức độ đáp ứng và quy ước mở rộng](docs/extension-contracts.md).
+
+
+[Platform Contracts v1](contracts/README.md): machine-readable schemas, generated shared-types và OpenAPI CI.
+Chạy npm run contracts:generate sau khi đổi schema, npm run contracts:check trước khi phát hành.
+Các route v1 là planned, chưa phải chức năng có trên VM.

@@ -4,19 +4,8 @@ import {createI18n,resolveLocale} from '@minhanos/i18n'
 import {resolveTheme} from '@minhanos/ui'
 export const sdkVersion=1
 const hostKey=Symbol('minhanos.host.v1')
-export class ApiError extends Error {
- constructor(status,body={}){super(typeof body.error==='string'?body.error:'Request failed');this.name='ApiError';this.status=status;this.code=typeof body.code==='string'?body.code:'REQUEST_FAILED';this.requestId=typeof body.requestId==='string'?body.requestId:undefined}
-}
-export function createApiClient(base='/api'){
- let csrf=''
- return {setCSRF(value){csrf=value},async request(path,options={}){
-  const headers=new Headers(options.headers);if(!headers.has('Content-Type'))headers.set('Content-Type','application/json');headers.set('X-CSRF-Token',csrf)
-  const response=await fetch(base+path,{...options,credentials:'same-origin',headers})
-  const body=await response.json().catch(()=>({code:'INVALID_RESPONSE'}))
-  if(!response.ok)throw new ApiError(response.status,body)
-  return body
- }}
-}
+export {ApiError,createApiClient} from '@minhanos/api-client'
+import {ApiError} from '@minhanos/api-client'
 export function createHost(){
  let guest;try{guest=localStorage.getItem('minhanos.locale')||undefined}catch{}
  const profile=ref({locale:resolveLocale(undefined,guest,globalThis.navigator?.languages||[]),theme:'light',timeZone:'Asia/Bangkok'})

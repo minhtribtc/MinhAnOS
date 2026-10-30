@@ -7,12 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Check OpenAPI compatibility against predecessor
+        env:
+          CONTRACT_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: |
+          if [ "$CONTRACT_BASE_REF" = "0000000000000000000000000000000000000000" ]; then export CONTRACT_BASE_REF="$GITHUB_SHA"; fi
+          sh tests/openapi-breaking.sh
+      - run: sh tests/openapi-breaking-negative.sh
       - run: node --experimental-strip-types tests/files-actions.mjs
       - run: node --experimental-strip-types tests/files-client.mjs
       - uses: actions/setup-go@v5

@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "FILES_PERMISSION_DENIED",
+    "message": "Permission denied",
+    "requestId": "req_contract_test",
+    "details": {}
+  }
+}

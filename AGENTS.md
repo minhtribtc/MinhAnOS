@@ -55,3 +55,13 @@ Use real browser evidence; screenshots and generated runtime artifacts stay igno
 - Theme provider/tokens and localization must not depend on Desktop. Apps must work under another Shell or standalone host.
 - Migrate existing hardcoded strings/colors incrementally and record remaining debt. Do not claim i18n/theme completion prematurely.
 - Run npm run check and normal builds (catalog/ICU/parameter/boundary checks); full hardcoded-text/token scanning is still pending.
+
+
+## Platform contracts
+
+Read contracts/README.md and docs/adr/0001-platform-contracts-v1.md before new integration work.
+Use versioned schemas; regenerate shared-types with npm run contracts:generate and run npm run contracts:check.
+Never treat manifest requested capabilities or a client appId as granted/verified app authority.
+Current SDK package is 0.1.0; host protocol sdkVersion=1 is independent. Do not silently bump SDK to 1.
+Preserve legacy error envelope on /api; nested v1 is for future versioned endpoints.
+Do not advertise planned jobs/uploads/authz/events/fileId or migration runner as implemented.

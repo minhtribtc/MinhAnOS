@@ -82,3 +82,12 @@ The desktop host controls visibility and calls exposed canClose; native instance
 /api/drive/* is an authenticated same-origin gateway to the independent Drive service. An optional SQL identity adapter
 uses platform sessions only in integrated mode; standalone deployment keeps its existing independent identity behavior.
 Copy is a bounded regular-file operation using temp/finalize/no-replace semantics. Recursive copy/durable jobs remain pending.
+
+
+## Platform Contracts v1
+
+Nguồn hợp đồng tại [contracts](../contracts/README.md), quyết định tại [ADR 0001](adr/0001-platform-contracts-v1.md).
+@minhanos/api-client tách transport/ApiError khỏi Vue SDK, đọc legacy và nested-v1 errors; backend chưa đổi envelope.
+@minhanos/shared-types sinh từ JSON Schema và được SDK dùng cho Profile.
+Manifest schema/protocol version không phải SDK package version. Runtime manifest registry, app grants, file identity,
+jobs/uploads/event transport và module migration runner còn planned; không thay thế kiểm tra quyền backend hiện có.

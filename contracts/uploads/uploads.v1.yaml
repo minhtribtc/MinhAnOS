@@ -1,0 +1,25 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "checksum": "SHA-256 for each part and final file; Content-Digest header for raw parts, hex checksum at session create",
+  "ownership": "authenticated user + verified delegated app; recheck on every part, status, completion and cancellation",
+  "limits": {
+    "configRequired": [
+      "maxFileBytes",
+      "maxUserStagedBytes",
+      "maxActiveSessions",
+      "partSizeBytes",
+      "sessionTtlSeconds"
+    ],
+    "reservation": "reserve quota atomically before accepting parts; do not trust client Content-Length alone"
+  },
+  "parts": {
+    "numbering": "1-based; last part may be shorter; exact expected byte counts required",
+    "repeat": "same part number and checksum succeeds idempotently; different checksum conflicts",
+    "storage": "private server-side staging, generated IDs, no client filesystem paths"
+  },
+  "complete": "validate all parts, complete SHA-256, target permission and source/target ETag; atomically publish file + mark completed; retry returns same fileId",
+  "recovery": "persist parts and session in DB/durable staging; reconcile interrupted completing state against commit record",
+  "cleanup": "expire abandoned sessions; lease-aware sweeper reclaims staging and reserved quota; never delete completed destination files",
+  "cancel": "repeat cancellation succeeds; cannot cancel a completed upload; bounded completed-session receipt retention permits retry"
+}

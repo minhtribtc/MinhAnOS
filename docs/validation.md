@@ -1,3 +1,29 @@
+# Kiểm chứng Platform Contracts v1 — 2026-10-30
+
+Nhánh platform-contracts-v1. Kiểm tra thực tế trên VM, chưa xác nhận trạng thái workflow GitHub.
+
+- JSON Schema draft 2020-12: manifest/authz/errors/profile/file/ACL/job/upload/event compile qua Ajv strict.
+  Fixtures hợp lệ qua; từ chối app ID sai, capabilities giả cấp, subject do client gửi,
+  trạng thái job không biết, checksum sai, part trùng và ACL principal/quyền không hợp lệ.
+- Manifest kiểm tra semver/version SDK 0.1.0, quyền đã đăng ký và version Files package; ^1.0.0 không tương thích.
+- Shared-types sinh từ schema; generated drift check và OpenAPI/component-schema parity qua.
+- Redocly lint OpenAPI 3.1 qua, không warning sau khi dùng server URL tương đối.
+- oasdiff pinned digest: initial contract chưa có predecessor spec nên bootstrap self-compare.
+  Negative test xóa GET /api/profile trả exit 1 và api-removed như mong đợi.
+- Go test/vet và Docker build cả Desktop/Drive qua, gồm fixture wire error legacy dùng chung Go/JS
+  (18 Go tests). Vue/TypeScript build qua sau tách API client và dùng generated Profile.
+- npm run check qua cả foundation và contracts. Files client CSRF/base isolation test qua.
+- Live profile smoke qua với Ajv validation trên response thật: profile + legacy errors, hai-user isolation,
+  Desktop/Drive/profile đồng bộ, CSRF/Origin và logout. Đã xóa đúng hai tài khoản thử.
+- Bản mới đã chạy trên VM; API legacy và DB schema không đổi trong đợt này.
+
+Một lần chạy shell check trên VM lỗi do CRLF từ Windows; đã chuẩn hóa LF và chạy lại qua.
+Không kiểm thử worker crash/resume, durable upload, app delegation, ACL storage, event dedupe/outbox hoặc
+migration restore, vì các dịch vụ đó chưa được triển khai. Không có UI mới để nghiệm thu trong thay đổi này.
+Contract tests/CI không thay thế kiểm chứng các dịch vụ planned khi chúng được xây.
+
+---
+
 # Kiểm chứng foundation preview — 2026-10-30
 
 Nhánh platform-foundations-v1. Kiểm tra thực tế trên VM 10.1.1.20.

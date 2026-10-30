@@ -1,0 +1,40 @@
+{
+  "contractVersion": "1",
+  "implementation": "planned",
+  "modules": {
+    "identity": {
+      "targetSchema": 1,
+      "dependsOn": {}
+    },
+    "profile": {
+      "targetSchema": 1,
+      "dependsOn": {
+        "identity": ">=1 <2"
+      }
+    },
+    "files": {
+      "targetSchema": 1,
+      "dependsOn": {
+        "identity": ">=1 <2"
+      }
+    },
+    "jobs": {
+      "targetSchema": 1,
+      "dependsOn": {
+        "identity": ">=1 <2"
+      }
+    },
+    "uploads": {
+      "targetSchema": 1,
+      "dependsOn": {
+        "files": ">=1 <2",
+        "jobs": ">=1 <2"
+      }
+    },
+    "events": {
+      "targetSchema": 1,
+      "dependsOn": {}
+    }
+  },
+  "note": "Target dependency plan only; not a record of applied runtime migrations."
+}

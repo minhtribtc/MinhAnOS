@@ -25,3 +25,10 @@ Tài liệu phải được cập nhật trong cùng commit với thay đổi li
 
 Không đưa mật khẩu, session/token, private key hoặc nội dung tệp riêng vào tài liệu.
 Không ghi chức năng là hoàn thành chỉ vì đã có thiết kế hoặc giao diện minh họa.
+
+
+## Hợp đồng mở rộng v1
+
+- [Contracts và trạng thái runtime](../contracts/README.md)
+- [ADR 0001](adr/0001-platform-contracts-v1.md)
+- [Chính sách migration](migration-policy.md)

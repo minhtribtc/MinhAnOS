@@ -118,3 +118,10 @@ Office/cộng tác, upload resume, tác vụ bền vững, SSO Authentik và ada
 
 Mỗi thay đổi làm người dùng thao tác khác phải cập nhật mục tương ứng trong cùng commit,
 ghi rõ chức năng đã chạy, giới hạn và phần chưa có. Không đổi ngày cập nhật nếu chỉ thêm lời hứa về chức năng tương lai.
+
+
+## Hợp đồng nền tảng v1
+
+Đợt này thêm schema và kiểm tra phát triển, không đổi thao tác sử dụng hiện tại.
+Chưa có upload tiếp tục sau reload, OCR/job nền, ACL mới, app PDF Viewer hay cài plugin từ manifest.
+Các đường dẫn /api/v1 trong OpenAPI là đặc tả planned; không dùng như API đang chạy.
