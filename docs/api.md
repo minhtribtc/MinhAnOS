@@ -1,3 +1,7 @@
+## AuthCore Phase 2 runtime
+
+/api/login, /api/session, /api/logout của Desktop/Drive và gateway dùng shared AuthCore; cùng response/cookie legacy. Trạng thái active và auth_epoch được kiểm tại backend. Thêm login codes AUTH_RATE_LIMITED (429) và AUTH_BUSY (503). Identity /api/v1 routes vẫn chỉ là spec; password/session/recovery mutations hiện là internal primitives/OS-root CLI, chưa là HTTP endpoints. Xem [ADR 0004](adr/0004-shared-auth-core-and-recovery.md).
+
 ## Identity v1 — contract only
 
 OpenAPI có planned /api/v1/identity operations và generated client; chưa có HTTP handlers. /api legacy giữ error envelope và session behavior hiện hữu. Public UUID không thay storage ID; manifest permissions không tự cấp quyền. Xem [Phase 1](account-center/PHASE1_REPORT.md).

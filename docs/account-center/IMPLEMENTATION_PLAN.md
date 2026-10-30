@@ -1,3 +1,5 @@
+Current approval/progress: người dùng đã ủy quyền chọn phương án phù hợp và ghi quyết định. Phase 1 và Phase 2 đã triển khai; xem [Phase 2 report](PHASE2_REPORT.md). Các đoạn approval checkpoint bên dưới là lịch sử Phase 0, không yêu cầu hỏi lại cho công việc đã được ủy quyền.
+
 # IMPLEMENTATION PLAN — Account Center & Identity
 
 Status: Phase 0 hoàn tất; người dùng đã duyệt Phase 1 và đã triển khai foundation. Xem [PHASE1_REPORT](PHASE1_REPORT.md) cho kết quả thực tế; các phase sau vẫn là kế hoạch.

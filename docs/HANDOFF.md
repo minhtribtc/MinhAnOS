@@ -1,3 +1,10 @@
+# Handoff — Account Center Phase 2 (current)
+
+Branch account-center-phase2. User authorized choosing suitable options and documenting decisions. Read [Phase 2 report](account-center/PHASE2_REPORT.md) and [ADR 0004](adr/0004-shared-auth-core-and-recovery.md). These supersede historical status below.
+Shared AuthCore now powers Desktop, standalone Drive and native gateway. Active status/epoch checks, rotation, bounded account/IP/KDF controls and local OS-root recovery are implemented. Internal password/session mutation primitives exist; no v1 Identity HTTP handlers/Account Center UI/RBAC grants enabled. Files paths/legacy roles unchanged.
+VM deployed, all services healthy; identity migrations 001–004 and profile 001 immutable. Private pre-phase2 DB/source backups restored in clone. Old cookies preserved across upgrade; runtime/fresh CLI and DB concurrency tests passed. Root check has one reserved IdentityLink warning. See report for exact tests/benchmark/limitations. Remaining users=1 after exact fixture cleanup.
+Next Phase 3: backend business policy + last-admin race guard + host-root split BEFORE new administrative grants, then v1 endpoints and Phase 4 UI. Do not claim root privilege isolation already solved. Never create a third identity/session/password store or edit applied SQL. Recovery CLI is Linux-only OS-root, not a public API.
+
 # Handoff — Account Center Phase 1
 
 Nhánh account-center-phase1. Người dùng đã duyệt triển khai. Đọc [báo cáo Phase 1](account-center/PHASE1_REPORT.md) trước khi tiếp tục; đây là trạng thái hiện hành, các mục dưới là lịch sử.

@@ -1,5 +1,5 @@
 // Package identity owns additive identity schema and mapping. Authentication/policy
-// adapters remain legacy until Phase 2; schema presence never grants access.
+// adapters share AuthCore; schema presence never grants authorization.
 package identity
 
 import (
@@ -18,8 +18,11 @@ var expandSQL string
 //go:embed migrations/003_relations.sql
 var relationsSQL string
 
+//go:embed migrations/004_auth_core.sql
+var authCoreSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}}}
+	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}}}
 }
 
 // ApplySchema must be called after the legacy bootstrap transaction commits.

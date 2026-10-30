@@ -1,3 +1,5 @@
+Current: Phase 2 shared AuthCore/local recovery deployed. [Phase 2 report](PHASE2_REPORT.md) · [ADR 0004](../adr/0004-shared-auth-core-and-recovery.md). Phần Phase 1 dưới đây là mốc trước đó, UI/API Identity v1 vẫn chưa bật.
+
 # Account Center — Identity implementation
 
 Phase 0 đã hoàn tất; người dùng đã duyệt Phase 1. Phase 1 contracts/schema/UUID foundation đã triển khai trên VM. Account Center UI và Identity HTTP APIs chưa bật.

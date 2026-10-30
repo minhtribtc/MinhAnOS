@@ -1,3 +1,7 @@
+## Account Center Phase 2 — 2026-10-30
+
+Shared AuthCore Go/unit/vet, dedicated PostgreSQL concurrency/ownership/recovery/throttle tests, actual HTTP adapter CSRF/Origin/rotation tests, restored pre-upgrade DB, Docker builds, npm check, existing-cookie upgrade, runtime profile/API/Files/agent smoke, standalone recovery CLI/replay/nonroot và Drive khi Desktop dừng: PASS. CI script đã thêm package platform cho DB-backed HTTP test. Một reserved IdentityLink lint warning còn nguyên. Read-only docker cp test bị từ chối, chuyển root stdin vào /tmp tmpfs; không nới rootfs. [Báo cáo Phase 2](account-center/PHASE2_REPORT.md) chứa inventory, security review, migration, benchmark nhỏ và giới hạn.
+
 ## Account Center Phase 1 — 2026-10-30
 
 Đã chạy npm check/generate, OpenAPI compatibility, Docker/go checks, dedicated PostgreSQL migration/concurrent backfill, restore DB pre-upgrade, runtime API/profile/Files/Drive smoke, Drive khi Desktop dừng và cài mới standalone project cô lập: PASS. Một warning IdentityLink reserved chưa dùng. Import-name build collision đã sửa. Chưa có UI Account Center, chưa kiểm thử RBAC mới hoặc full Files-volume recovery. Evidence và phạm vi chính xác: [Phase 1 report](account-center/PHASE1_REPORT.md).

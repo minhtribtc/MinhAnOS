@@ -61,7 +61,7 @@ type App struct {
 	limiterMu    sync.Mutex
 	attempts     map[string]attempt
 	profile      *coreprofile.Store
-	dummyHash    string
+	authCore     *identityschema.AuthCore
 }
 type attempt struct {
 	Count int
@@ -130,10 +130,6 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	}
 
 	a := &App{db: db, started: time.Now(), secureCookie: os.Getenv("COOKIE_SECURE") == "true", attempts: make(map[string]attempt)}
-	a.dummyHash, err = hashPassword(token())
-	if err != nil {
-		return nil, err
-	}
 	var count int
 	if err = tx.QueryRow(ctx, "SELECT count(*) FROM users").Scan(&count); err != nil {
 		return nil, err
@@ -164,6 +160,10 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		return nil, err
 	}
 	if err = identityschema.ApplySchema(ctx, db); err != nil {
+		return nil, err
+	}
+	a.authCore, err = identityschema.NewAuthCore(db)
+	if err != nil {
 		return nil, err
 	}
 	a.profile, err = coreprofile.New(ctx, db)
@@ -259,10 +259,10 @@ func (a *App) auth(next http.Handler) http.Handler {
 			writeError(w, 401, "Phiên đăng nhập đã hết hạn.")
 			return
 		}
-		var i Identity
-		err = a.db.QueryRow(r.Context(), `SELECT u.id,u.username,u.display_name,u.role,s.csrf_token FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now()`, digest(cookie.Value)).Scan(&i.User.ID, &i.User.Username, &i.User.DisplayName, &i.User.Role, &i.CSRF)
+		v, err := a.authCore.Authenticate(r.Context(), identityschema.DesktopRealm, cookie.Value)
+		i := Identity{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF}
 		if err != nil {
-			if !errors.Is(err, pgx.ErrNoRows) {
+			if !errors.Is(err, identityschema.ErrUnauthorized) {
 				log.Print("session lookup failed: ", err)
 				writeError(w, 503, "Không kiểm tra được phiên đăng nhập.")
 				return
@@ -297,6 +297,9 @@ func (a *App) allowLogin(ip string) bool {
 			delete(a.attempts, key)
 		}
 	}
+	if _, ok := a.attempts[ip]; !ok && len(a.attempts) >= 4096 {
+		return false
+	}
 	v := a.attempts[ip]
 	if v.Start.IsZero() {
 		v.Start = now
@@ -322,43 +325,28 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 400, "Thông tin đăng nhập không hợp lệ.")
 		return
 	}
-	var user User
-	var hash string
-	err := a.db.QueryRow(r.Context(), "SELECT id,username,display_name,role,password_hash FROM users WHERE username=$1", strings.ToLower(strings.TrimSpace(body.Username))).Scan(&user.ID, &user.Username, &user.DisplayName, &user.Role, &hash)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		log.Print(err)
-		writeError(w, 503, "Dịch vụ đăng nhập tạm thời chưa sẵn sàng.")
-		return
+	old := ""
+	if c, e := r.Cookie("minhanos_session"); e == nil {
+		old = c.Value
 	}
-	if hash == "" {
-		hash = a.dummyHash
-	}
-	valid := verifyPassword(body.Password, hash)
-	if err != nil || !valid {
-		writeError(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
-		return
-	}
-	sessionToken, csrf := token(), token()
-	tx, err := a.db.Begin(r.Context())
+	v, sessionToken, err := a.authCore.Login(r.Context(), identityschema.DesktopRealm, body.Username, body.Password, old)
 	if err != nil {
-		internalError(w, err)
-		return
-	}
-	defer tx.Rollback(r.Context())
-	if old, e := r.Cookie("minhanos_session"); e == nil {
-		if _, err = tx.Exec(r.Context(), "DELETE FROM sessions WHERE token_hash=$1", digest(old.Value)); err != nil {
+		switch {
+		case errors.Is(err, identityschema.ErrUnauthorized):
+			writeError(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
+		case errors.Is(err, identityschema.ErrThrottled):
+			writeError(w, 429, "Đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 10 phút.", "AUTH_RATE_LIMITED")
+		case errors.Is(err, identityschema.ErrBusy):
+			writeError(w, 503, "Dịch vụ đăng nhập đang bận.", "AUTH_BUSY")
+		default:
 			internalError(w, err)
-			return
 		}
+		return
 	}
-	_, err = tx.Exec(r.Context(), "INSERT INTO sessions(token_hash,user_id,csrf_token,expires_at) VALUES($1,$2,$3,$4)", digest(sessionToken), user.ID, csrf, time.Now().Add(24*time.Hour))
-	if err == nil {
-		_, err = tx.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.login','Đăng nhập bằng tài khoản cục bộ')", user.ID, user.Username)
-	}
-	if err == nil {
-		err = tx.Commit(r.Context())
-	}
-	if err != nil {
+	user := User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}
+	csrf := v.CSRF
+	if _, err = a.db.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.login','Local account login')", user.ID, user.Username); err != nil {
+		_ = a.authCore.Logout(r.Context(), identityschema.DesktopRealm, sessionToken)
 		internalError(w, err)
 		return
 	}
@@ -372,20 +360,11 @@ func (a *App) session(w http.ResponseWriter, r *http.Request) {
 func (a *App) logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("minhanos_session")
 	i := identity(r)
-	tx, err := a.db.Begin(r.Context())
-	if err != nil {
+	if err := a.authCore.Logout(r.Context(), identityschema.DesktopRealm, cookie.Value); err != nil {
 		internalError(w, err)
 		return
 	}
-	defer tx.Rollback(r.Context())
-	_, err = tx.Exec(r.Context(), "DELETE FROM sessions WHERE token_hash=$1", digest(cookie.Value))
-	if err == nil {
-		_, err = tx.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.logout','Đăng xuất')", i.User.ID, i.User.Username)
-	}
-	if err == nil {
-		err = tx.Commit(r.Context())
-	}
-	if err != nil {
+	if _, err := a.db.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.logout','Logout')", i.User.ID, i.User.Username); err != nil {
 		internalError(w, err)
 		return
 	}

@@ -1,3 +1,22 @@
+## Account security foundation Phase 2
+
+Đăng nhập Desktop/Drive vẫn dùng giao diện hiện hữu. Đăng nhập lại thay token cũ của cùng host. Khi đổi mật khẩu qua service/recovery, tất cả phiên ở cả hai host hết hiệu lực; cần đăng nhập lại. Hiện chưa có nút đổi mật khẩu/Account Center mới, API Identity v1 chưa bật.
+
+Login có giới hạn theo IP và tài khoản; quá nhiều lần trả 429, cửa sổ cố định 10 phút. Khi hai KDF trong mỗi process đang bận, API trả 503/AUTH_BUSY; thử lại sau. Không tự vô hiệu hóa vĩnh viễn tài khoản do nhập sai.
+
+### Recovery dành cho operator OS root
+
+Chỉ dùng trên Debian test/installation do bạn quản lý, với user đang active. Không gửi mật khẩu/token qua URL, argv, chat hoặc log. Tạo tệp mật khẩu mới bằng công cụ tin cậy tại /root/new-password, owner root, mode 0600; độ dài 12–256 byte UTF-8. CLI yêu cầu regular file riêng tư, không symlink. Từ thư mục deploy:
+
+```sh
+docker compose exec -T -u 0 drive /app/identity-recovery -mode issue -user USERNAME -token-file /tmp/identity-recovery-token
+docker compose exec -T -u 0 drive sh -c 'umask 077; cat > /tmp/identity-new-password' < /root/new-password
+docker compose exec -T -u 0 drive /app/identity-recovery -mode consume -user USERNAME -token-file /tmp/identity-recovery-token -password-file /tmp/identity-new-password
+docker compose exec -T -u 0 drive rm -f -- /tmp/identity-recovery-token /tmp/identity-new-password
+```
+
+Sau thành công, xóa an toàn đúng tệp /root/new-password theo quy trình quản lý bí mật của operator. Standalone dùng thêm -f compose.drive.yaml; Desktop-only có cùng binary trong service desktop. Token hết hạn sau 15 phút và chỉ dùng một lần. Issue lại thay token trước đó; issue chưa đổi mật khẩu/phiên. Tệp token đầu ra phải chưa tồn tại; nếu ghi lỗi, xử lý đúng tệp lỗi rồi issue token mới. Restart container làm mất tệp /tmp; issue lại, không cố phục hồi secret từ DB. Không có email reset/MFA/SSO hoặc tự bật tài khoản disabled. [Chi tiết triển khai](account-center/PHASE2_REPORT.md).
+
 ## Identity foundation Phase 1
 
 Chưa có mục Account Center mới trong launcher; tiếp tục dùng đăng nhập/cài đặt hiện hữu. Không gọi các endpoint /api/v1/identity trong spec vì chưa có handlers. Operator dùng identity-admin status/backfill theo [báo cáo](account-center/PHASE1_REPORT.md); complete chỉ phản ánh UUID đầy đủ, không phải quyền hoặc trạng thái triển khai API.

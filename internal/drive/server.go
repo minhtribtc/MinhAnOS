@@ -8,6 +8,7 @@ import (
 	"log"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
+	"minhanos.local/platform/internal/identity"
 	"net"
 	"net/http"
 	"net/url"
@@ -89,9 +90,22 @@ func (s *Server) Handler() http.Handler {
 			fail(w, 400, "Thông tin đăng nhập không hợp lệ.")
 			return
 		}
-		session, token, err := s.Identity.Login(r.Context(), b.Username, b.Password)
+		var session Session
+		var token string
+		var err error
+		if rotating, ok := s.Identity.(interface {
+			LoginRotating(context.Context, string, string, string) (Session, string, error)
+		}); ok {
+			session, token, err = rotating.LoginRotating(r.Context(), b.Username, b.Password, cookieToken(r))
+		} else {
+			session, token, err = s.Identity.Login(r.Context(), b.Username, b.Password)
+		}
 		if err != nil {
-			if errors.Is(err, ErrUnauthorized) {
+			if errors.Is(err, identity.ErrThrottled) {
+				fail(w, 429, "Thử đăng nhập quá nhiều lần; thử lại sau 10 phút.", "AUTH_RATE_LIMITED")
+			} else if errors.Is(err, identity.ErrBusy) {
+				fail(w, 503, "Dịch vụ danh tính đang bận.", "AUTH_BUSY")
+			} else if errors.Is(err, ErrUnauthorized) {
 				fail(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
 			} else {
 				fail(w, 503, "Dịch vụ danh tính chưa sẵn sàng.")

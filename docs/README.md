@@ -1,3 +1,5 @@
+[Phase 2 report](account-center/PHASE2_REPORT.md) · [ADR 0004 — AuthCore/local recovery](adr/0004-shared-auth-core-and-recovery.md) — current auth implementation and operator decisions.
+
 [Account Center Phase 1 report](account-center/PHASE1_REPORT.md) — implementation, migration, security review, tests và hướng tiếp tục.
 
 # Tài liệu MinhAnOS

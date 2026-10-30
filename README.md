@@ -1,3 +1,5 @@
+AuthCore Phase 2 đã chạy trên test VM: shared authentication, session revocation primitives và OS-root recovery CLI. Account Center UI/API quản trị vẫn đang phát triển. [Báo cáo Phase 2](docs/account-center/PHASE2_REPORT.md).
+
 Identity foundation Phase 1 đã triển khai; Account Center UI/API quản trị chưa bật. Xem [báo cáo triển khai](docs/account-center/PHASE1_REPORT.md).
 
 # MinhAnOS Desktop + Drive

@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
 	"minhanos.local/platform/internal/identity"
@@ -35,11 +34,11 @@ type IdentityStore interface {
 	Audit(context.Context, User, string, string) error
 }
 
-var ErrUnauthorized = errors.New("unauthorized")
+var ErrUnauthorized = identity.ErrUnauthorized
 
 type SQLIdentity struct {
-	db    *pgxpool.Pool
-	dummy string
+	db   *pgxpool.Pool
+	core *identity.AuthCore
 }
 
 func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*SQLIdentity, error) {
@@ -89,55 +88,34 @@ func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*S
 	if err = identity.ApplySchema(ctx, db); err != nil {
 		return nil, err
 	}
-	dummy, err := authn.Hash(authn.Token())
+	core, err := identity.NewAuthCore(db)
 	if err != nil {
 		return nil, err
 	}
-	return &SQLIdentity{db: db, dummy: dummy}, nil
+	return &SQLIdentity{db: db, core: core}, nil
+}
+func driveSession(v identity.AuthSession) Session {
+	return Session{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF}
 }
 func (s *SQLIdentity) Session(ctx context.Context, token string) (Session, error) {
-	var v Session
-	if len(token) != 64 {
-		return v, ErrUnauthorized
-	}
-	err := s.db.QueryRow(ctx, `SELECT u.id,u.username,u.display_name,u.role,s.csrf_token FROM drive_sessions s JOIN users u ON u.id=s.user_id WHERE token_hash=$1 AND expires_at>now()`, authn.Digest(token)).Scan(&v.User.ID, &v.User.Username, &v.User.DisplayName, &v.User.Role, &v.CSRF)
-	if errors.Is(err, pgx.ErrNoRows) {
-		err = ErrUnauthorized
-	}
-	return v, err
+	v, e := s.core.Authenticate(ctx, identity.DriveRealm, token)
+	return driveSession(v), e
 }
 
-// PlatformSession is optional and reads an authenticated session rather than browser-supplied identity claims.
+// PlatformSession verifies the real cookie in its own realm; a header is not authority.
 func (s *SQLIdentity) PlatformSession(ctx context.Context, token string) (Session, error) {
-	var v Session
-	if len(token) != 64 {
-		return v, ErrUnauthorized
-	}
-	err := s.db.QueryRow(ctx, `SELECT u.id,u.username,u.display_name,u.role,s.csrf_token FROM sessions s JOIN users u ON u.id=s.user_id WHERE token_hash=$1 AND expires_at>now()`, authn.Digest(token)).Scan(&v.User.ID, &v.User.Username, &v.User.DisplayName, &v.User.Role, &v.CSRF)
-	if errors.Is(err, pgx.ErrNoRows) {
-		err = ErrUnauthorized
-	}
-	return v, err
+	v, e := s.core.Authenticate(ctx, identity.DesktopRealm, token)
+	return driveSession(v), e
 }
 func (s *SQLIdentity) Login(ctx context.Context, name, password string) (Session, string, error) {
-	var v Session
-	hash := s.dummy
-	err := s.db.QueryRow(ctx, "SELECT id,username,display_name,role,password_hash FROM users WHERE username=$1", strings.ToLower(strings.TrimSpace(name))).Scan(&v.User.ID, &v.User.Username, &v.User.DisplayName, &v.User.Role, &hash)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return v, "", err
-	}
-	valid := authn.Verify(password, hash)
-	if err != nil || !valid {
-		return Session{}, "", ErrUnauthorized
-	}
-	token := authn.Token()
-	v.CSRF = authn.Token()
-	_, err = s.db.Exec(ctx, "INSERT INTO drive_sessions(token_hash,user_id,csrf_token,expires_at) VALUES($1,$2,$3,$4)", authn.Digest(token), v.User.ID, v.CSRF, time.Now().Add(24*time.Hour))
-	return v, token, err
+	return s.LoginRotating(ctx, name, password, "")
+}
+func (s *SQLIdentity) LoginRotating(ctx context.Context, name, password, old string) (Session, string, error) {
+	v, token, e := s.core.Login(ctx, identity.DriveRealm, name, password, old)
+	return driveSession(v), token, e
 }
 func (s *SQLIdentity) Logout(ctx context.Context, token string) error {
-	_, err := s.db.Exec(ctx, "DELETE FROM drive_sessions WHERE token_hash=$1", authn.Digest(token))
-	return err
+	return s.core.Logout(ctx, identity.DriveRealm, token)
 }
 func (s *SQLIdentity) Audit(ctx context.Context, u User, action, target string) error {
 	_, err := s.db.Exec(ctx, "INSERT INTO drive_audit(user_id,actor,action,target) VALUES($1,$2,$3,$4)", u.ID, u.Username, action, target)
@@ -164,6 +142,9 @@ func (l *loginLimiter) allow(ip string) bool {
 		if now.Sub(v.start) > 10*time.Minute {
 			delete(l.attempts, k)
 		}
+	}
+	if _, ok := l.attempts[ip]; !ok && len(l.attempts) >= 4096 {
+		return false
 	}
 	v := l.attempts[ip]
 	if v.start.IsZero() {

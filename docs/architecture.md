@@ -1,3 +1,7 @@
+## AuthCore Phase 2 (current)
+
+Shared internal/identity.AuthCore thay cơ chế session/login trùng lặp trong Desktop/Drive. Giữ một credential store và hai canonical session tables; public realm desktop/files. Identity migration 004 thêm epoch/handles/recovery/throttles/auth events. Internal mutation transactions lock users trước sessions, recheck credential sau KDF và revoke cả hai realms. Không thêm IAM daemon hoặc quyền RBAC mới. [ADR 0004](adr/0004-shared-auth-core-and-recovery.md) ghi quyết định và giới hạn.
+
 ## Identity adoption đã triển khai
 
 internal/identity là shared Go library trong Desktop và Drive, dùng cùng users và migration runner; chạy sau legacy bootstrap commit. Public UUID và credential reference thêm trên cùng row; session/password stores giữ nguyên. Relations mới rỗng, chưa có policy engine/business endpoints. Xem [Phase 1 report](account-center/PHASE1_REPORT.md).

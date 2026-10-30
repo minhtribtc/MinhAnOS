@@ -1,3 +1,9 @@
+## Account Center Phase 2 — 2026-10-30
+
+- Dùng chung AuthCore cho Desktop/Drive; kiểm trạng thái/epoch, xoay cookie khi login và giới hạn đăng nhập có chặn quá tải.
+- Thêm primitives đổi mật khẩu/thu hồi cả hai realm và CLI recovery dành OS root với token 15 phút, một lần dùng.
+- Giữ giao diện/API legacy; chưa bật Account Center UI hoặc Identity HTTP quản trị. Xem docs/account-center/PHASE2_REPORT.md.
+
 ## Account Center Phase 1 — 2026-10-30
 
 - Thêm Identity contracts, generated types/client, schema adoption và public UUID cùng user hiện hữu.

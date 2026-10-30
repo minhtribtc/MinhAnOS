@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase1; also read docs/extension-contracts.md.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase2; also read docs/extension-contracts.md.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
 
@@ -80,3 +80,7 @@ Keep Shell variants classic/touch separate from appearance light/dark/system and
 ## Account Center continuation
 
 User approved Phase 1; read docs/account-center/PHASE1_REPORT.md. Identity SQL 001–003 are applied and immutable. UUID completeness is not API readiness. No Identity HTTP handlers/UI/RBAC grants are active yet. Next AuthCore must preserve both session realms and existing storage IDs; host privilege split and last-admin protection gate new admin grants. Never create a third users/session/password store.
+
+## Phase 2 continuation (current)
+
+User delegated routine architecture decisions with documentation. Read docs/account-center/PHASE2_REPORT.md and docs/adr/0004-shared-auth-core-and-recovery.md; supersedes Phase 1 next-step notes. Shared AuthCore is active on all legacy adapters, SQL identity 001–004 immutable. No v1 Identity HTTP/UI or RBAC grants yet. Root recovery CLI is Linux-local only; never expose local methods to HTTP. Phase 3 must enforce last-admin invariant and split host-root privilege before new administrative authority. Keep full same-commit docs/test evidence.

@@ -1,9 +1,10 @@
 {
   "contractVersion": "1",
-  "implementation": "schema-only",
+  "implementation": "shared-auth-core; v1 HTTP and UI planned",
   "httpEndpointsEnabled": false,
   "accountCenterUIEnabled": false,
-  "authorizationEnforcement": "legacy until Phase 2/3; empty new grant tables confer no access",
+  "authorizationEnforcement": "active status/auth_epoch enforced by shared AuthCore; legacy roles until Phase 3, no new grants",
   "uuidBackfill": "operator-driven batches; nullable expansion until separately approved contract step",
-  "posixProvisioningEnabled": false
+  "posixProvisioningEnabled": false,
+  "localRecovery": "OS-root CLI only; hashed single-use 15-minute token; no HTTP reset endpoint"
 }

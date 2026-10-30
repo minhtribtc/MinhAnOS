@@ -1,3 +1,5 @@
+Identity Phase 2 runtime shares AuthCore on existing legacy endpoints; no v1 Identity HTTP handlers enabled. [Current report](../docs/account-center/PHASE2_REPORT.md).
+
 ## Identity foundation
 
 [Identity schemas](identity/README.md) và manifest Account Center đã thêm; OpenAPI Identity operations vẫn planned. Runtime chỉ adoption/UUID mapping và operator backfill, không cấp grants/khởi tạo Linux user. Xem [Phase 1 report](../docs/account-center/PHASE1_REPORT.md).

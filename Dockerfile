@@ -18,11 +18,12 @@ COPY contracts/fixtures/ contracts/fixtures/
 RUN go mod download
 COPY cmd/ cmd/
 COPY internal/ internal/
-RUN go test ./... && go vet ./... && CGO_ENABLED=0 go build -trimpath -o /minhanos ./cmd/minhanos
+RUN go test ./... && go vet ./... && CGO_ENABLED=0 go build -trimpath -o /minhanos ./cmd/minhanos && CGO_ENABLED=0 go build -trimpath -o /identity-recovery ./cmd/identity-recovery
 
 FROM alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
 RUN apk add --no-cache ca-certificates tzdata && addgroup -g 10001 minhanos && adduser -D -u 10001 -G minhanos minhanos && mkdir -p /data && chown 10001:10001 /data
 COPY --from=backend /minhanos /app/minhanos
+COPY --from=backend /identity-recovery /app/identity-recovery
 COPY --from=desktop /workspace/apps/desktop/dist /app/web
 USER 10001:10001
 ENV STATIC_DIR=/app/web TZ=Asia/Bangkok

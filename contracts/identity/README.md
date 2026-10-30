@@ -1,3 +1,5 @@
+Runtime Phase 2 now uses shared AuthCore for legacy authentication. Identity v1 HTTP remains planned. [ADR 0004](../../docs/adr/0004-shared-auth-core-and-recovery.md) records realm mapping, recovery policy and security boundaries.
+
 # Identity contracts v1
 
 Source authority: index.v1.json lists public schemas/types; OpenAPI operations remain planned. status.v1.json declares runtime boundaries. Regenerate with `npm run contracts:generate`; verify with `npm run contracts:check`.
