@@ -115,3 +115,38 @@ Consequences / decisions needed:
 - Proposed order: Q1 quota service + Files integration for personal homes in place (no data migration);
   Q2 Account Center quota UI, notices at 80/95/100 % through the outbox, audit; Q3 Shared Folders with share
   scopes; Q4 homes on ZFS/Btrfs units with optional hard quota.
+
+## Review 2026-10-30: user model "share → subfolder quota → home inside a share"
+
+Proposal: (1) a Shared Folder points to a path on the system and has a total quota; (2) File Station opens a
+share as a root, creates subfolders and can give subfolders a quota; (3) every new account gets a private area
+on a share chosen by the admin, with its own quota.
+
+Verdict: logical and convenient — it is the DSM model ("homes" is itself a shared folder) and fits the soft-quota
+ledger (nested scopes: an operation must pass the home/subfolder scope and every ancestor up to the share).
+Adopt with these adjustments:
+
+1. **Share paths only inside managed volume roots** (`/srv/minhanos/<volume>/...`), never `/etc`, `/var/lib/docker`,
+   the DB volume or another share (no overlap/nesting, no symlinks). The Drive container runs as UID 10001 with
+   all capabilities dropped and today only mounts its Docker volume; managed roots are bind-mounted into it
+   (`rslave` for ZFS). Arbitrary host paths would need root access for every file operation.
+   "Import existing folder" is a separate admin action: measure usage first, check/fix ownership through the
+   storage agent, then enforce quota.
+2. **Subfolder quota = registered "quota folder"** with a stable ID (rename/move updates it in the same
+   transaction), set by admins only. Soft quota works for any folder; hard quota later only for folders created
+   as ZFS datasets / Btrfs subvolumes (an existing directory cannot become one in place), so the UI offers
+   "create quota folder" rather than quota on arbitrary folders. Overcommit (sum of subfolder quotas > share
+   quota) allowed with a warning; every ancestor is still enforced.
+3. **Homes area is protected.** Each share that hosts homes has a `homes` area; a home is named by the immutable
+   user ID, shown with the display name. Share permissions never reach other users' homes and admins do not get
+   read access to personal files by default (Account Center privacy rule). The admin picks a default home share;
+   account creation stays independent: the home is provisioned idempotently with a visible status
+   (pending/ready/failed), so a storage failure never rolls back or blocks the account. Moving a home to another
+   share later is a background job.
+4. **Missing from the proposal: share permissions.** Read/write per user/group (deny wins), enforced by the same
+   identity policy as Phase 5; plus who may create shares/quota folders (System Admin; later a storage-admin role).
+
+Revised order: Q1 storage registry (volumes, shares limited to managed roots, bind mounts) + quota ledger + a
+default `homes` share and migration of `/data/users/{id}` into it; Q2 share permissions, File Station share roots,
+quota folders; Q3 Account Center (home share and quota on create/edit), notices 80/95/100 %, audit; Q4 optional
+hard quota on ZFS/Btrfs units.
