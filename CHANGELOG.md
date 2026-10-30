@@ -1,3 +1,9 @@
+## Cài đặt trung tâm — 2026-10-30
+
+- Cài đặt được dựng từ khai báo của từng ứng dụng; có tìm kiếm và mở thẳng tới mục (ví dụ Cá nhân hóa → Giao diện).
+- Mục tài khoản, bảo mật, phiên và người dùng do Account Center cung cấp; bỏ trang Người dùng trùng lặp cũ.
+- Sửa lỗi có thể xảy ra khi một ứng dụng và mục cài đặt của nó cùng mở (đăng ký bản dịch trùng).
+
 ## Account Center UI v1 (Phase 4) — 2026-10-30
 
 - Thêm ứng dụng Account Center dùng chung: hồ sơ, người dùng, nhóm, role, phiên, bảo mật và nhật ký; chạy trong Desktop và độc lập tại `/accounts/` trên cả Desktop (8081) lẫn Drive (8082).

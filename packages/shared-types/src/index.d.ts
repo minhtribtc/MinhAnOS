@@ -30,6 +30,7 @@ export interface AppManifest {
     path: string;
     requiredPermission?: string;
   }[];
+  nameKey?: string;
   settingsIntegration?: {
     id: string;
     labelKey: string;

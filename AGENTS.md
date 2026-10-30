@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-ui-v1; also read docs/extension-contracts.md.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is settings-central-v1; also read docs/extension-contracts.md.
 Account Center UI is packages/accounts-app (native + standalone /accounts/); keep it free of Desktop imports.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
@@ -101,3 +101,15 @@ Read docs/account-center/PHASE3B_REPORT.md and ADR 0006; supersedes earlier acti
 ## Phase 4 Account Center UI continuation (current)
 
 Read docs/account-center/UI_V1_REPORT.md; supersedes Phase 3B next-step notes. 33 operations active, no migration beyond 005. UI lives in packages/accounts-app, rendered natively by Desktop and standalone at /accounts/ on both hosts. Keep package-lock in sync when adding workspaces (npm ci must pass). App access policy editing stays hidden until Files/registry enforcement exists.
+
+## Central Settings standard (mandatory for every app, from 2026-10-30)
+
+User rule: every app must integrate uniformly with the central Settings app (com.minhanos.settings), like Settings on iOS/macOS/Android. Status: thin slice implemented (ADR 0007): manifest-driven Settings shell, SDK providers/events/opener, tests/settings-standard.mjs. Generic per-app settings storage API is still PLANNED.
+- One place: system-wide and per-app preferences live in Settings. Apps may keep in-context controls, but must not ship their own separate global settings page; "Settings" buttons inside apps open the central Settings at that app's panel.
+- Declare: each app manifest lists its panels in settingsIntegration (id, labelKey, path, requiredPermission). Settings builds its navigation from manifests of installed apps, never from hardcoded tabs.
+- Provide: the app package exports its settings panel components; Settings renders them natively through app-sdk (no iframe, no Desktop imports). The same panel works in the app's standalone host.
+- Store: settings use a versioned schema per app, scope user or system, validated and permission-checked on the backend; system-scope changes are audited. No localStorage/ad-hoc tables for real settings.
+- Look: only @minhanos/ui building blocks (section, row, toggle, select, danger zone) and theme tokens; i18n keys <app>.settings.*, vi-VN and en-US parity.
+- Navigate/search: deep link to Settings/<appId>/<path>; every entry indexed for Settings search. Hidden entries for missing permission are cosmetic; backend must still enforce.
+- Definition of done for any app: manifest settingsIntegration (or explicit empty list), panels, backend schema/validation, tests, docs/user-guide entry.
+- Remaining debt: Appearance panel text is hardcoded Vietnamese; generic settings storage API and system-wide sections are planned. Read docs/adr/0007-central-settings.md before adding an app.

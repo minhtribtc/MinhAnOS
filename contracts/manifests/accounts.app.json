@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "sdk": "^0.1.0",
   "entrypoint": "/apps/account-center",
+  "nameKey": "accounts.title",
   "display": [
     "window",
     "maximized",
@@ -68,12 +69,10 @@
     }
   ],
   "settingsIntegration": [
-    {
-      "id": "my-account",
-      "labelKey": "accounts.nav.profile",
-      "path": "/accounts/",
-      "requiredPermission": "identity.self.read"
-    }
+    {"id": "profile", "labelKey": "accounts.nav.profile", "path": "/profile", "requiredPermission": "identity.self.read"},
+    {"id": "security", "labelKey": "accounts.nav.security", "path": "/security", "requiredPermission": "identity.self.read"},
+    {"id": "sessions", "labelKey": "accounts.nav.sessions", "path": "/sessions", "requiredPermission": "identity.sessions.read"},
+    {"id": "users", "labelKey": "accounts.nav.users", "path": "/users", "requiredPermission": "identity.users.read"}
   ],
   "lifecycle": {
     "version": "1",

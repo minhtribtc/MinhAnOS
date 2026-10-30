@@ -1,6 +1,12 @@
-Release status: Account Center UI v1 (964e75a) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. No migration.
+Release status: settings-central-v1 committed, NOT yet deployed. VM still runs Account Center UI v1 (964e75a).
 
-# Handoff — Account Center UI v1 / Phase 4 (current)
+# Handoff — Central Settings thin slice (current)
+
+Branch settings-central-v1. Read [ADR 0007](adr/0007-central-settings.md) and AGENTS.md "Central Settings standard". Settings is now @minhanos/settings-app, built from manifest settingsIntegration; Desktop provides Appearance, Account Center provides profile/security/sessions/users panels, Files declares none. Legacy Settings "Users" UI removed (backend /api/admin/users unchanged). New manifests desktop.app.json, settings.app.json; optional manifest nameKey; shared-types regenerated.
+app-sdk: useCatalog (refcount, fixes crash when an app and its panel mount together), host events session-ended/profile-changed, openSettings deep links. tests/settings-standard.mjs enforces the standard in npm run check.
+Checks: clean npm ci + npm run build on VM check folder PASS (no Go change). Not yet done: deploy and one browser acceptance pass. Next: generic settings storage API when Files needs settings; then Phase 5.
+
+# Handoff — Account Center UI v1 / Phase 4 (previous)
 
 Branch account-center-ui-v1. Read [UI v1 report](account-center/UI_V1_REPORT.md); it supersedes the Phase 3B "next step" note. Shared @minhanos/accounts-app is rendered natively in Desktop (app com.minhanos.account-center) and standalone at /accounts/ on both 8081 and 8082 via identity.MountAccounts. 33 v1 operations (new identityGetGroup); status.v1.json accountCenterUIEnabled=true.
 package-lock.json now includes apps/accounts and packages/accounts-app (npm ci failed before). Identity client regenerated with npm run contracts:generate. No migration beyond 005.

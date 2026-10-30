@@ -10,6 +10,8 @@ export const useDesktop = defineStore('desktop', () => {
   const preferences = ref<Preferences>(freshPreferences())
   const system = ref<SystemInfo | null>(null)
   const active = ref('overview')
+  const settingsTarget = ref<{ appId: string; panelId?: string; seq: number } | null>(null)
+  let settingsSeq = 0
   const order = ref<string[]>([])
   const ready = ref(false)
   const saving = ref(false)
@@ -81,13 +83,15 @@ export const useDesktop = defineStore('desktop', () => {
     if (requested && apps.value.some(a => a.id === requested)) open(requested)
     await refreshSystem()
   }
+  // Deep link into the central Settings app (com.minhanos.settings) at an app panel.
+  function openSettings(appId: string, panelId?: string) { settingsTarget.value = { appId, panelId, seq: ++settingsSeq }; open('settings') }
   async function refreshSystem() { try { system.value = await api<SystemInfo>('/system') } catch { /* individual panels expose disconnected state */ system.value = null } }
   // A credential change/current-session revocation already ended the server
   // session. Clear this host locally without trying another authenticated logout.
   function expireSession(){
     sessionEpoch++;savePromise=null
     clearTimeout(timer);clearTimeout(noticeTimer);user.value=null;setCSRF('');ready.value=false;apps.value=[];system.value=null
-    preferences.value=freshPreferences();revision=0;savedRevision=0;order.value=[];active.value='';notice.value='';saveError.value='';saving.value=false
+    preferences.value=freshPreferences();revision=0;savedRevision=0;order.value=[];active.value='';settingsTarget.value=null;notice.value='';saveError.value='';saving.value=false
   }
   async function logout() {
     for(const guard of closeGuards.values()){if(!guard())return}
@@ -95,5 +99,5 @@ export const useDesktop = defineStore('desktop', () => {
     await api('/logout', { method: 'POST' })
     expireSession()
   }
-  return { expireSession, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
+  return { expireSession, openSettings, settingsTarget, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
 })

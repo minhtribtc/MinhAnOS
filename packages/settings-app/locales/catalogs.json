@@ -1,0 +1,16 @@
+{
+  "vi-VN": {
+    "settings.title": "Cài đặt",
+    "settings.search": "Tìm trong cài đặt",
+    "settings.noResults": "Không có mục cài đặt phù hợp.",
+    "settings.empty": "Chưa có mục cài đặt nào bạn được phép xem.",
+    "settings.missingPanel": "Ứng dụng chưa cung cấp màn hình cho mục này."
+  },
+  "en-US": {
+    "settings.title": "Settings",
+    "settings.search": "Search settings",
+    "settings.noResults": "No matching settings.",
+    "settings.empty": "There are no settings you are allowed to view.",
+    "settings.missingPanel": "This app does not provide a screen for this entry yet."
+  }
+}

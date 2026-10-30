@@ -1,31 +1,30 @@
 <script setup lang="ts">
 import {useHost} from '@minhanos/app-sdk'
 const host=useHost()
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import { ArrowUpRight, ArrowRight, Check, ChevronRight, Circle, Database, HardDrive, Cpu, RefreshCw, ShieldCheck, Globe, Server, ExternalLink, Clock3, LockKeyhole, Plus, Search, CheckCircle2, AlertCircle, Monitor, Palette, Users, Leaf, Layers3, FileText, Cloud, FolderOpen, NotebookPen, LogOut, Activity } from 'lucide-vue-next'
-import type { AppDefinition, AuditEntry, User } from '../api'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { ArrowUpRight, ArrowRight, Check, ChevronRight, Circle, Database, HardDrive, Cpu, RefreshCw, ShieldCheck, Globe, Server, ExternalLink, Clock3, LockKeyhole, Plus, Search, CheckCircle2, AlertCircle, Monitor, Palette, Users, Layers3, FileText, Cloud, FolderOpen, NotebookPen, Activity } from 'lucide-vue-next'
+import type { AppDefinition, AuditEntry } from '../api'
 import { api, bytes } from '../api'
 import { useDesktop } from '../store'
 import AppIcon from './AppIcon.vue'
 import FilesApp from '@minhanos/files-app'
 import AccountsApp from '@minhanos/accounts-app'
+import SettingsApp from '@minhanos/settings-app'
+import { installedSettingsProviders } from '../settings'
 const filesInstance=ref<InstanceType<typeof FilesApp>|null>(null)
 const accountsInstance=ref<InstanceType<typeof AccountsApp>|null>(null)
-defineExpose({canClose:()=>accountsInstance.value?.canClose() ?? filesInstance.value?.canClose() ?? true})
-function accountProfileChanged(name:string){if(desktop.user)desktop.user.displayName=name}
+const settingsInstance=ref<InstanceType<typeof SettingsApp>|null>(null)
+defineExpose({canClose:()=>settingsInstance.value?.canClose() ?? accountsInstance.value?.canClose() ?? filesInstance.value?.canClose() ?? true})
 const props = defineProps<{ app: AppDefinition; foreground?:boolean }>()
 const desktop = useDesktop()
-const settingsTab = ref('appearance')
 const activity = ref<AuditEntry[]>([])
-const users = ref<User[]>([])
 const loading = ref(false)
 const error = ref('')
 const filter = ref('')
-const showCreate = ref(false)
-const newUser = ref({ username: '', displayName: '', password: '', role: 'user' })
-const createBusy = ref(false)
-const currentPassword=ref('')
-watch(()=>newUser.value.role,()=>{currentPassword.value=''})
+// Effective permissions only decide which Settings entries are listed; each panel's API still enforces access.
+const permissions = ref<string[]|null>(null)
+const settingsProviders = computed(() => installedSettingsProviders(desktop.apps.map(a => a.id)))
+async function loadPermissions() { try { permissions.value = (await api<{ permissions: string[] }>('/v1/identity/me/access')).permissions } catch { permissions.value = [] } }
 const memoryHistory = ref<number[]>([])
 const filteredApps = computed(() => desktop.apps.filter(a => a.title.toLocaleLowerCase('vi').includes(filter.value.toLocaleLowerCase('vi'))))
 const usedDisk = computed(() => desktop.system ? (1 - desktop.system.diskFreeBytes / Math.max(1, desktop.system.diskTotalBytes)) * 100 : 0)
@@ -37,19 +36,11 @@ async function refresh() {
   loading.value = true; error.value = ''
   try {
     if (props.app.id === 'activity') activity.value = await api<AuditEntry[]>('/audit')
-    if (props.app.id === 'settings' && desktop.user?.role === 'admin') users.value = await api<User[]>('/admin/users')
+    if (props.app.id === 'settings') await loadPermissions()
     if (['overview', 'about', 'connections'].includes(props.app.id)) await desktop.refreshSystem()
   } catch (e) { error.value = e instanceof Error ? e.message : 'Không tải được dữ liệu.' }
   finally { loading.value = false }
 }
-async function createUser() {
-  createBusy.value = true; error.value = ''
-  try { if(newUser.value.role==='admin'){await api('/v1/identity/reauthenticate',{method:'POST',body:JSON.stringify({password:currentPassword.value})});currentPassword.value=''}; await api('/admin/users', { method: 'POST', body: JSON.stringify(newUser.value) }); newUser.value = { username: '', displayName: '', password: '', role: 'user' }; showCreate.value = false; await refresh(); desktop.toast('Đã tạo tài khoản mới.') }
-  catch (e) { error.value = host.errorMessage(e) }
-  finally { currentPassword.value='';createBusy.value = false }
-}
-function setTheme(theme: 'light' | 'dark') { void host.updateProfile(api,{theme}).catch(e=>desktop.toast(host.errorMessage(e))); desktop.preferences.theme = theme; desktop.saveSoon() }
-function setWallpaper(wallpaper: 'mountain' | 'midnight' | 'sage') { desktop.preferences.wallpaper = wallpaper; desktop.saveSoon() }
 function togglePin(id: string) { const pinned = desktop.preferences.pinned; desktop.preferences.pinned = pinned.includes(id) ? pinned.filter(a => a !== id) : [...pinned, id]; desktop.saveSoon() }
 function sample() { if (desktop.system) memoryHistory.value = [...memoryHistory.value, desktop.system.heapBytes].slice(-18) }
 onMounted(() => { void refresh(); sample() })
@@ -66,7 +57,7 @@ onBeforeUnmount(() => clearInterval(sampler))
       <button class="sidebar-item" @click="desktop.open('activity')"><Clock3 :size="17" /> Nhật ký hoạt động</button>
       <div class="sidebar-caption second">CÁ NHÂN</div>
       <button class="sidebar-item" @click="desktop.open('notes')"><NotebookPen :size="17" /> Ghi chú</button>
-      <button class="sidebar-item" @click="desktop.open('settings')"><Palette :size="17" /> Cá nhân hóa</button>
+      <button class="sidebar-item" @click="desktop.openSettings('com.minhanos.desktop','appearance')"><Palette :size="17" /> Cá nhân hóa</button>
       <div class="sidebar-bottom"><span class="connection-dot"></span><div><strong>Desktop đã sẵn sàng</strong><small>MinhAnOS 0.2.0 · Bản thử nghiệm</small></div></div>
     </aside>
     <main class="overview-main">
@@ -86,14 +77,7 @@ onBeforeUnmount(() => clearInterval(sampler))
     </main>
   </div>
 
-  <div v-else-if="app.id === 'settings'" class="settings-layout">
-    <aside class="app-sidebar"><div class="sidebar-caption">CÀI ĐẶT DESKTOP</div><button class="sidebar-item" :class="{ selected: settingsTab === 'appearance' }" @click="settingsTab = 'appearance'"><Palette :size="17" /> Giao diện</button><button class="sidebar-item" :class="{ selected: settingsTab === 'account' }" @click="settingsTab = 'account'"><ShieldCheck :size="17" /> Tài khoản của tôi</button><button v-if="desktop.user?.role === 'admin'" class="sidebar-item" :class="{ selected: settingsTab === 'users' }" @click="settingsTab = 'users'; refresh()"><Users :size="17" /> Người dùng</button><div class="sidebar-bottom"><span class="connection-dot"></span><small>{{ desktop.saving ? 'Đang lưu…' : desktop.saveError ? 'Chưa lưu được' : 'Tự động lưu thay đổi' }}</small></div></aside>
-    <main class="standard-content">
-      <template v-if="settingsTab === 'appearance'"><div class="page-eyebrow">CÁ NHÂN HÓA</div><h1>Không gian theo cách bạn.</h1><p class="muted">Những thay đổi nhỏ, cảm giác thân thuộc hơn.</p><section class="workspace-mode-setting"><h3>Cách làm việc</h3><p class="muted small-text">Chọn trải nghiệm phù hợp. Chuyển ứng dụng luôn giữ biểu mẫu đang mở.</p><div class="workspace-mode-options"><button aria-label="Chế độ tập trung" :aria-pressed="desktop.preferences.mode === 'focus'" :class="{chosen:desktop.preferences.mode === 'focus'}" @click="desktop.setMode('focus')"><Monitor :size="24"/><strong>Tập trung</strong><small>Một ứng dụng toàn màn hình · mặc định</small><Check v-if="desktop.preferences.mode === 'focus'" :size="16"/></button><button aria-label="Chế độ cửa sổ" :aria-pressed="desktop.preferences.mode === 'windows'" :class="{chosen:desktop.preferences.mode === 'windows'}" @click="desktop.setMode('windows')"><Layers3 :size="24"/><strong>Cửa sổ</strong><small>Nhiều ứng dụng song song · nâng cao</small><Check v-if="desktop.preferences.mode === 'windows'" :size="16"/></button></div></section><h3 class="settings-section">Chế độ hiển thị</h3><div class="theme-options"><button v-for="theme in (['light','dark'] as const)" :key="theme" class="theme-option" :class="{ chosen: desktop.preferences.theme === theme }" @click="setTheme(theme)"><div :class="['theme-preview',theme]"><span></span><i></i><b></b></div><span>{{ theme === 'light' ? 'Sáng' : 'Tối' }}<Check v-if="desktop.preferences.theme === theme" :size="16" /></span></button></div><h3 class="settings-section">Hình nền desktop</h3><div class="wallpaper-options"><button v-for="wallpaper in (['mountain','midnight','sage'] as const)" :key="wallpaper" class="wallpaper-option" :class="{ chosen: desktop.preferences.wallpaper === wallpaper }" @click="setWallpaper(wallpaper)"><span :class="['wallpaper-preview',wallpaper]"><Check v-if="desktop.preferences.wallpaper === wallpaper" :size="22" /></span><span>{{ {mountain:'Bình minh',midnight:'Chạng vạng',sage:'Sắc xanh'}[wallpaper] }}</span></button></div><div class="info-panel"><Leaf :size="19" /><div><strong>Một desktop, dành riêng cho bạn</strong><p>Theme, hình nền, ghi chú và vị trí cửa sổ được lưu trong tài khoản, kể cả khi bạn đăng nhập lại.</p></div></div><p v-if="desktop.saveError" class="inline-error">{{ desktop.saveError }} <button class="text-button" @click="desktop.persist">Thử lưu lại</button></p></template>
-      <template v-else-if="settingsTab === 'account'"><div class="page-eyebrow">DANH TÍNH</div><h1>Tài khoản của tôi</h1><div class="profile-card"><span class="avatar large">{{ desktop.user?.displayName.charAt(0) }}</span><div><h2>{{ desktop.user?.displayName }}</h2><p class="muted">@{{ desktop.user?.username }}</p></div><span class="soft-badge">{{ desktop.user?.role === 'admin' ? 'Quản trị viên' : 'Người dùng' }}</span></div><div class="detail-list"><div><span>Phương thức đăng nhập</span><strong>Tài khoản cục bộ</strong></div><div><span>Phiên làm việc</span><strong>Tối đa 24 giờ</strong></div><div><span>Đăng nhập Authentik</span><strong class="muted">Chưa cấu hình</strong></div><div><span>Múi giờ hiển thị</span><strong>Asia/Bangkok</strong></div></div><div class="info-panel"><ShieldCheck :size="20" /><p>Đây là đăng nhập cục bộ cho bản desktop đầu tiên. SSO Authentik và quản lý mật khẩu sẽ được bổ sung ở mốc tiếp theo.</p></div><button class="secondary-button" @click="desktop.logout().catch(e => desktop.toast(e.message))"><LogOut :size="15" /> Đăng xuất</button></template>
-      <template v-else><div class="page-eyebrow">QUẢN TRỊ</div><div class="section-label"><h1>Người dùng</h1><button class="primary-button" @click="showCreate = !showCreate"><Plus :size="16" /> Tạo tài khoản</button></div><p class="muted">Mỗi tài khoản có bố cục và ghi chú độc lập.</p><p v-if="error" class="inline-error" role="alert">{{ error }}</p><form v-if="showCreate" class="create-user-form" @submit.prevent="createUser"><label>Tên hiển thị<input v-model="newUser.displayName" required maxlength="100" placeholder="Nguyễn Minh An"></label><label>Tên đăng nhập<input v-model="newUser.username" required minlength="3" maxlength="32" pattern="[a-z][a-z0-9_-]{2,31}" placeholder="minhan" autocomplete="off"></label><label>Mật khẩu<input v-model="newUser.password" type="password" required minlength="12" maxlength="256" placeholder="Ít nhất 12 ký tự" autocomplete="new-password"></label><label>Vai trò<select v-model="newUser.role"><option value="user">Người dùng</option><option value="admin">Quản trị viên</option></select></label><label v-if="newUser.role==='admin'">{{ host.i18n.t('common.auth.currentPassword') }}<input v-model="currentPassword" type="password" required maxlength="256" autocomplete="current-password"><small>{{ host.i18n.t('common.auth.adminReauthHint') }}</small></label><button class="primary-button" :disabled="createBusy">{{ createBusy ? 'Đang tạo…' : 'Tạo tài khoản' }}</button></form><div class="user-list"><div v-for="user in users" :key="user.id" class="user-row"><span class="avatar">{{ user.displayName.charAt(0) }}</span><div><strong>{{ user.displayName }}</strong><span class="muted">@{{ user.username }}</span></div><span class="soft-badge">{{ user.role === 'admin' ? 'Quản trị viên' : 'Người dùng' }}</span></div></div><p class="small-text muted">Bản 0.2 hỗ trợ tạo tài khoản. Chưa có chức năng sửa, khóa hoặc xóa người dùng.</p></template>
-    </main>
-  </div>
+  <SettingsApp v-else-if="app.id === 'settings'" ref="settingsInstance" :providers="settingsProviders" :permissions="permissions" :active="props.foreground!==false" :target="desktop.settingsTarget" />
 
   <main v-else-if="app.id === 'apps'" class="standard-content">
     <div class="page-eyebrow">APP CENTER / DESKTOP 0.2</div><h1>Mở ra nhiều khả năng.</h1><p class="muted">Các ứng dụng tích hợp trong không gian MinhAnOS.</p><div class="app-search"><Search :size="17" /><input v-model="filter" placeholder="Tìm ứng dụng…" aria-label="Tìm ứng dụng trong trung tâm"></div><div class="catalog-grid"><article v-for="item in filteredApps" :key="item.id" class="catalog-card"><AppIcon :id="item.icon" :color="item.color" /><span class="catalog-status" :class="{ planned: item.status === 'planned' }">{{ item.status === 'ready' ? 'Sẵn sàng' : 'Sắp có' }}</span><h3>{{ item.title }}</h3><p>{{ item.subtitle }}</p><div><button class="text-button" @click="desktop.open(item.id)">Mở ứng dụng <ArrowUpRight :size="14" /></button><button class="pin-button" :aria-label="`${desktop.preferences.pinned.includes(item.id) ? 'Bỏ ghim' : 'Ghim'} ${item.title}`" @click="togglePin(item.id)"><Check v-if="desktop.preferences.pinned.includes(item.id)" :size="15" /><Plus v-else :size="15" /></button></div></article></div><div v-if="!filteredApps.length" class="empty-state"><Search :size="32" /><h3>Không tìm thấy ứng dụng</h3><p>Thử tìm bằng một từ khác.</p></div><p class="muted small-text">Đây là danh mục ứng dụng nội bộ. Cài đặt package bên ngoài chưa được hỗ trợ.</p>
@@ -103,7 +87,7 @@ onBeforeUnmount(() => clearInterval(sampler))
     <div class="page-eyebrow">INTEGRATIONS</div><h1>Một nơi. Mọi kết nối.</h1><p class="muted">Nền tảng cho mạng riêng, danh tính và máy chủ của bạn.</p><div class="integration-list"><article v-for="(item,index) in (desktop.system?.integrations || [{id:'netbird',name:'NetBird',description:'Quản lý thiết bị và mạng riêng'},{id:'authentik',name:'Authentik',description:'Đăng nhập tập trung và danh tính'},{id:'onepanel',name:'1Panel',description:'Máy chủ, container và ứng dụng'}])" :key="item.id" class="integration-card"><span :class="['integration-logo', ['blue','amber','teal'][index]]"><component :is="[Globe,ShieldCheck,Server][index]" :size="27" /></span><div><h2>{{ item.name }}</h2><p>{{ item.description }}</p></div><span class="soft-badge neutral"><Circle :size="8" /> Chưa kết nối</span></article></div><div class="info-panel"><LockKeyhole :size="21" /><div><strong>Kết nối thật, trong bước tiếp theo</strong><p>Bản này chưa gọi API của ba dịch vụ. Cần xác minh endpoint, phiên bản và quyền trước khi cấu hình. Không có dữ liệu dịch vụ giả hoặc khóa API lưu ở trình duyệt.</p></div></div><button class="secondary-button" @click="desktop.open('about')">Xem lộ trình phát triển <ArrowRight :size="15" /></button>
   </main>
 
-  <AccountsApp v-else-if="app.id === 'com.minhanos.account-center'" ref="accountsInstance" embedded :active="props.foreground!==false" @session-ended="desktop.expireSession()" @profile-changed="accountProfileChanged" />
+  <AccountsApp v-else-if="app.id === 'com.minhanos.account-center'" ref="accountsInstance" embedded :active="props.foreground!==false" />
   <FilesApp v-else-if="app.id === 'files'" ref="filesInstance" :active="props.foreground!==false" embedded api-base="/api/drive" />
 
   <main v-else-if="app.id === 'activity'" class="standard-content"><div class="page-eyebrow">ACTIVITY LOG</div><div class="section-label"><h1>Những gì đã diễn ra.</h1><button class="secondary-button" :disabled="loading" @click="refresh"><RefreshCw :size="15" :class="{spinning:loading}" /> Làm mới</button></div><p class="muted">{{ desktop.user?.role === 'admin' ? '60 hoạt động xác thực và quản trị gần nhất.' : 'Hoạt động xác thực của tài khoản bạn.' }}</p><p v-if="error" class="inline-error">{{ error }}</p><div class="audit-list"><div v-for="entry in activity" :key="entry.id" class="audit-row"><span class="audit-icon"><component :is="entry.action === 'user.create' ? Users : ShieldCheck" :size="18" /></span><div><strong>{{ entry.detail }}</strong><p>{{ entry.actor }} <span>· {{ entry.action }}</span></p></div><time>{{ new Date(entry.createdAt).toLocaleString('vi-VN',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) }}</time></div></div><div v-if="!activity.length && !loading && !error" class="empty-state"><Activity :size="36" /><h3>Chưa có hoạt động</h3></div></main>

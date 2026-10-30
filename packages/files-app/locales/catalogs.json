@@ -1,5 +1,6 @@
 {
   "vi-VN": {
+    "files.app.name": "MinhAnOS Files",
     "files.actions.mkdir": "Thư mục mới",
     "files.actions.upload": "Tải lên",
     "files.actions.paste": "Dán",
@@ -27,6 +28,7 @@
     "files.settings.system": "Theo thiết bị"
   },
   "en-US": {
+    "files.app.name": "MinhAnOS Files",
     "files.actions.mkdir": "New folder",
     "files.actions.upload": "Upload",
     "files.actions.paste": "Paste",

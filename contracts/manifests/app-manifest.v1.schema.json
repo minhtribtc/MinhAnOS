@@ -130,6 +130,10 @@
       },
       "uniqueItems": true
     },
+    "nameKey": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9_.]*$"
+    },
     "settingsIntegration": {
       "type": "array",
       "items": {

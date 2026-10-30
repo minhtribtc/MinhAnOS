@@ -4,6 +4,7 @@ import { Search, Wifi, LogOut, ArrowRight, ShieldCheck, Eye, EyeOff, X, Monitor,
 import {useHost,ApiError} from '@minhanos/app-sdk'
 import { api, setCSRF, onAuthFailure, type User } from './api'
 import { useDesktop } from './store'
+import desktopCatalogs from '../locales/catalogs.json'
 import AppIcon from './components/AppIcon.vue'
 import DesktopWindow from './components/DesktopWindow.vue'
 import HomeScreen from './components/HomeScreen.vue'
@@ -16,6 +17,10 @@ onBeforeUnmount(()=>themeMedia.removeEventListener('change',themeChanged))
 const host=useHost()
 const desktop = useDesktop()
 const stopAuthFailure=onAuthFailure(()=>desktop.expireSession())
+// App-to-Shell bridge (app-sdk): apps report session/profile changes and deep-link into Settings.
+const releaseDesktopCatalog=host.useCatalog('desktop',desktopCatalogs)
+const stopHostEvents=[host.on('session-ended',()=>desktop.expireSession()),host.on('profile-changed',({displayName})=>{if(desktop.user)desktop.user.displayName=displayName}),host.setSettingsOpener(desktop.openSettings)]
+onBeforeUnmount(()=>{stopHostEvents.forEach(stop=>stop());releaseDesktopCatalog()})
 onBeforeUnmount(stopAuthFailure)
 watch(()=>host.profile.value.theme,theme=>{if(theme!=='system'){desktop.preferences.theme=theme}})
 const initializing = ref(true), loginBusy = ref(false), loginError = ref(''), username = ref(''), password = ref(''), showPassword = ref(false)

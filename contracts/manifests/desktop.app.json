@@ -1,0 +1,15 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.desktop",
+  "version": "0.2.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/desktop",
+  "nameKey": "desktop.app.name",
+  "display": [
+    "fullscreen"
+  ],
+  "capabilities": [],
+  "settingsIntegration": [
+    {"id": "appearance", "labelKey": "desktop.settings.appearance", "path": "/appearance"}
+  ]
+}

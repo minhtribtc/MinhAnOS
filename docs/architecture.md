@@ -1,3 +1,7 @@
+## Central Settings (current)
+
+packages/settings-app renders Settings from manifest settingsIntegration and provider panels exported by app packages (app-sdk defineSettingsProvider). apps/desktop/src/settings.ts lists compiled first-party providers filtered by the backend registry; permissions from /api/v1/identity/me/access only filter the list. App-to-Shell bridge in app-sdk: useCatalog refcount, session-ended/profile-changed events, openSettings deep links. See [ADR 0007](adr/0007-central-settings.md).
+
 ## Account Center UI v1 (current)
 
 packages/accounts-app is the single Account Center UI (Vue, app-sdk host, generated identity client). Desktop embeds it natively; apps/accounts is a standalone Vite host mounted at /accounts/ by internal/platform and internal/drive via identity.MountAccounts. No Desktop imports in the package, no iframe, no new service. Desktop api.ts tracks an auth epoch and store.expireSession() clears local state when the server session ends.

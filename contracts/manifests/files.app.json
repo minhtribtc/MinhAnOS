@@ -9,10 +9,12 @@
     "maximized",
     "fullscreen"
   ],
+  "nameKey": "files.app.name",
   "capabilities": [
     "files.read",
     "files.write",
     "files.system.read",
     "files.system.write"
-  ]
+  ],
+  "settingsIntegration": []
 }

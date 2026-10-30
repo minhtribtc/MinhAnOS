@@ -1,0 +1,18 @@
+.mn-settings{font-family:var(--mn-font-ui);color:var(--mn-color-text-primary);background:var(--mn-color-canvas);display:grid;grid-template-columns:260px minmax(0,1fr);height:100%;min-height:0;flex:1;container-type:inline-size;font-size:14px}
+.mn-settings *{box-sizing:border-box}
+.mn-settings .st-sidebar{border-right:1px solid var(--mn-color-border);background:var(--mn-color-surface);padding:18px 12px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.mn-settings h1{display:flex;align-items:center;gap:8px;margin:0 6px;font-size:20px;font-weight:650;letter-spacing:-.4px}
+.mn-settings .st-search{display:flex;align-items:center;gap:7px;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);padding:0 10px;background:var(--mn-color-canvas);color:var(--mn-color-text-secondary)}
+.mn-settings .st-search input{border:0;outline:0;background:transparent;color:var(--mn-color-text-primary);font:inherit;min-height:36px;flex:1;min-width:0}
+.mn-settings .st-search:focus-within{outline:var(--mn-focus-ring);outline-offset:2px}
+.mn-settings .st-group{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.mn-settings .st-group-name{font-size:11px;font-weight:650;letter-spacing:.6px;text-transform:uppercase;color:var(--mn-color-text-secondary);padding:4px 10px}
+.mn-settings nav button{font:inherit;text-align:left;border:0;border-radius:var(--mn-radius-control);background:transparent;color:var(--mn-color-text-primary);padding:8px 10px;min-height:36px;cursor:pointer;transition:background var(--mn-motion-fast)}
+.mn-settings nav button:hover{background:var(--mn-color-hover)}
+.mn-settings nav button.selected{background:var(--mn-color-selection);font-weight:600}
+.mn-settings nav button:focus-visible{outline:var(--mn-focus-ring);outline-offset:2px}
+.mn-settings .st-main{min-width:0;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.mn-settings .st-crumb{margin:0;padding:10px 24px 0;font-size:12px;color:var(--mn-color-text-secondary)}
+.mn-settings .st-panel{flex:1;min-height:0;display:flex;flex-direction:column}
+.mn-settings .st-muted{margin:0;padding:8px 10px;color:var(--mn-color-text-secondary)}
+@container (max-width:720px){.mn-settings{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.mn-settings .st-sidebar{border-right:0;border-bottom:1px solid var(--mn-color-border);max-height:45cqh}}

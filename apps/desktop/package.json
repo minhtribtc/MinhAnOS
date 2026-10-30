@@ -15,7 +15,8 @@
     "@minhanos/app-sdk": "0.1.0",
     "@minhanos/files-app": "0.2.0",
     "@minhanos/api-client": "0.1.0",
-    "@minhanos/accounts-app": "0.1.0"
+    "@minhanos/accounts-app": "0.1.0",
+    "@minhanos/settings-app": "0.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

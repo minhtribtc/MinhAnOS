@@ -63,7 +63,8 @@
         "Cài đặt"
       ],
       "currentPaths": [
-        "apps/desktop/src/components/AppContent.vue"
+        "packages/settings-app",
+        "apps/desktop/src/settings.ts"
       ]
     },
     {

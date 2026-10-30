@@ -1,3 +1,7 @@
+[ADR 0007 — central Settings](adr/0007-central-settings.md) — Settings contract every app must follow.
+
+[Account Center review 2026-10-30](account-center/REVIEW_2026-10-30.md) — progress, design assessment and central Settings app standard.
+
 [Account Center UI v1 report](account-center/UI_V1_REPORT.md) — shared native/standalone UI, 33 operations, limits and next steps.
 
 [Phase 3B report](account-center/PHASE3B_REPORT.md) · [ADR 0006 — security and bounded delegation](adr/0006-identity-security-and-delegation-apis.md). Current backend APIs, limits and frontend next steps.

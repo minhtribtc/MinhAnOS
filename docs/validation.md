@@ -1,3 +1,7 @@
+## Central Settings thin slice — 2026-10-30
+
+VM check folder /opt/minhanos-settings-claude: clean npm ci + npm run build PASS (foundations, accounts-session-state, new settings-standard, contracts after contracts:generate for manifest nameKey, identity contracts, vue-tsc + desktop/files/accounts builds). First run FAILED twice and was fixed: an escaped regex in the new test, and shared-types drift until regeneration. No Go changes, so Go tests not rerun. Not yet deployed; no browser pass yet.
+
 ## Account Center UI v1 — 2026-10-30
 
 Ran once in separate VM folder /opt/minhanos-ui-claude (not the app DB): gofmt (7 unformatted files fixed), go vet ./..., go test ./... and tests/migrations-integration.sh on its disposable DB (0 FAIL, includes TestAccountsStandaloneAssets and group detail/ETag check): PASS. Clean npm ci initially FAILED because package-lock.json lacked the new workspaces; regenerated lockfile, then npm ci + npm run build (foundations, accounts-session-state, contracts, identity contracts after contracts:generate, desktop/files/accounts builds): PASS. No browser/VM stop-start trials. Deployed 964e75a on VM (docker compose up -d --build --wait): all three containers healthy; HTTP smoke on 8081 and 8082: / 200, /accounts/ 200, /accounts 307, hashed asset 200, /api/v1/identity/me without cookie 401.

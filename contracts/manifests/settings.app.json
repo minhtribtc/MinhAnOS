@@ -1,0 +1,15 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.settings",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/settings",
+  "nameKey": "settings.title",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [],
+  "settingsIntegration": []
+}

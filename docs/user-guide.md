@@ -1,3 +1,12 @@
+## Cài đặt trung tâm (Settings)
+
+Mở **Cài đặt** từ Desktop. Thanh bên trái nhóm theo ứng dụng; gõ vào ô tìm kiếm để lọc mục.
+
+- **MinhAnOS Desktop → Giao diện**: chế độ làm việc, sáng/tối, hình nền (nút *Cá nhân hóa* ở Tổng quan mở thẳng mục này).
+- **Account Center → Tài khoản của tôi, Bảo mật, Phiên, Người dùng**: cùng chức năng như trong app Account Center. Mục Phiên/Người dùng chỉ hiện khi bạn có quyền tương ứng.
+
+Chuyển giữa các mục giữ nguyên biểu mẫu đang nhập; đóng Cài đặt khi còn thay đổi chưa lưu sẽ hỏi xác nhận. Trang "Người dùng" cũ trong Cài đặt đã được thay bằng mục của Account Center; nhóm, role và nhật ký vẫn quản lý trong app Account Center.
+
 ## Account Center (Phase 4 UI v1)
 
 Mở **Account Center** từ Desktop, hoặc truy cập riêng tại `http://<host>:8081/accounts/` (Desktop) hay `http://<host>:8082/accounts/` (Drive). Bản riêng đăng nhập bằng tài khoản của chính host đó.
