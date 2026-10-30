@@ -1,3 +1,19 @@
+# Handoff — Account Center Phase 0, approval required
+
+Nhánh account-center-phase0; source khảo sát 026a24f7f9335bb0e42fbdee93aa08bc7e46066c.
+Đọc docs/account-center/README.md và bốn báo cáo trước khi tiếp tục. Master prompt người dùng yêu cầu chỉ Phase 0
+trong lượt đầu, chờ phê duyệt trước code/migration. Chưa được triển khai Phase 1.
+Đây là docs-only: chưa tạo AccountCenter runtime, chưa thêm schema/endpoint, không deploy hoặc đổi dữ liệu/quyền.
+
+Các quyết định đề xuất: reuse users/two session realms; shared Go modular monolith; public UUID cùng users row,
+giữ hex64 internal/storage key; backend-only RBAC/app grant/ACL; tách web admin khỏi host-root privilege.
+Risk quan trọng: files-agent mở host / và current admin guard có thể vượt logical personal-file isolation;
+chưa thực thi khai thác. User IDs không phải UUID; replacing IDs trực tiếp sẽ phá File paths/foreign keys.
+Password hash đã dùng Go standard crypto/pbkdf2, không viết lại algorithm. UUID mapping/role split cần duyệt.
+Identity schema adoption phải sau legacy bootstrap commit; profile migration 001 không sửa.
+Kế hoạch Phase 1 chi tiết trong IMPLEMENTATION_PLAN.md. Tránh tạo users/session/password store thứ ba.
+
+
 # Handoff — App naming v1
 
 Nhánh platform-app-naming-v1. Đọc docs/adr/0003-app-naming-and-repository-policy.md.

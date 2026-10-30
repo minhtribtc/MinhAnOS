@@ -106,3 +106,10 @@ Identity/bootstrap/schema_version cũ chưa chuyển. Xem [ADR 0002](adr/0002-tr
 Monorepo MinhAnOS chứa các module minhanos-*. apps/drive là host standalone với npm workspace minhanos-files;
 @minhanos/files-app là UI dùng chung. Catalog danh tính không phải runtime app registry hoặc hệ thống cấp quyền.
 Shell variant classic/touch, theme light/dark/system và workspace mode focus/windows là ba khái niệm riêng.
+
+
+## Account Center architecture checkpoint
+
+[Khảo sát và phương án Identity](account-center/README.md) đã được ghi nhận ở Phase 0.
+Đây là đề xuất chưa phê duyệt: public UUID giữ storage key cũ, shared IdentityService và độc lập Account Center UI.
+Không có runtime/schema changes trong đợt này; nguồn hiện tại vẫn như các phần implementation phía trên.

@@ -38,3 +38,6 @@ Không ghi chức năng là hoàn thành chỉ vì đã có thiết kế hoặc 
 
 
 - [ADR 0003: tên ứng dụng, module và repository](adr/0003-app-naming-and-repository-policy.md)
+
+
+- [Account Center: Phase 0 và checkpoint kiến trúc](account-center/README.md)

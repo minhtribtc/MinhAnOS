@@ -1,3 +1,15 @@
+# Kiểm chứng Account Center Phase 0 — 2026-10-30
+
+Docs-only, source audit tại 026a24f. Đã đọc authentication/session, middleware, native host, SDK/manifest,
+Files namespace/host agent, schema/bootstrap và migration runner. Đã đối chiếu nguồn Authentik/Go/OWASP/PG chính thức.
+Bốn báo cáo chứa phạm vi, evidence, security risks, proposed contracts/schema/tasks và phase acceptance criteria.
+Không chạy exploitation, đọc dữ liệu riêng trên VM, login test, benchmark hoặc migration mới.
+Không đánh dấu kiến trúc đề xuất là triển khai; code/migration cần approval theo master prompt.
+Kiểm tra 60 liên kết tài liệu nội bộ qua; diff chỉ gồm Markdown. CI runtime cũ không được coi là test chức năng Account Center.
+
+---
+
+
 # Kiểm chứng app naming — 2026-10-30
 
 Nhánh platform-app-naming-v1. Thay đổi naming/catalog và npm workspace; không đổi runtime UI/API/DB.

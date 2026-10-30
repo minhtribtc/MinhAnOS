@@ -148,3 +148,9 @@ backup/restore rehearsal và schema compatibility cho các module tương lai. X
 
 Đã chốt 8 tên/App ID và kiểm tra CI; Files host npm workspace là minhanos-files.
 UI label rollout, runtime manifest/alias resolver và Shell variants còn pending. Xem ADR 0003.
+
+
+## Account Center
+
+Phase 0 đã có bốn báo cáo; Phase 1 (contracts/adoption/UUID expansion/tests) chờ phê duyệt theo master prompt.
+Xem [implementation plan](account-center/IMPLEMENTATION_PLAN.md); chưa bật UI, RBAC hoặc provision Linux mới.

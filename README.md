@@ -108,3 +108,6 @@ Test riêng: sh tests/migrations-integration.sh (Docker; tạo DB disposable, kh
 
 Naming: [ADR 0003](docs/adr/0003-app-naming-and-repository-policy.md) defines eight app identities in the existing monorepo.
 Standalone Files frontend: npm run build --workspace=minhanos-files (source remains apps/drive).
+
+
+[Account Center Phase 0](docs/account-center/README.md): repository audit và phương án Identity, đang chờ duyệt trước implementation.

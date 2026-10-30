@@ -70,3 +70,9 @@ This is interface V2. Split View, durable background jobs, Terminal and service 
 - Đổi npm workspace host Files sang minhanos-files; shared package, thư mục, API và deployment giữ nguyên.
 - Chuẩn hóa thuật ngữ Desktop/Shell/Workspace; tách Shell variants khỏi theme/layout.
 - Tên UI File Station/Drive chưa đổi; các app planned chưa được tạo hoặc kích hoạt.
+
+
+## 2026-10-30 — Account Center Phase 0
+
+- Bổ sung repository audit, gap/security analysis, Identity architecture và implementation/acceptance plan.
+- Ghi checkpoint phê duyệt trước code/migration; không thay chức năng hoặc dữ liệu hiện tại.

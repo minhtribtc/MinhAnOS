@@ -141,3 +141,9 @@ Bộ tên đã chốt trong [ADR 0003](adr/0003-app-naming-and-repository-policy
 MinhAnOS Files là tên sản phẩm chuẩn; bản UI hiện tại vẫn hiển thị File Station và MinhAnOS Drive.
 Desktop vẫn chạy ở 8081, Drive/Files độc lập ở 8082. Dữ liệu và các URL/API hiện tại giữ nguyên.
 Các tên Storage Manager, Container Manager, Resource Monitor đang được dành cho ứng dụng tương lai, chưa có chức năng mới.
+
+
+## Account Center — đang thiết kế
+
+Account Center mới đang ở checkpoint kiến trúc, chưa có ứng dụng/URL mới để sử dụng.
+Quản lý users hiện tại vẫn nằm trong Settings như trước. Chưa có disable/reset password/MFA/SSO/provision Linux mới.
