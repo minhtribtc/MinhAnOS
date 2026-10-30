@@ -21,7 +21,8 @@ Nhánh platform-migrations-v1. Kết quả thực tế trên VM và PostgreSQL d
 
 Chưa triển khai identity adoption, nontransactional/backfill/destructive/down runner, app grants, jobs/upload
 bền vững hay event bus. Không kiểm thử recovery volume Files, không chạy race detector Go hoặc kiểm thử UI mới.
-Workflow GitHub thêm DB integration; chưa xác nhận trạng thái remote CI.
+CI GitHub đã qua toàn bộ workflow cho implementation commit `fbc07c4c6f16b5faf1bccff0ba53390856792079`,
+bao gồm DB integration: [run 41003701847](https://github.com/minhtribtc/MinhAnOS/actions/runs/41003701847).
 
 ---
 

@@ -1,3 +1,5 @@
+CI xác nhận implementation commit `fbc07c4` đã qua toàn bộ workflow, gồm DB integration: [run 41003701847](https://github.com/minhtribtc/MinhAnOS/actions/runs/41003701847).
+
 # Bổ sung kiểm tra types và rehearsal
 
 Đã sửa generator lấy tên type từ `$id`: nay xuất đúng AppManifest/AccountProfile/... theo tên public,
