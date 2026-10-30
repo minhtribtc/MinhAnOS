@@ -1,3 +1,13 @@
+## Tài khoản và quyền — Phase 3A
+
+Trong Settings → Người dùng, tạo user thường như trước. Khi chọn Quản trị viên, nhập thêm **mật khẩu hiện tại của bạn** để xác thực trước khi cấp quyền quản trị web. Mật khẩu xác thực được xóa khỏi trạng thái biểu mẫu sau thao tác; không lưu vào hồ sơ. Đây vẫn là trang Settings cũ; ứng dụng Account Center độc lập chưa xuất hiện trong launcher.
+
+System Admin mới không tự có quyền operator host. Các operator cũ được giữ quyền riêng khi nâng cấp; User Admin chỉ quản lý user thường qua API hiện có, chưa có màn hình quản trị riêng. Đổi vai trò/vô hiệu hóa làm hết hiệu lực phiên của tài khoản đích ở cả Desktop và Drive. Không thể vô hiệu hóa/hạ quyền admin đang hoạt động cuối cùng. Hạ vai trò operator sẽ thu hồi quyền host; nâng lại vai trò web không tự khôi phục quyền đó.
+
+Các thao tác nâng cao hiện dùng API có xác thực, không có nút trên Settings. Xóa mềm yêu cầu tài khoản đã disabled, giữ dữ liệu/ownership và hiện chưa có luồng khôi phục qua enable. Không có hard-delete API. API trả IDENTITY_NOT_READY khi dữ liệu lịch sử chưa backfill đủ: operator dùng identity-admin -mode status/backfill theo hướng dẫn Phase 1, từng batch có giới hạn. Đăng nhập thành công chỉ bổ sung UUID còn thiếu của chính user đó.
+
+Role User Admin hiện vẫn có nhãn User trong UI legacy; không coi nhãn đó là kết luận về quyền backend. Quyền host chỉ operator OS-root/DBA quản lý bằng quy trình riêng, chưa có API cấp host từ web. [Báo cáo hiện hành](account-center/PHASE3_REPORT.md).
+
 ## Account security foundation Phase 2
 
 Đăng nhập Desktop/Drive vẫn dùng giao diện hiện hữu. Đăng nhập lại thay token cũ của cùng host. Khi đổi mật khẩu qua service/recovery, tất cả phiên ở cả hai host hết hiệu lực; cần đăng nhập lại. Hiện chưa có nút đổi mật khẩu/Account Center mới, API Identity v1 chưa bật.

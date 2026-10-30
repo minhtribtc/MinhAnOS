@@ -24,3 +24,8 @@ type IdentityTypes=[IdentityUser,IdentityRole,IdentitySession]
 void unsupportedStatus
 
 void identityClient.identityListUsers()
+
+void identityClient.identityReauthenticate({body:{password:'not-a-real-secret'}})
+void identityClient.identitySetUserRole({userId:'id',ifMatch:'"1"',idempotencyKey:'typed-example',body:{role:'user-admin'}})
+// @ts-expect-error Host operator is deliberately not a web role.
+void identityClient.identitySetUserRole({userId:'id',ifMatch:'"1"',idempotencyKey:'typed-example',body:{role:'host-root'}})

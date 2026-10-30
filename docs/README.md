@@ -1,3 +1,5 @@
+[Phase 3A implementation report](account-center/PHASE3_REPORT.md) · [ADR 0005 — policy and host operators](adr/0005-identity-policy-and-host-operators.md). Active v1 subset and remaining Phase 3 work.
+
 [Phase 2 report](account-center/PHASE2_REPORT.md) · [ADR 0004 — AuthCore/local recovery](adr/0004-shared-auth-core-and-recovery.md) — current auth implementation and operator decisions.
 
 [Account Center Phase 1 report](account-center/PHASE1_REPORT.md) — implementation, migration, security review, tests và hướng tiếp tục.

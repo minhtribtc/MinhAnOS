@@ -7,7 +7,7 @@ export async function generateIdentityClient(){
  for(const [path,item] of Object.entries(api.paths)){
   if(!path.startsWith('/api/v1/identity/'))continue
   for(const [method,op] of Object.entries(item)){
-   if(!['get','post','patch','delete'].includes(method))continue
+   if(!['get','post','put','patch','delete'].includes(method))continue
    const params=[...(item.parameters||[]),...(op.parameters||[])],fields=[],code=[]
    let url=JSON.stringify(path.slice('/api/v1/identity'.length))
    for(const param of params.filter(p=>p.in==='path')){fields.push(`${param.name}:string`);code.push(`path=path.replace(${JSON.stringify('{'+param.name+'}')},encodeURIComponent(args.${param.name}));`)}

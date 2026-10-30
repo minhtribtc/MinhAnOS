@@ -415,3 +415,11 @@ export interface IdentityApplicationPage {
   }[];
   nextCursor: string | null;
 }
+
+export interface IdentityReauthenticate {
+  password: string;
+}
+
+export interface IdentitySetRole {
+  role: "system-admin" | "user-admin" | "standard-user";
+}

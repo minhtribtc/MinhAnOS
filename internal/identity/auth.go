@@ -191,6 +191,11 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 	}
 	raw := authn.Token()
 	s.CSRF = authn.Token()
+	// Lazy, single-row expansion after verified login; never rekeys storage or
+	// runs an unbounded startup backfill. Assigned public references stay immutable.
+	if _, e = tx.Exec(ctx, "UPDATE users SET public_id=coalesce(public_id,gen_random_uuid()),password_credential_id=coalesce(password_credential_id,gen_random_uuid()) WHERE id=$1 AND (public_id IS NULL OR password_credential_id IS NULL)", s.Principal.StorageID); e != nil {
+		return AuthSession{}, "", e
+	}
 	if validToken(oldToken) {
 		if _, e = tx.Exec(ctx, "DELETE FROM "+t+" WHERE token_hash=$1", authn.Digest(oldToken)); e != nil {
 			return AuthSession{}, "", e
@@ -219,6 +224,68 @@ func (a *AuthCore) Logout(ctx context.Context, realm Realm, token string) error 
 	}
 	_, e = a.db.Exec(ctx, "DELETE FROM "+t+" WHERE token_hash=$1", authn.Digest(token))
 	return e
+}
+
+// Reauthenticate grants only a short-lived, epoch-bound server-side freshness
+// marker on the verified session. It never accepts a frontend subject/app claim.
+func (a *AuthCore) Reauthenticate(ctx context.Context, realm Realm, token, password string) error {
+	if len(password) > 256 {
+		return ErrUnauthorized
+	}
+	release, e := a.acquire()
+	if e != nil {
+		return e
+	}
+	defer release()
+	session, e := a.Authenticate(ctx, realm, token)
+	if e != nil {
+		return e
+	}
+	if e = a.attempt(ctx, session.Principal.Username); e != nil {
+		return e
+	}
+	var hash string
+	if e = a.db.QueryRow(ctx, "SELECT password_hash FROM users WHERE id=$1", session.Principal.StorageID).Scan(&hash); e != nil {
+		return noRows(e)
+	}
+	if !authn.Verify(password, hash) {
+		return ErrUnauthorized
+	}
+	tx, e := a.db.Begin(ctx)
+	if e != nil {
+		return e
+	}
+	defer tx.Rollback(ctx)
+	id, e := lockSession(ctx, tx, realm, token)
+	if e != nil {
+		return e
+	}
+	var fresh string
+	if e = tx.QueryRow(ctx, "SELECT password_hash FROM users WHERE id=$1", id).Scan(&fresh); e != nil {
+		return e
+	}
+	if fresh != hash {
+		return ErrUnauthorized
+	}
+	t, _ := table(realm)
+	if _, e = tx.Exec(ctx, "UPDATE "+t+" SET reauth_until=now()+interval '5 minutes' WHERE token_hash=$1", authn.Digest(token)); e != nil {
+		return e
+	}
+	return tx.Commit(ctx)
+}
+
+// PasswordHash bounds KDF work for shared user creation. Callers still enforce
+// their business permission inside the committing transaction.
+func (a *AuthCore) PasswordHash(password string) (string, error) {
+	if len(password) < 12 || len(password) > 256 {
+		return "", ErrPasswordPolicy
+	}
+	release, e := a.acquire()
+	if e != nil {
+		return "", e
+	}
+	defer release()
+	return authn.Hash(password)
 }
 
 // lockSession acquires users before session rows in all mutations. The input

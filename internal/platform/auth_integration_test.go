@@ -117,6 +117,45 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 	if w := call(driveHandler, "/api/session", "GET", oldFC, "", "", ""); w.Code != 401 {
 		t.Fatal("drive fixation", w.Code)
 	}
+	// Legacy admin creation must not bypass freshness or inherit host privilege.
+	createBody := `{"username":"web_admin","displayName":"Web Admin","password":"adapter-test-password-123","role":"admin"}`
+	if w := call(desktop, "/api/admin/users", "POST", dc, csrf, "http://example.com", createBody); w.Code != 403 {
+		t.Fatal("legacy admin create bypassed reauth", w.Code)
+	}
+	if w := call(desktop, "/api/v1/identity/reauthenticate", "POST", dc, csrf, "http://example.com", `{"password":"adapter-test-password-123"}`); w.Code != 200 {
+		t.Fatal("reauth endpoint", w.Code, w.Body.String())
+	}
+	w := call(desktop, "/api/admin/users", "POST", dc, csrf, "http://example.com", createBody)
+	if w.Code != 201 {
+		t.Fatal("legacy create compatibility", w.Code, w.Body.String())
+	}
+	var webAdmin User
+	if e = json.Unmarshal(w.Body.Bytes(), &webAdmin); e != nil {
+		t.Fatal(e)
+	}
+	if allowed, e := app.identityService.CanAccessHost(ctx, webAdmin.ID); e != nil || allowed {
+		t.Fatal("web admin received host privilege", e)
+	}
+	// Reinitialization must not treat a later web admin as a pre-upgrade operator.
+	again, e := drive.NewSQLIdentity(ctx, db, file)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if allowed, e := again.CanAccessHost(ctx, drive.User{ID: webAdmin.ID, Role: "admin"}); e != nil || allowed {
+		t.Fatal("startup promoted operator", e)
+	}
+	if _, e = db.Exec(ctx, "UPDATE identity_app_grants SET state='revoked' WHERE permission_key='identity.users.read'"); e != nil {
+		t.Fatal(e)
+	}
+	if w := call(desktop, "/api/admin/users", "GET", dc, "", "", ""); w.Code != 403 {
+		t.Fatal("legacy read bypassed revoked grant", w.Code)
+	}
+	if w := call(desktop, "/api/v1/identity/users", "GET", dc, "", "", ""); w.Code != 403 {
+		t.Fatal("v1 read bypassed revoked grant", w.Code)
+	}
+	if _, e = db.Exec(ctx, "UPDATE identity_app_grants SET state='enabled' WHERE permission_key='identity.users.read'"); e != nil {
+		t.Fatal(e)
+	}
 	raw := strings.SplitN(dc, "=", 2)[1]
 	if e = app.authCore.ChangePassword(ctx, identityschema.DesktopRealm, raw, pass, "replacement-password-123"); e != nil {
 		t.Fatal(e)

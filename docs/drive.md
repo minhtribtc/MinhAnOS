@@ -1,3 +1,5 @@
+Phase 3A: system registry/file routes require an explicit enabled host-operator entry AND active System Admin. Later web admins gain no host access automatically. Both cookie realms share this check; an adapter without host policy denies. Existing operator root-agent scope remains broad. Drive independently hosts the same supported Identity v1 slice. [ADR 0005](adr/0005-identity-policy-and-host-operators.md).
+
 # MinhAnOS Drive 0.1 / File Station
 
 Drive is an independently runnable application, not a desktop component or iframe.

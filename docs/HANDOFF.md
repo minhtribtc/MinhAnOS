@@ -1,3 +1,12 @@
+Delivery note: user requested stopping repeated interactive tests. Existing checks already passed; fresh-test resources cleaned and Desktop restarted. Continue with focused verification only when new work needs it.
+
+# Handoff — Phase 3A policy/users slice (current)
+
+Branch account-center-phase3. Read [report](account-center/PHASE3_REPORT.md), [ADR 0005](adr/0005-identity-policy-and-host-operators.md) and contracts/identity/status.v1.json. Phase 3A is implemented, NOT the entire Phase 3 roadmap. Fourteen v1 operations are active in both hosts; advanced routes stay planned. Account Center UI is not enabled.
+Shared identity.Service enforces app grant + actor/target ceilings, freshness, last-active-admin lock, versions, signed cursor and replay reauthorization. users.role remains the canonical System Admin flag; user-admin delegation is bounded. No group/custom-role path may introduce another System Admin authority. Legacy admin user routes use the same grant policy.
+VM has identity 001–005 + profile 001; all applied SQL immutable. Pre-phase3 DB/source backups are private and restored in isolation. New web admins do not gain host access; existing operator snapshot is one-time, demotion revokes it. Broad root agent/ACL/commit-time transfer checks remain future work.
+Settings admin-create requests current password with new vi/en labels. v1 blocks on incomplete UUID backfill; login assigns only the verified row's missing references. Next Phase 3B completes role/group/app policy and remaining session/password adapters before Phase 4 UI. Use report for actual tests and limitations; historical handoffs below are superseded.
+
 # Handoff — Account Center Phase 2 (current)
 
 Branch account-center-phase2. User authorized choosing suitable options and documenting decisions. Read [Phase 2 report](account-center/PHASE2_REPORT.md) and [ADR 0004](adr/0004-shared-auth-core-and-recovery.md). These supersede historical status below.

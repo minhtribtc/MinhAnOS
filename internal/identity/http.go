@@ -1,0 +1,224 @@
+package identity
+
+import (
+	"context"
+	"crypto/subtle"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
+
+	"minhanos.local/platform/internal/authn"
+)
+
+// HTTPHandler serves the implemented v1 slice in either host; it never imports
+// a Shell, trusts identity headers or enables the still-planned registry routes.
+func (s *Service) HTTPHandler(realm Realm) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestID := authn.Token()
+		w.Header().Set("X-Request-ID", requestID)
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+		defer cancel()
+		r = r.WithContext(ctx)
+		cookieName := "minhanos_session"
+		if realm == DriveRealm {
+			cookieName = "minhanos_drive_session"
+		}
+		token := ""
+		if c, e := r.Cookie(cookieName); e == nil {
+			token = c.Value
+		}
+		session, e := s.Auth.Authenticate(ctx, realm, token)
+		fail := func(err error) {
+			status, code := 500, "INTERNAL_ERROR"
+			var f *Fault
+			switch {
+			case errors.As(err, &f):
+				status, code = f.Status, f.Code
+			case errors.Is(err, ErrUnauthorized):
+				status, code = 401, "AUTH_REQUIRED"
+			case errors.Is(err, ErrThrottled):
+				status, code = 429, "AUTH_RATE_LIMITED"
+			case errors.Is(err, ErrBusy):
+				status, code = 503, "AUTH_BUSY"
+			case errors.Is(err, ErrNotReady):
+				status, code = 503, "IDENTITY_NOT_READY"
+			case errors.Is(err, ErrPasswordPolicy):
+				status, code = 422, "IDENTITY_PASSWORD_POLICY"
+			}
+			if status == 403 {
+				s.RecordDenied(ctx, session.Principal.StorageID, requestID, r.Method+" "+r.URL.Path, code)
+			}
+			w.WriteHeader(status)
+			json.NewEncoder(w).Encode(map[string]any{"error": map[string]any{"code": code, "message": code, "requestId": requestID, "details": map[string]any{}}})
+		}
+		if e != nil {
+			fail(e)
+			return
+		}
+		if e = s.Ready(ctx); e != nil {
+			fail(e)
+			return
+		}
+		write := r.Method != "GET" && r.Method != "HEAD"
+		if write {
+			origin := r.Header.Get("Origin")
+			ok := r.Header.Get("Sec-Fetch-Site") != "cross-site"
+			if origin != "" {
+				u, e := url.Parse(origin)
+				scheme := "http"
+				if r.TLS != nil {
+					scheme = "https"
+				}
+				ok = ok && e == nil && u.Scheme == scheme && u.User == nil && u.Path == "" && u.RawQuery == "" && u.Fragment == "" && strings.EqualFold(u.Host, r.Host)
+			}
+			if !ok {
+				fail(fault(403, "IDENTITY_ORIGIN_DENIED"))
+				return
+			}
+			if session.CSRF == "" || subtle.ConstantTimeCompare([]byte(session.CSRF), []byte(r.Header.Get("X-CSRF-Token"))) != 1 {
+				fail(fault(403, "IDENTITY_CSRF_DENIED"))
+				return
+			}
+		}
+		path := strings.TrimPrefix(r.URL.Path, "/api/v1/identity/")
+		parts := strings.Split(path, "/")
+		var out Result
+		if r.Method == "GET" {
+			kind, target := path, ""
+			if len(parts) == 2 && parts[0] == "users" {
+				kind, target = "user", parts[1]
+			}
+			limit := 50
+			if v := r.URL.Query().Get("limit"); v != "" {
+				limit, e = strconv.Atoi(v)
+				if e != nil {
+					fail(fault(400, "INVALID_REQUEST"))
+					return
+				}
+			}
+			for key := range r.URL.Query() {
+				if key != "limit" && key != "search" && key != "cursor" {
+					fail(fault(400, "INVALID_REQUEST"))
+					return
+				}
+			}
+			out, e = s.Read(ctx, realm, token, kind, target, r.URL.Query().Get("search"), r.URL.Query().Get("cursor"), limit)
+		} else {
+			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 32768))
+			if err != nil {
+				fail(fault(413, "PAYLOAD_TOO_LARGE"))
+				return
+			}
+			if len(raw) > 0 && strings.TrimSpace(strings.ToLower(strings.Split(r.Header.Get("Content-Type"), ";")[0])) != "application/json" {
+				fail(fault(415, "UNSUPPORTED_MEDIA_TYPE"))
+				return
+			}
+			decode := func(v any) error {
+				d := json.NewDecoder(strings.NewReader(string(raw)))
+				d.DisallowUnknownFields()
+				if e := d.Decode(v); e != nil {
+					return fault(400, "INVALID_REQUEST")
+				}
+				if d.Decode(&struct{}{}) != io.EOF {
+					return fault(400, "INVALID_REQUEST")
+				}
+				return nil
+			}
+			key := r.Header.Get("Idempotency-Key")
+			match := r.Header.Get("If-Match")
+			switch {
+			case path == "reauthenticate" && r.Method == "POST":
+				var b struct {
+					Password string `json:"password"`
+				}
+				if e = decode(&b); e == nil {
+					e = s.Auth.Reauthenticate(ctx, realm, token, b.Password)
+					if errors.Is(e, ErrUnauthorized) {
+						e = fault(401, "INVALID_CREDENTIALS")
+					}
+					out = result(map[string]bool{"accepted": true}, 200, 0)
+				}
+			case path == "users" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var b CreateUser
+				if e = decode(&b); e == nil {
+					out, e = s.Create(ctx, realm, token, b, "user", key, requestID, raw, false)
+				}
+			case len(parts) == 2 && parts[0] == "users" && r.Method == "PATCH" || path == "me" && r.Method == "PATCH":
+				var b struct {
+					DisplayName *string `json:"displayName"`
+				}
+				if e = decode(&b); e != nil {
+					break
+				}
+				if b.DisplayName == nil {
+					e = fault(400, "INVALID_REQUEST")
+					break
+				}
+				target := parts[len(parts)-1]
+				operation := "patch"
+				if path == "me" {
+					u, err := (Repository{s.db}).PublicUser(ctx, session.Principal.StorageID)
+					if err != nil {
+						e = err
+						break
+					}
+					target = u.ID
+					operation = "self"
+				}
+				out, e = s.ChangeUser(ctx, realm, token, target, operation, *b.DisplayName, match, "", requestID, raw)
+			case len(parts) == 3 && parts[0] == "users" && (parts[2] == "disable" || parts[2] == "enable") && r.Method == "POST" || len(parts) == 2 && parts[0] == "users" && r.Method == "DELETE":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				if len(strings.TrimSpace(string(raw))) > 0 && string(raw) != "{}" {
+					e = fault(400, "INVALID_REQUEST")
+					break
+				}
+				operation := "delete"
+				if len(parts) == 3 {
+					operation = parts[2]
+				}
+				out, e = s.ChangeUser(ctx, realm, token, parts[1], operation, "", match, key, requestID, raw)
+			case len(parts) == 3 && parts[0] == "users" && parts[2] == "role" && r.Method == "PUT":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var b struct {
+					Role string `json:"role"`
+				}
+				if e = decode(&b); e != nil {
+					break
+				}
+				if b.Role != "system-admin" && b.Role != "user-admin" && b.Role != "standard-user" {
+					e = fault(422, "IDENTITY_INVALID_ROLE")
+					break
+				}
+				out, e = s.ChangeUser(ctx, realm, token, parts[1], b.Role, "", match, key, requestID, raw)
+			default:
+				e = fault(404, "IDENTITY_NOT_FOUND")
+			}
+		}
+		if e != nil {
+			fail(e)
+			return
+		}
+		if out.ETag != "" {
+			w.Header().Set("ETag", out.ETag)
+		}
+		w.WriteHeader(out.Status)
+		w.Write(out.Body)
+	})
+}

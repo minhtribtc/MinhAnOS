@@ -1,3 +1,10 @@
+## Identity Phase 3A — active subset
+
+Implemented at /api/v1/identity in both Desktop and standalone Drive: me GET/PATCH; reauthenticate POST; users GET/POST; users/{uuid} GET/PATCH/DELETE; disable/enable POST; role PUT; roles/permissions/audit-events GET. See contracts/identity/status.v1.json for exact operation IDs; remaining OpenAPI operations stay planned.
+Use verified host cookie + session CSRF, application/json and same Origin. Admin writes require reauthenticate with current password within five minutes. ETag/If-Match is quoted decimal version (e.g. "1"); 428 missing, 412 stale. Required Idempotency-Key is 8–128 chars; replay is actor/route/body/precondition bound and reauthorized. Errors are nested with server requestId; /api legacy keeps its envelope.
+Pages use limit 1–100 and opaque signed cursors (15-minute TTL, actor/epoch/collection/search bound), stable ID/key ordering. Users search matches normalized username substrings. Audit ordering is stable ID, not chronological yet. New user creation requires 12 Unicode characters and a 256 UTF-8-byte maximum; additional semantic validation can reject schema-valid input. Legacy/Phase 2 credential policy remains separately documented.
+GET me/user, create/update/role/status responses return User DTO + ETag. Role input is system-admin/user-admin/standard-user, never host-root. Soft-delete requires disabled state, retains data and cannot be enabled. 409 LAST_ADMIN_REQUIRED preserves an active System Admin. 503 IDENTITY_NOT_READY blocks v1 while historical UUID/reference backfill is incomplete. [ADR 0005](adr/0005-identity-policy-and-host-operators.md).
+
 ## AuthCore Phase 2 runtime
 
 /api/login, /api/session, /api/logout của Desktop/Drive và gateway dùng shared AuthCore; cùng response/cookie legacy. Trạng thái active và auth_epoch được kiểm tại backend. Thêm login codes AUTH_RATE_LIMITED (429) và AUTH_BUSY (503). Identity /api/v1 routes vẫn chỉ là spec; password/session/recovery mutations hiện là internal primitives/OS-root CLI, chưa là HTTP endpoints. Xem [ADR 0004](adr/0004-shared-auth-core-and-recovery.md).

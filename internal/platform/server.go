@@ -55,13 +55,14 @@ INSERT INTO schema_version(version) VALUES(1) ON CONFLICT DO NOTHING;
 `
 
 type App struct {
-	db           *pgxpool.Pool
-	started      time.Time
-	secureCookie bool
-	limiterMu    sync.Mutex
-	attempts     map[string]attempt
-	profile      *coreprofile.Store
-	authCore     *identityschema.AuthCore
+	db              *pgxpool.Pool
+	started         time.Time
+	secureCookie    bool
+	limiterMu       sync.Mutex
+	attempts        map[string]attempt
+	profile         *coreprofile.Store
+	authCore        *identityschema.AuthCore
+	identityService *identityschema.Service
 }
 type attempt struct {
 	Count int
@@ -166,6 +167,10 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+	a.identityService, err = identityschema.NewService(ctx, db, a.authCore)
+	if err != nil {
+		return nil, err
+	}
 	a.profile, err = coreprofile.New(ctx, db)
 	if err != nil {
 		return nil, err
@@ -175,6 +180,9 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 
 func (a *App) Handler() http.Handler {
 	mux := http.NewServeMux()
+	if a.identityService != nil {
+		mux.Handle("/api/v1/identity/", a.identityService.HTTPHandler(identityschema.DesktopRealm))
+	}
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 		defer cancel()
@@ -228,7 +236,7 @@ func (a *App) Handler() http.Handler {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		if r.Method != "GET" && r.Method != "HEAD" {
+		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/identity/") {
 			if !sameOrigin(r) {
 				writeError(w, 403, "Nguồn yêu cầu không hợp lệ.")
 				return
@@ -282,6 +290,22 @@ func (a *App) admin(next http.Handler) http.Handler {
 		if identity(r).User.Role != "admin" {
 			writeError(w, 403, "Bạn không có quyền quản trị tài khoản.")
 			return
+		}
+		if a.identityService != nil {
+			cookie, _ := r.Cookie("minhanos_session")
+			permission := "identity.users.read"
+			if r.Method != "GET" {
+				permission = "identity.users.write"
+			}
+			if err := a.identityService.Check(r.Context(), identityschema.DesktopRealm, cookie.Value, permission); err != nil {
+				var f *identityschema.Fault
+				if errors.As(err, &f) {
+					writeError(w, f.Status, "Không được phép quản trị tài khoản.", f.Code)
+				} else {
+					internalError(w, err)
+				}
+				return
+			}
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -496,7 +520,7 @@ func (a *App) auditList(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, result)
 }
 func (a *App) users(w http.ResponseWriter, r *http.Request) {
-	rows, err := a.db.Query(r.Context(), "SELECT id,username,display_name,role FROM users ORDER BY created_at")
+	rows, err := a.db.Query(r.Context(), "SELECT id,username,display_name,role FROM users WHERE status<>'deleted' ORDER BY created_at")
 	if err != nil {
 		internalError(w, err)
 		return
@@ -536,38 +560,24 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 400, "Tên đăng nhập gồm 3–32 ký tự a-z, số, _ hoặc -. Mật khẩu cần ít nhất 12 ký tự.")
 		return
 	}
-	hash, err := hashPassword(b.Password)
+	cookie, _ := r.Cookie("minhanos_session")
+	out, err := a.identityService.Create(r.Context(), identityschema.DesktopRealm, cookie.Value, identityschema.CreateUser{Username: b.Username, DisplayName: b.DisplayName, Password: b.Password}, b.Role, "", token(), nil, true)
 	if err != nil {
-		internalError(w, err)
+		var f *identityschema.Fault
+		if errors.As(err, &f) {
+			writeError(w, f.Status, "Không thể tạo tài khoản.", f.Code)
+		} else if errors.Is(err, identityschema.ErrBusy) {
+			writeError(w, 503, "Dịch vụ đăng nhập đang bận.", "AUTH_BUSY")
+		} else {
+			internalError(w, err)
+		}
 		return
 	}
-	u := User{ID: token(), Username: b.Username, DisplayName: b.DisplayName, Role: b.Role}
-	tx, err := a.db.Begin(r.Context())
-	if err != nil {
-		internalError(w, err)
-		return
-	}
-	defer tx.Rollback(r.Context())
-	tag, err := tx.Exec(r.Context(), "INSERT INTO users(id,username,display_name,role,password_hash) VALUES($1,$2,$3,$4,$5) ON CONFLICT(username) DO NOTHING", u.ID, u.Username, u.DisplayName, u.Role, hash)
-	if err != nil {
-		internalError(w, err)
-		return
-	}
-	if tag.RowsAffected() == 0 {
-		writeError(w, 409, "Tên đăng nhập đã tồn tại.")
-		return
-	}
-	i := identity(r)
-	_, err = tx.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'user.create',$3)", i.User.ID, i.User.Username, "Tạo tài khoản "+u.Username+" ("+u.Role+")")
-	if err == nil {
-		err = tx.Commit(r.Context())
-	}
-	if err != nil {
-		internalError(w, err)
-		return
-	}
-	writeJSON(w, 201, u)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(out.Status)
+	w.Write(out.Body)
 }
+
 func hashPassword(password string) (string, error) { return authn.Hash(password) }
 func verifyPassword(password, hash string) bool    { return authn.Verify(password, hash) }
 func token() string                                { return authn.Token() }

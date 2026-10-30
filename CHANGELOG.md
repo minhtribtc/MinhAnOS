@@ -1,3 +1,9 @@
+## Account Center Phase 3A — 2026-10-30
+
+- Bật 14 Identity v1 operations cho Users/My Account/roles-permissions read/audit và reauthentication; thêm version/cursor/replay guards.
+- Bảo vệ admin cuối cùng, giới hạn User Admin và tách host operator khỏi quyền System Admin mới.
+- Settings tạo admin có xác thực lại vi/en. Các API group/custom-role/app policy, session/password v1 đầy đủ và Account Center UI vẫn pending. Xem docs/account-center/PHASE3_REPORT.md.
+
 ## Account Center Phase 2 — 2026-10-30
 
 - Dùng chung AuthCore cho Desktop/Drive; kiểm trạng thái/epoch, xoay cookie khi login và giới hạn đăng nhập có chặn quá tải.

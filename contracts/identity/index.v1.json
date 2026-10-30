@@ -112,6 +112,14 @@
     {
       "file": "application-page.v1.schema.json",
       "type": "IdentityApplicationPage"
+    },
+    {
+      "file": "reauthenticate.v1.schema.json",
+      "type": "IdentityReauthenticate"
+    },
+    {
+      "file": "set-role.v1.schema.json",
+      "type": "IdentitySetRole"
     }
   ]
 }

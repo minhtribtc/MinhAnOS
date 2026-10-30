@@ -1,3 +1,7 @@
+## Phase 3A — 2026-10-30
+
+Go/unit/vet, PostgreSQL concurrency/policy/auth regression, HTTP adapters, contract/type/client generation, OpenAPI compatibility, restored pre-upgrade DB và VM smoke (Identity v1/legacy/profile/Files/agent): PASS. Browser thật kiểm tra trường current-password khi chọn admin và bố cục; không submit quyền qua browser. Replay byte-order test ban đầu fail do jsonb, đã canonicalize và rerun PASS. Một IdentityLink lint warning còn nguyên. [Report](account-center/PHASE3_REPORT.md) ghi phạm vi, migration và các kiểm tra cài mới độc lập.
+
 ## Account Center Phase 2 — 2026-10-30
 
 Shared AuthCore Go/unit/vet, dedicated PostgreSQL concurrency/ownership/recovery/throttle tests, actual HTTP adapter CSRF/Origin/rotation tests, restored pre-upgrade DB, Docker builds, npm check, existing-cookie upgrade, runtime profile/API/Files/agent smoke, standalone recovery CLI/replay/nonroot và Drive khi Desktop dừng: PASS. CI script đã thêm package platform cho DB-backed HTTP test. Một reserved IdentityLink lint warning còn nguyên. Read-only docker cp test bị từ chối, chuyển root stdin vào /tmp tmpfs; không nới rootfs. [Báo cáo Phase 2](account-center/PHASE2_REPORT.md) chứa inventory, security review, migration, benchmark nhỏ và giới hạn.

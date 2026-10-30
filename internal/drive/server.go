@@ -73,6 +73,9 @@ func (s *Server) setCookie(w http.ResponseWriter, value string, age int) {
 }
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	if adapter, ok := s.Identity.(interface{ IdentityHandler() http.Handler }); ok {
+		mux.Handle("/api/v1/identity/", adapter.IdentityHandler())
+	}
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		jsonResponse(w, 200, map[string]any{"app": "MinhAnOS Drive", "version": "0.1.0", "independent": true})
 	})
@@ -170,7 +173,10 @@ func (s *Server) Handler() http.Handler {
 		}
 		if r.URL.Path == "/api/roots" && r.Method == "GET" {
 			roots := []map[string]string{{"id": "personal", "name": "Tệp của tôi"}}
-			if session.User.Role == "admin" && s.AgentSocket != "" {
+			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {
+				fail(w, 503, "Không thể kiểm tra quyền host.")
+				return
+			} else if allowed && s.AgentSocket != "" {
 				roots = append(roots, map[string]string{"id": "system", "name": "Hệ thống Debian"})
 			}
 			jsonResponse(w, 200, map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText})
@@ -186,9 +192,16 @@ func (s *Server) Handler() http.Handler {
 		}
 		mutation := r.Method != "GET" && r.Method != "HEAD"
 		target := root + ":" + r.URL.Query().Get("path")
-		if root == "system" && session.User.Role != "admin" {
-			fail(w, 403, "Chỉ admin được quản trị tệp hệ thống.")
-			return
+		if root == "system" {
+			allowed, e := s.hostAllowed(r.Context(), session.User)
+			if e != nil {
+				fail(w, 503, "Không thể kiểm tra quyền host.")
+				return
+			}
+			if !allowed {
+				fail(w, 403, "Tài khoản chưa được cấp quyền operator host.", "HOST_OPERATOR_REQUIRED")
+				return
+			}
 		}
 		if root != "personal" && root != "system" {
 			fail(w, 400, "Không gian lưu trữ không hợp lệ.")
@@ -251,7 +264,7 @@ func (s *Server) Handler() http.Handler {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		if r.Method != "GET" && r.Method != "HEAD" {
+		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/identity/") {
 			if !sameOrigin(r) {
 				fail(w, 403, "Nguồn yêu cầu không hợp lệ.")
 				return
@@ -409,4 +422,15 @@ func AgentHandler(root *os.Root) http.Handler {
 		}
 		log.Printf("host.files actor=%q method=%s operation=%q path=%q success=%t", r.Header.Get("X-Drive-Actor"), r.Method, r.URL.Path, r.URL.Query().Get("path"), err == nil)
 	})
+}
+
+// An IdentityStore without an explicit host-policy adapter must fail closed.
+func (s *Server) hostAllowed(ctx context.Context, u User) (bool, error) {
+	adapter, ok := s.Identity.(interface {
+		CanAccessHost(context.Context, User) (bool, error)
+	})
+	if !ok {
+		return false, nil
+	}
+	return adapter.CanAccessHost(ctx, u)
 }

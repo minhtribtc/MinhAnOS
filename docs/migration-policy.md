@@ -1,6 +1,6 @@
 # Chính sách migration theo module
 
-Trạng thái: runner transactional đã triển khai cho profile; identity và các module khác còn dùng bootstrap cũ.
+Trạng thái: runner transactional đã triển khai cho profile và Identity (001–005). Legacy bootstrap commits trước runner; các module khác chưa được adopt.
 Xem [ADR 0002](adr/0002-transactional-migration-runner.md) cho phạm vi hiện tại.
 
 Mỗi module sở hữu migration bất biến, có ID tăng dần, checksum, phiên bản yêu cầu và dependency constraints.

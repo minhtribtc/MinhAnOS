@@ -18,7 +18,18 @@
     "common.errors.RESOURCE_LIMIT": "Tài nguyên vượt giới hạn cho phép.",
     "common.errors.STORAGE_FULL": "Không đủ dung lượng lưu trữ.",
     "common.errors.AUTH_RATE_LIMITED": "Đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 10 phút.",
-    "common.errors.AUTH_BUSY": "Dịch vụ đăng nhập đang bận. Vui lòng thử lại sau."
+    "common.errors.AUTH_BUSY": "Dịch vụ đăng nhập đang bận. Vui lòng thử lại sau.",
+    "common.errors.REAUTH_REQUIRED": "Vui lòng xác thực lại mật khẩu trước thao tác này.",
+    "common.errors.LAST_ADMIN_REQUIRED": "Phải giữ ít nhất một quản trị viên đang hoạt động.",
+    "common.errors.HOST_OPERATOR_REQUIRED": "Tài khoản chưa được cấp quyền operator host.",
+    "common.errors.IDENTITY_PERMISSION_DENIED": "Bạn không có quyền quản trị tài khoản này.",
+    "common.errors.IDENTITY_PROTECTED_USER": "Không được thay đổi tài khoản đặc quyền trong phạm vi này.",
+    "common.errors.APP_PERMISSION_DENIED": "Ứng dụng chưa được cấp quyền cho thao tác này.",
+    "common.errors.APP_ACCESS_DENIED": "Bạn chưa được phép truy cập ứng dụng này.",
+    "common.errors.VERSION_CONFLICT": "Dữ liệu đã thay đổi. Vui lòng tải lại trước khi sửa.",
+    "common.errors.PRECONDITION_REQUIRED": "Cần phiên bản hiện tại của dữ liệu trước khi sửa.",
+    "common.auth.currentPassword": "Mật khẩu hiện tại của bạn",
+    "common.auth.adminReauthHint": "Xác thực lại để cấp quyền quản trị web. Quyền operator host được cấp riêng."
   },
   "en-US": {
     "common.errors.INVALID_REQUEST": "Invalid request.",
@@ -39,6 +50,17 @@
     "common.errors.RESOURCE_LIMIT": "The resource exceeds the supported limit.",
     "common.errors.STORAGE_FULL": "Not enough storage space.",
     "common.errors.AUTH_RATE_LIMITED": "Too many sign-in attempts. Please try again in 10 minutes.",
-    "common.errors.AUTH_BUSY": "The sign-in service is busy. Please try again shortly."
+    "common.errors.AUTH_BUSY": "The sign-in service is busy. Please try again shortly.",
+    "common.errors.REAUTH_REQUIRED": "Please verify your password again before this action.",
+    "common.errors.LAST_ADMIN_REQUIRED": "At least one active System Admin must remain.",
+    "common.errors.HOST_OPERATOR_REQUIRED": "This account has no host operator entitlement.",
+    "common.errors.IDENTITY_PERMISSION_DENIED": "You do not have permission to manage this account.",
+    "common.errors.IDENTITY_PROTECTED_USER": "This scope cannot modify a privileged account.",
+    "common.errors.APP_PERMISSION_DENIED": "The application has no grant for this action.",
+    "common.errors.APP_ACCESS_DENIED": "You do not have access to this application.",
+    "common.errors.VERSION_CONFLICT": "The data changed. Reload before editing.",
+    "common.errors.PRECONDITION_REQUIRED": "The current data version is required before editing.",
+    "common.auth.currentPassword": "Your current password",
+    "common.auth.adminReauthHint": "Verify again to grant web administration. Host operator access is granted separately."
   }
 }

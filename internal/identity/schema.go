@@ -21,8 +21,11 @@ var relationsSQL string
 //go:embed migrations/004_auth_core.sql
 var authCoreSQL string
 
+//go:embed migrations/005_policy.sql
+var policySQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}}}
+	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}, {ID: 5, Name: "identity_policy", SQL: policySQL}}}
 }
 
 // ApplySchema must be called after the legacy bootstrap transaction commits.

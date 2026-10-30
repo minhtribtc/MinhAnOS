@@ -219,3 +219,7 @@ func TestReadJSONContract(t *testing.T) {
 		t.Fatal(w.Body.String(), err)
 	}
 }
+
+func (f fakeIdentity) CanAccessHost(_ context.Context, u User) (bool, error) {
+	return f.role == "admin" && u.Role == "admin", nil
+}

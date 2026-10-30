@@ -37,8 +37,9 @@ type IdentityStore interface {
 var ErrUnauthorized = identity.ErrUnauthorized
 
 type SQLIdentity struct {
-	db   *pgxpool.Pool
-	core *identity.AuthCore
+	db     *pgxpool.Pool
+	core   *identity.AuthCore
+	policy *identity.Service
 }
 
 func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*SQLIdentity, error) {
@@ -92,7 +93,11 @@ func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*S
 	if err != nil {
 		return nil, err
 	}
-	return &SQLIdentity{db: db, core: core}, nil
+	policy, err := identity.NewService(ctx, db, core)
+	if err != nil {
+		return nil, err
+	}
+	return &SQLIdentity{db: db, core: core, policy: policy}, nil
 }
 func driveSession(v identity.AuthSession) Session {
 	return Session{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF}
@@ -156,4 +161,11 @@ func (l *loginLimiter) allow(ip string) bool {
 }
 func validCSRF(r *http.Request, s Session) bool {
 	return s.CSRF != "" && subtle.ConstantTimeCompare([]byte(r.Header.Get("X-CSRF-Token")), []byte(s.CSRF)) == 1
+}
+
+func (s *SQLIdentity) CanAccessHost(ctx context.Context, u User) (bool, error) {
+	return s.policy.CanAccessHost(ctx, u.ID)
+}
+func (s *SQLIdentity) IdentityHandler() http.Handler {
+	return s.policy.HTTPHandler(identity.DriveRealm)
 }

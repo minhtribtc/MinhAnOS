@@ -1080,7 +1080,7 @@
       "get": {
         "operationId": "identityGetMe",
         "summary": "Read the authenticated user UUID",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1108,14 +1108,79 @@
               }
             }
           }
-        }
+        },
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
+      },
+      "patch": {
+        "operationId": "identityPatchMe",
+        "summary": "Update own display name",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityPatchUser"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/users": {
       "get": {
         "operationId": "identityListUsers",
         "summary": "Permission-filtered user list",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1174,12 +1239,13 @@
               "minLength": 1
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       },
       "post": {
         "operationId": "identityCreateUser",
         "summary": "Create a Standard User after policy checks",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1238,14 +1304,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/users/{userId}": {
       "get": {
         "operationId": "identityGetUser",
         "summary": "Read one authorized user",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1284,12 +1351,13 @@
               "format": "uuid"
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       },
       "patch": {
         "operationId": "identityPatchUser",
         "summary": "Edit allowlisted fields with version protection",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1356,12 +1424,13 @@
               "minLength": 1
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       },
       "delete": {
         "operationId": "identitySoftDeleteUser",
         "summary": "Soft delete only after protected-admin and ownership checks",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1428,14 +1497,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/users/{userId}/disable": {
       "post": {
         "operationId": "identityDisableUser",
         "summary": "Protected user state change with all-realm revocation",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1502,14 +1572,15 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/users/{userId}/enable": {
       "post": {
         "operationId": "identityEnableUser",
         "summary": "Protected user state change with all-realm revocation",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -1576,7 +1647,8 @@
               "maxLength": 128
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/me/sessions": {
@@ -2094,7 +2166,7 @@
       "get": {
         "operationId": "identityListRoles",
         "summary": "List authorized roles",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2143,7 +2215,8 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       },
       "post": {
         "operationId": "identityCreateRole",
@@ -2280,7 +2353,7 @@
       "get": {
         "operationId": "identityListPermissions",
         "summary": "Read permission-filtered metadata, never secrets",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2329,7 +2402,8 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/applications": {
@@ -2392,7 +2466,7 @@
       "get": {
         "operationId": "identityListAuditEvents",
         "summary": "Read permission-filtered metadata, never secrets",
-        "x-implementation": "planned",
+        "x-implementation": "implemented",
         "security": [
           {
             "desktopSession": [],
@@ -2441,7 +2515,8 @@
               "maximum": 100
             }
           }
-        ]
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/me/credentials": {
@@ -2544,6 +2619,148 @@
             }
           }
         ]
+      }
+    },
+    "/api/v1/identity/users/{userId}/role": {
+      "put": {
+        "operationId": "identitySetUserRole",
+        "summary": "Set reserved web role; never grants host operator",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentitySetRole"
+              }
+            }
+          }
+        },
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
+      }
+    },
+    "/api/v1/identity/reauthenticate": {
+      "post": {
+        "operationId": "identityReauthenticate",
+        "summary": "Verify current password; mark current session fresh for five minutes",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityReauthenticate"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     }
   },
@@ -3902,6 +4119,36 @@
         "required": [
           "items",
           "nextCursor"
+        ]
+      },
+      "IdentityReauthenticate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "IdentitySetRole": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "enum": [
+              "system-admin",
+              "user-admin",
+              "standard-user"
+            ]
+          }
+        },
+        "required": [
+          "role"
         ]
       }
     }

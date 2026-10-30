@@ -1,10 +1,27 @@
 {
   "contractVersion": "1",
-  "implementation": "shared-auth-core; v1 HTTP and UI planned",
-  "httpEndpointsEnabled": false,
+  "implementation": "phase3a users/policy/host split; advanced RBAC planned",
+  "httpEndpointsEnabled": true,
   "accountCenterUIEnabled": false,
-  "authorizationEnforcement": "active status/auth_epoch enforced by shared AuthCore; legacy roles until Phase 3, no new grants",
+  "authorizationEnforcement": "reserved web roles + verified user permission AND registered Account Center app grant; host requires separate operator entitlement",
   "uuidBackfill": "operator-driven batches; nullable expansion until separately approved contract step",
   "posixProvisioningEnabled": false,
-  "localRecovery": "OS-root CLI only; hashed single-use 15-minute token; no HTTP reset endpoint"
+  "localRecovery": "OS-root CLI only; hashed single-use 15-minute token; no HTTP reset endpoint",
+  "implementedOperations": [
+    "identityCreateUser",
+    "identityDisableUser",
+    "identityEnableUser",
+    "identityGetMe",
+    "identityGetUser",
+    "identityListAuditEvents",
+    "identityListPermissions",
+    "identityListRoles",
+    "identityListUsers",
+    "identityPatchMe",
+    "identityPatchUser",
+    "identityReauthenticate",
+    "identitySetUserRole",
+    "identitySoftDeleteUser"
+  ],
+  "remainingPhase3": "group/custom-role/app-policy mutation, complete session/password v1 adapters and audit retention remain planned"
 }

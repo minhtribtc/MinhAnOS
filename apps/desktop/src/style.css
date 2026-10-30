@@ -23,3 +23,6 @@
 @media (min-width:701px) and (max-height:800px){.overview-main{padding-top:17px}.overview-main>.page-eyebrow{display:none}.welcome-heading>div>p:first-child{margin-bottom:5px}.welcome-heading h1{font-size:23px}.welcome-heading .muted{margin-top:5px}.welcome-banner{min-height:135px;padding:17px 22px;margin-top:16px}.welcome-banner h2{font-size:22px;line-height:1.2;margin-top:8px}.welcome-banner p{display:none}.banner-link{margin-top:10px}.banner-art{transform:scale(.85);transform-origin:center center;top:-25px}.overview-main .section-label{margin:12px 0 9px}.metric-card{min-height:108px}.overview-footer{display:none}.overview-main .quick-card{padding:8px}.metric-card>strong{font-size:20px}}
 
 *{scrollbar-width:thin;scrollbar-color:#bec8bd transparent}.dark-mode *{scrollbar-color:#647065 transparent}::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#bec8bd;border-radius:5px}.dark-mode ::-webkit-scrollbar-thumb{background:#647065}
+
+/* Keep the creation action compact when reauthentication adds a taller grid row. */
+.create-user-form>.primary-button{grid-column:1/-1;align-self:start;justify-self:start}

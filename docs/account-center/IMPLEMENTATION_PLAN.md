@@ -1,3 +1,5 @@
+Current progress: Phase 3A protected Users/My Account slice is implemented; full Phase 3 is NOT complete. [Report](PHASE3_REPORT.md) lists active routes and remaining Phase 3B, before Phase 4 UI. User authorized routine design choices with documentation.
+
 Current approval/progress: người dùng đã ủy quyền chọn phương án phù hợp và ghi quyết định. Phase 1 và Phase 2 đã triển khai; xem [Phase 2 report](PHASE2_REPORT.md). Các đoạn approval checkpoint bên dưới là lịch sử Phase 0, không yêu cầu hỏi lại cho công việc đã được ủy quyền.
 
 # IMPLEMENTATION PLAN — Account Center & Identity

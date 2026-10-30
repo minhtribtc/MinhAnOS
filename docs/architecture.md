@@ -1,3 +1,7 @@
+## Identity Phase 3A (current)
+
+identity.Service + HTTP adapter dùng chung Desktop/Drive, không import Platform vào Drive. Một nguồn users/password và hai cookie realms giữ nguyên. Lõi Users dùng registered app grants, reserved web-role ceilings, transaction-time checks và explicit host operators. users.role là nguồn System Admin hiện hành; đầy đủ group/custom-role policy vẫn pending. [ADR 0005](adr/0005-identity-policy-and-host-operators.md) ghi ranh giới, concurrency và migration 005. Hợp đồng x-implementation chỉ bật 14 operation đã kiểm thử.
+
 ## AuthCore Phase 2 (current)
 
 Shared internal/identity.AuthCore thay cơ chế session/login trùng lặp trong Desktop/Drive. Giữ một credential store và hai canonical session tables; public realm desktop/files. Identity migration 004 thêm epoch/handles/recovery/throttles/auth events. Internal mutation transactions lock users trước sessions, recheck credential sau KDF và revoke cả hai realms. Không thêm IAM daemon hoặc quyền RBAC mới. [ADR 0004](adr/0004-shared-auth-core-and-recovery.md) ghi quyết định và giới hạn.

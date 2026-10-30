@@ -4,7 +4,7 @@ Read README.md, docs/HANDOFF.md, docs/architecture.md and docs/roadmap.md before
 Also read docs/platform-foundations.md (accepted architecture/i18n/theme direction) and docs/user-guide.md.
 Architecture target: Platform Core + shared Design System + App SDK + peer apps + replaceable Shells.
 Do not treat planned packages/contracts as implemented; document actual migration status.
-For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase2; also read docs/extension-contracts.md.
+For file/Drive work also read docs/drive.md and docs/api.md. Current implementation branch is account-center-phase3; also read docs/extension-contracts.md.
 Drive and packages/files-app must remain independently reusable. Never import desktop stores/components into apps/drive or packages/files-app,
 or internal/platform into internal/drive/cmd/drive. Desktop renders packages/files-app natively using /api/drive; Drive uses the same package with /api. Never introduce an iframe dependency.
 
@@ -84,3 +84,11 @@ User approved Phase 1; read docs/account-center/PHASE1_REPORT.md. Identity SQL 0
 ## Phase 2 continuation (current)
 
 User delegated routine architecture decisions with documentation. Read docs/account-center/PHASE2_REPORT.md and docs/adr/0004-shared-auth-core-and-recovery.md; supersedes Phase 1 next-step notes. Shared AuthCore is active on all legacy adapters, SQL identity 001–004 immutable. No v1 Identity HTTP/UI or RBAC grants yet. Root recovery CLI is Linux-local only; never expose local methods to HTTP. Phase 3 must enforce last-admin invariant and split host-root privilege before new administrative authority. Keep full same-commit docs/test evidence.
+
+## Phase 3A continuation (current)
+
+Read docs/account-center/PHASE3_REPORT.md and ADR 0005 before changes. Identity SQL 001–005/profile 001 immutable. Phase 3A is implemented, not full Phase 3. Fourteen v1 operations active; use contracts/identity/status.v1.json as inventory. users.role is still canonical System Admin authority; never add another bypassing binding/group path. Every policy mutation shares lock 681026 before user rows, last-admin and transaction-time actor/grant checks. Host operator is a separate one-time snapshot, never auto-granted to later web admins/startups. Keep legacy adapters under policy. Finish Phase 3B group/custom-role/app policy and session/password DTO adapters before claiming full Phase 3 or UI readiness. v1 must fail closed on incomplete UUID backfill; do not hide unmapped users.
+
+## Verification preference
+
+User requested avoiding time-consuming repeated interactive test loops. Prefer focused automated checks once per meaningful change; do not repeat browser/VM smoke or stop-start loops after suitable checks pass unless a concrete failure or new change requires it. Finish implementation, documentation and delivery promptly.
