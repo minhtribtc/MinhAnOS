@@ -1,3 +1,9 @@
+## Account Center dùng được — 2026-10-30
+
+- Admin đặt lại mật khẩu người dùng (thu hồi mọi phiên của họ, có audit); không áp dụng cho operator máy chủ.
+- Trang chi tiết người dùng: quyền thực tế, nhóm, hoạt động gần đây và các thao tác quản trị.
+- Ghi nhật ký đăng nhập, đăng xuất và đăng nhập thất bại (có giới hạn); nhật ký hiển thị mới nhất trước.
+
 ## Cài đặt trung tâm — 2026-10-30
 
 - Thêm mục Ngôn ngữ & Khu vực (ngôn ngữ, múi giờ) dùng chung cho mọi ứng dụng; tên ứng dụng đổi thành MinhAnOS Settings.

@@ -132,6 +132,10 @@
     {
       "file": "access.v1.schema.json",
       "type": "IdentityAccess"
+    },
+    {
+      "file": "reset-password.v1.schema.json",
+      "type": "IdentityResetPassword"
     }
   ]
 }

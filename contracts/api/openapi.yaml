@@ -1253,22 +1253,22 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Identity request denied or failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Identity response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -1940,6 +1940,16 @@
               "minimum": 1,
               "maximum": 100
             }
+          },
+          {
+            "name": "member",
+            "in": "query",
+            "required": false,
+            "description": "Only groups that contain this user",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "description": "Implemented Phase 3B. Owner-scoped security APIs; protected policy writes require System Admin and recent password verification. Only explicit system scope is supported for role bindings. System Admin and host operator cannot be granted through custom roles/groups."
@@ -1955,22 +1965,22 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Identity request failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Authorized Identity response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -2419,22 +2429,22 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Identity request failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Authorized Identity response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IdentityRole"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -2486,22 +2496,22 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Identity request failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Authorized Identity response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IdentityRoleBinding"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -2761,9 +2771,19 @@
               "minimum": 1,
               "maximum": 100
             }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "description": "Only events whose actor or target is this user",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
-        "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
+        "description": "Newest first (occurredAt, id). Includes sign-in success, sampled sign-in failures of existing accounts, sign-out and administrative changes. Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
       }
     },
     "/api/v1/identity/me/credentials": {
@@ -3252,6 +3272,91 @@
           }
         ],
         "description": "Implemented Phase 3A slice. Verified session plus registered app grant and backend policy. Administrative writes require POST reauthenticate within five minutes. If-Match uses quoted decimal version. Group/custom role/app policy mutation routes remain planned."
+      }
+    },
+    "/api/v1/identity/users/{userId}/password": {
+      "post": {
+        "operationId": "identityResetUserPassword",
+        "summary": "Set another user's password; revokes that user's sessions in both realms",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityResetPassword"
+              }
+            }
+          }
+        },
+        "description": "Requires identity.users.write, reauthentication within five minutes, If-Match and Idempotency-Key. Same target ceiling as other user changes; never the caller (use me/password) and never an enabled host operator. Audited as user.password.reset."
       }
     }
   },
@@ -4197,6 +4302,17 @@
                   "type": "string"
                 },
                 "uniqueItems": true
+              },
+              "realm": {
+                "enum": [
+                  "desktop",
+                  "files"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 21
               }
             },
             "required": []
@@ -4792,6 +4908,20 @@
           "baseRole",
           "permissions",
           "hostOperator"
+        ]
+      },
+      "IdentityResetPassword": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "newPassword"
         ]
       }
     }

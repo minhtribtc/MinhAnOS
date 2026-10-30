@@ -1,3 +1,9 @@
+## Account Center — quản trị người dùng
+
+- **Xem chi tiết:** Account Center → Người dùng → bấm vào tên. Trang chi tiết có vai trò, quyền thực tế, nhóm và hoạt động gần đây (đăng nhập, đăng nhập thất bại, thay đổi).
+- **Đặt lại mật khẩu:** trong trang chi tiết bấm *Đặt lại mật khẩu*, nhập mật khẩu mới hai lần (ít nhất 12 ký tự) và mật khẩu hiện tại của bạn. Người dùng bị đăng xuất khỏi mọi nơi; hãy gửi mật khẩu mới cho họ qua kênh an toàn. Không áp dụng cho chính bạn (dùng mục Bảo mật) và cho operator máy chủ (họ tự đổi hoặc dùng công cụ khôi phục).
+- **Nhật ký:** hiển thị mới nhất trước, gồm đăng nhập/đăng xuất. Đăng nhập sai chỉ được ghi ở lần thử 1, 5, 10, 20 trong 10 phút để tránh tràn nhật ký.
+
 ## Cài đặt trung tâm (Settings)
 
 Mở **Cài đặt** từ Desktop. Thanh bên trái nhóm theo ứng dụng; gõ vào ô tìm kiếm để lọc mục.

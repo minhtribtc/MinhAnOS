@@ -1,3 +1,7 @@
+## Identity — 34 active operations
+
+Added POST /api/v1/identity/users/{userId}/password (identityResetUserPassword; body {newPassword}; If-Match, Idempotency-Key, reauthentication; 409 IDENTITY_USE_OWN_PASSWORD, 403 IDENTITY_HOST_OPERATOR_PROTECTED). GET groups accepts member=<userId>; GET audit-events accepts target=<userId> (actor or target) and is ordered newest first. Audit outcome adds failure; details may include realm and count.
+
 ## Identity Phase 4 — 33 active operations
 
 Added GET /api/v1/identity/groups/{groupId} (identityGetGroup, permission identity.groups.read, ETag = group version) for Account Center detail/edit. Static GET /accounts/ is served by both hosts from ACCOUNTS_STATIC_DIR (default /app/accounts); it is a frontend only and uses the host's existing cookie realm.

@@ -179,7 +179,22 @@
     "accounts.audit.actions.role.binding.removed": "Gỡ vai trò",
     "accounts.audit.actions.password.changed": "Đổi mật khẩu",
     "accounts.audit.actions.sessions.revoked": "Kết thúc phiên",
-    "accounts.audit.actions.identity.denied": "Từ chối yêu cầu"
+    "accounts.audit.actions.identity.denied": "Từ chối yêu cầu",
+    "accounts.users.open": "Xem chi tiết",
+    "accounts.users.detail": "Chi tiết người dùng",
+    "accounts.users.back": "Tất cả người dùng",
+    "accounts.users.access": "Quyền thực tế",
+    "accounts.users.noGroups": "Không thuộc nhóm nào.",
+    "accounts.users.activity": "Hoạt động gần đây",
+    "accounts.users.resetPassword": "Đặt lại mật khẩu",
+    "accounts.users.resetHint": "Người dùng sẽ bị đăng xuất khỏi mọi thiết bị và phải đăng nhập bằng mật khẩu mới. Hãy gửi mật khẩu cho họ qua kênh an toàn.",
+    "accounts.audit.actions.auth.login": "Đăng nhập",
+    "accounts.audit.actions.auth.login.failed": "Đăng nhập thất bại",
+    "accounts.audit.actions.auth.logout": "Đăng xuất",
+    "accounts.audit.actions.user.password.reset": "Đặt lại mật khẩu",
+    "accounts.audit.attempts": "Lần thử thứ {count}",
+    "accounts.errors.IDENTITY_USE_OWN_PASSWORD": "Hãy đổi mật khẩu của chính bạn trong mục Bảo mật.",
+    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "Không thể đặt lại mật khẩu của operator máy chủ. Operator tự đổi mật khẩu hoặc dùng công cụ khôi phục trên máy chủ."
   },
   "en-US": {
     "accounts.profile.openSettings": "Language and appearance in Settings",
@@ -361,6 +376,21 @@
     "accounts.audit.actions.role.binding.removed": "Role removed",
     "accounts.audit.actions.password.changed": "Password changed",
     "accounts.audit.actions.sessions.revoked": "Sessions revoked",
-    "accounts.audit.actions.identity.denied": "Request denied"
+    "accounts.audit.actions.identity.denied": "Request denied",
+    "accounts.users.open": "View details",
+    "accounts.users.detail": "User details",
+    "accounts.users.back": "All users",
+    "accounts.users.access": "Effective access",
+    "accounts.users.noGroups": "Not a member of any group.",
+    "accounts.users.activity": "Recent activity",
+    "accounts.users.resetPassword": "Reset password",
+    "accounts.users.resetHint": "The user is signed out everywhere and must sign in with the new password. Share it through a secure channel.",
+    "accounts.audit.actions.auth.login": "Signed in",
+    "accounts.audit.actions.auth.login.failed": "Failed sign-in",
+    "accounts.audit.actions.auth.logout": "Signed out",
+    "accounts.audit.actions.user.password.reset": "Password reset",
+    "accounts.audit.attempts": "Attempt {count}",
+    "accounts.errors.IDENTITY_USE_OWN_PASSWORD": "Change your own password under Security.",
+    "accounts.errors.IDENTITY_HOST_OPERATOR_PROTECTED": "A host operator’s password cannot be reset here. Operators change it themselves or use the server recovery tool."
   }
 }

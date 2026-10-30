@@ -233,7 +233,11 @@ func TestProtectedPolicyCeilingsAndAuditRollback(t *testing.T) {
 	if _, e = s.Auth.Authenticate(ctx, DesktopRealm, token); e != nil {
 		t.Fatal("rollback lost current session", e)
 	}
-	loginTest(t, s.Auth, DriveRealm, testPassword)
+	// Sign-in now audits in the same transaction, so verify the kept password directly.
+	var hash string
+	if e = s.db.QueryRow(ctx, "SELECT password_hash FROM users WHERE id=$1", strings.Repeat("a", 64)).Scan(&hash); e != nil || !authn.Verify(testPassword, hash) {
+		t.Fatal("rollback changed the password", e)
+	}
 }
 
 func securityHTTP(t *testing.T, s *Service, token, method, path string, input any) (Result, error) {

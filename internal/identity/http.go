@@ -112,13 +112,23 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 					return
 				}
 			}
+			// member filters groups by one user; target filters audit events by subject (actor or target).
+			search := r.URL.Query().Get("search")
 			for key := range r.URL.Query() {
-				if key != "limit" && key != "search" && key != "cursor" {
+				switch {
+				case key == "limit" || key == "search" || key == "cursor":
+				case key == "member" && kind == "groups", key == "target" && kind == "audit-events":
+					if search != "" {
+						fail(fault(400, "INVALID_REQUEST"))
+						return
+					}
+					search = r.URL.Query().Get(key)
+				default:
 					fail(fault(400, "INVALID_REQUEST"))
 					return
 				}
 			}
-			out, e = s.Read(ctx, realm, token, kind, target, r.URL.Query().Get("search"), r.URL.Query().Get("cursor"), limit)
+			out, e = s.Read(ctx, realm, token, kind, target, search, r.URL.Query().Get("cursor"), limit)
 		} else {
 			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 32768))
 			if err != nil {
@@ -318,6 +328,15 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 					operation = parts[2]
 				}
 				out, e = s.ChangeUser(ctx, realm, token, parts[1], operation, "", match, key, requestID, raw)
+			case len(parts) == 3 && parts[0] == "users" && parts[2] == "password" && r.Method == "POST":
+				if key == "" {
+					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+					break
+				}
+				var input PasswordReset
+				if e = decode(&input); e == nil {
+					out, e = s.ResetPassword(ctx, realm, token, parts[1], match, key, requestID, input, raw)
+				}
 			case len(parts) == 3 && parts[0] == "users" && parts[2] == "role" && r.Method == "PUT":
 				if key == "" {
 					e = fault(400, "IDEMPOTENCY_KEY_REQUIRED")

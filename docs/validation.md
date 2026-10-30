@@ -1,3 +1,7 @@
+## Account Center usable v1 — 2026-10-30
+
+VM check folder /opt/minhanos-ac-usable: gofmt clean, go vet, go test PASS; tests/migrations-integration.sh on disposable DB PASS incl. new TestAdminPasswordResetRevokesBothRealmsAndAudits, TestPasswordResetCannotTakeOverHostOperator, TestPasswordResetHTTPRoute, TestSignInAuditBoundedOrderedAndFiltered, TestGroupsFilteredByMember; adjusted TestProtectedPolicyCeilingsAndAuditRollback (sign-in now audits transactionally). Clean npm ci + contracts:generate + npm run build PASS. VM network was briefly unreachable during the work (no reboot). Browser acceptance not performed (requires user sign-in).
+
 ## Central Settings thin slice — 2026-10-30
 
 Hybrid amendment: clean npm ci + contracts:generate + npm run build PASS on VM check folder; the new test first FAILED on shorthand provider syntax `{language}` and its pattern was widened. No lockfile/generated drift.

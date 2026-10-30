@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"log"
 	"strings"
 	"time"
 
@@ -92,44 +93,44 @@ func noRows(e error) error {
 
 // Reserve a bounded per-account attempt before expensive hashing. PostgreSQL shares
 // the fixed window across processes/realms. Keys are hashed, never raw usernames.
-func (a *AuthCore) attempt(ctx context.Context, name string) error {
+func (a *AuthCore) attempt(ctx context.Context, name string) (int, error) {
 	tx, e := a.db.Begin(ctx)
 	if e != nil {
-		return e
+		return 0, e
 	}
 	defer tx.Rollback(ctx)
 	if _, e = tx.Exec(ctx, "SELECT pg_advisory_xact_lock(681025)"); e != nil {
-		return e
+		return 0, e
 	}
 	if _, e = tx.Exec(ctx, `DELETE FROM identity_auth_attempts WHERE key_hash IN (SELECT key_hash FROM identity_auth_attempts WHERE expires_at<=now() ORDER BY expires_at LIMIT 100)`); e != nil {
-		return e
+		return 0, e
 	}
 	var count int
 	if e = tx.QueryRow(ctx, "SELECT count(*) FROM identity_auth_attempts").Scan(&count); e != nil {
-		return e
+		return 0, e
 	}
 	key := authn.Digest(normalize(name))
 	if count >= 10000 {
 		var exists bool
 		if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM identity_auth_attempts WHERE key_hash=$1)", key).Scan(&exists); e != nil {
-			return e
+			return 0, e
 		}
 		if !exists {
-			return ErrThrottled
+			return 0, ErrThrottled
 		}
 	}
 	var n int
 	e = tx.QueryRow(ctx, `INSERT INTO identity_auth_attempts(key_hash,attempts,expires_at) VALUES($1,1,now()+interval '10 minutes') ON CONFLICT(key_hash) DO UPDATE SET attempts=CASE WHEN identity_auth_attempts.expires_at<=now() THEN 1 ELSE least(identity_auth_attempts.attempts+1,21) END,expires_at=CASE WHEN identity_auth_attempts.expires_at<=now() THEN now()+interval '10 minutes' ELSE identity_auth_attempts.expires_at END RETURNING attempts`, key).Scan(&n)
 	if e != nil {
-		return e
+		return 0, e
 	}
 	if e = tx.Commit(ctx); e != nil {
-		return e
+		return 0, e
 	}
 	if n > 20 {
-		return ErrThrottled
+		return n, ErrThrottled
 	}
-	return nil
+	return n, nil
 }
 
 func (a *AuthCore) Authenticate(ctx context.Context, realm Realm, token string) (AuthSession, error) {
@@ -160,7 +161,8 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 		return s, "", e
 	}
 	defer release()
-	if e = a.attempt(ctx, name); e != nil {
+	attempts, e := a.attempt(ctx, name)
+	if e != nil {
 		return s, "", e
 	}
 	hash, status := a.dummy, ""
@@ -171,6 +173,13 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 	}
 	valid := authn.Verify(password, hash)
 	if e != nil || !valid || status != "active" {
+		if e == nil {
+			reason := "INVALID_CREDENTIALS"
+			if valid {
+				reason = "ACCOUNT_INACTIVE"
+			}
+			a.recordLoginFailure(ctx, realm, s.Principal.StorageID, reason, attempts)
+		}
 		return AuthSession{}, "", ErrUnauthorized
 	}
 	tx, e := a.db.Begin(ctx)
@@ -207,6 +216,10 @@ func (a *AuthCore) Login(ctx context.Context, realm Realm, name, password, oldTo
 	if _, e = tx.Exec(ctx, "DELETE FROM identity_auth_attempts WHERE key_hash=$1", authn.Digest(name)); e != nil {
 		return AuthSession{}, "", e
 	}
+	// Success audit commits with the session it describes.
+	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT public_id,'auth.login',public_id::text,'success',$2,jsonb_build_object('realm',$3::text) FROM users WHERE id=$1", s.Principal.StorageID, authn.Token(), string(realm)); e != nil {
+		return AuthSession{}, "", e
+	}
 	e = tx.Commit(ctx)
 	if e != nil {
 		return AuthSession{}, "", e
@@ -222,8 +235,24 @@ func (a *AuthCore) Logout(ctx context.Context, realm Realm, token string) error 
 	if !validToken(token) {
 		return ErrUnauthorized
 	}
-	_, e = a.db.Exec(ctx, "DELETE FROM "+t+" WHERE token_hash=$1", authn.Digest(token))
+	// One statement: the session delete and its audit row commit together.
+	_, e = a.db.Exec(ctx, `WITH gone AS (DELETE FROM `+t+` WHERE token_hash=$1 RETURNING user_id) INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT u.public_id,'auth.logout',u.public_id::text,'success',$2,jsonb_build_object('realm',$3::text) FROM gone JOIN users u ON u.id=gone.user_id`, authn.Digest(token), authn.Token(), string(realm))
 	return e
+}
+
+// Failed sign-ins of existing accounts are audited at attempts 1, 5, 10 and 20 of a
+// throttle window only, so brute force cannot turn into an unbounded audit write load.
+// Unknown usernames are not recorded (no identifier worth keeping, unbounded keys).
+func (a *AuthCore) recordLoginFailure(ctx context.Context, realm Realm, storageID, reason string, attempts int) {
+	switch attempts {
+	case 1, 5, 10, 20:
+	default:
+		return
+	}
+	_, e := a.db.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,details) SELECT NULL,'auth.login.failed',public_id::text,'failure',$2,jsonb_build_object('reasonCode',$3::text,'realm',$4::text,'count',$5::int) FROM users WHERE id=$1", storageID, authn.Token(), reason, string(realm), attempts)
+	if e != nil {
+		log.Printf("identity: login failure audit not recorded: %v", e)
+	}
 }
 
 // Reauthenticate grants only a short-lived, epoch-bound server-side freshness
@@ -241,7 +270,7 @@ func (a *AuthCore) Reauthenticate(ctx context.Context, realm Realm, token, passw
 	if e != nil {
 		return e
 	}
-	if e = a.attempt(ctx, session.Principal.Username); e != nil {
+	if _, e = a.attempt(ctx, session.Principal.Username); e != nil {
 		return e
 	}
 	var hash string
@@ -371,7 +400,7 @@ func (a *AuthCore) ChangePassword(ctx context.Context, realm Realm, token, curre
 	if e != nil {
 		return e
 	}
-	if e = a.attempt(ctx, s.Principal.Username); e != nil {
+	if _, e = a.attempt(ctx, s.Principal.Username); e != nil {
 		return e
 	}
 	var hash string

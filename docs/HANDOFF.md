@@ -1,4 +1,9 @@
-Release status: settings-central-v1 (hybrid, 9cf4075) deployed to VM 10.1.1.20; Desktop, Drive and DB healthy. Browser acceptance skipped by user decision (not performed).
+Release status: Account Center usable v1 on settings-central-v1; see deployment line below.
+
+# Handoff — Account Center usable v1 (current)
+
+Read [usable v1 report](account-center/USABLE_V1_REPORT.md). Adds admin password reset (identityResetUserPassword, 34 operations), user detail page (groups?member=, audit-events?target=), sign-in audit (identity SQL 006 auth_audit; SQL 001–006 now immutable) and newest-first audit ordering. Host operators cannot have their password reset by web admins.
+Checks: gofmt/vet/go test, migrations-integration (disposable DB, 5 new tests), clean npm ci + contracts:generate + npm run build: PASS. Next: request/correlation middleware, consolidate legacy audit tables, retention, browser acceptance.
 
 # Handoff — Central Settings thin slice (current)
 

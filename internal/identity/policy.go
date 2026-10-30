@@ -228,6 +228,8 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 }
 func actionName(route string) string {
 	switch {
+	case strings.Contains(route, "/users/") && strings.HasSuffix(route, "/password"):
+		return "user.password.reset"
 	case strings.Contains(route, "/me/password"):
 		return "password.changed"
 	case strings.Contains(route, "/me/sessions"):

@@ -264,6 +264,8 @@ export interface IdentityAuditEvent {
   details: {
     reasonCode?: string;
     changedFields?: string[];
+    realm?: "desktop" | "files";
+    count?: number;
   };
 }
 
@@ -355,6 +357,8 @@ export interface IdentityAuditPage {
     details: {
       reasonCode?: string;
       changedFields?: string[];
+      realm?: "desktop" | "files";
+      count?: number;
     };
   }[];
   nextCursor: string | null;
@@ -454,4 +458,8 @@ export interface IdentityAccess {
   baseRole: "system-admin" | "user-admin" | "standard-user";
   permissions: string[];
   hostOperator: boolean;
+}
+
+export interface IdentityResetPassword {
+  newPassword: string;
 }

@@ -239,15 +239,15 @@ func TestAuthThrottleSharedBoundedAndExpiry(t *testing.T) {
 		if i%2 == 1 {
 			core = second
 		}
-		if e = core.attempt(ctx, "unknown-user"); e != nil {
+		if _, e = core.attempt(ctx, "unknown-user"); e != nil {
 			t.Fatal(e)
 		}
 	}
-	if e = second.attempt(ctx, " UNKNOWN-USER "); !errors.Is(e, ErrThrottled) {
+	if _, e = second.attempt(ctx, " UNKNOWN-USER "); !errors.Is(e, ErrThrottled) {
 		t.Fatal("cross-instance throttle", e)
 	}
 	db.Exec(ctx, "UPDATE identity_auth_attempts SET expires_at=now()-interval '1 second'")
-	if e = a.attempt(ctx, "unknown-user"); e != nil {
+	if _, e = a.attempt(ctx, "unknown-user"); e != nil {
 		t.Fatal("window did not expire", e)
 	}
 	release, e := a.acquire()
@@ -333,7 +333,7 @@ func TestThrottleCapacityAndPasswordInvalidatesRecovery(t *testing.T) {
 	if _, e := db.Exec(ctx, `INSERT INTO identity_auth_attempts SELECT lpad(to_hex(i),64,'0'),1,now()+interval '10 minutes' FROM generate_series(1,10000) i`); e != nil {
 		t.Fatal(e)
 	}
-	if e := a.attempt(ctx, "new-key"); !errors.Is(e, ErrThrottled) {
+	if _, e := a.attempt(ctx, "new-key"); !errors.Is(e, ErrThrottled) {
 		t.Fatal("unbounded throttle table", e)
 	}
 	db.Exec(ctx, "DELETE FROM identity_auth_attempts")

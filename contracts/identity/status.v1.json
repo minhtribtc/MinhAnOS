@@ -1,6 +1,6 @@
 {
   "contractVersion": "1",
-  "implementation": "phase4 Account Center UI and 33 Identity operations",
+  "implementation": "phase4 Account Center UI, admin password reset and sign-in audit; 34 Identity operations",
   "httpEndpointsEnabled": true,
   "accountCenterUIEnabled": true,
   "authorizationEnforcement": "direct System Admin or bounded user-admin/custom roles AND registered app grant; explicit system scope, target ceilings and separate host operator",
@@ -37,6 +37,7 @@
     "identityPatchUser",
     "identityReauthenticate",
     "identityRemoveGroupMember",
+    "identityResetUserPassword",
     "identityRevokeMySession",
     "identityRevokeOtherSessions",
     "identitySetUserRole",

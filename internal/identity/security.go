@@ -66,7 +66,7 @@ func (s *Service) Password(ctx context.Context, realm Realm, token, key, request
 	if e != nil {
 		return Result{}, e
 	}
-	if e = s.Auth.attempt(ctx, session.Principal.Username); e != nil {
+	if _, e = s.Auth.attempt(ctx, session.Principal.Username); e != nil {
 		return Result{}, e
 	}
 	var expected string
@@ -95,5 +95,65 @@ func (s *Service) Password(ctx context.Context, realm Realm, token, key, request
 			return Result{}, e
 		}
 		return result(map[string]bool{"accepted": true}, 200, 0), nil
+	})
+}
+
+type PasswordReset struct {
+	NewPassword string `json:"newPassword"`
+}
+
+// ResetPassword lets an administrator set another user's password without knowing the old one.
+// It needs identity.users.write, recent reauthentication and the same target ceiling as other
+// user changes; the target's sessions in both realms are revoked. Own password uses Password.
+func (s *Service) ResetPassword(ctx context.Context, realm Realm, token, target, match, key, requestID string, input PasswordReset, raw []byte) (Result, error) {
+	if len([]rune(input.NewPassword)) < 12 || len(input.NewPassword) > 256 {
+		return Result{}, ErrPasswordPolicy
+	}
+	if e := s.preflight(ctx, realm, token, "identity.users.write", true); e != nil {
+		return Result{}, e
+	}
+	// Hash before taking the policy lock; the KDF is bounded by AuthCore's worker limit.
+	hash, e := s.Auth.PasswordHash(input.NewPassword)
+	if e != nil {
+		return Result{}, e
+	}
+	route := "POST /api/v1/identity/users/" + target + "/password"
+	return s.mutate(ctx, realm, token, "identity.users.write", requestID, key, route, append([]byte(match+"\x00"), raw...), true, func(tx pgx.Tx, a Actor) (Result, error) {
+		if target == a.PublicID {
+			return Result{}, fault(409, "IDENTITY_USE_OWN_PASSWORD")
+		}
+		u, role, e := userRow(ctx, tx, target)
+		if e != nil {
+			return Result{}, e
+		}
+		if e = targetAllowed(ctx, tx, a, u, role); e != nil {
+			return Result{}, e
+		}
+		if e = requireVersion(u.Version, match); e != nil {
+			return Result{}, e
+		}
+		if u.Status == "deleted" {
+			return Result{}, fault(409, "IDENTITY_USER_DELETED")
+		}
+		var storageID string
+		var operator bool
+		if e = tx.QueryRow(ctx, "SELECT u.id,EXISTS(SELECT 1 FROM identity_host_operators o WHERE o.user_id=u.id AND o.state='enabled') FROM users u WHERE u.public_id=$1", target).Scan(&storageID, &operator); e != nil {
+			return Result{}, e
+		}
+		// Taking over a host operator's password would grant host access through the web;
+		// operators change their own password or use the OS-root recovery CLI.
+		if operator {
+			return Result{}, fault(403, "IDENTITY_HOST_OPERATOR_PROTECTED")
+		}
+		if _, e = tx.Exec(ctx, "UPDATE users SET password_hash=$2,auth_epoch=auth_epoch+1 WHERE id=$1", storageID, hash); e != nil {
+			return Result{}, e
+		}
+		if e = revoke(ctx, tx, storageID, "password.changed"); e != nil {
+			return Result{}, e
+		}
+		if u, _, e = userRow(ctx, tx, target); e != nil {
+			return Result{}, e
+		}
+		return result(u, 200, u.Version), nil
 	})
 }
