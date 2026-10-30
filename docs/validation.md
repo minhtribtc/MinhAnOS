@@ -1,6 +1,6 @@
 ## Account Center usable v1 — 2026-10-30
 
-VM check folder /opt/minhanos-ac-usable: gofmt clean, go vet, go test PASS; tests/migrations-integration.sh on disposable DB PASS incl. new TestAdminPasswordResetRevokesBothRealmsAndAudits, TestPasswordResetCannotTakeOverHostOperator, TestPasswordResetHTTPRoute, TestSignInAuditBoundedOrderedAndFiltered, TestGroupsFilteredByMember; adjusted TestProtectedPolicyCeilingsAndAuditRollback (sign-in now audits transactionally). Clean npm ci + contracts:generate + npm run build PASS. VM network was briefly unreachable during the work (no reboot). Browser acceptance not performed (requires user sign-in).
+VM check folder /opt/minhanos-ac-usable: gofmt clean, go vet, go test PASS; tests/migrations-integration.sh on disposable DB PASS incl. new TestAdminPasswordResetRevokesBothRealmsAndAudits, TestPasswordResetCannotTakeOverHostOperator, TestPasswordResetHTTPRoute, TestSignInAuditBoundedOrderedAndFiltered, TestGroupsFilteredByMember; adjusted TestProtectedPolicyCeilingsAndAuditRollback (sign-in now audits transactionally). Clean npm ci + contracts:generate + npm run build PASS. VM network was briefly unreachable during the work (no reboot). Deployed a0b1248 after private pg_dump; live DB shows the widened outcome constraint and new indexes, existing events intact; /accounts/ 200 on 8081 and 8082. Browser acceptance not performed (requires user sign-in).
 
 ## Central Settings thin slice — 2026-10-30
 

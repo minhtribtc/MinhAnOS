@@ -1,4 +1,4 @@
-Release status: Account Center usable v1 on settings-central-v1; see deployment line below.
+Release status: Account Center usable v1 (a0b1248) deployed to VM 10.1.1.20 after pg_dump backup /opt/minhanos-backups/before-identity-006.sql; identity SQL 006 applied; Desktop, Drive, DB healthy. Browser acceptance pending user.
 
 # Handoff — Account Center usable v1 (current)
 
