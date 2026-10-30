@@ -70,3 +70,24 @@ alerts cannot be muted; secrets never in events/logs; Phase A (audit for Account
 5. Integration tests: rollback leaves no success audit, failure audit survives, flood is bounded, no secrets.
 
 Phases B (Notification Center) and C (Log Center) as in the brief, after Phase A is accepted.
+
+## Readiness check — 2026-10-30 (after Account Center usable v1)
+
+Account Center is **partly** ready (about half of Phase A). Done: identity events in one structured store
+(`identity_admin_events`) with actor/target UUIDs, outcome, request ID; sign-in success/logout transactional;
+failures sampled and bounded; newest-first reads with target filter; tests for these.
+
+Missing before Notification/Log Center work starts:
+
+| Item | State |
+|---|---|
+| Event envelope v1 revision + AuditRecord v1 contract (+ `logs.*`, `notifications.*` permissions) | `events.v1` still planned with old fields; only identity-specific audit schema |
+| Request/correlation ID middleware on both hosts (incl. legacy `/api/login`) | Only `/api/v1/identity` sets `X-Request-ID`; sign-in events get a random ID |
+| One store for identity security events | `identity_auth_events` (password change, recovery, session revoke) still separate, no actor/request ID |
+| Legacy tables | `audit` (Desktop login/logout/user.create) and `drive_audit` still written; no read adapter |
+| `notification_outbox` for security notices | Not created |
+| Retention job + INSERT/SELECT-only DB role for audit | Not done |
+
+Recommended next Account Center work, in order: (1) finish Phase A above; (2) admin view/revoke of another
+user's sessions and "must change password at next sign-in" after a reset; (3) Phase 5 Files authorization, then
+app access policy editing; (4) TOTP MFA; (5) Phase 6 POSIX provisioning.
