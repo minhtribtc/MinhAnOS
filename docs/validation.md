@@ -1,6 +1,6 @@
 ## Storage standard fixes (rows 15, 25) — 2026-10-31
 
-VM /opt/minhanos-fx2: gofmt (2 reformatted), go vet, go test PASS incl. drive background measurement; migrations-integration PASS (storage 002); clean npm ci + contracts:generate + build PASS incl. new tests/storage-contracts.mjs (schema = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes). go test -race not available (Alpine image without cgo); the measurer channel is created before serving to avoid a race by design.
+VM /opt/minhanos-fx2: gofmt (2 reformatted), go vet, go test PASS incl. drive background measurement; migrations-integration PASS (storage 002); clean npm ci + contracts:generate + build PASS incl. new tests/storage-contracts.mjs (schema = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes). go test -race not available (Alpine image without cgo); the measurer channel is created before serving to avoid a race by design. Deployed 939d0ea: settings row version 1, storage_idempotency present, /api/v1/storage 401 without session, old /api/storage 404, no measurer errors in the Drive log.
 
 ## Storage Q1 soft quota — 2026-10-31
 

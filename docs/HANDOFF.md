@@ -1,4 +1,4 @@
-Release status: Storage Q1 (3b7930c) deployed to VM 10.1.1.20 after pg_dump before-storage-q1.sql; storage module 001 and identity SQL 010 applied; all services healthy. Browser acceptance pending user.
+Release status: storage standard fixes (939d0ea) deployed to VM 10.1.1.20 after pg_dump before-storage-002.sql; storage SQL 002 applied; services healthy. Browser acceptance pending user.
 
 Storage Q1 (current): read [storage quota](storage-quota.md). storage module (registry, soft quota ledger, reservations, audit), identity SQL 010 storage.manage, Files enforces home quota, Storage Manager app, default quota in Settings. Next Q2: share permissions + File Station share roots + quota folders.
 
