@@ -1,3 +1,5 @@
+[Notification & Log Center review](notifications-logs-review.md) — evaluation of the Codex brief against current audit/event code.
+
 [Storage model review](storage-model-review.md) — evaluation of the DSM shared-folder + Nextcloud proposal, corrections and order.
 
 [ADR 0007 — central Settings](adr/0007-central-settings.md) — Settings contract every app must follow.
