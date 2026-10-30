@@ -1,0 +1,117 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "user.v1.schema.json",
+      "type": "IdentityUser"
+    },
+    {
+      "file": "group.v1.schema.json",
+      "type": "IdentityGroup"
+    },
+    {
+      "file": "role.v1.schema.json",
+      "type": "IdentityRole"
+    },
+    {
+      "file": "permission.v1.schema.json",
+      "type": "IdentityPermission"
+    },
+    {
+      "file": "role-binding.v1.schema.json",
+      "type": "IdentityRoleBinding"
+    },
+    {
+      "file": "session.v1.schema.json",
+      "type": "IdentitySession"
+    },
+    {
+      "file": "credential-ref.v1.schema.json",
+      "type": "IdentityCredentialRef"
+    },
+    {
+      "file": "identity-link.v1.schema.json",
+      "type": "IdentityLink"
+    },
+    {
+      "file": "linux-identity.v1.schema.json",
+      "type": "IdentityLinuxIdentity"
+    },
+    {
+      "file": "audit-event.v1.schema.json",
+      "type": "IdentityAuditEvent"
+    },
+    {
+      "file": "create-user.v1.schema.json",
+      "type": "IdentityCreateUser"
+    },
+    {
+      "file": "patch-user.v1.schema.json",
+      "type": "IdentityPatchUser"
+    },
+    {
+      "file": "change-password.v1.schema.json",
+      "type": "IdentityChangePassword"
+    },
+    {
+      "file": "user-page.v1.schema.json",
+      "type": "IdentityUserPage"
+    },
+    {
+      "file": "session-page.v1.schema.json",
+      "type": "IdentitySessionPage"
+    },
+    {
+      "file": "mutation-result.v1.schema.json",
+      "type": "IdentityMutationResult"
+    },
+    {
+      "file": "group-page.v1.schema.json",
+      "type": "IdentityGroupPage"
+    },
+    {
+      "file": "role-page.v1.schema.json",
+      "type": "IdentityRolePage"
+    },
+    {
+      "file": "permission-page.v1.schema.json",
+      "type": "IdentityPermissionPage"
+    },
+    {
+      "file": "audit-page.v1.schema.json",
+      "type": "IdentityAuditPage"
+    },
+    {
+      "file": "credential-page.v1.schema.json",
+      "type": "IdentityCredentialPage"
+    },
+    {
+      "file": "create-group.v1.schema.json",
+      "type": "IdentityCreateGroup"
+    },
+    {
+      "file": "patch-group.v1.schema.json",
+      "type": "IdentityPatchGroup"
+    },
+    {
+      "file": "group-member.v1.schema.json",
+      "type": "IdentityGroupMember"
+    },
+    {
+      "file": "create-role.v1.schema.json",
+      "type": "IdentityCreateRole"
+    },
+    {
+      "file": "create-role-binding.v1.schema.json",
+      "type": "IdentityCreateRoleBinding"
+    },
+    {
+      "file": "application.v1.schema.json",
+      "type": "IdentityApplication"
+    },
+    {
+      "file": "application-page.v1.schema.json",
+      "type": "IdentityApplicationPage"
+    }
+  ]
+}

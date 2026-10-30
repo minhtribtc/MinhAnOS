@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-group-member.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

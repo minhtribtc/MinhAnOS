@@ -1,3 +1,7 @@
+## Identity v1 — contract only
+
+OpenAPI có planned /api/v1/identity operations và generated client; chưa có HTTP handlers. /api legacy giữ error envelope và session behavior hiện hữu. Public UUID không thay storage ID; manifest permissions không tự cấp quyền. Xem [Phase 1](account-center/PHASE1_REPORT.md).
+
 # API desktop 0.1
 
 JSON cùng origin, prefix `/api`. Error: `{ "error": "thông báo" }`.

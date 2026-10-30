@@ -1,3 +1,7 @@
+## Identity progress
+
+Phase 1 contracts/schema/UUID/CLI hoàn tất và đã deploy test VM. Phase 2 AuthCore/session/account state; Phase 3 RBAC/business/audit; Phase 4 Account Center UI. Xem [báo cáo và giới hạn](account-center/PHASE1_REPORT.md).
+
 # MinhAnOS: dễ dùng như tablet, đa nhiệm cho quản trị
 
 ## Quyết định sản phẩm

@@ -1,0 +1,9 @@
+{
+  "contractVersion": "1",
+  "implementation": "schema-only",
+  "httpEndpointsEnabled": false,
+  "accountCenterUIEnabled": false,
+  "authorizationEnforcement": "legacy until Phase 2/3; empty new grant tables confer no access",
+  "uuidBackfill": "operator-driven batches; nullable expansion until separately approved contract step",
+  "posixProvisioningEnabled": false
+}

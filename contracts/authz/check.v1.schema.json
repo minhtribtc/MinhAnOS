@@ -15,7 +15,21 @@
         "jobs.cancel",
         "uploads.create",
         "uploads.write",
-        "uploads.cancel"
+        "uploads.cancel",
+        "identity.self.read",
+        "identity.self.write",
+        "identity.users.read",
+        "identity.users.write",
+        "identity.groups.read",
+        "identity.groups.write",
+        "identity.roles.read",
+        "identity.roles.write",
+        "identity.apps.read",
+        "identity.apps.write",
+        "identity.sessions.read",
+        "identity.sessions.revoke",
+        "identity.password.change",
+        "identity.audit.read"
       ]
     },
     "resource": {

@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/identity"
 )
 
 type User struct {
@@ -83,6 +84,9 @@ func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*S
 		return nil, err
 	}
 	if err = tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	if err = identity.ApplySchema(ctx, db); err != nil {
 		return nil, err
 	}
 	dummy, err := authn.Hash(authn.Token())

@@ -1075,6 +1075,1476 @@
           }
         }
       }
+    },
+    "/api/v1/identity/me": {
+      "get": {
+        "operationId": "identityGetMe",
+        "summary": "Read the authenticated user UUID",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/identity/users": {
+      "get": {
+        "operationId": "identityListUsers",
+        "summary": "Permission-filtered user list",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUserPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "identityCreateUser",
+        "summary": "Create a Standard User after policy checks",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateUser"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/users/{userId}": {
+      "get": {
+        "operationId": "identityGetUser",
+        "summary": "Read one authorized user",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "identityPatchUser",
+        "summary": "Edit allowlisted fields with version protection",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityPatchUser"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "identitySoftDeleteUser",
+        "summary": "Soft delete only after protected-admin and ownership checks",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/users/{userId}/disable": {
+      "post": {
+        "operationId": "identityDisableUser",
+        "summary": "Protected user state change with all-realm revocation",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/users/{userId}/enable": {
+      "post": {
+        "operationId": "identityEnableUser",
+        "summary": "Protected user state change with all-realm revocation",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/me/sessions": {
+      "get": {
+        "operationId": "identityListMySessions",
+        "summary": "List own session handles, never bearer tokens",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentitySessionPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/me/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "identityRevokeMySession",
+        "summary": "Revoke an owned realm-qualified session",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/me/sessions/revoke-others": {
+      "post": {
+        "operationId": "identityRevokeOtherSessions",
+        "summary": "Revoke other owned sessions across realms",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/me/password": {
+      "post": {
+        "operationId": "identityChangePassword",
+        "summary": "Verify current credential and revoke all realms including current",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityChangePassword"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/groups": {
+      "get": {
+        "operationId": "identityListGroups",
+        "summary": "List authorized groups",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroupPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "identityCreateGroup",
+        "summary": "Create a user group after permission checks",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateGroup"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/groups/{groupId}": {
+      "patch": {
+        "operationId": "identityPatchGroup",
+        "summary": "Edit a group without changing identity",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityPatchGroup"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/groups/{groupId}/members": {
+      "post": {
+        "operationId": "identityAddGroupMember",
+        "summary": "Add a member with protected-role checks",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityGroupMember"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/roles": {
+      "get": {
+        "operationId": "identityListRoles",
+        "summary": "List authorized roles",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityRolePage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "identityCreateRole",
+        "summary": "Create a custom role within actor permission ceiling",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityRole"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateRole"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/role-bindings": {
+      "post": {
+        "operationId": "identityCreateRoleBinding",
+        "summary": "Bind a role within verified actor scope",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityRoleBinding"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateRoleBinding"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/permissions": {
+      "get": {
+        "operationId": "identityListPermissions",
+        "summary": "Read permission-filtered metadata, never secrets",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityPermissionPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/applications": {
+      "get": {
+        "operationId": "identityListApplications",
+        "summary": "Read permission-filtered metadata, never secrets",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityApplicationPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/audit-events": {
+      "get": {
+        "operationId": "identityListAuditEvents",
+        "summary": "Read permission-filtered metadata, never secrets",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityAuditPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/me/credentials": {
+      "get": {
+        "operationId": "identityListMyCredentials",
+        "summary": "Read permission-filtered metadata, never secrets",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityCredentialPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/identity/users/{userId}/linux-identity": {
+      "get": {
+        "operationId": "identityGetLinuxIdentity",
+        "summary": "Read mapping status only; no provisioning",
+        "x-implementation": "planned",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityLinuxIdentity"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1441,7 +2911,21 @@
               "jobs.cancel",
               "uploads.create",
               "uploads.write",
-              "uploads.cancel"
+              "uploads.cancel",
+              "identity.self.read",
+              "identity.self.write",
+              "identity.users.read",
+              "identity.users.write",
+              "identity.groups.read",
+              "identity.groups.write",
+              "identity.roles.read",
+              "identity.roles.write",
+              "identity.apps.read",
+              "identity.apps.write",
+              "identity.sessions.read",
+              "identity.sessions.revoke",
+              "identity.password.change",
+              "identity.audit.read"
             ]
           },
           "resource": {
@@ -1543,6 +3027,882 @@
             }
           }
         }
+      },
+      "IdentityUser": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled",
+              "deleted"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "displayName",
+          "status",
+          "version"
+        ]
+      },
+      "IdentityGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "kind": {
+            "enum": [
+              "system",
+              "user"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name",
+          "kind",
+          "version"
+        ]
+      },
+      "IdentityRole": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "protected": {
+            "type": "boolean"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+            },
+            "uniqueItems": true
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name",
+          "protected",
+          "permissions",
+          "version"
+        ]
+      },
+      "IdentityPermission": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "descriptionKey": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*[.][A-Za-z0-9_.-]+$"
+          },
+          "resourceTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "key",
+          "descriptionKey",
+          "resourceTypes"
+        ]
+      },
+      "IdentityRoleBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "user",
+                  "group"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "system",
+                  "user",
+                  "storage"
+                ]
+              },
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "roleId",
+          "subject",
+          "scope",
+          "version"
+        ]
+      },
+      "IdentitySession": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(desktop|files):[0-9a-f-]{36}$"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "realm": {
+            "enum": [
+              "desktop",
+              "files"
+            ]
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "lastSeenAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deviceHint": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "realm",
+          "current",
+          "createdAt",
+          "lastSeenAt",
+          "expiresAt",
+          "deviceHint"
+        ]
+      },
+      "IdentityCredentialRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "enum": [
+              "password",
+              "webauthn",
+              "totp",
+              "recovery"
+            ]
+          },
+          "lastChangedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "revoked",
+              "unsupported"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "kind",
+          "lastChangedAt",
+          "state"
+        ]
+      },
+      "IdentityLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "issuer": {
+            "type": "string",
+            "format": "uri"
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "issuer",
+          "subject",
+          "createdAt"
+        ]
+      },
+      "IdentityLinuxIdentity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uid": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 4294967294
+          },
+          "primaryGid": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 4294967294
+          },
+          "supplementaryGids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967294
+            },
+            "uniqueItems": true
+          },
+          "state": {
+            "enum": [
+              "unmapped",
+              "reserved",
+              "ready",
+              "failed",
+              "disabled",
+              "retired"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "userId",
+          "nodeId",
+          "uid",
+          "primaryGid",
+          "supplementaryGids",
+          "state",
+          "version"
+        ]
+      },
+      "IdentityAuditEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "action": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "targetId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "outcome": {
+            "enum": [
+              "success",
+              "failure",
+              "denied"
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reasonCode": {
+                "type": "string"
+              },
+              "changedFields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": []
+          }
+        },
+        "required": [
+          "id",
+          "actorId",
+          "action",
+          "targetId",
+          "outcome",
+          "occurredAt",
+          "requestId",
+          "details"
+        ]
+      },
+      "IdentityCreateUser": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "username",
+          "displayName",
+          "password"
+        ]
+      },
+      "IdentityPatchUser": {
+        "minProperties": 1,
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": []
+      },
+      "IdentityChangePassword": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "IdentityUserPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityUser"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "IdentitySessionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentitySession"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "IdentityMutationResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "accepted"
+        ]
+      },
+      "IdentityGroupPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityGroup"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityRolePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityRole"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityPermissionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityPermission"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityAuditPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityAuditEvent"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityCredentialPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityCredentialRef"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityCreateGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "key",
+          "name"
+        ]
+      },
+      "IdentityPatchGroup": {
+        "minProperties": 1,
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": []
+      },
+      "IdentityGroupMember": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "IdentityCreateRole": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "permissions": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "permissions"
+        ]
+      },
+      "IdentityCreateRoleBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "roleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "user",
+                  "group"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          },
+          "scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "system",
+                  "user",
+                  "storage"
+                ]
+              },
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "roleId",
+          "subject",
+          "scope"
+        ]
+      },
+      "IdentityApplication": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "appId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){2,}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "appId",
+          "displayName",
+          "allowed"
+        ]
+      },
+      "IdentityApplicationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentityApplication"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
       }
     }
   },

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-patch-user.v1",
+  "minProperties": 1,
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    }
+  },
+  "required": []
+}

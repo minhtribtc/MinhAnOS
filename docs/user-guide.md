@@ -1,3 +1,7 @@
+## Identity foundation Phase 1
+
+Chưa có mục Account Center mới trong launcher; tiếp tục dùng đăng nhập/cài đặt hiện hữu. Không gọi các endpoint /api/v1/identity trong spec vì chưa có handlers. Operator dùng identity-admin status/backfill theo [báo cáo](account-center/PHASE1_REPORT.md); complete chỉ phản ánh UUID đầy đủ, không phải quyền hoặc trạng thái triển khai API.
+
 ## Bổ sung: ngôn ngữ và theme tài khoản (foundation preview)
 
 Mở File Station trong Desktop hoặc Drive độc lập. Thanh đầu ứng dụng có **Ngôn ngữ** và **Giao diện**.

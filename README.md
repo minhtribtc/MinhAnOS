@@ -1,3 +1,5 @@
+Identity foundation Phase 1 đã triển khai; Account Center UI/API quản trị chưa bật. Xem [báo cáo triển khai](docs/account-center/PHASE1_REPORT.md).
+
 # MinhAnOS Desktop + Drive
 
 [Hướng dẫn sử dụng](docs/user-guide.md) · [Danh mục tài liệu](docs/README.md) · [Kiến trúc nền tảng, i18n và theme](docs/platform-foundations.md)

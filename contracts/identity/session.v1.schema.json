@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-session.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(desktop|files):[0-9a-f-]{36}$"
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "realm": {
+      "enum": [
+        "desktop",
+        "files"
+      ]
+    },
+    "current": {
+      "type": "boolean"
+    },
+    "createdAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "lastSeenAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deviceHint": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 256
+    }
+  },
+  "required": [
+    "id",
+    "userId",
+    "realm",
+    "current",
+    "createdAt",
+    "lastSeenAt",
+    "expiresAt",
+    "deviceHint"
+  ]
+}

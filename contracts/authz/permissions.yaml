@@ -62,6 +62,90 @@
       "resourceTypes": [
         "upload"
       ]
+    },
+    "identity.self.read": {
+      "description": "identity.self.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.self.write": {
+      "description": "identity.self.write",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.users.read": {
+      "description": "identity.users.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.users.write": {
+      "description": "identity.users.write",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.groups.read": {
+      "description": "identity.groups.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.groups.write": {
+      "description": "identity.groups.write",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.roles.read": {
+      "description": "identity.roles.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.roles.write": {
+      "description": "identity.roles.write",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.apps.read": {
+      "description": "identity.apps.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.apps.write": {
+      "description": "identity.apps.write",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.sessions.read": {
+      "description": "identity.sessions.read",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.sessions.revoke": {
+      "description": "identity.sessions.revoke",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.password.change": {
+      "description": "identity.password.change",
+      "resourceTypes": [
+        "identity"
+      ]
+    },
+    "identity.audit.read": {
+      "description": "identity.audit.read",
+      "resourceTypes": [
+        "identity"
+      ]
     }
   },
   "rules": [

@@ -20,14 +20,17 @@ COPY internal/drive/ internal/drive/
 COPY internal/authn/ internal/authn/
 COPY internal/coreprofile/ internal/coreprofile/
 COPY internal/migrate/ internal/migrate/
+COPY internal/identity/ internal/identity/
+COPY cmd/identity-admin/ cmd/identity-admin/
 COPY internal/apicontract/ internal/apicontract/
 COPY cmd/drive/ cmd/drive/
 COPY cmd/files-agent/ cmd/files-agent/
-RUN go test ./... && go vet ./... && CGO_ENABLED=0 go build -trimpath -o /drive ./cmd/drive && CGO_ENABLED=0 go build -trimpath -o /files-agent ./cmd/files-agent
+RUN go test ./... && go vet ./... && CGO_ENABLED=0 go build -trimpath -o /drive ./cmd/drive && CGO_ENABLED=0 go build -trimpath -o /files-agent ./cmd/files-agent && CGO_ENABLED=0 go build -trimpath -o /identity-admin ./cmd/identity-admin
 FROM alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
 RUN apk add --no-cache ca-certificates tzdata && addgroup -g 10001 drive && adduser -D -u 10001 -G drive drive && mkdir /data && chown 10001:10001 /data
 COPY --from=build /drive /app/drive
 COPY --from=build /files-agent /app/files-agent
+COPY --from=build /identity-admin /app/identity-admin
 COPY --from=web /workspace/apps/drive/dist /app/web
 USER 10001:10001
 ENV TZ=Asia/Bangkok

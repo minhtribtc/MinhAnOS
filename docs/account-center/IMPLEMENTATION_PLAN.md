@@ -1,6 +1,6 @@
 # IMPLEMENTATION PLAN — Account Center & Identity
 
-Status: Phase 0 hoàn tất khảo sát; Phase 1 là đề xuất chờ duyệt. Không có code/migration mới trong nhánh này.
+Status: Phase 0 hoàn tất; người dùng đã duyệt Phase 1 và đã triển khai foundation. Xem [PHASE1_REPORT](PHASE1_REPORT.md) cho kết quả thực tế; các phase sau vẫn là kế hoạch.
 Bốn deliverables: CURRENT_ARCHITECTURE, GAP_ANALYSIS, IDENTITY_ARCHITECTURE và tài liệu này.
 
 ## 1. Thứ tự và điều kiện nghiệm thu

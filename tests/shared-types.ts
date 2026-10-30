@@ -10,3 +10,17 @@ const badLocale: Profile = {locale:'unsupported',theme:'light',timeZone:'UTC'}
 const badState: Job['state'] = 'paused'
 type PublicContracts = [AppManifest,ApiErrorEnvelope,LegacyErrorEnvelope,FileResource,FileAcl,Job,UploadSession,AuthorizationCheck,PlatformEvent]
 void checkedProfile;void sdkProfile;void badLocale;void badState
+
+import type {IdentityUser,IdentityRole,IdentitySession} from '@minhanos/shared-types'
+import {createIdentityClient} from '@minhanos/api-client/identity'
+const identityClient=createIdentityClient()
+// @ts-expect-error Role assignment is not a permitted profile patch.
+void identityClient.identityPatchUser({userId:'id',ifMatch:'v1',body:{role:'admin'}})
+// @ts-expect-error Idempotency is required for user creation.
+void identityClient.identityCreateUser({body:{username:'new',displayName:'New',password:'not-a-real-secret'}})
+// @ts-expect-error User status is a closed union.
+const unsupportedStatus: IdentityUser['status']='locked-by-client'
+type IdentityTypes=[IdentityUser,IdentityRole,IdentitySession]
+void unsupportedStatus
+
+void identityClient.identityListUsers()

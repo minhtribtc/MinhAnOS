@@ -10,6 +10,7 @@ import (
 	"log"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
+	identityschema "minhanos.local/platform/internal/identity"
 	"net"
 	"net/http"
 	"net/url"
@@ -160,6 +161,9 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		return nil, err
 	}
 	if err = tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	if err = identityschema.ApplySchema(ctx, db); err != nil {
 		return nil, err
 	}
 	a.profile, err = coreprofile.New(ctx, db)

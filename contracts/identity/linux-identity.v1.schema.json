@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-linux-identity.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "nodeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "uid": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 4294967294
+    },
+    "primaryGid": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 4294967294
+    },
+    "supplementaryGids": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4294967294
+      },
+      "uniqueItems": true
+    },
+    "state": {
+      "enum": [
+        "unmapped",
+        "reserved",
+        "ready",
+        "failed",
+        "disabled",
+        "retired"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "userId",
+    "nodeId",
+    "uid",
+    "primaryGid",
+    "supplementaryGids",
+    "state",
+    "version"
+  ]
+}

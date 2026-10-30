@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-audit-event.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "actorId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "action": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+    },
+    "targetId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "outcome": {
+      "enum": [
+        "success",
+        "failure",
+        "denied"
+      ]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reasonCode": {
+          "type": "string"
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "id",
+    "actorId",
+    "action",
+    "targetId",
+    "outcome",
+    "occurredAt",
+    "requestId",
+    "details"
+  ]
+}

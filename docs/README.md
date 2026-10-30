@@ -1,3 +1,5 @@
+[Account Center Phase 1 report](account-center/PHASE1_REPORT.md) — implementation, migration, security review, tests và hướng tiếp tục.
+
 # Tài liệu MinhAnOS
 
 Tài liệu phải được cập nhật trong cùng commit với thay đổi liên quan. Nội dung đánh dấu

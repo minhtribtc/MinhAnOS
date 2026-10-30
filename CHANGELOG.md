@@ -1,3 +1,9 @@
+## Account Center Phase 1 — 2026-10-30
+
+- Thêm Identity contracts, generated types/client, schema adoption và public UUID cùng user hiện hữu.
+- Thêm CLI backfill có giới hạn; giữ Files storage IDs và session realms. Chưa bật Account Center UI/API/RBAC mới.
+- Kiểm thử upgrade DB thật, concurrency, cài mới và smoke VM; xem docs/account-center/PHASE1_REPORT.md.
+
 # Changelog
 
 ## 0.2.0 — 2026-10-30

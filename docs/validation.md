@@ -1,3 +1,7 @@
+## Account Center Phase 1 — 2026-10-30
+
+Đã chạy npm check/generate, OpenAPI compatibility, Docker/go checks, dedicated PostgreSQL migration/concurrent backfill, restore DB pre-upgrade, runtime API/profile/Files/Drive smoke, Drive khi Desktop dừng và cài mới standalone project cô lập: PASS. Một warning IdentityLink reserved chưa dùng. Import-name build collision đã sửa. Chưa có UI Account Center, chưa kiểm thử RBAC mới hoặc full Files-volume recovery. Evidence và phạm vi chính xác: [Phase 1 report](account-center/PHASE1_REPORT.md).
+
 # Kiểm chứng Account Center Phase 0 — 2026-10-30
 
 Docs-only, source audit tại 026a24f. Đã đọc authentication/session, middleware, native host, SDK/manifest,

@@ -1,3 +1,7 @@
+## Identity adoption đã triển khai
+
+internal/identity là shared Go library trong Desktop và Drive, dùng cùng users và migration runner; chạy sau legacy bootstrap commit. Public UUID và credential reference thêm trên cùng row; session/password stores giữ nguyên. Relations mới rỗng, chưa có policy engine/business endpoints. Xem [Phase 1 report](account-center/PHASE1_REPORT.md).
+
 ## Cập nhật kiến trúc nền tảng 0.1 (2026-10-30)
 
 Bản hiện tại dùng npm workspace và một lockfile root. Các package đầu tiên: i18n (ICU/Intl), ui (tokens/theme),

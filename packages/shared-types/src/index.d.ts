@@ -24,6 +24,18 @@ export interface AppManifest {
     version: "1";
     supports: ("foreground" | "background" | "requestClose")[];
   };
+  navigation?: {
+    id: string;
+    labelKey: string;
+    path: string;
+    requiredPermission?: string;
+  }[];
+  settingsIntegration?: {
+    id: string;
+    labelKey: string;
+    path: string;
+    requiredPermission?: string;
+  }[];
 }
 
 export interface ApiErrorEnvelope {
@@ -122,7 +134,21 @@ export interface AuthorizationCheck {
     | "jobs.cancel"
     | "uploads.create"
     | "uploads.write"
-    | "uploads.cancel";
+    | "uploads.cancel"
+    | "identity.self.read"
+    | "identity.self.write"
+    | "identity.users.read"
+    | "identity.users.write"
+    | "identity.groups.read"
+    | "identity.groups.write"
+    | "identity.roles.read"
+    | "identity.roles.write"
+    | "identity.apps.read"
+    | "identity.apps.write"
+    | "identity.sessions.read"
+    | "identity.sessions.revoke"
+    | "identity.password.change"
+    | "identity.audit.read";
   resource: string;
   context: {
     appId: string;
@@ -143,3 +169,249 @@ export type PlatformEvent = {
     [k: string]: unknown;
   };
 };
+
+export interface IdentityUser {
+  id: string;
+  username: string;
+  displayName: string;
+  status: "active" | "disabled" | "deleted";
+  version: number;
+}
+
+export interface IdentityGroup {
+  id: string;
+  key: string;
+  name: string;
+  kind: "system" | "user";
+  version: number;
+}
+
+export interface IdentityRole {
+  id: string;
+  key: string;
+  name: string;
+  protected: boolean;
+  permissions: string[];
+  version: number;
+}
+
+export interface IdentityPermission {
+  key: string;
+  descriptionKey: string;
+  resourceTypes: string[];
+}
+
+export interface IdentityRoleBinding {
+  id: string;
+  roleId: string;
+  subject: {
+    kind: "user" | "group";
+    id: string;
+  };
+  scope: {
+    kind: "system" | "user" | "storage";
+    id: string | null;
+  };
+  version: number;
+}
+
+export interface IdentitySession {
+  id: string;
+  userId: string;
+  realm: "desktop" | "files";
+  current: boolean;
+  createdAt: string | null;
+  lastSeenAt: string | null;
+  expiresAt: string;
+  deviceHint: string | null;
+}
+
+export interface IdentityCredentialRef {
+  id: string;
+  userId: string;
+  kind: "password" | "webauthn" | "totp" | "recovery";
+  lastChangedAt: string | null;
+  state: "active" | "revoked" | "unsupported";
+}
+
+export interface IdentityLink {
+  id: string;
+  userId: string;
+  issuer: string;
+  subject: string;
+  createdAt: string;
+}
+
+export interface IdentityLinuxIdentity {
+  userId: string;
+  nodeId: string;
+  uid: number | null;
+  primaryGid: number | null;
+  supplementaryGids: number[];
+  state: "unmapped" | "reserved" | "ready" | "failed" | "disabled" | "retired";
+  version: number;
+}
+
+export interface IdentityAuditEvent {
+  id: string;
+  actorId: string | null;
+  action: string;
+  targetId: string | null;
+  outcome: "success" | "failure" | "denied";
+  occurredAt: string;
+  requestId: string;
+  details: {
+    reasonCode?: string;
+    changedFields?: string[];
+  };
+}
+
+export interface IdentityCreateUser {
+  username: string;
+  displayName: string;
+  password: string;
+}
+
+export interface IdentityPatchUser {
+  displayName?: string;
+}
+
+export interface IdentityChangePassword {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface IdentityUserPage {
+  items: {
+    id: string;
+    username: string;
+    displayName: string;
+    status: "active" | "disabled" | "deleted";
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentitySessionPage {
+  items: {
+    id: string;
+    userId: string;
+    realm: "desktop" | "files";
+    current: boolean;
+    createdAt: string | null;
+    lastSeenAt: string | null;
+    expiresAt: string;
+    deviceHint: string | null;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityMutationResult {
+  accepted: boolean;
+}
+
+export interface IdentityGroupPage {
+  items: {
+    id: string;
+    key: string;
+    name: string;
+    kind: "system" | "user";
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityRolePage {
+  items: {
+    id: string;
+    key: string;
+    name: string;
+    protected: boolean;
+    permissions: string[];
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityPermissionPage {
+  items: {
+    key: string;
+    descriptionKey: string;
+    resourceTypes: string[];
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityAuditPage {
+  items: {
+    id: string;
+    actorId: string | null;
+    action: string;
+    targetId: string | null;
+    outcome: "success" | "failure" | "denied";
+    occurredAt: string;
+    requestId: string;
+    details: {
+      reasonCode?: string;
+      changedFields?: string[];
+    };
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityCredentialPage {
+  items: {
+    id: string;
+    userId: string;
+    kind: "password" | "webauthn" | "totp" | "recovery";
+    lastChangedAt: string | null;
+    state: "active" | "revoked" | "unsupported";
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityCreateGroup {
+  key: string;
+  name: string;
+}
+
+export interface IdentityPatchGroup {
+  name?: string;
+}
+
+export interface IdentityGroupMember {
+  userId: string;
+}
+
+export interface IdentityCreateRole {
+  key: string;
+  name: string;
+  permissions: string[];
+}
+
+export interface IdentityCreateRoleBinding {
+  roleId: string;
+  subject: {
+    kind: "user" | "group";
+    id: string;
+  };
+  scope: {
+    kind: "system" | "user" | "storage";
+    id: string | null;
+  };
+}
+
+export interface IdentityApplication {
+  appId: string;
+  displayName: string;
+  allowed: boolean;
+}
+
+export interface IdentityApplicationPage {
+  items: {
+    appId: string;
+    displayName: string;
+    allowed: boolean;
+  }[];
+  nextCursor: string | null;
+}

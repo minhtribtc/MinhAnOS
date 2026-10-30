@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-create-role-binding.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "roleId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "user",
+            "group"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "system",
+            "user",
+            "storage"
+          ]
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ]
+    }
+  },
+  "required": [
+    "roleId",
+    "subject",
+    "scope"
+  ]
+}

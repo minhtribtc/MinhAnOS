@@ -1,8 +1,15 @@
-# Handoff — Account Center Phase 0, approval required
+# Handoff — Account Center Phase 1
+
+Nhánh account-center-phase1. Người dùng đã duyệt triển khai. Đọc [báo cáo Phase 1](account-center/PHASE1_REPORT.md) trước khi tiếp tục; đây là trạng thái hiện hành, các mục dưới là lịch sử.
+Identity contracts/generated client + shared Go schema/repository/CLI đã triển khai. VM 8081/8082 healthy, UUID backfill users=1 pending=0. Không có Account Center UI/Identity HTTP handlers/RBAC enforcement mới.
+Freeze identity SQL 001–003 và profile 001. Giữ users.id hex64 và Files paths; public UUID mapping không phải quyền. Không thêm users/session/password store. Backup trước migration đã restore thử DB cô lập; Files-volume recovery chưa kiểm chứng.
+Tests: npm check, Docker builds/go checks, PostgreSQL concurrency/upgrade, runtime profile/API/Files/Drive và cài mới standalone đều PASS; một warning OpenAPI reserved IdentityLink. Chi tiết/commands/limitations trong report. Tiếp theo Phase 2 AuthCore, rồi Phase 3 policy/business APIs; host-root privilege split là gate trước cấp quyền mới.
+
+# Historical handoff — Account Center Phase 0
 
 Nhánh account-center-phase0; source khảo sát 026a24f7f9335bb0e42fbdee93aa08bc7e46066c.
 Đọc docs/account-center/README.md và bốn báo cáo trước khi tiếp tục. Master prompt người dùng yêu cầu chỉ Phase 0
-trong lượt đầu, chờ phê duyệt trước code/migration. Chưa được triển khai Phase 1.
+trong lượt đầu, chờ phê duyệt trước code/migration. Đây là trạng thái lịch sử trước khi người dùng duyệt Phase 1.
 Đây là docs-only: chưa tạo AccountCenter runtime, chưa thêm schema/endpoint, không deploy hoặc đổi dữ liệu/quyền.
 
 Các quyết định đề xuất: reuse users/two session realms; shared Go modular monolith; public UUID cùng users row,

@@ -20,3 +20,5 @@ test "$ready" = 1
 docker exec "$database" psql -U postgres -v ON_ERROR_STOP=1 -c 'CREATE ROLE minhanos;' >/dev/null
 docker exec -i "$database" psql -U postgres -v ON_ERROR_STOP=1 < "$MIGRATION_UPGRADE_DUMP" >/dev/null
 docker run --rm --network "$network" -e "MIGRATION_UPGRADE_TEST_DATABASE_URL=postgres://postgres@$database:5432/postgres?sslmode=disable" -v "$PWD:/src" -w /src golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308 go test -count=1 -run TestUpgradeRestoredDatabase -v ./internal/coreprofile
+
+docker run --rm --network "$network" -e "MIGRATION_UPGRADE_TEST_DATABASE_URL=postgres://postgres@$database:5432/postgres?sslmode=disable" -v "$PWD:/src" -w /src golang:1.26-alpine@sha256:a2012b4a1d1f9f7e9f44e0d39b805a901e856b1dd80b4e6ee4338db547050308 go test -count=1 -run TestRestoreUpgradeIdentity -v ./internal/identity

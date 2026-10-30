@@ -1,0 +1,94 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.account-center",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/account-center",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [
+    "identity.self.read",
+    "identity.self.write",
+    "identity.users.read",
+    "identity.users.write",
+    "identity.groups.read",
+    "identity.groups.write",
+    "identity.roles.read",
+    "identity.roles.write",
+    "identity.apps.read",
+    "identity.apps.write",
+    "identity.sessions.read",
+    "identity.sessions.revoke",
+    "identity.password.change",
+    "identity.audit.read"
+  ],
+  "navigation": [
+    {
+      "id": "overview",
+      "labelKey": "accounts.nav.overview",
+      "path": "/overview",
+      "requiredPermission": "identity.self.read"
+    },
+    {
+      "id": "users",
+      "labelKey": "accounts.nav.users",
+      "path": "/users",
+      "requiredPermission": "identity.users.read"
+    },
+    {
+      "id": "groups",
+      "labelKey": "accounts.nav.groups",
+      "path": "/groups",
+      "requiredPermission": "identity.groups.read"
+    },
+    {
+      "id": "roles",
+      "labelKey": "accounts.nav.roles",
+      "path": "/roles",
+      "requiredPermission": "identity.roles.read"
+    },
+    {
+      "id": "applications",
+      "labelKey": "accounts.nav.applications",
+      "path": "/applications",
+      "requiredPermission": "identity.apps.read"
+    },
+    {
+      "id": "sessions",
+      "labelKey": "accounts.nav.sessions",
+      "path": "/sessions",
+      "requiredPermission": "identity.sessions.read"
+    },
+    {
+      "id": "security",
+      "labelKey": "accounts.nav.security",
+      "path": "/security",
+      "requiredPermission": "identity.self.read"
+    },
+    {
+      "id": "audit",
+      "labelKey": "accounts.nav.audit",
+      "path": "/audit",
+      "requiredPermission": "identity.audit.read"
+    }
+  ],
+  "settingsIntegration": [
+    {
+      "id": "my-account",
+      "labelKey": "accounts.nav.myAccount",
+      "path": "/me",
+      "requiredPermission": "identity.self.read"
+    }
+  ],
+  "lifecycle": {
+    "version": "1",
+    "supports": [
+      "foreground",
+      "background",
+      "requestClose"
+    ]
+  }
+}

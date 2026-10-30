@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-identity-link.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "issuer": {
+      "type": "string",
+      "format": "uri"
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "userId",
+    "issuer",
+    "subject",
+    "createdAt"
+  ]
+}
