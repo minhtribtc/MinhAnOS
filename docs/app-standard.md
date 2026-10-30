@@ -1,6 +1,7 @@
 # MinhAnOS app standard — review checklist
 
-Every app (Desktop shell included) is reviewed against these rows. Sources: AGENTS.md, ADR 0007 (Settings),
+Every app (Desktop shell included) is reviewed against these rows. Rows 15–26 were added on 2026-10-31
+after a gap review; earlier app reviews covered rows 1–14 only. Sources: AGENTS.md, ADR 0007 (Settings),
 [notifications/logs review](notifications-logs-review.md), [Phase A](account-center/PHASE_A_REPORT.md).
 
 | # | Area | Requirement |
@@ -19,6 +20,31 @@ Every app (Desktop shell included) is reviewed against these rows. Sources: AGEN
 | 12 | Logs | Operational errors logged structured with request ID; user-visible history comes from the Log Center sources, not a private app log viewer |
 | 13 | Quota/storage | Writes that add data go through the soft-quota ledger (reserve → commit/release) |
 | 14 | Tests | Backend contract/integration tests for every rule above that the app touches; frontend build + boundary/standard checks |
+| 15 | API contract | Every HTTP API in versioned OpenAPI/JSON Schema with generated types/client, stable error codes, cursor pagination with limits, `If-Match` versions and `Idempotency-Key` for writes; no undocumented endpoints |
+| 16 | Security baseline | Same-origin + CSRF on writes, strict input validation (unknown fields rejected), reauthentication for sensitive admin writes, rate limits where abuse is possible, CSP-compatible UI, no secrets in URLs, logs, events or DTOs; host/root work only through restricted agents |
+| 17 | Privacy & data ownership | Per-user isolation by default; admins do not read personal data implicitly; documented retention for every table the app owns; user data export/removal path; PII minimised in audit/notifications |
+| 18 | Data & migrations | Schema only through the migration runner as an owned module; applied steps immutable; expand/contract for breaking changes; backup before applying on real data; DB/filesystem consistency rules written down |
+| 19 | Backup & restore | The app lists what must be backed up (DB tables, files, config) and restore is tested in isolation; no state only in browser storage |
+| 20 | Long-running work | Operations that can exceed a request (moves, scans, imports) run as durable jobs with progress, cancel, retry and audit (jobs contract) |
+| 21 | UX states & honesty | Loading, empty, error, offline/degraded (e.g. agent down) and first-run states designed; planned features never shown as working; destructive actions confirmed |
+| 22 | Accessibility & responsive | Keyboard reachable, visible focus, labelled controls and dialogs (focus trap, Escape), sufficient contrast in light/dark; usable at phone width without horizontal overflow |
+| 23 | Naming & branding | Display names and IDs from ADR 0003 (e.g. "MinhAnOS Files"); no legacy or preview names in UI text |
+| 24 | Runtime & packaging | Non-root, read-only rootfs, dropped capabilities, health check; image build copies every package it needs (docker-context check); pinned dependencies and image digests |
+| 25 | Performance & limits | Bounded queries and payloads, pagination, request timeouts, upload/text limits declared; no unbounded scans on request paths; bundle growth watched |
+| 26 | Documentation | Same commit updates user guide, HANDOFF, CHANGELOG, API/architecture docs and validation evidence (AGENTS mandatory documentation) |
 
 Notification Center and Log Center are still **planned**: rows 11–12 are satisfied today by writing the
 outbox/audit correctly; showing them needs those apps (Phase B/C).
+
+## Known violations of rows 15–26 (2026-10-31)
+
+| Row | Where | Gap |
+|---|---|---|
+| 15 | Storage API `/api/storage` (Q1), Drive `/api/files/*` | Not in OpenAPI; no generated client; Storage share quota uses `version` in the body instead of `If-Match` |
+| 25 | Files soft quota | First measurement walks the whole home inside a `/api/roots` request (unbounded scan on a request path) → move to a background job |
+| 20 | Storage, Files | Jobs contract still planned; needed for measuring, moving homes to a new share, recursive copy |
+| 19 | All apps | No per-app backup list; backups so far were manual `pg_dump` before migrations; Files/ZFS/Btrfs data restore untested |
+| 17 | All apps | No user data export/removal flow; retention documented only for identity audit and notices |
+| 22 | Desktop, Files, Storage Manager | No accessibility checks in the test suite (Account Center dialogs have a focus trap) |
+| 21 | Files | No first-run "no storage yet" state (required by the first-run rule) |
+| 23 | Files | "MinhAnOS Drive", "File Station · Preview" in UI |
