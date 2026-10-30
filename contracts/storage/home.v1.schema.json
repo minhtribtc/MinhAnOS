@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-home.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "username": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "share": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limitBytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1152921504606847000
+        },
+        "usedBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reservedBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "measured": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "limitBytes",
+        "usedBytes",
+        "reservedBytes",
+        "measured"
+      ]
+    }
+  },
+  "required": [
+    "userId",
+    "username",
+    "displayName",
+    "share",
+    "version",
+    "usage"
+  ]
+}

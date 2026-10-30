@@ -1,0 +1,15 @@
+{
+  "contractVersion": "1",
+  "implementation": "Q1 soft quota and Storage Manager",
+  "implementedOperations": [
+    "storageCreateShare",
+    "storageGetSettings",
+    "storageListHomes",
+    "storageListShares",
+    "storageListVolumes",
+    "storageMeasureHome",
+    "storageSetHomeQuota",
+    "storageSetSettings",
+    "storageSetShareQuota"
+  ]
+}

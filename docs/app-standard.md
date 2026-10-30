@@ -40,8 +40,7 @@ outbox/audit correctly; showing them needs those apps (Phase B/C).
 
 | Row | Where | Gap |
 |---|---|---|
-| 15 | Storage API `/api/storage` (Q1), Drive `/api/files/*` | Not in OpenAPI; no generated client; Storage share quota uses `version` in the body instead of `If-Match` |
-| 25 | Files soft quota | First measurement walks the whole home inside a `/api/roots` request (unbounded scan on a request path) → move to a background job |
+| 15 | Drive `/api/files/*` | Not in OpenAPI (storage API fixed 2026-10-31: `/api/v1/storage` in OpenAPI with generated client, If-Match, Idempotency-Key) |
 | 20 | Storage, Files | Jobs contract still planned; needed for measuring, moving homes to a new share, recursive copy |
 | 19 | All apps | No per-app backup list; backups so far were manual `pg_dump` before migrations; Files/ZFS/Btrfs data restore untested |
 | 17 | All apps | No user data export/removal flow; retention documented only for identity audit and notices |

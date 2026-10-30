@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,reactive,ref,watch} from 'vue'
 import {HardDrive,FolderTree,Users,RefreshCw,Plus,X,Gauge} from 'lucide-vue-next'
-import {useHost,createApiClient,ApiError} from '@minhanos/app-sdk'
+import {useHost,createApiClient,createIdempotencyKey,ApiError} from '@minhanos/app-sdk'
+import {createStorageClient} from '@minhanos/api-client/storage'
 import catalogs from '../locales/catalogs.json'
 import {fromGB,toGB,type Home,type Share,type Volume} from './api'
 
@@ -11,7 +12,8 @@ const props=withDefaults(defineProps<{active?:boolean;apiBase?:string}>(),{activ
 const host=useHost(),release=host.useCatalog('storage',catalogs)
 onBeforeUnmount(release)
 const t=(key:string,params?:Record<string,string|number>)=>{host.profile.value.locale;return host.i18n.t('storage.'+key,params)}
-const api=createApiClient(props.apiBase)
+// Session/reauthentication use the host API; storage calls use the client generated from OpenAPI.
+const api=createApiClient(props.apiBase),storage=createStorageClient(props.apiBase+'/v1/storage')
 type Tab='volumes'|'shares'|'homes'
 const tab=ref<Tab>('shares'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('')
 const volumes=ref<Volume[]>([]),shares=ref<Share[]>([]),homes=ref<Home[]>([]),agentError=ref(false)
@@ -31,12 +33,12 @@ function message(e:unknown){if(e instanceof ApiError){const key='errors.'+e.code
 async function load(){
  loading.value=true;error.value=''
  try{
-  const [v,s,h]=await Promise.all([api.request<{items:Volume[];agentError:boolean}>('/storage/volumes'),api.request<{items:Share[]}>('/storage/shares'),api.request<{items:Home[]}>('/storage/homes')])
+  const [v,s,h]=await Promise.all([storage.storageListVolumes(),storage.storageListShares(),storage.storageListHomes()])
   volumes.value=v.items;agentError.value=v.agentError;shares.value=s.items;homes.value=h.items
  }catch(e){error.value=message(e)}finally{loading.value=false}
 }
 async function init(){
- try{const s=await api.request<{csrfToken:string}>('/session');api.setCSRF(s.csrfToken);await load()}catch(e){error.value=message(e)}
+ try{const s=await api.request<{csrfToken:string}>('/session');api.setCSRF(s.csrfToken);storage.setCSRF(s.csrfToken);await load()}catch(e){error.value=message(e)}
 }
 function open(kind:Dialog['kind'],target?:Share|Home){
  if(busy.value)return
@@ -54,10 +56,10 @@ async function submit(){
  try{
   await api.request('/v1/identity/reauthenticate',{method:'POST',body:JSON.stringify({password:form.password})})
   form.password=''
-  if(d.kind==='share')await api.request('/storage/shares',{method:'POST',body:JSON.stringify({key:form.key,name:form.name,volume:form.volume,limitBytes})})
-  else if(d.kind==='share-quota'){const s=d.target as Share;await api.request('/storage/shares/'+s.id+'/quota',{method:'PUT',body:JSON.stringify({version:s.version,limitBytes})})}
-  else if(d.kind==='measure'){const h=d.target as Home;await api.request('/storage/homes/'+h.userId+'/measure',{method:'POST',body:'{}'})}
-  else{const h=d.target as Home;await api.request('/storage/homes/'+h.userId+'/quota',{method:'PUT',body:JSON.stringify({limitBytes})})}
+  if(d.kind==='share')await storage.storageCreateShare({idempotencyKey:createIdempotencyKey(),body:{key:form.key,name:form.name,volume:form.volume,limitBytes}})
+  else if(d.kind==='share-quota'){const s=d.target as Share;await storage.storageSetShareQuota({shareId:s.id,ifMatch:'"'+s.version+'"',body:{limitBytes}})}
+  else if(d.kind==='measure'){const h=d.target as Home;await storage.storageMeasureHome({userId:h.userId,idempotencyKey:createIdempotencyKey()})}
+  else{const h=d.target as Home;await storage.storageSetHomeQuota({userId:h.userId,ifMatch:'"'+h.version+'"',body:{limitBytes}})}
   notice.value=t(d.kind==='measure'?'homes.measureQueued':'saved');dialog.value=null;await load()
  }catch(e){error.value=message(e)}finally{form.password='';busy.value=false}
 }

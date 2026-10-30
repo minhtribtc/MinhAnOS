@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-create-share.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "volume": {
+      "type": "string",
+      "minLength": 1
+    },
+    "limitBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1152921504606847000
+    }
+  },
+  "required": [
+    "key",
+    "name",
+    "volume",
+    "limitBytes"
+  ]
+}

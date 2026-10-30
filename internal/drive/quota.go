@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"io/fs"
+	"log"
 	"net/http"
 	"path"
 	"path/filepath"
+	"sync"
+	"time"
 
 	"minhanos.local/platform/internal/storagecore"
 )
@@ -20,6 +23,7 @@ type QuotaLedger interface {
 	NeedsMeasure(ctx context.Context, home string) (bool, error)
 	SetMeasured(ctx context.Context, home string, bytes int64) error
 	HomeUsage(ctx context.Context, home string) (storagecore.Usage, error)
+	PendingMeasures(ctx context.Context, limit int) ([]string, error)
 }
 
 // measureHome sums regular files (files and trash) without following links. It repairs the ledger; it
@@ -42,17 +46,68 @@ func measureHome(dir string) (int64, error) {
 	return total, e
 }
 
-// syncMeasure re-measures a home when the ledger asks for it. Callers hold the user's write lock.
-func (s *Server) syncMeasure(ctx context.Context, home, dir string) error {
-	need, e := s.Quota.NeedsMeasure(ctx, home)
-	if e != nil || !need {
-		return e
-	}
-	n, e := measureHome(dir)
+// measurePending measures homes the ledger flagged (first use, admin request). It runs in the background
+// worker, never on a request path: a large home can take long to walk. The user's read lock excludes their
+// writes (which hold the write lock until they commit), so the measurement and the ledger stay consistent.
+func (s *Server) measurePending(ctx context.Context) error {
+	homes, e := s.Quota.PendingMeasures(ctx, 10)
 	if e != nil {
 		return e
 	}
-	return s.Quota.SetMeasured(ctx, home, n)
+	for _, home := range homes {
+		if !validID(home) {
+			continue
+		}
+		v, _ := s.locks.LoadOrStore(home, &sync.RWMutex{})
+		lock := v.(*sync.RWMutex)
+		lock.RLock()
+		n, e := measureHome(filepath.Join(s.DataDir, "users", home))
+		if errors.Is(e, fs.ErrNotExist) {
+			n, e = 0, nil
+		}
+		if e == nil {
+			e = s.Quota.SetMeasured(ctx, home, n)
+		}
+		lock.RUnlock()
+		if e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
+// StartMeasurer starts the background measurer before the server accepts requests. It processes the queue
+// every interval and when a request found an unmeasured home. Until a home is measured, writes are checked
+// against its last known usage (soft quota).
+func (s *Server) StartMeasurer(ctx context.Context, interval time.Duration) {
+	if s.Quota == nil {
+		return
+	}
+	s.measureKick = make(chan struct{}, 1)
+	go s.runMeasurer(ctx, interval)
+}
+
+func (s *Server) runMeasurer(ctx context.Context, interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		if e := s.measurePending(ctx); e != nil && ctx.Err() == nil {
+			log.Printf("drive quota measurement failed: %v", e)
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		case <-s.measureKick:
+		}
+	}
+}
+
+func (s *Server) kickMeasurer() {
+	select {
+	case s.measureKick <- struct{}{}:
+	default:
+	}
 }
 
 // quotaSize is how many bytes a personal write may add: the raw upload body, the copied file, or the new

@@ -1,0 +1,49 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "volume.v1.schema.json",
+      "type": "StorageVolume"
+    },
+    {
+      "file": "share.v1.schema.json",
+      "type": "StorageShare"
+    },
+    {
+      "file": "home.v1.schema.json",
+      "type": "StorageHome"
+    },
+    {
+      "file": "create-share.v1.schema.json",
+      "type": "StorageCreateShare"
+    },
+    {
+      "file": "set-quota.v1.schema.json",
+      "type": "StorageSetQuota"
+    },
+    {
+      "file": "settings.v1.schema.json",
+      "type": "StorageSettings"
+    },
+    {
+      "file": "settings-input.v1.schema.json",
+      "type": "StorageSettingsInput"
+    },
+    {
+      "file": "accepted.v1.schema.json",
+      "type": "StorageAccepted"
+    },
+    {
+      "file": "volume-page.v1.schema.json",
+      "type": "StorageVolumePage"
+    },
+    {
+      "file": "share-page.v1.schema.json",
+      "type": "StorageSharePage"
+    },
+    {
+      "file": "home-page.v1.schema.json",
+      "type": "StorageHomePage"
+    }
+  ]
+}

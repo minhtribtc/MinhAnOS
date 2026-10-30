@@ -48,9 +48,16 @@ App `com.minhanos.storage` (System Admin only; hidden from others in the launche
 (reauthentication) and is audited. Settings → Storage Manager → Default quota sets the quota for homes created
 later. Files shows "Your storage" with a usage bar.
 
-API `/api/storage/...` (Desktop host, session + CSRF, `storage.manage`, writes need reauthentication within
-5 minutes): `GET volumes|shares|homes|settings`, `POST shares`, `PUT shares/{id}/quota` (with `version`),
-`PUT homes/{userId}/quota`, `POST homes/{userId}/measure`, `PUT settings`.
+API v1 `/api/v1/storage/...` (contracts/storage, OpenAPI, generated `@minhanos/api-client/storage`; Desktop host,
+session + CSRF, `storage.manage`, writes need reauthentication within 5 minutes; nested v1 error envelope):
+`GET volumes|shares|homes|settings`; `POST shares` and `POST homes/{userId}/measure` need `Idempotency-Key`
+(replayed for 24 h); `PUT shares/{id}/quota`, `PUT homes/{userId}/quota`, `PUT settings` need `If-Match` with the
+policy version (quota versions change only when a limit changes, not on every write).
+
+Measurement never runs on a request path: `/api/roots` reports `measured:false` and wakes a background
+measurer in Drive (queue = `measure_requested` in the DB, survives restarts; every 30 s or on demand). The
+measurer holds the user's read lock, which excludes that user's writes while the home is walked. Until a home
+is measured, writes are checked against its last known usage.
 
 The storage agent now gives new units to the service account (`MINHANOS_STORAGE_OWNER=10001:10001`, mode 0750).
 Shares are created but not yet browsable in File Station (Q2: share permissions and roots).

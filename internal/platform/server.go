@@ -209,7 +209,7 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
 	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(a.apps)))
-	mux.Handle("/api/storage/", a.auth(a.storageHandler()))
+	mux.Handle("/api/v1/storage/", a.auth(a.storageHandler()))
 	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))

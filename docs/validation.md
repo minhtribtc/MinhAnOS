@@ -1,3 +1,7 @@
+## Storage standard fixes (rows 15, 25) — 2026-10-31
+
+VM /opt/minhanos-fx2: gofmt (2 reformatted), go vet, go test PASS incl. drive background measurement; migrations-integration PASS (storage 002); clean npm ci + contracts:generate + build PASS incl. new tests/storage-contracts.mjs (schema = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes). go test -race not available (Alpine image without cgo); the measurer channel is created before serving to avoid a race by design.
+
 ## Storage Q1 soft quota — 2026-10-31
 
 VM /opt/minhanos-q1: gofmt (4 files reformatted), go vet, go test PASS incl. drive TestPersonalWritesUseSoftQuota; migrations-integration PASS incl. storagecore TestReserveCommitReleaseAndLimits, TestConcurrentReservationsNeverExceedLimit (12 parallel, limit for 5), TestExpiredReservationAndMeasurement, TestCreateShareRollsBackOnAgentFailure (two test bugs fixed first: reading a rolled-back row, UPDATE on an empty table not firing the row trigger). Clean npm ci + build PASS after removing a cmd/ path the app catalog schema rejects. Storage agent with MINHANOS_STORAGE_OWNER: new ZFS and Btrfs units are 10001:10001 mode 750. Deployed 3b7930c: live DB has volume files (directory) and share homes; storage agent socket visible in the Desktop container (group 10001); /api/storage without session 401. End-to-end Storage Manager use in a browser not performed.

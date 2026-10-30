@@ -44,6 +44,12 @@ func (m *memLedger) Release(_ context.Context, r storagecore.Reservation) error 
 	return nil
 }
 func (m *memLedger) NeedsMeasure(context.Context, string) (bool, error) { return m.needMeasure, nil }
+func (m *memLedger) PendingMeasures(context.Context, int) ([]string, error) {
+	if m.needMeasure {
+		return []string{strings.Repeat("a", 64)}, nil
+	}
+	return nil, nil
+}
 func (m *memLedger) SetMeasured(_ context.Context, _ string, n int64) error {
 	m.used, m.needMeasure = n, false
 	m.measured++
@@ -68,8 +74,11 @@ func quotaRequest(t *testing.T, s *Server, method, target, body string) *httptes
 func TestPersonalWritesUseSoftQuota(t *testing.T) {
 	ledger := &memLedger{limit: 100, needMeasure: true}
 	s := &Server{Identity: fakeIdentity{role: "user"}, DataDir: t.TempDir(), StaticDir: t.TempDir(), Quota: ledger}
-	if w := quotaRequest(t, s, "GET", "/api/roots", ""); w.Code != 200 || !strings.Contains(w.Body.String(), `"quota"`) || ledger.measured != 1 {
-		t.Fatal("roots must measure once and report quota", w.Code, w.Body.String(), ledger.measured)
+	if w := quotaRequest(t, s, "GET", "/api/roots", ""); w.Code != 200 || !strings.Contains(w.Body.String(), `"measured":false`) || ledger.measured != 0 {
+		t.Fatal("roots must report quota without scanning on the request path", w.Code, w.Body.String(), ledger.measured)
+	}
+	if e := s.measurePending(context.Background()); e != nil || ledger.measured != 1 || ledger.needMeasure {
+		t.Fatal("background measurement", e, ledger.measured)
 	}
 	if w := quotaRequest(t, s, "POST", "/api/files/upload?root=personal&path=&name=a.txt", strings.Repeat("x", 60)); w.Code != 201 {
 		t.Fatal("upload under quota", w.Code, w.Body.String())

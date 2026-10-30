@@ -500,3 +500,112 @@ export interface IdentityCreateAppAccess {
     id: string;
   };
 }
+
+export interface StorageVolume {
+  name: string;
+  kind: "zfs" | "btrfs" | "directory";
+  managed: boolean;
+  hardQuota: boolean;
+  snapshots: boolean;
+  online: boolean;
+}
+
+export interface StorageShare {
+  id: string;
+  key: string;
+  name: string;
+  volume: string;
+  kind: "share" | "homes";
+  version: number;
+  usage: {
+    limitBytes: number | null;
+    usedBytes: number;
+    reservedBytes: number;
+    measured: boolean;
+  };
+  physicalBytes: number | null;
+}
+
+export interface StorageHome {
+  userId: string;
+  username: string;
+  displayName: string;
+  share: string;
+  version: number;
+  usage: {
+    limitBytes: number | null;
+    usedBytes: number;
+    reservedBytes: number;
+    measured: boolean;
+  };
+}
+
+export interface StorageCreateShare {
+  key: string;
+  name: string;
+  volume: string;
+  limitBytes: number | null;
+}
+
+export interface StorageSetQuota {
+  limitBytes: number | null;
+}
+
+export interface StorageSettings {
+  defaultHomeLimitBytes: number | null;
+  version: number;
+}
+
+export interface StorageSettingsInput {
+  defaultHomeLimitBytes: number | null;
+}
+
+export interface StorageAccepted {
+  accepted: true;
+}
+
+export interface StorageVolumePage {
+  items: {
+    name: string;
+    kind: "zfs" | "btrfs" | "directory";
+    managed: boolean;
+    hardQuota: boolean;
+    snapshots: boolean;
+    online: boolean;
+  }[];
+  agentError: boolean;
+}
+
+export interface StorageSharePage {
+  items: {
+    id: string;
+    key: string;
+    name: string;
+    volume: string;
+    kind: "share" | "homes";
+    version: number;
+    usage: {
+      limitBytes: number | null;
+      usedBytes: number;
+      reservedBytes: number;
+      measured: boolean;
+    };
+    physicalBytes: number | null;
+  }[];
+}
+
+export interface StorageHomePage {
+  items: {
+    userId: string;
+    username: string;
+    displayName: string;
+    share: string;
+    version: number;
+    usage: {
+      limitBytes: number | null;
+      usedBytes: number;
+      reservedBytes: number;
+      measured: boolean;
+    };
+  }[];
+}

@@ -1,9 +1,9 @@
 // Storage Manager API types (/api/storage/...). Usage is the soft-quota ledger: logical bytes written
 // through MinhAnOS; physicalBytes is what ZFS/Btrfs report for a share (null for plain volumes).
-export interface Usage {limitBytes:number|null;usedBytes:number;reservedBytes:number;measured:boolean}
-export interface Volume {name:string;kind:'zfs'|'btrfs'|'directory';managed:boolean;hardQuota:boolean;snapshots:boolean;online:boolean}
-export interface Share {id:string;key:string;name:string;volume:string;kind:'share'|'homes';version:number;usage:Usage;physicalBytes:number|null}
-export interface Home {userId:string;username:string;displayName:string;share:string;usage:Usage}
+import type {StorageHome,StorageShare,StorageVolume} from '@minhanos/shared-types'
+export type Home=StorageHome
+export type Share=StorageShare
+export type Volume=StorageVolume
 
 const GB=1024**3
 /** Text in GB to bytes; empty means unlimited (null); undefined means invalid input. */

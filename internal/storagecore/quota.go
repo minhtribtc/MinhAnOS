@@ -17,8 +17,11 @@ import (
 //go:embed migrations/001_registry_quota.sql
 var registrySQL string
 
+//go:embed migrations/002_contract.sql
+var contractSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}}}
+	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -121,7 +124,7 @@ func (s Store) settle(ctx context.Context, r Reservation, actual int64) error {
 		return e
 	}
 	for _, scope := range []struct{ kind, id string }{{"home", r.Home}, {"share", r.Share}} {
-		if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=greatest(0,used_bytes+$3),reserved_bytes=greatest(0,reserved_bytes-$4),version=version+1 WHERE scope_type=$1 AND scope_id=$2", scope.kind, scope.id, actual, held); e != nil {
+		if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=greatest(0,used_bytes+$3),reserved_bytes=greatest(0,reserved_bytes-$4) WHERE scope_type=$1 AND scope_id=$2", scope.kind, scope.id, actual, held); e != nil {
 			return e
 		}
 	}
@@ -168,14 +171,14 @@ func (s Store) SetMeasured(ctx context.Context, home string, bytes int64) error 
 	if e = tx.QueryRow(ctx, "SELECT used_bytes FROM storage_quota WHERE scope_type='home' AND scope_id=$1 FOR UPDATE", home).Scan(&before); e != nil {
 		return e
 	}
-	if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=$2,measure_requested=false,measured_at=now(),version=version+1 WHERE scope_type='home' AND scope_id=$1", home, bytes); e != nil {
+	if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=$2,measure_requested=false,measured_at=now() WHERE scope_type='home' AND scope_id=$1", home, bytes); e != nil {
 		return e
 	}
 	share, e := s.homesShare(ctx, tx)
 	if e != nil {
 		return e
 	}
-	if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=greatest(0,used_bytes+$2),version=version+1 WHERE scope_type='share' AND scope_id=$1", share, bytes-before); e != nil {
+	if _, e = tx.Exec(ctx, "UPDATE storage_quota SET used_bytes=greatest(0,used_bytes+$2) WHERE scope_type='share' AND scope_id=$1", share, bytes-before); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
@@ -196,4 +199,22 @@ func (s Store) HomeUsage(ctx context.Context, home string) (Usage, error) {
 		return Usage{}, e
 	}
 	return u, tx.Commit(ctx)
+}
+
+// PendingMeasures lists homes waiting for a background measurement (bounded batch).
+func (s Store) PendingMeasures(ctx context.Context, limit int) ([]string, error) {
+	rows, e := s.DB.Query(ctx, "SELECT scope_id FROM storage_quota WHERE scope_type='home' AND measure_requested ORDER BY scope_id LIMIT $1", limit)
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	result := []string{}
+	for rows.Next() {
+		var id string
+		if e = rows.Scan(&id); e != nil {
+			return nil, e
+		}
+		result = append(result, id)
+	}
+	return result, rows.Err()
 }

@@ -71,7 +71,7 @@ func TestReserveCommitReleaseAndLimits(t *testing.T) {
 	ctx := context.Background()
 	m := Manager{Store: s}
 	limit := 50 * mib
-	if e := m.SetDefaultHomeLimit(ctx, "", &limit); e != nil {
+	if e := m.SetDefaultHomeLimit(ctx, "", 1, &limit); e != nil {
 		t.Fatal(e)
 	}
 	r, e := s.Reserve(ctx, "home-a", 30*mib)
@@ -129,7 +129,7 @@ func TestConcurrentReservationsNeverExceedLimit(t *testing.T) {
 	s := fixture(t)
 	ctx := context.Background()
 	limit := 50 * mib
-	if e := (Manager{Store: s}).SetDefaultHomeLimit(ctx, "", &limit); e != nil {
+	if e := (Manager{Store: s}).SetDefaultHomeLimit(ctx, "", 1, &limit); e != nil {
 		t.Fatal(e)
 	}
 	var wg sync.WaitGroup
@@ -185,7 +185,7 @@ func TestExpiredReservationAndMeasurement(t *testing.T) {
 		t.Fatal("measured home still flagged")
 	}
 	limit := 5 * mib
-	if e = (Manager{Store: s}).SetDefaultHomeLimit(ctx, "", &limit); e != nil { // writes one audit row
+	if e = (Manager{Store: s}).SetDefaultHomeLimit(ctx, "", 1, &limit); e != nil { // writes one audit row
 		t.Fatal(e)
 	}
 	if _, e = s.DB.Exec(ctx, "UPDATE storage_events SET action='x'"); e == nil {

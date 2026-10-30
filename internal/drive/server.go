@@ -33,9 +33,11 @@ type Server struct {
 	AgentSocket           string
 	SecureCookie          bool
 	// Quota is the soft quota of personal homes; nil disables it (tests, standalone without a ledger).
-	Quota   QuotaLedger
-	locks   sync.Map
-	limiter loginLimiter
+	Quota QuotaLedger
+	// measureKick wakes the background measurer (set by RunMeasurer).
+	measureKick chan struct{}
+	locks       sync.Map
+	limiter     loginLimiter
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -215,22 +217,14 @@ func (s *Server) Handler() http.Handler {
 			}
 			body := map[string]any{"roots": roots, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
 			if s.Quota != nil && validID(session.User.ID) {
-				v, _ := s.locks.LoadOrStore(session.User.ID, &sync.RWMutex{})
-				lock := v.(*sync.RWMutex)
-				lock.Lock()
-				userDir := filepath.Join(s.DataDir, "users", session.User.ID)
-				err = os.MkdirAll(userDir, 0750)
-				if err == nil {
-					err = s.syncMeasure(r.Context(), session.User.ID, userDir)
-				}
-				var usage storagecore.Usage
-				if err == nil {
-					usage, err = s.Quota.HomeUsage(r.Context(), session.User.ID)
-				}
-				lock.Unlock()
+				// Never measure here: large homes are walked by the background measurer.
+				usage, err := s.Quota.HomeUsage(r.Context(), session.User.ID)
 				if err != nil {
 					quotaFailure(w, err)
 					return
+				}
+				if !usage.Measured && s.measureKick != nil {
+					s.kickMeasurer()
 				}
 				body["quota"] = usage
 			}
@@ -322,10 +316,6 @@ func (s *Server) Handler() http.Handler {
 		// actual bytes or release on failure. The user's write lock is held for the whole operation.
 		var reservation *storagecore.Reservation
 		if mutation && s.Quota != nil {
-			if err = s.syncMeasure(r.Context(), session.User.ID, userDir); err != nil {
-				quotaFailure(w, err)
-				return
-			}
 			if size := quotaSize(r, engine); size > 0 {
 				res, e := s.Quota.Reserve(r.Context(), session.User.ID, size)
 				if e != nil {

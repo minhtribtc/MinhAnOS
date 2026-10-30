@@ -3687,6 +3687,486 @@
           }
         ]
       }
+    },
+    "/api/v1/storage/volumes": {
+      "get": {
+        "operationId": "storageListVolumes",
+        "summary": "Registered volumes and agent state",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageVolumePage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/shares": {
+      "get": {
+        "operationId": "storageListShares",
+        "summary": "Shared folders with soft-quota usage",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSharePage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "storageCreateShare",
+        "summary": "Create a shared folder on a ZFS/Btrfs volume",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "201": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageShare"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageCreateShare"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/shares/{shareId}/quota": {
+      "put": {
+        "operationId": "storageSetShareQuota",
+        "summary": "Set a shared folder total quota",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "shareId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageSetQuota"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/homes": {
+      "get": {
+        "operationId": "storageListHomes",
+        "summary": "User homes with soft-quota usage",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageHomePage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/homes/{userId}/quota": {
+      "put": {
+        "operationId": "storageSetHomeQuota",
+        "summary": "Set one user home quota",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageSetQuota"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/storage/homes/{userId}/measure": {
+      "post": {
+        "operationId": "storageMeasureHome",
+        "summary": "Queue a background re-measurement of a home",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "202": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/storage/settings": {
+      "get": {
+        "operationId": "storageGetSettings",
+        "summary": "Storage defaults",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageSettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "storageSetSettings",
+        "summary": "Change the default quota for new homes",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageSettingsInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5415,6 +5895,505 @@
         },
         "required": [
           "subject"
+        ]
+      },
+      "StorageVolume": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$"
+          },
+          "kind": {
+            "enum": [
+              "zfs",
+              "btrfs",
+              "directory"
+            ]
+          },
+          "managed": {
+            "type": "boolean"
+          },
+          "hardQuota": {
+            "type": "boolean"
+          },
+          "snapshots": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "managed",
+          "hardQuota",
+          "snapshots",
+          "online"
+        ]
+      },
+      "StorageShare": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "volume": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "share",
+              "homes"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "usage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "limitBytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1152921504606847000
+              },
+              "usedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reservedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "measured": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limitBytes",
+              "usedBytes",
+              "reservedBytes",
+              "measured"
+            ]
+          },
+          "physicalBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name",
+          "volume",
+          "kind",
+          "version",
+          "usage",
+          "physicalBytes"
+        ]
+      },
+      "StorageHome": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "share": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "usage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "limitBytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1152921504606847000
+              },
+              "usedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reservedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "measured": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limitBytes",
+              "usedBytes",
+              "reservedBytes",
+              "measured"
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "username",
+          "displayName",
+          "share",
+          "version",
+          "usage"
+        ]
+      },
+      "StorageCreateShare": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "volume": {
+            "type": "string",
+            "minLength": 1
+          },
+          "limitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "volume",
+          "limitBytes"
+        ]
+      },
+      "StorageSetQuota": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          }
+        },
+        "required": [
+          "limitBytes"
+        ]
+      },
+      "StorageSettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "defaultHomeLimitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "defaultHomeLimitBytes",
+          "version"
+        ]
+      },
+      "StorageSettingsInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "defaultHomeLimitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          }
+        },
+        "required": [
+          "defaultHomeLimitBytes"
+        ]
+      },
+      "StorageAccepted": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "const": true
+          }
+        },
+        "required": [
+          "accepted"
+        ]
+      },
+      "StorageVolumePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]{0,31}$"
+                },
+                "kind": {
+                  "enum": [
+                    "zfs",
+                    "btrfs",
+                    "directory"
+                  ]
+                },
+                "managed": {
+                  "type": "boolean"
+                },
+                "hardQuota": {
+                  "type": "boolean"
+                },
+                "snapshots": {
+                  "type": "boolean"
+                },
+                "online": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "kind",
+                "managed",
+                "hardQuota",
+                "snapshots",
+                "online"
+              ]
+            }
+          },
+          "agentError": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items",
+          "agentError"
+        ]
+      },
+      "StorageSharePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "volume": {
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "share",
+                    "homes"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "usage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "limitBytes": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 1152921504606847000
+                    },
+                    "usedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "reservedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "measured": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "limitBytes",
+                    "usedBytes",
+                    "reservedBytes",
+                    "measured"
+                  ]
+                },
+                "physicalBytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "id",
+                "key",
+                "name",
+                "volume",
+                "kind",
+                "version",
+                "usage",
+                "physicalBytes"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "StorageHomePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "share": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "usage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "limitBytes": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 1152921504606847000
+                    },
+                    "usedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "reservedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "measured": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "limitBytes",
+                    "usedBytes",
+                    "reservedBytes",
+                    "measured"
+                  ]
+                }
+              },
+              "required": [
+                "userId",
+                "username",
+                "displayName",
+                "share",
+                "version",
+                "usage"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
         ]
       }
     }

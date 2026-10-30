@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-set-quota.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "limitBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1152921504606847000
+    }
+  },
+  "required": [
+    "limitBytes"
+  ]
+}

@@ -1,3 +1,7 @@
+## Storage API v1 (2026-10-31)
+
+Moved from /api/storage to /api/v1/storage with contracts/storage schemas, OpenAPI operations storageListVolumes, storageListShares, storageCreateShare, storageSetShareQuota, storageListHomes, storageSetHomeQuota, storageMeasureHome, storageGetSettings, storageSetSettings; generated client @minhanos/api-client/storage. Writes: POST Idempotency-Key, PUT If-Match; v1 error envelope.
+
 ## Storage API (Desktop host, 2026-10-31)
 
 /api/storage: GET volumes, shares, homes, settings; POST shares {key,name,volume,limitBytes}; PUT shares/{id}/quota {version,limitBytes}; PUT homes/{userId}/quota {limitBytes}; POST homes/{userId}/measure; PUT settings {defaultHomeLimitBytes}. storage.manage required; writes need reauthentication within 5 minutes. Drive /api/roots returns quota {limitBytes,usedBytes,reservedBytes,measured}; personal writes over quota return 507 QUOTA_EXCEEDED.

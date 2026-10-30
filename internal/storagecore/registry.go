@@ -46,6 +46,7 @@ type Home struct {
 	Username    string `json:"username"`
 	DisplayName string `json:"displayName"`
 	Share       string `json:"share"`
+	Version     int64  `json:"version"` // quota policy version for If-Match
 	Usage       Usage  `json:"usage"`
 }
 
@@ -208,7 +209,7 @@ func (m Manager) SetShareLimit(ctx context.Context, actor, id string, version in
 
 // Homes lists every non-deleted account with its home ledger (users without a row show unmeasured).
 func (m Manager) Homes(ctx context.Context) ([]Home, error) {
-	rows, e := m.Store.DB.Query(ctx, `SELECT u.public_id::text,u.username,u.display_name,q.limit_bytes,coalesce(q.used_bytes,0),coalesce(q.reserved_bytes,0),coalesce(NOT q.measure_requested,false) FROM users u LEFT JOIN storage_quota q ON q.scope_type='home' AND q.scope_id=u.id WHERE u.status<>'deleted' AND u.public_id IS NOT NULL ORDER BY u.username`)
+	rows, e := m.Store.DB.Query(ctx, `SELECT u.public_id::text,u.username,u.display_name,coalesce(q.version,1),q.limit_bytes,coalesce(q.used_bytes,0),coalesce(q.reserved_bytes,0),coalesce(NOT q.measure_requested,false) FROM users u LEFT JOIN storage_quota q ON q.scope_type='home' AND q.scope_id=u.id WHERE u.status<>'deleted' AND u.public_id IS NOT NULL ORDER BY u.username`)
 	if e != nil {
 		return nil, e
 	}
@@ -216,7 +217,7 @@ func (m Manager) Homes(ctx context.Context) ([]Home, error) {
 	result := []Home{}
 	for rows.Next() {
 		h := Home{Share: "homes"}
-		if e = rows.Scan(&h.UserID, &h.Username, &h.DisplayName, &h.Usage.LimitBytes, &h.Usage.UsedBytes, &h.Usage.ReservedBytes, &h.Usage.Measured); e != nil {
+		if e = rows.Scan(&h.UserID, &h.Username, &h.DisplayName, &h.Version, &h.Usage.LimitBytes, &h.Usage.UsedBytes, &h.Usage.ReservedBytes, &h.Usage.Measured); e != nil {
 			return nil, e
 		}
 		result = append(result, h)
@@ -235,7 +236,7 @@ func storageKey(ctx context.Context, tx pgx.Tx, publicID string) (string, error)
 
 // SetHomeLimit sets one user's quota; usage above a new lower limit is kept (no data is removed) but
 // further writes are refused until the user is below the limit again.
-func (m Manager) SetHomeLimit(ctx context.Context, actor, userID string, limit *int64) error {
+func (m Manager) SetHomeLimit(ctx context.Context, actor, userID string, version int64, limit *int64) error {
 	if !validLimit(limit) {
 		return ErrInvalid
 	}
@@ -251,8 +252,12 @@ func (m Manager) SetHomeLimit(ctx context.Context, actor, userID string, limit *
 	if e = ensureHome(ctx, tx, home); e != nil {
 		return e
 	}
-	if _, e = tx.Exec(ctx, "UPDATE storage_quota SET limit_bytes=$2,version=version+1 WHERE scope_type='home' AND scope_id=$1", home, limit); e != nil {
+	tag, e := tx.Exec(ctx, "UPDATE storage_quota SET limit_bytes=$2,version=version+1 WHERE scope_type='home' AND scope_id=$1 AND version=$3", home, limit, version)
+	if e != nil {
 		return e
+	}
+	if tag.RowsAffected() != 1 {
+		return ErrConflict
 	}
 	if e = event(ctx, tx, actor, "storage.home.quota", userID, map[string]any{"limitBytes": limit}); e != nil {
 		return e
@@ -283,17 +288,16 @@ func (m Manager) RequestMeasure(ctx context.Context, actor, userID string) error
 	return tx.Commit(ctx)
 }
 
-func (m Manager) DefaultHomeLimit(ctx context.Context) (*int64, error) {
+// DefaultHomeLimit returns the default quota for new homes and the setting's version (If-Match).
+func (m Manager) DefaultHomeLimit(ctx context.Context) (*int64, int64, error) {
 	var v *int64
-	e := m.Store.DB.QueryRow(ctx, "SELECT (value#>>'{}')::bigint FROM storage_settings WHERE key='default_home_quota_bytes'").Scan(&v)
-	if errors.Is(e, pgx.ErrNoRows) {
-		return nil, nil
-	}
-	return v, e
+	var version int64
+	e := m.Store.DB.QueryRow(ctx, "SELECT (value#>>'{}')::bigint,version FROM storage_settings WHERE key='default_home_quota_bytes'").Scan(&v, &version)
+	return v, version, e
 }
 
 // SetDefaultHomeLimit applies to homes created afterwards; existing homes keep their limit.
-func (m Manager) SetDefaultHomeLimit(ctx context.Context, actor string, limit *int64) error {
+func (m Manager) SetDefaultHomeLimit(ctx context.Context, actor string, version int64, limit *int64) error {
 	if !validLimit(limit) {
 		return ErrInvalid
 	}
@@ -302,16 +306,45 @@ func (m Manager) SetDefaultHomeLimit(ctx context.Context, actor string, limit *i
 		return e
 	}
 	defer tx.Rollback(ctx)
-	if limit == nil {
-		_, e = tx.Exec(ctx, "DELETE FROM storage_settings WHERE key='default_home_quota_bytes'")
-	} else {
-		_, e = tx.Exec(ctx, "INSERT INTO storage_settings(key,value) VALUES('default_home_quota_bytes',to_jsonb($1::bigint)) ON CONFLICT(key) DO UPDATE SET value=excluded.value", *limit)
-	}
+	tag, e := tx.Exec(ctx, "UPDATE storage_settings SET value=coalesce(to_jsonb($1::bigint),'null'::jsonb),version=version+1 WHERE key='default_home_quota_bytes' AND version=$2", limit, version)
 	if e != nil {
 		return e
+	}
+	if tag.RowsAffected() != 1 {
+		return ErrConflict
 	}
 	if e = event(ctx, tx, actor, "storage.default.quota", "default_home_quota_bytes", map[string]any{"limitBytes": limit}); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)
 }
+
+// Replay returns the stored response of an earlier POST with the same Idempotency-Key. A different request
+// under the same key is ErrIdempotencyConflict. Keys live 24 hours; expired ones are removed in small batches.
+func (m Manager) Replay(ctx context.Context, actor, keyHash, requestHash string) (int, []byte, bool, error) {
+	if _, e := m.Store.DB.Exec(ctx, "DELETE FROM storage_idempotency WHERE (actor_id,key_hash) IN (SELECT actor_id,key_hash FROM storage_idempotency WHERE expires_at<now() LIMIT 100)"); e != nil {
+		return 0, nil, false, e
+	}
+	var previous string
+	var status int
+	var body []byte
+	e := m.Store.DB.QueryRow(ctx, "SELECT request_hash,status,response FROM storage_idempotency WHERE actor_id=$1 AND key_hash=$2", actor, keyHash).Scan(&previous, &status, &body)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return 0, nil, false, nil
+	}
+	if e != nil {
+		return 0, nil, false, e
+	}
+	if previous != requestHash {
+		return 0, nil, false, ErrIdempotencyConflict
+	}
+	return status, body, true, nil
+}
+
+// Remember stores a successful POST response for replay.
+func (m Manager) Remember(ctx context.Context, actor, keyHash, requestHash string, status int, body []byte) error {
+	_, e := m.Store.DB.Exec(ctx, "INSERT INTO storage_idempotency(actor_id,key_hash,request_hash,status,response,expires_at) VALUES($1,$2,$3,$4,$5,now()+interval '24 hours') ON CONFLICT DO NOTHING", actor, keyHash, requestHash, status, body)
+	return e
+}
+
+var ErrIdempotencyConflict = errors.New("idempotency key reused for a different request")

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-volume-page.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$"
+          },
+          "kind": {
+            "enum": [
+              "zfs",
+              "btrfs",
+              "directory"
+            ]
+          },
+          "managed": {
+            "type": "boolean"
+          },
+          "hardQuota": {
+            "type": "boolean"
+          },
+          "snapshots": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "managed",
+          "hardQuota",
+          "snapshots",
+          "online"
+        ]
+      }
+    },
+    "agentError": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "items",
+    "agentError"
+  ]
+}
