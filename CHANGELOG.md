@@ -1,3 +1,9 @@
+## Trung tâm thông báo và Trung tâm nhật ký (bản tối giản) — 2026-10-31
+
+- Chuông thông báo trên thanh trạng thái Desktop, có số thông báo chưa đọc; bấm vào để xem 8 thông báo mới nhất, đánh dấu đã đọc hoặc mở Trung tâm thông báo.
+- Ứng dụng Trung tâm thông báo: xem tất cả hoặc chỉ chưa đọc, đánh dấu từng cái hoặc tất cả đã đọc. Hiện có các thông báo bảo mật: đổi/đặt lại mật khẩu, đổi vai trò, phiên bị thu hồi, đăng nhập sai nhiều lần, khôi phục tài khoản. Thông báo giữ 90 ngày.
+- Ứng dụng Trung tâm nhật ký (chỉ System Admin): xem nhật ký kiểm toán của Account Center và Storage Manager, lọc theo nguồn và kết quả, xem chi tiết từng sự kiện. Chỉ đọc.
+
 ## Quota lưu trữ và Storage Manager — 2026-10-31
 
 - Quota cho vùng tệp riêng của từng người dùng: Files chặn tải lên, sao chép, lưu văn bản khi hết dung lượng và hiển thị thanh dung lượng.

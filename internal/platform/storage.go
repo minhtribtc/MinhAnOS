@@ -28,10 +28,10 @@ func (a *App) storageHandler() http.Handler {
 		return func(w http.ResponseWriter, r *http.Request) {
 			cookie, _ := r.Cookie("minhanos_session")
 			if cookie == nil {
-				storageError(w, r, 401, "AUTH_REQUIRED")
+				v1Error(w, r, 401, "AUTH_REQUIRED")
 				return
 			}
-			if a.storageDenied(w, r, a.identityService.Fresh(r.Context(), identityschema.DesktopRealm, cookie.Value)) {
+			if a.v1Denied(w, r, a.identityService.Fresh(r.Context(), identityschema.DesktopRealm, cookie.Value)) {
 				return
 			}
 			actor, err := identityschema.Repository{DB: a.db}.PublicUser(r.Context(), identity(r).User.ID)
@@ -41,7 +41,7 @@ func (a *App) storageHandler() http.Handler {
 			}
 			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 4096))
 			if err != nil {
-				storageError(w, r, 413, "PAYLOAD_TOO_LARGE")
+				v1Error(w, r, 413, "PAYLOAD_TOO_LARGE")
 				return
 			}
 			if r.Method != "POST" {
@@ -50,7 +50,7 @@ func (a *App) storageHandler() http.Handler {
 			}
 			key := r.Header.Get("Idempotency-Key")
 			if len(key) < 16 || len(key) > 128 {
-				storageError(w, r, 400, "IDEMPOTENCY_KEY_REQUIRED")
+				v1Error(w, r, 400, "IDEMPOTENCY_KEY_REQUIRED")
 				return
 			}
 			keySum, reqSum := sha256.Sum256([]byte(key)), sha256.Sum256([]byte(r.URL.Path+"\x00"+string(raw)))
@@ -58,7 +58,7 @@ func (a *App) storageHandler() http.Handler {
 			status, body, found, err := a.storage.Replay(r.Context(), actor.ID, keyHash, reqHash)
 			switch {
 			case errors.Is(err, storagecore.ErrIdempotencyConflict):
-				storageError(w, r, 409, "IDEMPOTENCY_CONFLICT")
+				v1Error(w, r, 409, "IDEMPOTENCY_CONFLICT")
 				return
 			case err != nil:
 				internalError(w, err)
@@ -83,7 +83,7 @@ func (a *App) storageHandler() http.Handler {
 		d := json.NewDecoder(bytes.NewReader(raw))
 		d.DisallowUnknownFields()
 		if d.Decode(v) != nil || d.Decode(&struct{}{}) != io.EOF {
-			storageError(w, r, 400, "INVALID_REQUEST")
+			v1Error(w, r, 400, "INVALID_REQUEST")
 			return false
 		}
 		return true
@@ -91,12 +91,12 @@ func (a *App) storageHandler() http.Handler {
 	ifMatch := func(w http.ResponseWriter, r *http.Request) (int64, bool) {
 		v := r.Header.Get("If-Match")
 		if v == "" {
-			storageError(w, r, 428, "PRECONDITION_REQUIRED")
+			v1Error(w, r, 428, "PRECONDITION_REQUIRED")
 			return 0, false
 		}
 		n, err := strconv.ParseInt(strings.Trim(v, `"`), 10, 64)
 		if err != nil || n < 1 {
-			storageError(w, r, 412, "VERSION_CONFLICT")
+			v1Error(w, r, 412, "VERSION_CONFLICT")
 			return 0, false
 		}
 		return n, true
@@ -175,7 +175,7 @@ func (a *App) storageHandler() http.Handler {
 	}))
 	mux.HandleFunc("POST /api/v1/storage/homes/{user}/measure", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
 		if len(bytes.TrimSpace(raw)) > 0 && string(bytes.TrimSpace(raw)) != "{}" {
-			storageError(w, r, 400, "INVALID_REQUEST")
+			v1Error(w, r, 400, "INVALID_REQUEST")
 			return
 		}
 		if err := a.storage.RequestMeasure(r.Context(), actor, r.PathValue("user")); err != nil {
@@ -207,10 +207,10 @@ func (a *App) storageHandler() http.Handler {
 		}
 		accepted(w, 200)
 	}))
-	mux.HandleFunc("/api/v1/storage/", func(w http.ResponseWriter, r *http.Request) { storageError(w, r, 404, "STORAGE_NOT_FOUND") })
+	mux.HandleFunc("/api/v1/storage/", func(w http.ResponseWriter, r *http.Request) { v1Error(w, r, 404, "STORAGE_NOT_FOUND") })
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
-		if a.identityService == nil || a.storageDenied(w, r, a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.StorageApp, "storage.manage")) {
+		if a.identityService == nil || a.v1Denied(w, r, a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.StorageApp, "storage.manage")) {
 			return
 		}
 		mux.ServeHTTP(w, r)
@@ -230,22 +230,23 @@ func (r *recorder) Write(b []byte) (int, error) {
 	return r.ResponseWriter.Write(b)
 }
 
-// storageError writes the nested v1 envelope; the code is stable, the message is not shown to users.
-func storageError(w http.ResponseWriter, r *http.Request, status int, code string) {
+// v1Error writes the nested v1 envelope (storage, notifications, logs); the code is stable, the message is
+// not shown to users.
+func v1Error(w http.ResponseWriter, r *http.Request, status int, code string) {
 	writeJSON(w, status, map[string]any{"error": map[string]any{"code": code, "message": code, "requestId": requestid.From(r.Context()).Request, "details": map[string]any{}}})
 }
 
-// storageDenied writes the identity policy error (if any) and reports whether the request must stop.
-func (a *App) storageDenied(w http.ResponseWriter, r *http.Request, err error) bool {
+// v1Denied writes the identity policy error (if any) and reports whether the request must stop.
+func (a *App) v1Denied(w http.ResponseWriter, r *http.Request, err error) bool {
 	if err == nil {
 		return false
 	}
 	var f *identityschema.Fault
 	switch {
 	case errors.As(err, &f):
-		storageError(w, r, f.Status, f.Code)
+		v1Error(w, r, f.Status, f.Code)
 	case errors.Is(err, identityschema.ErrUnauthorized):
-		storageError(w, r, 401, "AUTH_REQUIRED")
+		v1Error(w, r, 401, "AUTH_REQUIRED")
 	default:
 		internalError(w, err)
 	}
@@ -256,17 +257,17 @@ func (a *App) storageFailure(w http.ResponseWriter, r *http.Request, err error) 
 	var agent storagecore.AgentError
 	switch {
 	case errors.Is(err, storagecore.ErrInvalid):
-		storageError(w, r, 400, "STORAGE_INVALID")
+		v1Error(w, r, 400, "STORAGE_INVALID")
 	case errors.Is(err, storagecore.ErrNotFound):
-		storageError(w, r, 404, "STORAGE_NOT_FOUND")
+		v1Error(w, r, 404, "STORAGE_NOT_FOUND")
 	case errors.Is(err, storagecore.ErrExists):
-		storageError(w, r, 409, "STORAGE_EXISTS")
+		v1Error(w, r, 409, "STORAGE_EXISTS")
 	case errors.Is(err, storagecore.ErrConflict):
-		storageError(w, r, 412, "VERSION_CONFLICT")
+		v1Error(w, r, 412, "VERSION_CONFLICT")
 	case errors.Is(err, storagecore.ErrNoAgent):
-		storageError(w, r, 503, "STORAGE_AGENT_UNAVAILABLE")
+		v1Error(w, r, 503, "STORAGE_AGENT_UNAVAILABLE")
 	case errors.As(err, &agent):
-		storageError(w, r, 502, "STORAGE_AGENT_ERROR")
+		v1Error(w, r, 502, "STORAGE_AGENT_ERROR")
 	default:
 		internalError(w, err)
 	}

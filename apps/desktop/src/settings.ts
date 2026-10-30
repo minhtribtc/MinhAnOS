@@ -5,6 +5,8 @@ import {settingsProvider as storage} from '@minhanos/storage-app/settings'
 import catalog from '../../../contracts/apps/catalog.v1.json'
 import desktopManifest from '../../../contracts/manifests/desktop.app.json'
 import filesManifest from '../../../contracts/manifests/files.app.json'
+import notificationsManifest from '../../../contracts/manifests/notifications.app.json'
+import logsManifest from '../../../contracts/manifests/logs.app.json'
 import AppearancePanel from './components/AppearancePanel.vue'
 import {api} from './api'
 
@@ -16,6 +18,8 @@ const providers:SettingsProvider[]=[
  accounts,
  storage,
  defineSettingsProvider({manifest:filesManifest,panels:{}}),
+ defineSettingsProvider({manifest:notificationsManifest,panels:{}}),
+ defineSettingsProvider({manifest:logsManifest,panels:{}}),
 ]
 
 // System settings and the Shell itself are always present; other apps only when the backend registry lists them

@@ -1,0 +1,8 @@
+{
+  "contractVersion": "1",
+  "implementation": "Log Center minimal v1 (read-only audit of identity and storage)",
+  "implementedOperations": [
+    "logsListEvents",
+    "logsListSources"
+  ]
+}

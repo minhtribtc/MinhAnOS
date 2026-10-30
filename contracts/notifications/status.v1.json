@@ -1,0 +1,8 @@
+{
+  "contractVersion": "1",
+  "implementation": "Notification Center minimal v1 (inbox, bell, mark read)",
+  "implementedOperations": [
+    "notificationsListInbox",
+    "notificationsMarkRead"
+  ]
+}

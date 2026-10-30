@@ -1,0 +1,34 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.notifications",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/notifications",
+  "nameKey": "notifications.app.name",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [
+    "notifications.own.read",
+    "notifications.own.manage"
+  ],
+  "navigation": [
+    {
+      "id": "inbox",
+      "labelKey": "notifications.nav.inbox",
+      "path": "/inbox",
+      "requiredPermission": "notifications.own.read"
+    }
+  ],
+  "settingsIntegration": [],
+  "lifecycle": {
+    "version": "1",
+    "supports": [
+      "foreground",
+      "background",
+      "requestClose"
+    ]
+  }
+}

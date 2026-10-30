@@ -1,6 +1,6 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises'
 const root=new URL('../',import.meta.url)
-// One generator for every versioned module API (/api/v1/<module>/...): identity, storage, ...
+// One generator for every versioned module API (/api/v1/<module>/...): identity, storage, notifications, logs.
 export async function generateClient({prefix,factory,label}){
  const api=JSON.parse(await readFile(new URL('contracts/api/openapi.yaml',root),'utf8'))
  const types=new Set(),methods=[],implementations=[]
@@ -31,4 +31,6 @@ export async function generateClient({prefix,factory,label}){
 }
 export const generateIdentityClient=()=>generateClient({prefix:'/api/v1/identity',factory:'createIdentityClient',label:'Identity'})
 export const generateStorageClient=()=>generateClient({prefix:'/api/v1/storage',factory:'createStorageClient',label:'Storage'})
-if(process.argv[1]?.replaceAll('\\','/').endsWith('/generate-identity-client.mjs')){await mkdir(new URL('packages/api-client/src/',root),{recursive:true});for(const [name,gen] of [['identity',generateIdentityClient],['storage',generateStorageClient]]){const output=await gen();await writeFile(new URL(`packages/api-client/src/${name}.generated.js`,root),output.js);await writeFile(new URL(`packages/api-client/src/${name}.generated.d.ts`,root),output.dts)}}
+export const generateNotificationsClient=()=>generateClient({prefix:'/api/v1/notifications',factory:'createNotificationsClient',label:'Notifications'})
+export const generateLogsClient=()=>generateClient({prefix:'/api/v1/logs',factory:'createLogsClient',label:'Logs'})
+if(process.argv[1]?.replaceAll('\\','/').endsWith('/generate-identity-client.mjs')){await mkdir(new URL('packages/api-client/src/',root),{recursive:true});for(const [name,gen] of [['identity',generateIdentityClient],['storage',generateStorageClient],['notifications',generateNotificationsClient],['logs',generateLogsClient]]){const output=await gen();await writeFile(new URL(`packages/api-client/src/${name}.generated.js`,root),output.js);await writeFile(new URL(`packages/api-client/src/${name}.generated.d.ts`,root),output.dts)}}

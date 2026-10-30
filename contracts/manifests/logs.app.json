@@ -1,0 +1,33 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.logs",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/logs",
+  "nameKey": "logs.app.name",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [
+    "logs.audit.read"
+  ],
+  "navigation": [
+    {
+      "id": "audit",
+      "labelKey": "logs.nav.audit",
+      "path": "/audit",
+      "requiredPermission": "logs.audit.read"
+    }
+  ],
+  "settingsIntegration": [],
+  "lifecycle": {
+    "version": "1",
+    "supports": [
+      "foreground",
+      "background",
+      "requestClose"
+    ]
+  }
+}

@@ -1,3 +1,10 @@
+## Thông báo và nhật ký
+
+- **Chuông thông báo** (góc trên bên phải Desktop, cạnh trạng thái kết nối): số đỏ là số thông báo chưa đọc, cập nhật mỗi phút. Bấm chuông để xem thông báo mới nhất, bấm dấu ✓ để đánh dấu đã đọc, hoặc "Mở Trung tâm thông báo".
+- **Trung tâm thông báo**: danh sách đầy đủ, lọc "Tất cả"/"Chưa đọc", "Đánh dấu tất cả đã đọc". Thông báo bảo mật ghi "Bảo mật · bắt buộc" và không tắt được. Nếu thấy thông báo đổi mật khẩu hoặc đăng nhập sai mà không phải bạn, hãy đổi mật khẩu và báo quản trị viên.
+- **Trung tâm nhật ký** (chỉ System Admin): mọi thao tác quản trị và bảo mật của Account Center và Storage Manager, mới nhất trước. Lọc theo nguồn và kết quả (thành công, bị từ chối, thất bại); bấm mũi tên đầu dòng để xem Request ID và chi tiết. Nhật ký tài khoản giữ 365 ngày.
+- Chưa có: tùy chọn tắt thông báo không bắt buộc, thông báo khi gần hết quota, nhật ký của Files trong Trung tâm nhật ký.
+
 ## Storage Manager và quota
 
 - **Storage Manager** (chỉ System Admin): tab *Shared Folder* tạo thư mục dùng chung trên volume ZFS/Btrfs và đặt quota tổng; tab *Vùng riêng người dùng* đặt quota cho từng người, *Đo lại* khi dung lượng hiển thị sai; tab *Volume* xem nơi lưu dữ liệu. Mỗi thay đổi cần nhập mật khẩu của bạn.

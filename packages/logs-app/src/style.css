@@ -1,0 +1,32 @@
+.mn-logs{font-family:var(--mn-font-ui);color:var(--mn-color-text-primary);background:var(--mn-color-canvas);height:100%;min-height:0;flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;font-size:14px}
+.mn-logs *{box-sizing:border-box}
+.mn-logs h1,.mn-logs p{margin:0}
+.mn-logs h1{display:flex;gap:8px;align-items:center;font-size:20px;font-weight:650}
+.mn-logs button,.mn-logs select{font:inherit;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-surface);color:var(--mn-color-text-primary);min-height:36px}
+.mn-logs button{padding:8px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.mn-logs button:hover{background:var(--mn-color-hover)}
+.mn-logs button:disabled{opacity:.5;cursor:default}
+.mn-logs select{padding:0 10px}
+.mn-logs :focus-visible{outline:var(--mn-focus-ring);outline-offset:2px}
+.lc-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.lc-muted{color:var(--mn-color-text-secondary)}
+.lc-error{color:var(--mn-color-danger)}
+.lc-filters{display:flex;gap:12px;flex-wrap:wrap}
+.lc-filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mn-color-text-secondary)}
+.lc-table{overflow:auto;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-surface)}
+.mn-logs table{width:100%;border-collapse:collapse;min-width:720px}
+.mn-logs th,.mn-logs td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--mn-color-border);vertical-align:middle;white-space:nowrap}
+.mn-logs th{font-size:12px;font-weight:600;color:var(--mn-color-text-secondary)}
+.mn-logs td:first-child{display:flex;gap:6px;align-items:center}
+.mn-logs .lc-expand{border:0;background:transparent;min-height:28px;padding:4px}
+.mn-logs code{font-family:var(--mn-font-mono,ui-monospace,monospace);font-size:12px}
+.lc-target{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.lc-pill{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--mn-color-selection)}
+.lc-pill.denied,.lc-pill.failure{color:var(--mn-color-danger)}
+.lc-detail td{white-space:normal;background:var(--mn-color-canvas)}
+.lc-detail dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;margin:0}
+.lc-detail dt{color:var(--mn-color-text-secondary);font-size:12px}
+.lc-detail dd{margin:0;overflow-wrap:anywhere}
+.lc-empty{padding:30px;text-align:center}
+.mn-logs .lc-more{align-self:center}
+.lc-foot{font-size:12px}

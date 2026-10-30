@@ -12,7 +12,7 @@
 
 [Account Center usable v1](account-center/USABLE_V1_REPORT.md) — admin password reset, user detail page, sign-in audit.
 
-[Notification & Log Center review](notifications-logs-review.md) — evaluation of the Codex brief against current audit/event code.
+[Notification & Log Center v1](notification-log-center.md) — minimal design as built; [review](notifications-logs-review.md) of the original brief.
 
 [Storage model review](storage-model-review.md) — evaluation of the DSM shared-folder + Nextcloud proposal, corrections and order.
 

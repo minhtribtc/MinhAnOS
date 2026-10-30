@@ -27,6 +27,12 @@ const FilesApp = "com.minhanos.files"
 // StorageApp is the Storage Manager; storage.manage is System Admin only (identity SQL 010).
 const StorageApp = "com.minhanos.storage"
 
+// NotificationsApp is the personal inbox (every account); LogsApp reads the audit log (System Admin). SQL 011.
+const (
+	NotificationsApp = "com.minhanos.notifications"
+	LogsApp          = "com.minhanos.logs"
+)
+
 // governedApps are first-party apps whose access rules Account Center may edit. Account Center itself is
 // governed by roles only, so a deny rule can never lock every administrator out of identity management.
 var governedApps = map[string]string{FilesApp: "MinhAnOS Files"}
@@ -38,6 +44,12 @@ func appForPermission(permission string) string {
 	}
 	if strings.HasPrefix(permission, "storage.") {
 		return StorageApp
+	}
+	if strings.HasPrefix(permission, "notifications.") {
+		return NotificationsApp
+	}
+	if strings.HasPrefix(permission, "logs.") {
+		return LogsApp
 	}
 	return AccountApp
 }

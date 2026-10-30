@@ -11,6 +11,8 @@ import (
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	identityschema "minhanos.local/platform/internal/identity"
+	"minhanos.local/platform/internal/logcore"
+	"minhanos.local/platform/internal/notifycore"
 	"minhanos.local/platform/internal/requestid"
 	"minhanos.local/platform/internal/storagecore"
 	"net"
@@ -66,6 +68,8 @@ type App struct {
 	authCore        *identityschema.AuthCore
 	identityService *identityschema.Service
 	storage         storagecore.Manager
+	notifications   notifycore.Store
+	logs            logcore.Store
 }
 type attempt struct {
 	Count int
@@ -112,6 +116,8 @@ type AppDefinition struct {
 }
 
 var registry = []AppDefinition{
+	{"com.minhanos.notifications", "Notification Center", "Thông báo bảo mật và hệ thống", "bell", "coral", "Hệ thống", "ready"},
+	{"com.minhanos.logs", "Log Center", "Nhật ký kiểm toán của các module", "logs", "slate", "Hệ thống", "ready"},
 	{"com.minhanos.storage", "Storage Manager", "Volume, shared folder, quota", "storage", "teal", "Hệ thống", "ready"},
 	{"com.minhanos.account-center", "Account Center", "MinhAnOS", "shield", "blue", "MinhAnOS", "ready"},
 	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
@@ -174,6 +180,12 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		return nil, err
 	}
 	a.storage = storagecore.Manager{Store: storagecore.Store{DB: db}, Agent: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
+	if err = notifycore.ApplySchema(ctx, db); err != nil {
+		return nil, err
+	}
+	a.notifications, a.logs = notifycore.Store{DB: db}, logcore.Store{DB: db}
+	// Security notices reach the inbox within seconds; the bell polls the unread count.
+	go a.notifications.Run(ctx, 10*time.Second)
 	a.authCore, err = identityschema.NewAuthCore(db)
 	if err != nil {
 		return nil, err
@@ -210,6 +222,8 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))
 	mux.Handle("GET /api/apps", a.auth(http.HandlerFunc(a.apps)))
 	mux.Handle("/api/v1/storage/", a.auth(a.storageHandler()))
+	mux.Handle("/api/v1/notifications/", a.auth(a.notificationsHandler()))
+	mux.Handle("/api/v1/logs/", a.auth(a.logsHandler()))
 	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
@@ -395,12 +409,20 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"user": user, "csrfToken": csrf, "passwordChangeRequired": v.Principal.PasswordChangeRequired})
 }
 
-// apps lists the launcher; Files is hidden when the identity policy denies it to this user.
+// launcherPolicy is the app grant and permission that decide whether a registry entry is listed.
+var launcherPolicy = map[string][2]string{
+	"files":                         {identityschema.FilesApp, "files.read"},
+	identityschema.StorageApp:       {identityschema.StorageApp, "storage.manage"},
+	identityschema.NotificationsApp: {identityschema.NotificationsApp, "notifications.own.read"},
+	identityschema.LogsApp:          {identityschema.LogsApp, "logs.audit.read"},
+}
+
+// apps lists the launcher; apps under the identity policy are hidden when it denies them to this user.
 func (a *App) apps(w http.ResponseWriter, r *http.Request) {
 	if a.identityService == nil {
 		visible := []AppDefinition{}
 		for _, app := range registry {
-			if app.ID != identityschema.StorageApp {
+			if _, governed := launcherPolicy[app.ID]; !governed || app.ID == "files" {
 				visible = append(visible, app)
 			}
 		}
@@ -409,10 +431,7 @@ func (a *App) apps(w http.ResponseWriter, r *http.Request) {
 	}
 	visible := make([]AppDefinition, 0, len(registry))
 	for _, app := range registry {
-		if app.ID == "files" && a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.FilesApp, "files.read") != nil {
-			continue
-		}
-		if app.ID == identityschema.StorageApp && a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.StorageApp, "storage.manage") != nil {
+		if p, governed := launcherPolicy[app.ID]; governed && a.identityService.CheckApp(r.Context(), identity(r).User.ID, p[0], p[1]) != nil {
 			continue
 		}
 		visible = append(visible, app)

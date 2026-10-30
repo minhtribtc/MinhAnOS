@@ -1,3 +1,7 @@
+## Notification Center + Log Center minimal v1 — 2026-10-31
+
+On VM 10.1.1.20 (node:22-alpine, golang:1.26-alpine, disposable postgres:18-alpine): `npm run check` PASS (foundations, settings standard, insecure context, docker context, contracts, identity/storage/notifications+logs contracts, tsc, redocly); `vue-tsc --noEmit` for Desktop PASS; gofmt, `go vet ./...` PASS; `go test` notifycore (delivery without duplicates after redelivery, paging without overlap, own-inbox isolation, idempotent mark, mark-all up to a time, cursor/limit validation, 90-day retention), logcore (merge order across sources, actor/target names, filters, paging, invalid input), identity, platform, storagecore, drive PASS.
+
 ## Storage standard fixes (rows 15, 25) — 2026-10-31
 
 VM /opt/minhanos-fx2: gofmt (2 reformatted), go vet, go test PASS incl. drive background measurement; migrations-integration PASS (storage 002); clean npm ci + contracts:generate + build PASS incl. new tests/storage-contracts.mjs (schema = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes). go test -race not available (Alpine image without cgo); the measurer channel is created before serving to avoid a race by design. Deployed 939d0ea: settings row version 1, storage_idempotency present, /api/v1/storage 401 without session, old /api/storage 404, no measurer errors in the Drive log.

@@ -1,0 +1,21 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "item.v1.schema.json",
+      "type": "NotificationItem"
+    },
+    {
+      "file": "mark-read.v1.schema.json",
+      "type": "NotificationMarkRead"
+    },
+    {
+      "file": "mark-read-result.v1.schema.json",
+      "type": "NotificationMarkReadResult"
+    },
+    {
+      "file": "page.v1.schema.json",
+      "type": "NotificationPage"
+    }
+  ]
+}

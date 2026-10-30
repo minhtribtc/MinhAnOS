@@ -33,8 +33,9 @@ after a gap review; earlier app reviews covered rows 1–14 only. Sources: AGENT
 | 25 | Performance & limits | Bounded queries and payloads, pagination, request timeouts, upload/text limits declared; no unbounded scans on request paths; bundle growth watched |
 | 26 | Documentation | Same commit updates user guide, HANDOFF, CHANGELOG, API/architecture docs and validation evidence (AGENTS mandatory documentation) |
 
-Notification Center and Log Center are still **planned**: rows 11–12 are satisfied today by writing the
-outbox/audit correctly; showing them needs those apps (Phase B/C).
+Notification Center and Log Center exist as minimal v1 (2026-10-31, [design](notification-log-center.md)):
+an app satisfies rows 11–12 by writing its outbox/audit correctly and registering it with
+`notifycore.Deliver` / `logcore.Sources`. Today only identity (notices + audit) and storage (audit) are wired.
 
 ## Known violations of rows 15–26 (2026-10-31)
 
@@ -47,3 +48,5 @@ outbox/audit correctly; showing them needs those apps (Phase B/C).
 | 22 | Desktop, Files, Storage Manager | No accessibility checks in the test suite (Account Center dialogs have a focus trap) |
 | 21 | Files | No first-run "no storage yet" state (required by the first-run rule) |
 | 23 | Files | "MinhAnOS Drive", "File Station · Preview" in UI |
+| 11–12 | Files, Storage | Files sends no notices (quota thresholds) and its `drive_audit` is not a Log Center source; storage audit has no retention policy |
+| 12 | Desktop | Legacy "Nhật ký" app still reads the legacy `audit` table; to be replaced by a per-user activity view |

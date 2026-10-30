@@ -1,0 +1,21 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "source.v1.schema.json",
+      "type": "LogSource"
+    },
+    {
+      "file": "event.v1.schema.json",
+      "type": "LogEvent"
+    },
+    {
+      "file": "source-list.v1.schema.json",
+      "type": "LogSourceList"
+    },
+    {
+      "file": "event-page.v1.schema.json",
+      "type": "LogEventPage"
+    }
+  ]
+}

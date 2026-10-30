@@ -1,3 +1,5 @@
+Notification Center + Log Center minimal v1 (current): read [design](notification-log-center.md). identity SQL 011 (notifications.own.read/manage for every account, logs.audit.read System Admin), notifications module SQL 001 (inbox, 90 days), Desktop worker moves identity_notification_outbox into the inbox every 10 s, bell in the Desktop status bar, apps com.minhanos.notifications and com.minhanos.logs, APIs /api/v1/notifications and /api/v1/logs (contracts + generated clients). Next: Files quota notices, per-user activity view replacing the legacy "Nhật ký" app, notification preferences panel.
+
 Release status: storage standard fixes (939d0ea) deployed to VM 10.1.1.20 after pg_dump before-storage-002.sql; storage SQL 002 applied; services healthy. Browser acceptance pending user.
 
 Storage Q1 (current): read [storage quota](storage-quota.md). storage module (registry, soft quota ledger, reservations, audit), identity SQL 010 storage.manage, Files enforces home quota, Storage Manager app, default quota in Settings. Next Q2: share permissions + File Station share roots + quota folders.

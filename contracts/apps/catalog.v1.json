@@ -83,6 +83,32 @@
       ]
     },
     {
+      "key": "notifications",
+      "displayName": "Notification Center",
+      "moduleName": "minhanos-notifications",
+      "appId": "com.minhanos.notifications",
+      "implementation": "partial",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": [
+        "packages/notifications-app",
+        "internal/notifycore"
+      ]
+    },
+    {
+      "key": "logs",
+      "displayName": "Log Center",
+      "moduleName": "minhanos-logs",
+      "appId": "com.minhanos.logs",
+      "implementation": "partial",
+      "legacyRegistryIds": [],
+      "legacyDisplayNames": [],
+      "currentPaths": [
+        "packages/logs-app",
+        "internal/logcore"
+      ]
+    },
+    {
       "key": "app-center",
       "displayName": "App Center",
       "moduleName": "minhanos-app-center",

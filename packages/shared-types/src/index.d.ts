@@ -609,3 +609,98 @@ export interface StorageHomePage {
     };
   }[];
 }
+
+export interface NotificationItem {
+  id: string;
+  source: string;
+  kind: string;
+  severity: "info" | "warning" | "critical";
+  mandatory: boolean;
+  params: {
+    [k: string]: string | number;
+  };
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface NotificationMarkRead {
+  /**
+   * @minItems 1
+   * @maxItems 100
+   */
+  ids?: [string, ...string[]];
+  upTo?: string;
+}
+
+export interface NotificationMarkReadResult {
+  updated: number;
+  unreadCount: number;
+}
+
+export interface NotificationPage {
+  items: {
+    id: string;
+    source: string;
+    kind: string;
+    severity: "info" | "warning" | "critical";
+    mandatory: boolean;
+    params: {
+      [k: string]: string | number;
+    };
+    createdAt: string;
+    readAt: string | null;
+  }[];
+  nextCursor: string | null;
+  unreadCount: number;
+}
+
+export interface LogSource {
+  id: "identity" | "storage";
+  appId: string;
+  retentionDays: number | null;
+}
+
+export interface LogEvent {
+  id: string;
+  source: "identity" | "storage";
+  occurredAt: string;
+  action: string;
+  outcome: "success" | "denied" | "failure";
+  actor: {
+    id: string;
+    username: string;
+  } | null;
+  target: string | null;
+  targetName: string | null;
+  requestId: string;
+  correlationId: string | null;
+  details: {};
+}
+
+export interface LogSourceList {
+  items: {
+    id: "identity" | "storage";
+    appId: string;
+    retentionDays: number | null;
+  }[];
+}
+
+export interface LogEventPage {
+  items: {
+    id: string;
+    source: "identity" | "storage";
+    occurredAt: string;
+    action: string;
+    outcome: "success" | "denied" | "failure";
+    actor: {
+      id: string;
+      username: string;
+    } | null;
+    target: string | null;
+    targetName: string | null;
+    requestId: string;
+    correlationId: string | null;
+    details: {};
+  }[];
+  nextCursor: string | null;
+}

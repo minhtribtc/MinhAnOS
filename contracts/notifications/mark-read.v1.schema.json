@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/notifications-mark-read.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "maxProperties": 1,
+  "properties": {
+    "ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "uniqueItems": true
+    },
+    "upTo": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
