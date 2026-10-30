@@ -1,6 +1,8 @@
 ## Notification Center + Log Center minimal v1 — 2026-10-31
 
 On VM 10.1.1.20 (node:22-alpine, golang:1.26-alpine, disposable postgres:18-alpine): `npm run check` PASS (foundations, settings standard, insecure context, docker context, contracts, identity/storage/notifications+logs contracts, tsc, redocly); `vue-tsc --noEmit` for Desktop PASS; gofmt, `go vet ./...` PASS; `go test` notifycore (delivery without duplicates after redelivery, paging without overlap, own-inbox isolation, idempotent mark, mark-all up to a time, cursor/limit validation, 90-day retention), logcore (merge order across sources, actor/target names, filters, paging, invalid input), identity, platform, storagecore, drive PASS.
+Deployed d5312ce (backup before-notifications-logs.sql): migrations identity 11 and notifications 1 applied, grants present, worker moved a throwaway outbox row into the inbox within 10 s (deleted afterwards), /api/v1/notifications and /api/v1/logs 401 without session, health ok.
+
 
 ## Storage standard fixes (rows 15, 25) — 2026-10-31
 

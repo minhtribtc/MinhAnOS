@@ -1,3 +1,5 @@
+Release status: d5312ce deployed to VM 10.1.1.20 after pg_dump before-notifications-logs.sql; identity SQL 011 and notifications SQL 001 applied; delivery worker verified with a throwaway notice (moved within 10 s, then deleted); APIs return 401 without session. Browser acceptance pending user.
+
 Notification Center + Log Center minimal v1 (current): read [design](notification-log-center.md). identity SQL 011 (notifications.own.read/manage for every account, logs.audit.read System Admin), notifications module SQL 001 (inbox, 90 days), Desktop worker moves identity_notification_outbox into the inbox every 10 s, bell in the Desktop status bar, apps com.minhanos.notifications and com.minhanos.logs, APIs /api/v1/notifications and /api/v1/logs (contracts + generated clients). Next: Files quota notices, per-user activity view replacing the legacy "Nhật ký" app, notification preferences panel.
 
 Release status: storage standard fixes (939d0ea) deployed to VM 10.1.1.20 after pg_dump before-storage-002.sql; storage SQL 002 applied; services healthy. Browser acceptance pending user.
