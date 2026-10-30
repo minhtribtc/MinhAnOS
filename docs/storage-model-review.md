@@ -150,3 +150,12 @@ Revised order: Q1 storage registry (volumes, shares limited to managed roots, bi
 default `homes` share and migration of `/data/users/{id}` into it; Q2 share permissions, File Station share roots,
 quota folders; Q3 Account Center (home share and quota on create/edit), notices 80/95/100 %, audit; Q4 optional
 hard quota on ZFS/Btrfs units.
+
+## Where admins manage shares (2026-10-30, recommendation)
+
+Shared Folders, quota folders, volumes and snapshots are managed resources, not settings, so they live in a
+**Storage Manager** app (`com.minhanos.storage`, already reserved in the app catalog; admin only, hidden for
+other users). Following the hybrid Settings rule, Storage Manager also exports a small Settings panel for its
+configuration only: default home share, default user quota, quota warning thresholds. Other apps consume, they
+do not own: Account Center picks home share + quota when creating/editing a user and shows the user's usage;
+File Station shows shares as roots, the user's own quota, and a deep link "Manage share" for admins.
