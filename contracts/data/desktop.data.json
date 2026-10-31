@@ -1,0 +1,19 @@
+{
+  "dataVersion": "1",
+  "app": "com.minhanos.desktop",
+  "tables": [
+    {"name": "preferences", "personal": true, "retention": "Until the account is deleted", "onAccountDelete": "removed"},
+    {"name": "audit", "personal": true, "retention": "Legacy, no new rows since 2026-10-31 (identity and Files audit replace it)", "onAccountDelete": "removed"},
+    {"name": "schema_version", "personal": false, "retention": "Permanent (legacy schema marker)", "onAccountDelete": "not-personal"}
+  ],
+  "files": [
+    {"path": "volume desktop-data:/data", "personal": false, "description": "Reserved data directory of the desktop service (no app files today)"}
+  ],
+  "config": [
+    {"name": ".env (POSTGRES_PASSWORD, COOKIE_SECURE, MINHANOS_BIND_IP, MINHANOS_PORT)", "secret": true, "description": "Compose environment of the desktop service (POSTGRES_PASSWORD is a secret)"},
+    {"name": "secrets/bootstrap_password", "secret": true, "description": "First admin password file (mounted read-only)"}
+  ],
+  "export": {"operationId": "desktopExport", "format": "application/json"},
+  "removal": {"trigger": "identity.user.deleted", "graceDays": 0, "function": "internal/platform/userdata.go:RemoveDeletedUsers"},
+  "restoreTest": "tests/backup-restore.sh"
+}

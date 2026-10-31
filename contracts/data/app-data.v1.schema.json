@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/app-data.v1",
+  "title": "What an app stores, how long, how a user exports or loses it, and what a backup must hold (app standard rows 17 and 19)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dataVersion", "app", "tables", "files", "config", "export", "removal", "restoreTest"],
+  "properties": {
+    "dataVersion": {"const": "1"},
+    "app": {"type": "string", "pattern": "^com\\.minhanos\\.[a-z][a-z0-9-]*$"},
+    "tables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "personal", "retention", "onAccountDelete"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "personal": {"type": "boolean", "description": "Rows belong to one user"},
+          "retention": {"type": "string", "minLength": 1},
+          "onAccountDelete": {"enum": ["removed", "removed-after-grace", "kept-by-retention", "not-personal"]}
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "personal", "description"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "personal": {"type": "boolean"},
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "config": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "secret": {"type": "boolean"},
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operationId", "format"],
+      "properties": {
+        "operationId": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
+        "format": {"enum": ["application/json", "application/x-tar"]}
+      }
+    },
+    "removal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trigger", "graceDays", "function"],
+      "properties": {
+        "trigger": {"const": "identity.user.deleted"},
+        "graceDays": {"type": "integer", "minimum": 0, "maximum": 365},
+        "function": {"type": "string", "description": "Go function (file:name) that removes the data"}
+      }
+    },
+    "restoreTest": {"type": "string", "description": "Script that restores a backup in isolation and checks it"}
+  }
+}

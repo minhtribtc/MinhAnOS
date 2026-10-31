@@ -1,0 +1,22 @@
+{
+  "dataVersion": "1",
+  "app": "com.minhanos.files",
+  "tables": [
+    {"name": "files_events", "personal": false, "retention": "365 days (append-only audit; actor ID only, no personal paths)", "onAccountDelete": "kept-by-retention"},
+    {"name": "files_idempotency", "personal": true, "retention": "24 hours", "onAccountDelete": "removed"},
+    {"name": "files_jobs", "personal": true, "retention": "7 days after the job ends", "onAccountDelete": "removed"},
+    {"name": "files_removals", "personal": false, "retention": "Permanent (one row per deleted account: when it was seen and emptied)", "onAccountDelete": "not-personal"}
+  ],
+  "files": [
+    {"path": "volume drive-files:/data/users/<user>/{files,trash,jobs}", "personal": true, "description": "Personal homes on the legacy directory volume (DRIVE_DATA_DIR, default /data)"},
+    {"path": "<volume>/homes/<user>/{files,trash,jobs}", "personal": true, "description": "Personal homes on the volume of the share hosting homes (storage Q2)"},
+    {"path": "<volume>/shares/<key>/{files,trash,jobs}", "personal": false, "description": "Shared Folders; backed up with the volume (ZFS/Btrfs snapshot or file copy)"}
+  ],
+  "config": [
+    {"name": ".env (POSTGRES_PASSWORD, COOKIE_SECURE, DRIVE_PORT)", "secret": true, "description": "Compose environment of the drive service; agent sockets are fixed in compose.yaml"},
+    {"name": "secrets/bootstrap_password", "secret": true, "description": "Shared with the Desktop"}
+  ],
+  "export": {"operationId": "filesExport", "format": "application/x-tar"},
+  "removal": {"trigger": "identity.user.deleted", "graceDays": 30, "function": "internal/drive/userdata.go:RemoveDeletedUsers"},
+  "restoreTest": "tests/backup-restore.sh"
+}

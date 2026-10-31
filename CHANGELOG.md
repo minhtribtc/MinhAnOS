@@ -1,4 +1,12 @@
-## Desktop và Files theo quy chuẩn ứng dụng — 2026-10-31
+## Desktop và Files: hoàn tất các mục quy chuẩn còn thiếu — 2026-10-31
+
+- Files: sao chép **thư mục** (và tệp lớn hơn 128 MB) chạy nền trên máy chủ, có tiến độ và nút hủy trong bảng *Tải lên và sao chép*. Đóng trang không dừng việc sao chép; lỗi tạm thời được thử lại tối đa 3 lần.
+- Files: thông báo khi dung lượng dùng đạt 80 %, 95 % và 100 % (vùng riêng báo cho chủ tài khoản, Shared Folder/thư mục quota báo cho quản trị viên).
+- Files: nút *Xuất toàn bộ tệp riêng (.tar)* ở chân trang khi đang ở vùng riêng. Desktop: `GET /api/export` tải bố cục, ứng dụng ghim và ghi chú dạng JSON.
+- Khi tài khoản bị xóa trong Account Center: dữ liệu Desktop (bố cục, ghi chú) bị xóa trong vòng 1 giờ; tác vụ Files bị xóa ngay; vùng riêng trong Files bị làm trống sau 30 ngày (để kịp cứu dữ liệu từ backup).
+- Lưu cùng lúc ở hai tab Desktop không còn ghi đè âm thầm: tab lưu sau tải phiên bản mới rồi lưu lại. Gửi lại một thao tác ghi Files (mạng chập chờn) không làm hai lần.
+- Màu chữ phụ, nút chính và màu trạng thái đậm hơn một chút để đạt độ tương phản WCAG AA ở giao diện sáng và tối.
+- Bỏ hẳn API cũ `/api/admin/users`; quản lý tài khoản ở Account Center.
 
 - Files: tên hiển thị thống nhất là **MinhAnOS Files** (bỏ "MinhAnOS Drive", "File Station · Preview"). Toàn bộ chữ trong Files có cả tiếng Việt và tiếng Anh; ngày giờ theo ngôn ngữ và múi giờ trong Cài đặt.
 - Files: thông báo lỗi rõ nguyên nhân (không tìm thấy, đã tồn tại, hết dung lượng, không có quyền, …) thay cho "yêu cầu thất bại" chung chung.

@@ -1,9 +1,11 @@
 import {createApiClient,createIdempotencyKey,ApiError} from '@minhanos/api-client'
-import type {FilesEntry,FilesListPage,FilesRootList,FilesSession,FilesTrashItem} from '@minhanos/shared-types'
+import type {FilesEntry,FilesJob,FilesListPage,FilesRootList,FilesSession,FilesTrashItem} from '@minhanos/shared-types'
 // DTOs are generated from contracts/files-api (OpenAPI); see packages/shared-types.
 export type User=FilesSession['user']
 export type Entry=FilesEntry
 export type TrashItem=FilesTrashItem
+// A background copy (folder, or file over the upload limit): GET /jobs/{id} for progress, POST .../cancel.
+export type Job=FilesJob
 // A storage root: the personal home, a Shared Folder (id "share:<key>", access read or write, its name) or the host
 // system. Only Shared Folders carry a name; the UI names the home and the system root from its catalog.
 export type Root=FilesRootList['roots'][number]
@@ -21,7 +23,8 @@ function upload(root:string,path:string,file:File,onProgress:(value:number)=>voi
  return {xhr,done}
 }
 
-return {request,list,setCSRF,upload,downloadURL:(root:string,path:string)=>base+endpoint('download',root,path)}
+// The user's own data export (app standard row 17): the personal home as a tar archive.
+return {request,list,setCSRF,upload,downloadURL:(root:string,path:string)=>base+endpoint('download',root,path),exportURL:base+'/export'}
 }
 export function endpoint(op:string,root:string,path:string,name?:string){return `/files/${op}?${new URLSearchParams({root,path,...name?{name}:{}})}`}
 export function bytes(value:number){if(value<1024)return `${value} B`;if(value<1024**2)return `${(value/1024).toFixed(1)} KB`;if(value<1024**3)return `${(value/1024**2).toFixed(1)} MB`;return `${(value/1024**3).toFixed(1)} GB`}

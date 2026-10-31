@@ -42,6 +42,16 @@ const driveRoutes=[...drive.matchAll(/mux\.HandleFunc\("(GET|POST) \/api\/([a-z-
  .concat([...drive.slice(drive.indexOf('func ServeEngine')).matchAll(/case "([a-z-]+)":/g)].map(([,p])=>[p==='list'||p==='download'||p==='text'?'GET':'POST','files/'+p]))
 for(const [method,route] of driveRoutes){if(route==='profile')continue;const item=api.paths['/api/drive/'+route];assert(item?.[method.toLowerCase()]||(route==='files/trash'&&item?.get&&item?.post),'undocumented Files route '+method+' /api/'+route)}
 assert(api.paths['/api/drive/files/upload']?.post,'undocumented upload')
+// Durable jobs (row 20): the Go job routes are documented, copy may answer 202, and a Files job is a job.v1.
+const jobs=await text('internal/drive/jobs.go')
+assert(drive.includes('r.URL.Path == "/api/jobs"')&&jobs.includes('parts[1] == "cancel" && r.Method == "POST"'),'job routes moved: update this check')
+for(const [route,method] of [['jobs','get'],['jobs/{id}','get'],['jobs/{id}/cancel','post']])assert(api.paths['/api/drive/'+route]?.[method],'undocumented Files route '+method+' '+route)
+assert(api.paths['/api/drive/files/copy'].post.responses['202'],'copy documents the queued job')
+const sharedJob=ajv.compile(await json('contracts/jobs/job.v1.schema.json'))
+const sample={id:'0a0b0c0d-0000-4000-8000-000000000001',type:'files.copy',state:'running',progress:{completed:1,total:2,unit:'bytes'},attempt:1,maxAttempts:3,createdAt:'2026-10-31T00:00:00Z',updatedAt:'2026-10-31T00:00:01Z',error:null}
+assert(v.FilesJob(sample)&&sharedJob(sample),'Files job is a job.v1')
+assert(v.FilesWriteResult({ok:true,job:sample}),'202 body carries the job')
+assert(!v.FilesJob({...sample,type:'files.move'}),'only copy jobs')
 for(const [,method,route] of platform.matchAll(/mux\.Handle(?:Func)?\("(GET|POST|PUT|DELETE) (\/api\/[a-z-]+)"/g))assert(api.paths[route]?.[method.toLowerCase()],'undocumented Desktop route '+method+' '+route)
 // DTO rules: no unknown fields, preferences bounded, roots carry names only for Shared Folders.
 assert(v.FilesEntry({name:'a.txt',path:'a.txt',kind:'file',size:1,modified:'2026-10-31T00:00:00Z',mode:'-rw-r-----',uid:10001,gid:10001,etag:'x'}))

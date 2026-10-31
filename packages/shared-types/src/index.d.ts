@@ -787,6 +787,4697 @@ export interface FilesEntry {
   etag: string;
 }
 
+export interface FilesJob {
+  id: string;
+  type: "files.copy";
+  state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+  progress: {
+    completed: number;
+    total: number | null;
+    unit: "bytes";
+  };
+  attempt: number;
+  maxAttempts: number;
+  createdAt: string;
+  updatedAt: string;
+  error: {
+    code: string;
+    message: string;
+    requestId: string;
+    details: {
+      [k: string]: unknown;
+    };
+  } | null;
+}
+
+export interface FilesJobList {
+  /**
+   * @maxItems 20
+   */
+  items:
+    | []
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ]
+    | [
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        },
+        {
+          id: string;
+          type: "files.copy";
+          state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+          progress: {
+            completed: number;
+            total: number | null;
+            unit: "bytes";
+          };
+          attempt: number;
+          maxAttempts: number;
+          createdAt: string;
+          updatedAt: string;
+          error: {
+            code: string;
+            message: string;
+            requestId: string;
+            details: {
+              [k: string]: unknown;
+            };
+          } | null;
+        }
+      ];
+}
+
 export interface FilesListPage {
   path: string;
   /**
@@ -869,6 +5560,28 @@ export interface FilesWriteResult {
         deleted: string;
       };
   backup?: string;
+  job?: {
+    id: string;
+    type: "files.copy";
+    state: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+    progress: {
+      completed: number;
+      total: number | null;
+      unit: "bytes";
+    };
+    attempt: number;
+    maxAttempts: number;
+    createdAt: string;
+    updatedAt: string;
+    error: {
+      code: string;
+      message: string;
+      requestId: string;
+      details: {
+        [k: string]: unknown;
+      };
+    } | null;
+  };
 }
 
 export interface FilesRootList {
@@ -984,6 +5697,34 @@ export interface DesktopPreferences {
    * @maxItems 32
    */
   pinned: string[];
+}
+
+export interface DesktopExport {
+  app: "com.minhanos.desktop";
+  exportVersion: "1";
+  exportedAt: string;
+  preferences: {
+    theme: "light" | "dark";
+    wallpaper: "mountain" | "midnight" | "sage";
+    mode: "focus" | "windows";
+    /**
+     * @maxItems 32
+     */
+    windows: {
+      id: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      minimized: boolean;
+      maximized: boolean;
+    }[];
+    notes: string;
+    /**
+     * @maxItems 32
+     */
+    pinned: string[];
+  };
 }
 
 export interface DesktopSystemStatus {

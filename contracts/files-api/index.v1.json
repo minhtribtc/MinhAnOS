@@ -6,6 +6,14 @@
       "type": "FilesEntry"
     },
     {
+      "file": "job.v1.schema.json",
+      "type": "FilesJob"
+    },
+    {
+      "file": "job-list.v1.schema.json",
+      "type": "FilesJobList"
+    },
+    {
       "file": "list-page.v1.schema.json",
       "type": "FilesListPage"
     },

@@ -39,6 +39,13 @@ assert.equal((await b.call(route('list','personal','Documents'))).response.statu
 assert.equal((await a.call(route('list','personal','../'+fixture[1].id))).response.status,400);ok('Real mkdir/upload/list and per-user storage isolation')
 const conflict=await a.call(route('upload','personal','Documents',{name:'hello.txt'}),{method:'POST',raw:'overwrite'});assert.equal(conflict.response.status,409)
 const download=await a.call(route('download','personal','Documents/hello.txt'));assert.equal(download.data,'Xin chào Drive — UTF-8');assert.match(download.response.headers.get('content-disposition'),/attachment/);ok('Download bytes preserved and duplicate upload cannot overwrite')
+// Folder copy is a durable job (row 20): 202 + job, progress until succeeded, cancel of a finished job is a no-op.
+assert.equal((await a.call(route('copy','personal','Documents'),{method:'POST',body:{destination:'Documents/inner'}})).response.status,400)
+const queuedCopy=await a.call(route('copy','personal','Documents'),{method:'POST',body:{destination:'Documents copy'}});assert.equal(queuedCopy.response.status,202,JSON.stringify(queuedCopy.data));assert.equal(queuedCopy.data.job.type,'files.copy')
+let copyJob=queuedCopy.data.job;for(let i=0;i<60&&['queued','running'].includes(copyJob.state);i++){await new Promise(r=>setTimeout(r,500));copyJob=(await a.call('/jobs/'+copyJob.id)).data}
+assert.equal(copyJob.state,'succeeded',JSON.stringify(copyJob));assert.equal(copyJob.progress.unit,'bytes');assert.equal((await a.call(route('download','personal','Documents copy/hello.txt'))).data,'Xin chào Drive — UTF-8')
+assert.equal((await a.call('/jobs/'+copyJob.id+'/cancel',{method:'POST',body:{}})).data.state,'succeeded');assert((await a.call('/jobs')).data.items.some(j=>j.id===copyJob.id))
+assert.equal((await a.call('/jobs/00000000-0000-4000-8000-000000000000')).response.status,404);ok('Folder copy runs as a durable job with progress and idempotent cancel')
 const text=await a.call(route('text','personal','Documents/hello.txt'));assert.equal(text.response.status,200)
 assert.equal((await a.call(route('save-text','personal','Documents/hello.txt'),{method:'POST',body:{content:'bad',etag:'stale'}})).response.status,409)
 const saved=await a.call(route('save-text','personal','Documents/hello.txt'),{method:'POST',body:{content:'Nội dung đã sửa',etag:text.data.etag}});assert.equal(saved.response.status,200);assert.match(saved.data.backup,/backup/)

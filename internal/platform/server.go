@@ -200,6 +200,7 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+	go a.runRemovals(ctx)
 	return a, nil
 }
 
@@ -229,6 +230,7 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("/api/profile", a.auth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { a.profile.Handle(w, r, identity(r).User.ID) })))
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
+	mux.Handle("GET /api/export", a.auth(http.HandlerFunc(a.exportData)))
 	mux.Handle("GET /api/system", a.auth(http.HandlerFunc(a.system)))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 404, "API không tồn tại.", "NOT_FOUND")

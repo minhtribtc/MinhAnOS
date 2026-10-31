@@ -40,8 +40,10 @@ type Server struct {
 	units  sync.Map
 	// measureKick wakes the background measurer (set by RunMeasurer).
 	measureKick chan struct{}
-	locks       sync.Map
-	limiter     loginLimiter
+	// jobKick wakes the job worker (set by StartJobs).
+	jobKick chan struct{}
+	locks   sync.Map
+	limiter loginLimiter
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -208,6 +210,12 @@ func (s *Server) Handler() http.Handler {
 			fail(w, 403, "Cần đổi mật khẩu trong Account Center trước khi tiếp tục.", "PASSWORD_CHANGE_REQUIRED")
 			return
 		}
+		if r.URL.Path == "/api/export" && r.Method == "GET" {
+			if s.authorized(w, r, session.User, "files.read") {
+				s.exportHome(w, r, session.User)
+			}
+			return
+		}
 		if r.URL.Path == "/api/roots" && r.Method == "GET" {
 			if !s.authorized(w, r, session.User, "files.read") {
 				return
@@ -279,6 +287,16 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
+			return
+		}
+		if r.URL.Path == "/api/jobs" || strings.HasPrefix(r.URL.Path, "/api/jobs/") {
+			permission := "files.read"
+			if r.Method == "POST" {
+				permission = "files.write"
+			}
+			if s.authorized(w, r, session.User, permission) {
+				s.serveJobs(w, r, session.User)
+			}
 			return
 		}
 		if !strings.HasPrefix(r.URL.Path, "/api/files/") {
@@ -417,6 +435,18 @@ func (s *Server) Handler() http.Handler {
 		}
 		defer rootFS.Close()
 		engine := &Engine{Root: rootFS}
+		// A folder, or a file too large for one request, is copied by a durable job (row 20): 202 + the job.
+		if path.Base(r.URL.Path) == "copy" && r.Method == "POST" {
+			job, queued, e := s.copyJob(r, engine, session.User, root)
+			if e != nil {
+				handleFileError(w, e)
+				return
+			}
+			if queued {
+				jsonResponse(w, 202, map[string]any{"ok": true, "job": job})
+				return
+			}
+		}
 		// Soft quota: reserve what the write may add on the home and the homes share (or on the Shared
 		// Folder), then commit the actual bytes or release on failure. The write lock is held throughout.
 		var reservation *storagecore.Reservation

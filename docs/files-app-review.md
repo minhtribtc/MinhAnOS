@@ -16,18 +16,18 @@ found the app layer non-compliant; the standard pass of 2026-10-31 fixed it. `te
 | 8 | Errors | ✅ | every Drive `fail`/`problem` carries a code (FILES_NOT_FOUND, FILES_EXISTS, STORAGE_FULL, CSRF_INVALID, …); UI maps `files.errors.<CODE>` then `common.errors` |
 | 9 | Authorization | ✅ | every `/api/roots`, `/api/files/*` through `IdentityStore.Authorize` + share permissions |
 | 10 | Audit | ✅ | `files_events` (migration module `files` step 1): actor public ID, action `files.<op>`, root, share key, request/correlation ID; append-only trigger; paths stored only for the system root; legacy `drive_audit` no longer written (kept for history) |
-| 11 | Notifications | ❌ | quota thresholds 80/95/100 % and failed uploads are not queued yet |
+| 11 | Notifications | ✅ | quota notices 80/95/100 % (home → owner, share/folder → admins) through the storage outbox; failed uploads stay in the transfer panel |
 | 12 | Logs | ✅ | `slog` JSON with request/correlation ID, no usernames or paths; Files audit is the Log Center source `files` (365 days) |
 | 13 | Quota | ✅ | reserve → commit/release on upload, copy, save-text; share and quota-folder limits |
 | 14 | Tests | ✅ | Go engine/authorization/quota/audit (`TestFilesAuditPrivacyAndAppendOnly`), node action/client tests, app-standard check |
-| 15 | API contract | ❌ | `/api/files/*` not in OpenAPI yet |
+| 15 | API contract | ✅ | 23 operations in OpenAPI (`contracts/files-api`, generated client), Idempotency-Key replay (24 h), cursor paging ≤1000, If-Match on save-text; FilesApp still uses its own request wrapper |
 | 16 | Security | ✅ | same-origin + CSRF on writes, host work only through the restricted agent |
-| 17 | Privacy | ⚠️ | per-user homes, no paths of personal files in audit; no export/removal flow |
+| 17 | Privacy | ✅ | `GET /api/drive/export` (personal home as tar); deleted accounts lose jobs/replay rows at once and their home after 30 days (files SQL 004) |
 | 18 | Migrations | ✅ | `files_events` through the runner; backup `before-files-events.sql` before deploy |
-| 19 | Backup | ❌ | no per-app backup list; restore untested |
-| 20 | Long-running work | ❌ | jobs contract planned (recursive copy, moving homes) |
+| 19 | Backup | ✅ | `contracts/data/files.data.json` (tables, homes, shares, config); `tests/backup-restore.sh` PASS on the test VM |
+| 20 | Long-running work | ✅ | folder copy and files over 128 MB run as durable jobs (files SQL 003: lease 60 s, fencing, progress, cancel, 3 attempts); moving homes still not a job |
 | 21 | UX states | ✅ | loading, empty, no-storage, errors, confirmations for destructive actions |
-| 22 | Accessibility | ⚠️ | dialogs `aria-modal` + `aria-labelledby` (checked); no automated focus/contrast tests |
+| 22 | Accessibility | ✅ | AA token contrast; axe-core WCAG 2.1 AA light/dark, new-folder dialog focus trap + Escape, 375 px without overflow |
 | 23 | Naming | ✅ | "MinhAnOS Files" in header and page title; "Drive"/"File Station · Preview" removed (checked) |
 | 24 | Runtime | ✅ | docker-context check; non-root image |
 | 25 | Limits | ✅ | text and upload limits, bounded listings |

@@ -14,18 +14,18 @@ static rules.
 | 6 | Theme | ✅ | 0 hex/rgba colours in `style.css`/`ipados.css`/`fluent.css` (725 dead rules pruned); tokens incl. `--mn-color-on-media` and accent scales |
 | 7 | SDK | ✅ | `host.useCatalog` for every launcher catalog, `session-ended`/`profile-changed`, `openSettings`, close guards |
 | 8 | Errors | ✅ | every legacy `/api` error carries a code (checked); UI shows `host.errorMessage` / `SAVE_FAILED`, never server text |
-| 9 | Authorization | ⚠️ | identity policy for app visibility; legacy `/api/admin/users` still served (role check only without the identity service) |
+| 9 | Authorization | ✅ | identity policy for app visibility; legacy `/api/admin/users` and its role middleware removed (404, checked) |
 | 10 | Audit | ✅ | legacy `INSERT INTO audit` for sign-in/out removed; identity events are the only record (table kept for history) |
 | 11 | Notifications | ✅ | bell + unread count + Notification Center |
 | 12 | Logs | ✅ | `slog` JSON with request ID; private "Nhật ký" app and `GET /api/audit` removed; history in Log Center |
 | 13 | Quota | n/a | preferences/notes only |
 | 14 | Tests | ✅ | Go handler tests (`TestKnownAppsMigratesLegacyLayout`), api-smoke, app-standard check |
-| 15 | API contract | ⚠️ | legacy `/api/preferences`, `/api/system` not in OpenAPI |
+| 15 | API contract | ✅ | all 9 Desktop routes in OpenAPI (`contracts/desktop`, generated client); preferences ETag/If-Match (428/412) |
 | 16 | Security | ✅ | CSRF/origin on writes; login screen no longer shows the server IP |
-| 17 | Privacy | ⚠️ | notes in preferences per user; no export flow |
-| 19 | Backup | ❌ | no per-app backup list |
+| 17 | Privacy | ✅ | `GET /api/export` (layout, pinned, notes as JSON); preferences and legacy audit rows of deleted accounts removed hourly |
+| 19 | Backup | ✅ | `contracts/data/desktop.data.json` lists tables, volume, config; `tests/backup-restore.sh` restores in isolation |
 | 21 | UX states | ✅ | Control Center no longer shows fake integrations; `/api/system` returns real values only |
-| 22 | Accessibility | ⚠️ | windows are labelled `region`s, dialogs modal + labelled (checked); no focus/contrast tests |
+| 22 | Accessibility | ✅ | AA token contrast (light/dark); axe-core WCAG 2.1 AA, search dialog focus trap + Escape, 375 px without overflow (`tests/a11y-browser.mjs`) |
 | 23 | Naming | ✅ | "MinhAnOS Desktop"; preview version removed |
 | 24 | Runtime | ✅ | docker-context check |
 | 26 | Documentation | ✅ | this review, user guide, HANDOFF, CHANGELOG, validation |

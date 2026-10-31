@@ -189,6 +189,10 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 	if w := put(first); w.Code != 412 {
 		t.Fatal("stale preferences accepted", w.Code)
 	}
+	// Row 17: the user exports their own Desktop data; a deleted account's preferences are removed.
+	if export := call(desktop, "/api/export", "GET", dc, "", "", ""); export.Code != 200 || !strings.Contains(export.Body.String(), `"notes":"other tab"`) || !strings.Contains(export.Header().Get("Content-Disposition"), "attachment") {
+		t.Fatal("export", export.Code, export.Body.String())
+	}
 	if allowed, e := app.identityService.CanAccessHost(ctx, webAdmin.ID); e != nil || allowed {
 		t.Fatal("web admin received host privilege", e)
 	}
@@ -220,6 +224,20 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 		if w := call(test.h, test.path, "GET", test.cookie, "", "", ""); w.Code != 401 {
 			t.Fatal("credential mutation did not revoke adapter", test.path, w.Code)
 		}
+	}
+	// Row 17: a deleted account's Desktop data is removed; active accounts keep theirs (runs last: it deletes a user).
+	var owner string
+	if e = db.QueryRow(ctx, "SELECT user_id FROM preferences LIMIT 1").Scan(&owner); e != nil {
+		t.Fatal(e)
+	}
+	if n, e := RemoveDeletedUsers(ctx, db); e != nil || n != 0 {
+		t.Fatal("active user data removed", n, e)
+	}
+	if _, e = db.Exec(ctx, "UPDATE users SET status='deleted' WHERE id=$1", owner); e != nil {
+		t.Fatal(e)
+	}
+	if n, e := RemoveDeletedUsers(ctx, db); e != nil || n < 1 {
+		t.Fatal("deleted user data kept", n, e)
 	}
 	_ = csrf
 }

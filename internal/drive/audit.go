@@ -15,9 +15,15 @@ var filesEventsSQL string
 //go:embed migrations/002_files_idempotency.sql
 var filesIdempotencySQL string
 
+//go:embed migrations/003_files_jobs.sql
+var filesJobsSQL string
+
+//go:embed migrations/004_files_removals.sql
+var filesRemovalsSQL string
+
 // Module is the Files schema owned by this package (migration runner, app standard row 18).
 func Module() migrate.Module {
-	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}}}
+	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -65,6 +71,9 @@ func RetainAudit(ctx context.Context, db *pgxpool.Pool) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, "DELETE FROM files_idempotency WHERE ctid IN (SELECT ctid FROM files_idempotency WHERE expires_at<now() LIMIT 500)"); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, "DELETE FROM files_jobs WHERE id IN (SELECT id FROM files_jobs WHERE finished_at<now()-make_interval(days=>$1) LIMIT 500)", JobRetentionDays); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

@@ -18,6 +18,10 @@
       "type": "DesktopPreferences"
     },
     {
+      "file": "export.v1.schema.json",
+      "type": "DesktopExport"
+    },
+    {
       "file": "system-status.v1.schema.json",
       "type": "DesktopSystemStatus"
     },

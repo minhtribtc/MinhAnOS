@@ -30,6 +30,9 @@ func Middleware(next http.Handler) http.Handler {
 	})
 }
 
+// With attaches IDs to a context outside HTTP (a background job names its own).
+func With(ctx context.Context, ids IDs) context.Context { return context.WithValue(ctx, key{}, ids) }
+
 // From returns the IDs of the current request; outside HTTP (CLI, tests) it creates fresh ones.
 func From(ctx context.Context) IDs {
 	if ids, ok := ctx.Value(key{}).(IDs); ok {

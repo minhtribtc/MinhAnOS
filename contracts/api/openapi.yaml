@@ -5862,7 +5862,7 @@
     "/api/drive/files/copy": {
       "post": {
         "operationId": "filesCopy",
-        "summary": "Copy to another path in the same root",
+        "summary": "Copy to another path in the same root; a folder or a file over maxUploadBytes is queued as a job (202)",
         "x-implementation": "implemented",
         "x-module": "files",
         "tags": [
@@ -5913,6 +5913,16 @@
         "responses": {
           "200": {
             "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Queued as a background job (job holds its id and progress)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6553,6 +6563,230 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DesktopSystemStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/jobs": {
+      "get": {
+        "operationId": "filesJobs",
+        "summary": "The user's 20 most recent Files jobs (finished jobs are kept 7 days)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesJobList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/jobs/{id}": {
+      "get": {
+        "operationId": "filesJob",
+        "summary": "One Files job with its progress",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Job ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/jobs/{id}/cancel": {
+      "post": {
+        "operationId": "filesCancelJob",
+        "summary": "Request cancel (idempotent; a running job stops at its next progress report)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Job ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/export": {
+      "get": {
+        "operationId": "filesExport",
+        "summary": "Download the personal home as a tar archive (folders and regular files; trash, links and special files excluded)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/x-tar": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/export": {
+      "get": {
+        "operationId": "desktopExport",
+        "summary": "Download the user's own Desktop data (layout, pinned apps, notes) as JSON",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopExport"
                 }
               }
             }
@@ -9917,6 +10151,116 @@
           },
           "backup": {
             "type": "string"
+          },
+          "job": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "const": "files.copy"
+              },
+              "state": {
+                "enum": [
+                  "queued",
+                  "running",
+                  "succeeded",
+                  "failed",
+                  "cancelled"
+                ]
+              },
+              "progress": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "completed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "unit": {
+                    "const": "bytes"
+                  }
+                },
+                "required": [
+                  "completed",
+                  "total",
+                  "unit"
+                ]
+              },
+              "attempt": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "error": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]*$"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "requestId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "details": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "message",
+                      "requestId",
+                      "details"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "state",
+              "progress",
+              "attempt",
+              "maxAttempts",
+              "createdAt",
+              "updatedAt",
+              "error"
+            ]
           }
         },
         "required": [
@@ -10464,6 +10808,353 @@
         "required": [
           "status",
           "version"
+        ]
+      },
+      "FilesJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "const": "files.copy"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "progress": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "completed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "unit": {
+                "const": "bytes"
+              }
+            },
+            "required": [
+              "completed",
+              "total",
+              "unit"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxAttempts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]*$"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "requestId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "details": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": [
+                  "code",
+                  "message",
+                  "requestId",
+                  "details"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "state",
+          "progress",
+          "attempt",
+          "maxAttempts",
+          "createdAt",
+          "updatedAt",
+          "error"
+        ]
+      },
+      "FilesJobList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": {
+                  "const": "files.copy"
+                },
+                "state": {
+                  "enum": [
+                    "queued",
+                    "running",
+                    "succeeded",
+                    "failed",
+                    "cancelled"
+                  ]
+                },
+                "progress": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "completed": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "total": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0
+                    },
+                    "unit": {
+                      "const": "bytes"
+                    }
+                  },
+                  "required": [
+                    "completed",
+                    "total",
+                    "unit"
+                  ]
+                },
+                "attempt": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "maxAttempts": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "error": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "pattern": "^[A-Z][A-Z0-9_]*$"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "requestId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "details": {
+                          "type": "object",
+                          "additionalProperties": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId",
+                        "details"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "state",
+                "progress",
+                "attempt",
+                "maxAttempts",
+                "createdAt",
+                "updatedAt",
+                "error"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "DesktopExport": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "app": {
+            "const": "com.minhanos.desktop"
+          },
+          "exportVersion": {
+            "const": "1"
+          },
+          "exportedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "preferences": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "theme": {
+                "enum": [
+                  "light",
+                  "dark"
+                ]
+              },
+              "wallpaper": {
+                "enum": [
+                  "mountain",
+                  "midnight",
+                  "sage"
+                ]
+              },
+              "mode": {
+                "enum": [
+                  "focus",
+                  "windows"
+                ]
+              },
+              "windows": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "x": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 20000
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 20000
+                    },
+                    "width": {
+                      "type": "number",
+                      "minimum": 260,
+                      "maximum": 10000
+                    },
+                    "height": {
+                      "type": "number",
+                      "minimum": 200,
+                      "maximum": 10000
+                    },
+                    "minimized": {
+                      "type": "boolean"
+                    },
+                    "maximized": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "width",
+                    "height",
+                    "minimized",
+                    "maximized"
+                  ]
+                }
+              },
+              "notes": {
+                "type": "string",
+                "maxLength": 32000
+              },
+              "pinned": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "theme",
+              "wallpaper",
+              "mode",
+              "windows",
+              "notes",
+              "pinned"
+            ]
+          }
+        },
+        "required": [
+          "app",
+          "exportVersion",
+          "exportedAt",
+          "preferences"
         ]
       }
     }

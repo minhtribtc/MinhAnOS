@@ -1,3 +1,15 @@
+## Files and Desktop API in OpenAPI (2026-10-31)
+
+All Files routes (`/api/drive/...`, `x-module: files`, 23 operations) and Desktop routes (`/api/...`,
+`x-module: desktop`, 9 operations) are in `contracts/api/openapi.yaml` with schemas in `contracts/files-api` and
+`contracts/desktop` and generated clients `@minhanos/api-client/files` and `/desktop`; `tests/files-desktop-contracts.mjs`
+fails on any undocumented Go route. Files writes need `Idempotency-Key` (replayed 24 h, `Idempotent-Replayed: true`;
+same key with another request 409 `IDEMPOTENCY_CONFLICT`). `GET /api/drive/files/list` pages with `limit` ≤ 1000
+and `cursor`/`nextCursor`. `save-text` and `PUT /api/preferences` need `If-Match` (428 / 412 `VERSION_CONFLICT`).
+`POST /api/drive/files/copy` on a folder or a file over 128 MB answers 202 `{ok, job}`; `GET /api/drive/jobs`,
+`GET /api/drive/jobs/{id}`, `POST /api/drive/jobs/{id}/cancel` (job.v1 shape, unit bytes). Exports:
+`GET /api/export` (Desktop JSON) and `GET /api/drive/export` (tar of the personal home).
+
 ## Storage API v1 (2026-10-31)
 
 Moved from /api/storage to /api/v1/storage with contracts/storage schemas, OpenAPI operations storageListVolumes, storageListShares, storageCreateShare, storageSetShareQuota, storageListHomes, storageSetHomeQuota, storageMeasureHome, storageGetSettings, storageSetSettings; generated client @minhanos/api-client/storage. Writes: POST Idempotency-Key, PUT If-Match; v1 error envelope.

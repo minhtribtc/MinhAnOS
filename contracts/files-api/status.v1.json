@@ -19,6 +19,10 @@
     "filesTrash",
     "filesRestore",
     "filesRemove",
-    "filesSaveText"
+    "filesSaveText",
+    "filesExport",
+    "filesJobs",
+    "filesJob",
+    "filesCancelJob"
   ]
 }

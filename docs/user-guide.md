@@ -7,6 +7,10 @@
 - **Ghi chú** là ứng dụng riêng; nội dung ghi chú cũ vẫn còn.
 - Thao tác tệp của bạn được ghi vào **Trung tâm nhật ký** (System Admin xem, nguồn *Files*). Với vùng riêng chỉ ghi loại thao tác, không ghi tên hay đường dẫn tệp.
 - Các ứng dụng cũ Tổng quan, App Center, Kết nối, Nhật ký, Giới thiệu đã bỏ; nếu đã ghim, chúng tự biến mất khỏi Dock.
+- Sao chép thư mục: chọn thư mục → *Sao chép* → mở nơi đến → *Dán*. Việc sao chép chạy nền; xem tiến độ hoặc hủy ở nút *Tác vụ* dưới chân Files. Không sao chép được thư mục vào chính nó, và thư mục chứa liên kết (symlink) hoặc tệp đặc biệt sẽ báo lỗi.
+- Xuất dữ liệu: trong vùng riêng, bấm *Xuất toàn bộ tệp riêng (.tar)* ở chân trang (không gồm thùng rác). Dữ liệu Desktop (bố cục, ghi chú): mở `/api/export` khi đã đăng nhập.
+- Xóa tài khoản: dữ liệu Desktop bị xóa trong 1 giờ, vùng riêng Files bị làm trống sau 30 ngày. Quản trị viên cần cứu dữ liệu thì lấy từ backup hoặc ổ đĩa trong khoảng đó.
+- Thông báo dung lượng: Files báo khi dùng 80 %, 95 % và 100 % dung lượng được cấp; khi dung lượng giảm xuống, thông báo được bật lại cho lần sau.
 
 ## Thông báo và nhật ký
 

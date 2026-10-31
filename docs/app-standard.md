@@ -41,13 +41,20 @@ an app satisfies rows 11–12 by writing its outbox/audit correctly and register
 
 | Row | Where | Gap |
 |---|---|---|
-| 15 | Drive `/api/files/*` | Not in OpenAPI (storage API fixed 2026-10-31: `/api/v1/storage` in OpenAPI with generated client, If-Match, Idempotency-Key) |
-| 20 | Storage, Files | Jobs contract still planned; needed for measuring, moving homes to a new share, recursive copy |
-| 19 | All apps | No per-app backup list; backups so far were manual `pg_dump` before migrations; Files/ZFS/Btrfs data restore untested |
-| 17 | All apps | No user data export/removal flow; retention documented for identity audit, notices and Files audit (365 days) |
-| 11 | Files, Storage | No notices for quota thresholds (80/95/100 %); storage audit has no retention policy |
-| 22 | Desktop, Files | Dialogs are labelled and modal (checked); Storage Manager has no checks; focus trap, contrast and phone-width layout not tested automatically |
-| 9 | Desktop | Legacy `/api/admin/users` (list/create) still served beside Account Center; role check only when the identity service is absent |
+| 15 | Files UI | Generated Files client exists and is drift-checked, but FilesApp still calls JSON operations through its own request wrapper (same paths and headers) |
+| 20 | Storage; platform | Moving homes to a new share and storage measuring are not jobs yet; the platform `/api/v1/jobs` stays planned (Files jobs live at `/api/drive/jobs`); a job's end is not written to the audit (its request is) |
+| 17, 19 | Other apps | Only Desktop and Files have `contracts/data/*.data.json`; identity, storage, notifications, logs and notes still need theirs |
+| 11 | Storage | Storage audit has no retention policy |
+| 22 | Other apps | `tests/a11y-browser.mjs` covers Desktop and Files only (Storage Manager, Account Center, Settings not yet) |
+
+Fixed on 2026-10-31 (second pass) for Desktop and Files: row 9 (legacy `/api/admin/users` and its middleware
+removed; Desktop preferences versioned with ETag/If-Match), row 11 (quota notices 80/95/100 % through a
+trigger-based outbox, storage SQL 005), row 15 (`contracts/files-api`, `contracts/desktop`, every Go route in
+OpenAPI, Idempotency-Key replay store files SQL 002, cursor paging, If-Match on save-text), row 20 (durable copy
+jobs files SQL 003 with lease, fencing, progress, cancel and bounded retry), rows 17/19 (`contracts/data`,
+`GET /api/export` and `/api/drive/export`, removal of deleted accounts' data files SQL 004 with a 30-day grace for
+homes, `tests/backup-restore.sh`), row 22 (AA token contrast `tests/a11y-tokens.mjs`; axe-core, focus trap,
+Escape and 375 px overflow in `tests/a11y-browser.mjs`).
 
 Fixed on 2026-10-31 for Desktop and Files ([Desktop review](desktop-review.md), [Files review](files-app-review.md)):
 row 23 (naming), rows 10–12 (Files audit `files_events` as a Log Center source, structured logs; legacy
