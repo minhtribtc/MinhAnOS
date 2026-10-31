@@ -6,6 +6,7 @@ import (
 	"context"
 	_ "embed"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/eventcore"
 	"minhanos.local/platform/internal/migrate"
 )
 
@@ -46,10 +47,10 @@ var notificationsLogsSQL string
 var organizationsSQL string
 
 func Module() migrate.Module {
-	return migrate.Module{ID: "identity", Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}, {ID: 5, Name: "identity_policy", SQL: policySQL}, {ID: 6, Name: "auth_audit", SQL: authAuditSQL}, {ID: 7, Name: "security_log", SQL: securityLogSQL}, {ID: 8, Name: "admin_sessions", SQL: adminSessionsSQL}, {ID: 9, Name: "files_policy", SQL: filesPolicySQL}, {ID: 10, Name: "storage_policy", SQL: storagePolicySQL}, {ID: 11, Name: "notifications_logs", SQL: notificationsLogsSQL}, {ID: 12, Name: "organizations", SQL: organizationsSQL}}}
+	return migrate.Module{ID: "identity", Dependencies: map[string]migrate.Range{"events": {Min: 1, Max: 100}}, Steps: []migrate.Step{{ID: 1, Name: "adopt_legacy_users", SQL: adoptSQL}, {ID: 2, Name: "expand_public_identity", SQL: expandSQL}, {ID: 3, Name: "empty_identity_relations", SQL: relationsSQL}, {ID: 4, Name: "shared_auth_core", SQL: authCoreSQL}, {ID: 5, Name: "identity_policy", SQL: policySQL}, {ID: 6, Name: "auth_audit", SQL: authAuditSQL}, {ID: 7, Name: "security_log", SQL: securityLogSQL}, {ID: 8, Name: "admin_sessions", SQL: adminSessionsSQL}, {ID: 9, Name: "files_policy", SQL: filesPolicySQL}, {ID: 10, Name: "storage_policy", SQL: storagePolicySQL}, {ID: 11, Name: "notifications_logs", SQL: notificationsLogsSQL}, {ID: 12, Name: "organizations", SQL: organizationsSQL}}}
 }
 
 // ApplySchema must be called after the legacy bootstrap transaction commits.
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
-	return migrate.Apply(ctx, db, Module())
+	return migrate.Apply(ctx, db, eventcore.Module(), Module())
 }

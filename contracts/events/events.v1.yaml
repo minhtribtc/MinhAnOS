@@ -1,6 +1,6 @@
 {
   "contractVersion": "1",
-  "implementation": "planned",
+  "implementation": "implemented",
   "envelopeSchema": "event.v1.schema.json",
   "delivery": "at-least-once",
   "ordering": "per resource aggregate version only; no global ordering",

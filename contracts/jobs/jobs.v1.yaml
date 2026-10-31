@@ -1,6 +1,6 @@
 {
   "contractVersion": "1",
-  "implementation": "planned",
+  "implementation": "implemented",
   "states": [
     "queued",
     "running",

@@ -1,3 +1,10 @@
+## Nền tảng: tác vụ nền, sự kiện và lịch chạy dùng chung — 2026-10-31
+
+- Mọi ứng dụng giờ dùng chung một **bộ tác vụ nền** của MinhAnOS (tiến độ, hủy, thử lại có giãn cách, không bao giờ chạy trùng). Sao chép thư mục trong Files chuyển sang bộ này; tác vụ đang chạy khi nâng cấp vẫn tiếp tục, bảng *Tải lên và sao chép* không đổi.
+- Việc định kỳ (dọn nhật ký Files, xóa dữ liệu tài khoản đã xóa, dọn tác vụ cũ) chạy theo **lịch chung**, chỉ một lần dù có nhiều máy chủ.
+- **Sự kiện giữa các ứng dụng**: khi một tài khoản bị vô hiệu hóa, các tác vụ Files chưa xong của tài khoản đó tự hủy. Việc đăng xuất tài khoản vẫn diễn ra ngay lập tức như trước, không phụ thuộc sự kiện.
+- Ứng dụng mới (SMB, NFS, Backup…) sẽ dùng sẵn các phần này thay vì tự làm hàng đợi riêng.
+
 ## Khởi tạo lần đầu — 2026-10-31
 
 - Máy cài mới không còn tự tạo tài khoản `admin`. Mở Desktop sẽ thấy **Khởi tạo lần đầu** gồm 2 bước: (1) tạo tài khoản **System Admin** với tên đăng nhập và mật khẩu do bạn chọn (cần **mã cài đặt** là nội dung tệp `secrets/bootstrap_password` trên máy chủ), (2) đặt tên **tổ chức đầu tiên**. Xong là tự đăng nhập.

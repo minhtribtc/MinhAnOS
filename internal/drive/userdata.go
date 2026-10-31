@@ -100,10 +100,11 @@ func (s *Server) RemoveDeletedUsers(ctx context.Context, db *pgxpool.Pool) error
 	if _, err := db.Exec(ctx, "INSERT INTO files_removals(user_id) SELECT id FROM users WHERE status='deleted' ON CONFLICT DO NOTHING"); err != nil {
 		return err
 	}
-	for _, table := range []string{"files_jobs", "files_idempotency"} {
-		if _, err := db.Exec(ctx, "DELETE FROM "+table+" WHERE user_id IN (SELECT user_id FROM files_removals)"); err != nil {
-			return err
-		}
+	if _, err := db.Exec(ctx, "DELETE FROM files_idempotency WHERE user_id IN (SELECT user_id FROM files_removals)"); err != nil {
+		return err
+	}
+	if _, err := db.Exec(ctx, "DELETE FROM platform_jobs WHERE type LIKE 'files.%' AND actor_id IN (SELECT user_id FROM files_removals)"); err != nil {
+		return err
 	}
 	rows, err := db.Query(ctx, "SELECT user_id FROM files_removals WHERE removed_at IS NULL AND seen_at<now()-make_interval(days=>$1) ORDER BY seen_at LIMIT 20", RemovalGraceDays)
 	if err != nil {

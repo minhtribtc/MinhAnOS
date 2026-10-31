@@ -9,6 +9,7 @@ import (
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/identity"
+	"minhanos.local/platform/internal/jobcore"
 	"minhanos.local/platform/internal/requestid"
 	"minhanos.local/platform/internal/storagecore"
 	"net"
@@ -40,8 +41,8 @@ type Server struct {
 	units  sync.Map
 	// measureKick wakes the background measurer (set by RunMeasurer).
 	measureKick chan struct{}
-	// jobKick wakes the job worker (set by StartJobs).
-	jobKick chan struct{}
+	// Jobs is the platform job worker running files.copy (RegisterJobs); nil refuses folder copies.
+	Jobs    *jobcore.Worker
 	locks   sync.Map
 	limiter loginLimiter
 }

@@ -15,6 +15,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/jobcore"
 )
 
 // Export (row 17): the archive holds the personal files and folders only, never links, trash or other users.
@@ -96,17 +97,16 @@ func TestRemoveDeletedUsers(t *testing.T) {
 	if e = ApplySchema(ctx, db); e != nil {
 		t.Fatal(e)
 	}
-	store := &SQLIdentity{db: db}
-	s := &Server{Identity: store, DataDir: t.TempDir()}
+	s := &Server{Identity: &SQLIdentity{db: db}, DataDir: t.TempDir()}
 	for _, u := range []string{gone, kept} {
 		os.MkdirAll(filepath.Join(s.DataDir, "users", u, "files"), 0750)
 		os.WriteFile(filepath.Join(s.DataDir, "users", u, "files", "a.txt"), []byte("a"), 0640)
-		if _, e = store.CreateJob(ctx, u, "personal", "a.txt", "b.txt"); e != nil {
+		if _, e = jobcore.Enqueue(ctx, db, jobcore.Spec{Type: "files.copy", Actor: u, Payload: copyPayload{"personal", "a.txt", "b.txt"}}); e != nil {
 			t.Fatal(e)
 		}
 	}
 	count := func(user string) (n int) {
-		db.QueryRow(ctx, "SELECT count(*) FROM files_jobs WHERE user_id=$1", user).Scan(&n)
+		db.QueryRow(ctx, "SELECT count(*) FROM platform_jobs WHERE actor_id=$1", user).Scan(&n)
 		return
 	}
 	exists := func(user string) bool {

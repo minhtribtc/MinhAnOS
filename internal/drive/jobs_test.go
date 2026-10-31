@@ -12,10 +12,12 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/eventcore"
+	"minhanos.local/platform/internal/jobcore"
 )
 
-// Files jobs (files SQL 003): a folder copy runs to the end, cancel is cooperative, and a lost lease fences out
-// the old run so only the reclaiming one may finish.
+// Files jobs on the platform engine (ADR 0010): a folder copy runs to the end, a file error fails it with its code,
+// cancel is cooperative, and disabling the account cancels its jobs. Lease, retry and fencing: jobcore tests.
 func TestFilesJobsCopyCancelAndLease(t *testing.T) {
 	dsn := os.Getenv("MIGRATION_TEST_DATABASE_URL")
 	if dsn == "" {
@@ -41,14 +43,17 @@ func TestFilesJobsCopyCancelAndLease(t *testing.T) {
 		t.Fatal(e)
 	}
 	t.Cleanup(func() { db.Close(); root.Exec(ctx, "DROP SCHEMA "+quoted+" CASCADE"); root.Close() })
-	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid); CREATE TABLE storage_shares(key text PRIMARY KEY,organization_id uuid)"); e != nil {
+	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid); INSERT INTO users VALUES('u1','00000000-0000-4000-8000-000000000001'); CREATE TABLE storage_shares(key text PRIMARY KEY,organization_id uuid)"); e != nil {
 		t.Fatal(e)
 	}
 	if e = ApplySchema(ctx, db); e != nil {
 		t.Fatal(e)
 	}
-	store := &SQLIdentity{db: db}
-	s := &Server{Identity: store, DataDir: t.TempDir()}
+	if e = eventcore.ApplySchema(ctx, db); e != nil {
+		t.Fatal(e)
+	}
+	s := &Server{Identity: &SQLIdentity{db: db}, DataDir: t.TempDir(), Jobs: jobcore.NewWorker(db)}
+	s.RegisterJobs(s.Jobs, db)
 	home := filepath.Join(s.DataDir, "users", "u1", "files")
 	if e = os.MkdirAll(filepath.Join(home, "album", "2026"), 0750); e != nil {
 		t.Fatal(e)
@@ -61,14 +66,22 @@ func TestFilesJobsCopyCancelAndLease(t *testing.T) {
 		t.Fatal(e)
 	}
 
-	job, e := store.CreateJob(ctx, "u1", "personal", "album", "album copy")
-	if e != nil || job.State != "queued" || job.Progress.Unit != "bytes" || job.MaxAttempts != 3 {
-		t.Fatal("create", job, e)
+	create := func(user, dest string) Job {
+		j, e := jobcore.Enqueue(ctx, db, jobcore.Spec{Type: "files.copy", Actor: user, Unit: "bytes", Payload: copyPayload{"personal", "album", dest}})
+		if e != nil {
+			t.Fatal(e)
+		}
+		return j
 	}
-	if !s.runJob(ctx) {
+	jobs := jobcore.Store{DB: db}
+	job := create("u1", "album copy")
+	if job.State != "queued" || job.Progress.Unit != "bytes" || job.MaxAttempts != 3 {
+		t.Fatal("create", job)
+	}
+	if !s.Jobs.RunOne(ctx) {
 		t.Fatal("job not claimed")
 	}
-	if job, e = store.UserJob(ctx, "u1", job.ID); e != nil || job.State != "succeeded" || job.Progress.Completed != int64(len(big)+1) || *job.Progress.Total != int64(len(big)+1) || job.Error != nil {
+	if job, e = jobs.Get(ctx, "u1", job.ID); e != nil || job.State != "succeeded" || job.Progress.Completed != int64(len(big)+1) || *job.Progress.Total != int64(len(big)+1) || job.Error != nil {
 		t.Fatal("finished", job, e)
 	}
 	if data, e := os.ReadFile(filepath.Join(home, "album copy", "2026", "a.bin")); e != nil || string(data) != big {
@@ -77,65 +90,45 @@ func TestFilesJobsCopyCancelAndLease(t *testing.T) {
 	if entries, _ := os.ReadDir(filepath.Join(s.DataDir, "users", "u1", "jobs")); len(entries) != 0 {
 		t.Fatal("staging left behind", entries)
 	}
-	if _, e = store.UserJob(ctx, "u2", job.ID); !errors.Is(e, errJobNotFound) {
+	if _, e = jobs.Get(ctx, "u2", job.ID); !errors.Is(e, jobcore.ErrNotFound) {
 		t.Fatal("another user's job visible", e)
 	}
-	if s.runJob(ctx) {
+	if s.Jobs.RunOne(ctx) {
 		t.Fatal("finished job claimed again")
 	}
 
 	// The destination now exists: a second run fails with the file error instead of overwriting.
-	again, _ := store.CreateJob(ctx, "u1", "personal", "album", "album copy")
-	s.runJob(ctx)
-	if again, _ = store.UserJob(ctx, "u1", again.ID); again.State != "failed" || again.Error == nil || again.Error.Code != "FILES_EXISTS" {
+	again := create("u1", "album copy")
+	s.Jobs.RunOne(ctx)
+	if again, _ = jobs.Get(ctx, "u1", again.ID); again.State != "failed" || again.Error == nil || again.Error.Code != "FILES_EXISTS" {
 		t.Fatal("existing destination", again)
 	}
 
 	// Cancel: a queued job ends at once; cancelling again is idempotent.
-	queued, _ := store.CreateJob(ctx, "u1", "personal", "album", "other")
+	queued := create("u1", "other")
 	for range 2 {
-		if queued, e = store.CancelJob(ctx, "u1", queued.ID); e != nil || queued.State != "cancelled" {
+		if queued, e = jobs.Cancel(ctx, "u1", queued.ID); e != nil || queued.State != "cancelled" {
 			t.Fatal("cancel queued", queued, e)
 		}
 	}
 
-	// Lease: an expired running job is reclaimed with a new fencing token; the old run can no longer report.
-	leased, _ := store.CreateJob(ctx, "u1", "personal", "album", "third")
-	first, ok, e := store.ClaimJob(ctx)
-	if e != nil || !ok || first.ID != leased.ID || first.Attempt != 1 {
-		t.Fatal("claim", first, ok, e)
-	}
-	if _, e = db.Exec(ctx, "UPDATE files_jobs SET lease_until=now()-interval '1 second' WHERE id=$1", leased.ID); e != nil {
+	// Disabling the account (identity.user.disabled.v1) cancels its unfinished Files jobs.
+	pending := create("u1", "fifth")
+	bus := &eventcore.Bus{DB: db}
+	s.RegisterEvents(bus)
+	if e = bus.Register(ctx); e != nil {
 		t.Fatal(e)
 	}
-	second, ok, e := store.ClaimJob(ctx)
-	if e != nil || !ok || second.Fencing != first.Fencing+1 || second.Attempt != 2 {
-		t.Fatal("reclaim", second, ok, e)
-	}
-	if _, e = store.ReportJob(ctx, leased.ID, first.Fencing, 1, nil); !errors.Is(e, errJobLeaseLost) {
-		t.Fatal("old run still reports", e)
-	}
-	// A running job is cancelled when the worker next reports.
-	if _, e = store.CancelJob(ctx, "u1", leased.ID); e != nil {
+	tx, _ := db.Begin(ctx)
+	if e = eventcore.Publish(ctx, tx, eventcore.Event{Name: "identity.user.disabled.v1", Source: "test", Subject: "00000000-0000-4000-8000-000000000001", Data: map[string]any{"userId": "00000000-0000-4000-8000-000000000001"}}); e != nil {
 		t.Fatal(e)
 	}
-	if cancel, e := store.ReportJob(ctx, leased.ID, second.Fencing, 1, nil); e != nil || !cancel {
-		t.Fatal("cancel not seen", cancel, e)
+	tx.Commit(ctx)
+	if n, e := bus.Deliver(ctx, "files.jobs"); e != nil || n != 1 {
+		t.Fatal("deliver", n, e)
 	}
-	if e = store.FinishJob(ctx, leased.ID, second.Fencing, "cancelled", "", false); e != nil {
-		t.Fatal(e)
-	}
-	// A transient failure requeues while attempts remain; a cancel request wins over the retry.
-	if leased, _ = store.UserJob(ctx, "u1", leased.ID); leased.State != "cancelled" {
-		t.Fatal("cancelled", leased)
-	}
-	retry, _ := store.CreateJob(ctx, "u1", "personal", "album", "fourth")
-	claimed, _, _ := store.ClaimJob(ctx)
-	if e = store.FinishJob(ctx, retry.ID, claimed.Fencing, "failed", "JOB_FAILED", true); e != nil {
-		t.Fatal(e)
-	}
-	if retry, _ = store.UserJob(ctx, "u1", retry.ID); retry.State != "queued" {
-		t.Fatal("transient failure not requeued", retry)
+	if pending, _ = jobs.Get(ctx, "u1", pending.ID); pending.State != "cancelled" {
+		t.Fatal("disabled account's job not cancelled", pending)
 	}
 	if e = RetainAudit(ctx, db); e != nil {
 		t.Fatal(e)

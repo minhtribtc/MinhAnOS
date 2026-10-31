@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/jobcore"
 	"minhanos.local/platform/internal/migrate"
 	"minhanos.local/platform/internal/requestid"
 )
@@ -24,13 +25,16 @@ var filesRemovalsSQL string
 //go:embed migrations/005_files_events_organization.sql
 var filesEventsOrganizationSQL string
 
+//go:embed migrations/006_files_jobs_platform.sql
+var filesJobsPlatformSQL string
+
 // Module is the Files schema owned by this package (migration runner, app standard row 18).
 func Module() migrate.Module {
-	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}, {ID: 5, Name: "files_events_organization", SQL: filesEventsOrganizationSQL}}}
+	return migrate.Module{ID: "files", Dependencies: map[string]migrate.Range{"jobs": {Min: 1, Max: 100}}, Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}, {ID: 5, Name: "files_events_organization", SQL: filesEventsOrganizationSQL}, {ID: 6, Name: "files_jobs_platform", SQL: filesJobsPlatformSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
-	return migrate.Apply(ctx, db, Module())
+	return migrate.Apply(ctx, db, jobcore.Module(), Module())
 }
 
 // AuditRetentionDays bounds files_events; Log Center reports it.
@@ -74,9 +78,6 @@ func RetainAudit(ctx context.Context, db *pgxpool.Pool) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, "DELETE FROM files_idempotency WHERE ctid IN (SELECT ctid FROM files_idempotency WHERE expires_at<now() LIMIT 500)"); err != nil {
-		return err
-	}
-	if _, err = tx.Exec(ctx, "DELETE FROM files_jobs WHERE id IN (SELECT id FROM files_jobs WHERE finished_at<now()-make_interval(days=>$1) LIMIT 500)", JobRetentionDays); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

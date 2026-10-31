@@ -32,6 +32,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
 	"minhanos.local/platform/internal/drive"
+	"minhanos.local/platform/internal/eventcore"
+	"minhanos.local/platform/internal/jobcore"
 )
 
 const Version = "0.2.0"
@@ -189,6 +191,17 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	a.notifications, a.logs = notifycore.Store{DB: db}, logcore.Store{DB: db}
 	// Security notices reach the inbox within seconds; the bell polls the unread count.
 	go a.notifications.Run(ctx, 10*time.Second)
+	// Platform background work (ADR 0010): the job engine (Files registers its own types in its service) and the
+	// event outbox that identity publishes to; this worker owns the platform-wide retention schedules.
+	if err = eventcore.ApplySchema(ctx, db); err != nil {
+		return nil, err
+	}
+	jobs := jobcore.NewWorker(db)
+	jobs.Handle("events.retention", func(ctx context.Context, _ *jobcore.Run) error { return eventcore.Retain(ctx, db) }, jobcore.Options{})
+	jobs.Every("events.retention", "events.retention", 6*time.Hour)
+	if err = jobs.Start(ctx, 30*time.Second); err != nil {
+		return nil, err
+	}
 	a.authCore, err = identityschema.NewAuthCore(db)
 	if err != nil {
 		return nil, err

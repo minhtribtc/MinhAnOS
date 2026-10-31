@@ -16,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/eventcore"
 	"minhanos.local/platform/internal/requestid"
 )
 
@@ -515,6 +516,10 @@ func (s *Service) ChangeUser(ctx context.Context, realm Realm, token, target, op
 			}
 			if e == nil {
 				_, e = tx.Exec(ctx, "DELETE FROM drive_sessions WHERE user_id=(SELECT id FROM users WHERE public_id=$1)", target)
+			}
+			// Sessions end synchronously above; the event only lets other apps tidy up (ADR 0010).
+			if e == nil && operation == "disable" {
+				e = eventcore.Publish(ctx, tx, eventcore.Event{Name: "identity.user.disabled.v1", Source: AccountApp, Subject: target, Data: map[string]any{"userId": target}})
 			}
 			if e == nil && operation == "delete" {
 				_, e = tx.Exec(ctx, "UPDATE identity_host_operators SET state='revoked' WHERE user_id=(SELECT id FROM users WHERE public_id=$1)", target)

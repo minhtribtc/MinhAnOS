@@ -9,6 +9,8 @@ import (
 	"log/slog"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/drive"
+	"minhanos.local/platform/internal/eventcore"
+	"minhanos.local/platform/internal/jobcore"
 	"minhanos.local/platform/internal/storagecore"
 	"net/http"
 	"os"
@@ -56,18 +58,6 @@ func main() {
 	if err = drive.ApplySchema(ctx, db); err != nil {
 		log.Fatal(err)
 	}
-	go func() {
-		for {
-			if e := drive.RetainAudit(ctx, db); e != nil && ctx.Err() == nil {
-				slog.Error("files.audit.retention_failed", "error", e.Error())
-			}
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(6 * time.Hour):
-			}
-		}
-	}()
 	profile, err := coreprofile.New(ctx, db)
 	if err != nil {
 		log.Fatal(err)
@@ -87,19 +77,20 @@ func main() {
 	}
 	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: dataDir, StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: store, Shares: store, Units: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
 	app.StartMeasurer(ctx, 30*time.Second)
-	app.StartJobs(ctx, 5*time.Second)
-	go func() {
-		for {
-			if e := app.RemoveDeletedUsers(ctx, db); e != nil && ctx.Err() == nil {
-				slog.Error("files.user_data.removal_failed", "error", e.Error())
-			}
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(time.Hour):
-			}
-		}
-	}()
+	// Background work runs on the platform job engine and event bus (ADR 0010): copies, retention, removals.
+	if err = eventcore.ApplySchema(ctx, db); err != nil {
+		log.Fatal(err)
+	}
+	app.Jobs = jobcore.NewWorker(db)
+	app.RegisterJobs(app.Jobs, db)
+	if err = app.Jobs.Start(ctx, 5*time.Second); err != nil {
+		log.Fatal(err)
+	}
+	bus := &eventcore.Bus{DB: db}
+	app.RegisterEvents(bus)
+	if err = bus.Start(ctx, 5*time.Second); err != nil {
+		log.Fatal(err)
+	}
 	server := &http.Server{Addr: env("DRIVE_LISTEN", ":8082"), Handler: app.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 5 * time.Minute, WriteTimeout: 5 * time.Minute, IdleTimeout: 60 * time.Second}
 	go func() {
 		<-ctx.Done()
