@@ -8,3 +8,4 @@ import './fluent.css'
 
 createApp(App).use(createPinia()).use(createHost()).mount('#app')
 import './ipados.css'
+import './dock.css'

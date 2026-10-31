@@ -7152,6 +7152,10 @@ export interface DesktopPreferences {
    * @maxItems 32
    */
   pinned: string[];
+  dock: {
+    position: "bottom" | "left" | "right";
+    size: "small" | "medium" | "large";
+  };
 }
 
 export interface DesktopExport {
@@ -7179,6 +7183,10 @@ export interface DesktopExport {
      * @maxItems 32
      */
     pinned: string[];
+    dock: {
+      position: "bottom" | "left" | "right";
+      size: "small" | "medium" | "large";
+    };
   };
 }
 

@@ -108,6 +108,24 @@ type Preferences struct {
 	Windows   []Window `json:"windows"`
 	Notes     string   `json:"notes"`
 	Pinned    []string `json:"pinned"`
+	Dock      Dock     `json:"dock"`
+}
+
+// Dock is where the Shell's only bar sits and how large it is (ADR 0013).
+type Dock struct {
+	Position string `json:"position"` // bottom, left, right
+	Size     string `json:"size"`     // small, medium, large
+}
+
+// withDock fills the dock of preferences saved before it existed.
+func withDock(p Preferences) Preferences {
+	if p.Dock.Position == "" {
+		p.Dock.Position = "bottom"
+	}
+	if p.Dock.Size == "" {
+		p.Dock.Size = "medium"
+	}
+	return p
 }
 
 // AppDefinition is one launcher entry. Names and descriptions are not sent: the Shell reads them from the
@@ -449,7 +467,7 @@ func (a *App) logout(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]bool{"ok": true})
 }
 func defaultPreferences() Preferences {
-	return Preferences{Theme: "light", Wallpaper: "mountain", Mode: "focus", Windows: []Window{}, Pinned: []string{"files", "settings", "com.minhanos.notes"}}
+	return Preferences{Theme: "light", Wallpaper: "mountain", Mode: "focus", Windows: []Window{}, Pinned: []string{"files", "settings", "com.minhanos.notes"}, Dock: Dock{Position: "bottom", Size: "medium"}}
 }
 
 // knownApps drops windows and pins of apps no longer in the registry (Overview, App Center, Connections,
@@ -513,7 +531,7 @@ func storedPreferences(ctx context.Context, q interface {
 	if prefs.Mode == "" {
 		prefs.Mode = "focus"
 	}
-	return knownApps(prefs), nil
+	return knownApps(withDock(prefs)), nil
 }
 func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
 	prefs, err := storedPreferences(r.Context(), a.db, identity(r).User.ID, false)
@@ -526,6 +544,9 @@ func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
 }
 func validPreferences(p Preferences) bool {
 	if p.Mode != "focus" && p.Mode != "windows" {
+		return false
+	}
+	if (p.Dock.Position != "bottom" && p.Dock.Position != "left" && p.Dock.Position != "right") || (p.Dock.Size != "small" && p.Dock.Size != "medium" && p.Dock.Size != "large") {
 		return false
 	}
 	if (p.Theme != "light" && p.Theme != "dark") || (p.Wallpaper != "mountain" && p.Wallpaper != "midnight" && p.Wallpaper != "sage") || len(p.Notes) > 32000 || len(p.Windows) > len(registry) || len(p.Pinned) > len(registry) {
@@ -559,6 +580,7 @@ func (a *App) putPreferences(w http.ResponseWriter, r *http.Request) {
 	if p.Mode == "" {
 		p.Mode = "focus"
 	}
+	p = withDock(p)
 	if !validPreferences(p) {
 		writeError(w, 400, "Cài đặt desktop không hợp lệ.", "INVALID_REQUEST")
 		return

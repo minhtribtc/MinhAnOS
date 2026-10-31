@@ -1,3 +1,11 @@
+## Desktop: chỉ còn Dock (2026-10-31)
+
+- Thanh trên cùng đã bỏ. **Dock** là thanh duy nhất: Màn hình chính · ứng dụng đã ghim và đang mở · Tìm kiếm, Ứng dụng đang mở · khay cuối gồm **chuông thông báo** (có số chưa đọc), trạng thái kết nối/Trung tâm điều khiển và **đồng hồ**.
+- **Chuông** mở bảng thông báo trượt dọc mép phải (như macOS/Windows 11), không thay ứng dụng đang dùng; bấm *Mở Trung tâm thông báo* để xem đầy đủ.
+- **Phóng to** (nút ô vuông hoặc nhấp đúp thanh tiêu đề): ứng dụng chiếm toàn màn hình, Dock ẩn đi, chỉ còn một viên nhỏ ở mép có chuông và số thông báo. Trỏ chuột vào mép màn hình hoặc bấm mũi tên trên viên để hiện Dock; bấm lại nút để khôi phục.
+- **Đổi vị trí, kích thước Dock**: nhấp chuột phải vào chỗ trống trên Dock (hoặc nút Màn hình chính) → Dưới/Trái/Phải, Nhỏ/Vừa/Lớn; hoặc *Cài đặt → Desktop → Giao diện → Dock*. Trên điện thoại Dock luôn ở dưới.
+- **Ghim/bỏ ghim**: nhấp chuột phải vào biểu tượng trên Dock hoặc màn hình chính (bàn phím: Shift+F10). Kéo biểu tượng đã ghim để đổi thứ tự. Ứng dụng đã ghim không hiện lặp lại trên màn hình chính; mọi ứng dụng vẫn tìm được bằng Tìm kiếm (Ctrl+Space).
+
 ## Nhật ký hoạt động Files (2026-10-31)
 
 System Admin chọn Files ghi lại bao nhiêu: **Cài đặt → MinhAnOS Files → Nhật ký hoạt động**. Đổi mức nào cũng được ghi vào nhật ký.

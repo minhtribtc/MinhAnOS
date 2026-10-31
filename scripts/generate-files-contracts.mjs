@@ -45,7 +45,7 @@ const files={
  FilesHealth:obj({app:{const:'MinhAnOS Files'},version:str(),independent:{type:'boolean'}}),
 }
 const win=obj({id:str(),x:{type:'number',minimum:0,maximum:20000},y:{type:'number',minimum:0,maximum:20000},width:{type:'number',minimum:260,maximum:10000},height:{type:'number',minimum:200,maximum:10000},minimized:{type:'boolean'},maximized:{type:'boolean'}})
-const prefs=obj({theme:{enum:['light','dark']},wallpaper:{enum:['mountain','midnight','sage']},mode:{enum:['focus','windows']},windows:{type:'array',maxItems:32,items:win},notes:str({maxLength:32000}),pinned:{type:'array',maxItems:32,items:str()}})
+const prefs=obj({theme:{enum:['light','dark']},wallpaper:{enum:['mountain','midnight','sage']},mode:{enum:['focus','windows']},windows:{type:'array',maxItems:32,items:win},notes:str({maxLength:32000}),pinned:{type:'array',maxItems:32,items:str()},dock:obj({position:{enum:['bottom','left','right']},size:{enum:['small','medium','large']}})})
 const desktop={
  DesktopSession:session,
  DesktopLoginInput:obj({username:str({minLength:1,maxLength:64}),password:str({minLength:1,maxLength:256})}),

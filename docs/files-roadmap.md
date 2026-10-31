@@ -30,6 +30,16 @@ Items 1–2 shipped 2026-10-31 (ADR 0011, files SQL 008):
 
 Activity log (ADR 0012, files SQL 009, shipped 2026-10-31): levels minimal / writes / access / full chosen in central Settings; reads, refusals and public-link visitors recorded from `access`; client, duration, bytes and live presence ("In Files now" in Log Center) at `full`. Next: per-file history in the inspector, per-person timeline, CSV export, alerts on mass delete or download.
 
+### Activity log — next steps (planned)
+Building on ADR 0012; each step reads `files_events` and needs no new recording unless stated.
+1. Per-file history in the inspector: who opened, edited, downloaded, shared the selected item (System Admin; the owner sees their own item from level `writes`).
+2. Per-person timeline in Log Center: one person's Files activity by day, folders visited, bytes moved.
+3. CSV export of a filtered Log Center view (audited `logs.export`, bounded rows).
+4. Alerts: mass delete, mass download or many refusals by one person in a short window → security notification to System Admins (thresholds in Settings).
+5. Retention per level (e.g. reads 90 days, writes 365 days) chosen in the Files activity panel.
+6. Record access through WebDAV/SMB/NFS with the same levels once those services exist.
+7. Optional: sign-in context in events (session ID, device name) and a "who still has it open" view per folder for admins.
+
 ## Phase 3 — integration
 1. Resumable chunked upload above 128 MB.
 2. WebDAV endpoint (desktop/mobile sync clients).

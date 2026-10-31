@@ -3,7 +3,9 @@ import { ref, computed } from 'vue'
 import { api, setCSRF, loadPreferences, savePreferences, type User, type AppDefinition, type Preferences, type DesktopWindow, type SystemInfo } from './api'
 import { registryIdForPath } from './registry'
 
-function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['files', 'settings', 'com.minhanos.notes'] }}
+function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['files', 'settings', 'com.minhanos.notes'], dock: { position: 'bottom', size: 'medium' } }}
+
+const DOCK_ICONS: Record<string, number> = { small: 40, medium: 52, large: 64 }
 
 export const useDesktop = defineStore('desktop', () => {
   const user = ref<User | null>(null)
@@ -29,6 +31,17 @@ export const useDesktop = defineStore('desktop', () => {
   let savedRevision = 0
   let savePromise: Promise<void> | null = null
   const visibleWindows = computed(() => preferences.value.windows.filter(w => !w.minimized))
+  // The dock is the Shell's only bar (ADR 0013). Below 700 px it always sits at the bottom. The work area is the screen
+  // minus the dock on its edge; a maximized app takes the whole screen and the dock slides away.
+  const viewport = ref({ width: globalThis.innerWidth ?? 1280, height: globalThis.innerHeight ?? 800 })
+  globalThis.addEventListener?.('resize', () => { viewport.value = { width: globalThis.innerWidth, height: globalThis.innerHeight } })
+  const dock = computed(() => { const d = preferences.value.dock ?? { position: 'bottom', size: 'medium' }; const compact = viewport.value.width < 700; return { position: compact ? 'bottom' : d.position, size: compact ? 'small' : d.size, icon: compact ? 42 : DOCK_ICONS[d.size] ?? 52 } })
+  const dockThickness = computed(() => dock.value.icon + 26)
+  const workArea = computed(() => { const { width, height } = viewport.value, reserve = dockThickness.value + 16, p = dock.value.position; return { left: p === 'left' ? reserve : 0, top: 0, width: width - (p === 'bottom' ? 0 : reserve), height: height - (p === 'bottom' ? reserve : 0) } })
+  function setDock(change: Partial<NonNullable<Preferences['dock']>>) { preferences.value.dock = { ...(preferences.value.dock ?? { position: 'bottom', size: 'medium' }), ...change }; saveSoon() }
+  function togglePin(id: string) { const pinned = preferences.value.pinned; preferences.value.pinned = pinned.includes(id) ? pinned.filter(a => a !== id) : [...pinned, id]; saveSoon() }
+  // Drag a pinned app onto another pinned app to put it in that place.
+  function movePin(id: string, before: string) { const list = preferences.value.pinned.filter(a => a !== id), at = list.indexOf(before); if (at < 0 || id === before || !preferences.value.pinned.includes(id)) return; list.splice(at, 0, id); preferences.value.pinned = list; saveSoon() }
   function toast(message: string) { notice.value = message; clearTimeout(noticeTimer); noticeTimer = setTimeout(() => notice.value = '', 4500) }
   function focus(id: string) { active.value = id; order.value = [...order.value.filter(x => x !== id), id] }
   function saveSoon() { revision++; clearTimeout(timer); timer = setTimeout(() => void persist(), 500) }
@@ -82,6 +95,7 @@ export const useDesktop = defineStore('desktop', () => {
     preferences.value.mode = prefs.mode === 'windows' ? 'windows' : 'focus'
     preferences.value.windows = prefs.windows.filter(w => registry.some(a => a.id === w.id))
     preferences.value.pinned = prefs.pinned.filter(id => registry.some(a => a.id === id))
+    preferences.value.dock = prefs.dock ?? { position: 'bottom', size: 'medium' }
     order.value = preferences.value.windows.map(w => w.id)
     active.value = preferences.value.windows.filter(w => !w.minimized).at(-1)?.id || ''
     ready.value = true
@@ -106,5 +120,5 @@ export const useDesktop = defineStore('desktop', () => {
     await api('/logout', { method: 'POST' })
     expireSession()
   }
-  return { expireSession, openSettings, settingsTarget, passwordChangeRequired, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
+  return { viewport, dock, dockThickness, workArea, setDock, togglePin, movePin, expireSession, openSettings, settingsTarget, passwordChangeRequired, registerCloseGuard, user, apps, preferences, system, active, order, ready, saving, saveError, notice, visibleWindows, toast, focus, saveSoon, persist, open, close, minimize, maximize, setMode, loadSession, refreshSystem, logout }
 })

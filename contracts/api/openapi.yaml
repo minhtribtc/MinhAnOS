@@ -14080,6 +14080,30 @@
             "items": {
               "type": "string"
             }
+          },
+          "dock": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "position": {
+                "enum": [
+                  "bottom",
+                  "left",
+                  "right"
+                ]
+              },
+              "size": {
+                "enum": [
+                  "small",
+                  "medium",
+                  "large"
+                ]
+              }
+            },
+            "required": [
+              "position",
+              "size"
+            ]
           }
         },
         "required": [
@@ -14088,7 +14112,8 @@
           "mode",
           "windows",
           "notes",
-          "pinned"
+          "pinned",
+          "dock"
         ]
       },
       "DesktopSystemStatus": {
@@ -14512,6 +14537,30 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "dock": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "position": {
+                    "enum": [
+                      "bottom",
+                      "left",
+                      "right"
+                    ]
+                  },
+                  "size": {
+                    "enum": [
+                      "small",
+                      "medium",
+                      "large"
+                    ]
+                  }
+                },
+                "required": [
+                  "position",
+                  "size"
+                ]
               }
             },
             "required": [
@@ -14520,7 +14569,8 @@
               "mode",
               "windows",
               "notes",
-              "pinned"
+              "pinned",
+              "dock"
             ]
           }
         },

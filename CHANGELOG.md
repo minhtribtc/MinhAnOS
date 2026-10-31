@@ -1,3 +1,11 @@
+## Desktop: chỉ còn Dock, ứng dụng được nhiều chỗ hơn — 2026-10-31
+
+- Bỏ thanh trên cùng; đồng hồ, chuông thông báo và Trung tâm điều khiển chuyển vào khay cuối Dock. Ứng dụng ở chế độ tập trung rộng thêm khoảng 40 px chiều cao.
+- Phóng to = toàn màn hình, Dock tự ẩn, còn viên nhỏ có số thông báo; trỏ vào mép màn hình để hiện Dock.
+- Chuông mở bảng thông báo trượt bên phải; Trung tâm thông báo đầy đủ vẫn mở được từ đó.
+- Dock đặt được ở dưới, trái hoặc phải, ba cỡ; ghim/bỏ ghim bằng chuột phải, kéo để đổi thứ tự; ứng dụng đã ghim không lặp lại trên màn hình chính.
+- Files: các bước tiếp theo của nhật ký hoạt động đã ghi vào lộ trình (lịch sử từng tệp, dòng thời gian theo người, xuất CSV, cảnh báo, thời gian lưu theo mức, WebDAV/SMB).
+
 ## Files: nhật ký hoạt động chi tiết và xem ai đang truy cập — 2026-10-31
 
 - **Bốn mức nhật ký** cho Files, System Admin chọn trong *Cài đặt → MinhAnOS Files → Nhật ký hoạt động*: Tối thiểu (như trước), Thao tác ghi (kèm đường dẫn, tên), Truy cập (thêm mọi lượt mở thư mục, mở/tải tệp, ZIP, tìm kiếm, lượt bị từ chối, khách dùng liên kết công khai), Đầy đủ (thêm IP, trình duyệt, thời gian, số byte).

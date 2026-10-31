@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { Search, Wifi, LogOut, ArrowRight, ShieldCheck, Eye, EyeOff, X, Monitor, LoaderCircle, Home, Layers, SlidersHorizontal, Palette, Settings, Check, Bell, Pin, PinOff } from 'lucide-vue-next'
+import { Search, Wifi, LogOut, ArrowRight, ShieldCheck, Eye, EyeOff, X, Monitor, LoaderCircle, Home, Layers, SlidersHorizontal, Palette, Settings, Check, Bell, Pin, PinOff, ChevronUp } from 'lucide-vue-next'
 import {useHost,ApiError} from '@minhanos/app-sdk'
 import { api, setCSRF, onAuthFailure, type User } from './api'
 import { useDesktop } from './store'
@@ -47,9 +47,38 @@ function openNotifications(){ launch('com.minhanos.notifications') }
 const query = ref(''), searchInput = ref<HTMLInputElement | null>(null), now = ref(new Date())
 const time = computed(() => (host.profile.value.locale,host.i18n.formatDate(now.value,{hour:'2-digit',minute:'2-digit'})))
 const longDate = computed(() => (host.profile.value.locale,host.i18n.formatDate(now.value,{weekday:'long',day:'numeric',month:'long'})))
-const dockApps = computed(() => [...new Set([...desktop.preferences.pinned, ...desktop.preferences.windows.map(w => w.id)])].map(id => desktop.apps.find(a => a.id === id)).filter((a): a is NonNullable<typeof a> => !!a))
 const results = computed(() => { const q = query.value.toLocaleLowerCase(host.profile.value.locale); return desktop.apps.filter(a => `${appName(a.id)} ${t(descriptionKey(a.id))}`.toLocaleLowerCase(host.profile.value.locale).includes(q)) })
-function togglePin(id: string) { const pinned = desktop.preferences.pinned; desktop.preferences.pinned = pinned.includes(id) ? pinned.filter(a => a !== id) : [...pinned, id]; desktop.saveSoon() }
+function togglePin(id: string) { desktop.togglePin(id) }
+// Dock (ADR 0013): pinned apps in the user's order, then running apps that are not pinned.
+const dockApps = computed(() => [...new Set([...desktop.preferences.pinned, ...desktop.preferences.windows.map(w => w.id)])].map(id => desktop.apps.find(a => a.id === id)).filter((a): a is NonNullable<typeof a> => !!a))
+const dockGlyph = computed(() => Math.round(desktop.dock.icon * 0.48))
+const unreadText = computed(() => inbox.unread.value > 99 ? '99+' : String(inbox.unread.value))
+const bellLabel = computed(() => inbox.unread.value ? host.i18n.t('notifications.bellUnread',{count:inbox.unread.value}) : host.i18n.t('notifications.bell'))
+const shortDate = computed(() => (host.profile.value.locale,host.i18n.formatDate(now.value,{day:'2-digit',month:'2-digit'})))
+// A maximized app in front takes the whole screen: the dock slides away, a pill with the bell stays on its edge,
+// and pointing at that edge (or the pill's handle) shows the dock until the pointer leaves it.
+const immersive = computed(() => !home.value && !!desktop.preferences.windows.find(w => w.id === desktop.active && !w.minimized && w.maximized))
+const dockPeek = ref(false), menu = ref<{ x: number; y: number; app?: string } | null>(null), menuEl = ref<HTMLElement | null>(null)
+const dockShown = computed(() => !immersive.value || dockPeek.value || !!panel.value || !!menu.value)
+let peekTimer: ReturnType<typeof setTimeout> | undefined
+function peekDock(show: boolean) { clearTimeout(peekTimer); if (show) dockPeek.value = true; else peekTimer = setTimeout(() => { dockPeek.value = false }, 500) }
+watch(immersive, () => { dockPeek.value = false })
+onBeforeUnmount(() => clearTimeout(peekTimer))
+const styleVars = computed(() => ({ '--dock-icon': desktop.dock.icon + 'px', '--dock-reserve': (desktop.dockThickness + 16) + 'px' }))
+// Right-click (or Shift+F10): an app → open, pin or unpin, close; Home or empty dock space → position and size.
+async function openMenu(event: MouseEvent | KeyboardEvent, app?: string) {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event instanceof MouseEvent && event.clientX ? event.clientX : rect.left + rect.width / 2, y = event instanceof MouseEvent && event.clientY ? event.clientY : rect.top
+  menu.value = { x, y, app }
+  await nextTick()
+  const el = menuEl.value; if (!el) return
+  const box = el.getBoundingClientRect(), above = desktop.dock.position === 'bottom' && rect.top > innerHeight / 2
+  menu.value = { app, x: Math.max(8, Math.min(x, innerWidth - box.width - 8)), y: Math.max(8, Math.min(above ? y - box.height - 8 : y, innerHeight - box.height - 8)) }
+  el.querySelector<HTMLElement>('button')?.focus()
+}
+function moveMenu(step: number) { const items = [...(menuEl.value?.querySelectorAll<HTMLElement>('button') ?? [])]; const at = items.indexOf(document.activeElement as HTMLElement); items[(at + step + items.length) % items.length]?.focus() }
+const dragId = ref('')
+function dropOn(target: string) { if (dragId.value && desktop.preferences.pinned.includes(target)) desktop.movePin(dragId.value, target); dragId.value = '' }
 let restoreFocus: HTMLElement | null = null
 watch(panel, async (value, previous) => {
   if (value && !previous) restoreFocus = document.activeElement as HTMLElement | null
@@ -92,7 +121,7 @@ async function logout() { panel.value = null; try { await desktop.logout(); user
 function keyboard(e: KeyboardEvent) {
   if (!desktop.ready) return
   if ((e.ctrlKey || e.metaKey) && e.code === 'Space') { e.preventDefault(); void search() }
-  if (e.key === 'Escape') panel.value = null
+  if (e.key === 'Escape') { panel.value = null; menu.value = null }
   if (panel.value && e.key === 'Tab') {
     const nodes = [...document.querySelectorAll<HTMLElement>('[aria-modal="true"] button, [aria-modal="true"] input')].filter(el => !el.hasAttribute('disabled') && el.getClientRects().length)
     const first = nodes[0], last = nodes.at(-1)
@@ -106,7 +135,7 @@ const systemTimer = setInterval(() => { if (desktop.ready) void desktop.refreshS
 onBeforeUnmount(() => { clearInterval(clockTimer); clearInterval(systemTimer); globalThis.removeEventListener('keydown', keyboard) })
 </script>
 <template>
-  <div :class="['platform', 'tablet-shell', desktop.ready ? desktop.preferences.wallpaper : 'mountain', {'dark-mode':desktop.ready && (host.profile.value.theme==='dark'||(host.profile.value.theme==='system'&&systemDark)),'focus-workspace':desktop.ready && desktop.preferences.mode === 'focus'}]">
+  <div :style="desktop.ready ? styleVars : undefined" :class="['platform', 'tablet-shell', desktop.ready ? 'dock-' + desktop.dock.position : '', {'dock-immersive': desktop.ready && immersive}, desktop.ready ? desktop.preferences.wallpaper : 'mountain', {'dark-mode':desktop.ready && (host.profile.value.theme==='dark'||(host.profile.value.theme==='system'&&systemDark)),'focus-workspace':desktop.ready && desktop.preferences.mode === 'focus'}]">
     <div class="wallpaper"></div><div class="wallpaper-shade"></div>
     <div v-if="initializing" class="initial-loader"><img src="/mark.svg" alt="MinhAnOS" width="58" height="58"><LoaderCircle :size="24" class="spinning" /><span>{{ t('desktop.loading') }}</span></div>
     <main v-else-if="desktop.passwordChangeRequired" class="password-change-screen" role="dialog" aria-modal="true" :aria-label="host.i18n.t('desktop.passwordChange.title')"><section class="password-change-card"><header><h1>{{ host.i18n.t('desktop.passwordChange.title') }}</h1><p>{{ host.i18n.t('desktop.passwordChange.hint') }}</p></header><AccountsApp embedded panel section="security" :active="true" /><button class="secondary-button" @click="desktop.logout().catch(e => desktop.toast(host.errorMessage(e)))"><LogOut :size="15" /> {{ host.i18n.t('desktop.passwordChange.logout') }}</button></section></main>
@@ -121,8 +150,7 @@ onBeforeUnmount(() => { clearInterval(clockTimer); clearInterval(systemTimer); g
     </template>
 
     <template v-else>
-      <header class="tablet-status" :inert="!!panel"><button :aria-label="t('desktop.status.home')" @click="goHome">{{ time }} <span>{{ longDate }}</span></button><span class="status-brand">MinhAnOS</span><span class="status-actions"><button v-if="hasInbox" class="status-bell" :aria-label="inbox.unread.value ? host.i18n.t('notifications.bellUnread',{count:inbox.unread.value}) : host.i18n.t('notifications.bell')" :title="host.i18n.t('notifications.bell')" @click="togglePanel('notifications')"><Bell :size="17" /><b v-if="inbox.unread.value" class="status-badge">{{ inbox.unread.value > 99 ? '99+' : inbox.unread.value }}</b></button><button :aria-label="t('desktop.status.control')" @click="togglePanel('control')"><span :class="['status-dot', {offline:!desktop.system}]"></span><span>{{ desktop.system ? t('desktop.status.online') : t('desktop.status.offline') }}</span><Wifi :size="16" /><SlidersHorizontal :size="17" /></button></span></header>
-      <HomeScreen :inert="!!panel" v-show="home || !desktop.visibleWindows.length" :time="time" :date="longDate" @launch="launch" @search="search" />
+      <HomeScreen :inert="!!panel" v-show="home || !desktop.visibleWindows.length" :time="time" :date="longDate" @launch="launch" @search="search" @menu="(event, id) => openMenu(event, id)" />
       <!-- Keep instances mounted: Home, Spotlight and switching must retain local drafts. -->
       <DesktopWindow :foreground="!home && desktop.active===window.id && !window.minimized && !panel" :inert="!!panel" v-for="window in desktop.preferences.windows" v-show="!home && !window.minimized && (desktop.preferences.mode === 'windows' || desktop.active === window.id)" :key="window.id" :window="window" :app="desktop.apps.find(a => a.id === window.id)!" />
       <div v-if="panel" class="tablet-scrim" @click="panel = null"></div>
@@ -130,7 +158,40 @@ onBeforeUnmount(() => { clearInterval(clockTimer); clearInterval(systemTimer); g
       <AppSwitcher v-if="panel === 'switcher'" @launch="launch" @dismiss="panel = null" />
       <section v-if="panel === 'notifications'" class="tablet-control tablet-notifications" role="dialog" aria-modal="true" aria-labelledby="nc-panel-title"><NotificationPanel :inbox="inbox" @open="openNotifications" @close="panel = null" /></section>
       <section v-if="panel === 'control'" class="tablet-control" role="dialog" aria-modal="true" aria-labelledby="control-title"><header><span id="control-title">{{ t('desktop.control.title') }}</span><button class="tablet-round" :aria-label="t('desktop.control.close')" @click="panel = null"><X :size="18" /></button></header><div class="control-profile"><span class="avatar">{{ desktop.user?.displayName.charAt(0) }}</span><div><strong>{{ desktop.user?.displayName }}</strong><small>@{{ desktop.user?.username }}</small></div></div><div class="control-connection"><Wifi :size="23" /><div><strong>{{ desktop.system ? t('desktop.control.apiOnline') : t('desktop.control.apiOffline') }}</strong><small v-if="desktop.system">{{ t('desktop.control.host', { host: desktop.system.hostname }) }}</small></div></div><button class="control-settings" @click="openAppearance"><Palette :size="18" /> {{ t('desktop.control.appearance') }}<ArrowRight :size="16" /></button><button class="control-settings" @click="launch('settings')"><Settings :size="18" /> {{ t('desktop.control.settings') }}<ArrowRight :size="16" /></button><button class="control-settings" @click="logout"><LogOut :size="18" /> {{ t('desktop.control.logout') }}</button></section>
-      <nav :inert="!!panel" class="tablet-dock" :aria-label="t('desktop.dock.label')"><button class="tablet-dock-action" :class="{selected:home}" :aria-label="t('desktop.dock.home')" :title="t('desktop.dock.home')" @click="goHome"><Home :size="25" /></button><div class="tablet-dock-separator"></div><button v-for="app in dockApps" :key="app.id" class="tablet-dock-app" :class="{active:!home && desktop.active === app.id && desktop.preferences.windows.some(w => w.id === app.id && !w.minimized)}" :aria-label="t('desktop.dock.open', { name: appName(app.id) })" @click="launch(app.id)"><AppIcon :id="app.icon" :color="app.color" /><span class="tablet-dock-tooltip">{{ appName(app.id) }}</span><i v-if="desktop.preferences.windows.some(w => w.id === app.id)"></i></button><div class="tablet-dock-separator"></div><button class="tablet-dock-action" :aria-label="t('desktop.dock.search')" :title="t('desktop.dock.searchHint')" @click="search"><Search :size="25" /></button><button class="tablet-dock-action" :aria-label="t('desktop.dock.running')" :title="t('desktop.dock.running')" @click="togglePanel('switcher')"><Layers :size="25" /><span v-if="desktop.preferences.windows.length" class="dock-count">{{ desktop.preferences.windows.length }}</span></button></nav>
+      <div v-if="immersive && !dockShown" class="dock-hotzone" aria-hidden="true" @pointerenter="peekDock(true)"></div>
+      <div v-if="immersive && !dockShown" class="dock-pill" :inert="!!panel">
+        <button v-if="hasInbox" class="dock-pill-bell" :aria-label="bellLabel" :title="host.i18n.t('notifications.bell')" @click="togglePanel('notifications')"><Bell :size="15" /><b v-if="inbox.unread.value" class="status-badge">{{ unreadText }}</b></button>
+        <button class="dock-pill-show" :aria-label="t('desktop.dock.show')" :title="t('desktop.dock.show')" @click="peekDock(true)"><ChevronUp :size="15" /></button>
+      </div>
+      <nav :inert="!!panel" class="tablet-dock" :class="{ 'dock-away': !dockShown }" :aria-label="t('desktop.dock.label')" @contextmenu.self.prevent="openMenu($event)" @pointerenter="peekDock(true)" @pointerleave="peekDock(false)">
+        <button class="tablet-dock-action" :class="{selected:home}" :aria-label="t('desktop.dock.home')" :title="t('desktop.dock.home')" aria-haspopup="menu" @click="goHome" @contextmenu.prevent="openMenu($event)" @keydown.shift.f10.prevent="openMenu($event)"><Home :size="dockGlyph" /></button>
+        <div class="tablet-dock-separator"></div>
+        <button v-for="app in dockApps" :key="app.id" class="tablet-dock-app" :class="{active:!home && desktop.active === app.id && desktop.preferences.windows.some(w => w.id === app.id && !w.minimized), dragging: dragId === app.id}" :draggable="desktop.preferences.pinned.includes(app.id)" :aria-label="t('desktop.dock.open', { name: appName(app.id) })" aria-haspopup="menu" @click="launch(app.id)" @contextmenu.prevent="openMenu($event, app.id)" @keydown.shift.f10.prevent="openMenu($event, app.id)" @dragstart="dragId = app.id" @dragend="dragId = ''" @dragover.prevent @drop.prevent="dropOn(app.id)"><AppIcon :id="app.icon" :color="app.color" /><span class="tablet-dock-tooltip">{{ appName(app.id) }}</span><i v-if="desktop.preferences.windows.some(w => w.id === app.id)"></i></button>
+        <div class="tablet-dock-separator"></div>
+        <button class="tablet-dock-action" :aria-label="t('desktop.dock.search')" :title="t('desktop.dock.searchHint')" @click="search"><Search :size="dockGlyph" /></button>
+        <button class="tablet-dock-action" :aria-label="t('desktop.dock.running')" :title="t('desktop.dock.running')" @click="togglePanel('switcher')"><Layers :size="dockGlyph" /><span v-if="desktop.preferences.windows.length" class="dock-count">{{ desktop.preferences.windows.length }}</span></button>
+        <div class="tablet-dock-separator"></div>
+        <div class="dock-tray">
+          <button v-if="hasInbox" class="tablet-dock-action dock-bell" :class="{selected:panel==='notifications'}" :aria-label="bellLabel" :title="host.i18n.t('notifications.bell')" @click="togglePanel('notifications')"><Bell :size="dockGlyph - 3" /><b v-if="inbox.unread.value" class="status-badge">{{ unreadText }}</b></button>
+          <button class="tablet-dock-action dock-status" :class="{selected:panel==='control'}" :aria-label="t('desktop.status.control')" :title="desktop.system ? t('desktop.status.online') : t('desktop.status.offline')" @click="togglePanel('control')"><span :class="['status-dot', {offline:!desktop.system}]"></span><SlidersHorizontal :size="dockGlyph - 5" /></button>
+          <button class="dock-clock" :aria-label="t('desktop.dock.clock', { time, date: longDate })" :title="longDate" @click="togglePanel('control')"><strong>{{ time }}</strong><small v-if="desktop.dock.position === 'bottom'">{{ shortDate }}</small></button>
+        </div>
+      </nav>
+      <div v-if="menu" class="dock-menu-scrim" @click="menu = null" @contextmenu.prevent="menu = null"></div>
+      <div v-if="menu" ref="menuEl" class="dock-menu" role="menu" :aria-label="menu.app ? appName(menu.app) : t('desktop.dock.settings')" :style="{ left: menu.x + 'px', top: menu.y + 'px' }" @keydown.esc.stop="menu = null" @keydown.down.prevent="moveMenu(1)" @keydown.up.prevent="moveMenu(-1)">
+        <template v-if="menu.app">
+          <button role="menuitem" @click="launch(menu.app); menu = null"><ArrowRight :size="15" />{{ t('desktop.dock.menuOpen') }}</button>
+          <button role="menuitem" @click="desktop.togglePin(menu.app); menu = null"><component :is="desktop.preferences.pinned.includes(menu.app) ? PinOff : Pin" :size="15" />{{ t(desktop.preferences.pinned.includes(menu.app) ? 'desktop.dock.unpin' : 'desktop.dock.pin') }}</button>
+          <button v-if="desktop.preferences.windows.some(w => w.id === menu?.app)" role="menuitem" @click="desktop.close(menu.app); menu = null"><X :size="15" />{{ t('desktop.dock.menuClose') }}</button>
+        </template>
+        <template v-else>
+          <span class="dock-menu-label">{{ t('desktop.dock.position') }}</span>
+          <button v-for="p in (['bottom','left','right'] as const)" :key="p" role="menuitemradio" :aria-checked="desktop.preferences.dock?.position === p" @click="desktop.setDock({ position: p }); menu = null"><Check v-if="desktop.preferences.dock?.position === p" :size="15" /><span v-else class="dock-menu-gap"></span>{{ t('desktop.dock.positions.' + p) }}</button>
+          <span class="dock-menu-label">{{ t('desktop.dock.size') }}</span>
+          <button v-for="s in (['small','medium','large'] as const)" :key="s" role="menuitemradio" :aria-checked="desktop.preferences.dock?.size === s" @click="desktop.setDock({ size: s }); menu = null"><Check v-if="desktop.preferences.dock?.size === s" :size="15" /><span v-else class="dock-menu-gap"></span>{{ t('desktop.dock.sizes.' + s) }}</button>
+          <button role="menuitem" @click="menu = null; openAppearance()"><Settings :size="15" />{{ t('desktop.dock.settings') }}</button>
+        </template>
+      </div>
       <button v-if="desktop.saveError" class="tablet-save-error" @click="desktop.persist">{{ t('desktop.save.retry') }}</button><span v-else-if="desktop.saving" class="tablet-saving" role="status">{{ t('desktop.save.saving') }}</span>
       <Transition name="toast"><div v-if="desktop.notice" class="toast-message" role="status"><Check :size="17" />{{ desktop.notice }}</div></Transition>
     </template>

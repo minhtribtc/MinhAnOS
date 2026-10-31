@@ -1,0 +1,86 @@
+/* Dock-only Shell (ADR 0013). Keep after ipados.css. --dock-icon and --dock-reserve come from the store. */
+.tablet-shell{--dock-icon:52px;--dock-reserve:94px}
+.tablet-shell .tablet-home{inset:0 0 var(--dock-reserve) 0}
+.tablet-shell.dock-left .tablet-home{inset:0 0 0 var(--dock-reserve)}
+.tablet-shell.dock-right .tablet-home{inset:0 var(--dock-reserve) 0 0}
+.tablet-shell .tablet-scrim{inset:0}
+
+/* The dock: bottom (centred), left or right (vertical); slides off its edge when an app is maximized. */
+.tablet-shell .tablet-dock{bottom:8px;gap:10px;padding:10px 14px 12px;transition:transform .22s ease,opacity .22s ease}
+.tablet-shell .tablet-dock-app .app-icon{width:var(--dock-icon);height:var(--dock-icon);border-radius:calc(var(--dock-icon) * .28)}
+.tablet-shell .tablet-dock-action{width:calc(var(--dock-icon) * .74);height:var(--dock-icon)}
+.tablet-shell .tablet-dock-tooltip{bottom:calc(var(--dock-icon) + 16px)}
+.tablet-shell .tablet-dock-app.dragging{opacity:.4}
+.tablet-shell.dock-left .tablet-dock,.tablet-shell.dock-right .tablet-dock{top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column;max-width:none;max-height:calc(100dvh - 16px);overflow-y:auto;overflow-x:visible;padding:14px 10px}
+.tablet-shell.dock-left .tablet-dock{left:8px}
+.tablet-shell.dock-right .tablet-dock{left:auto;right:8px}
+.tablet-shell.dock-left .tablet-dock-separator,.tablet-shell.dock-right .tablet-dock-separator{width:calc(var(--dock-icon) * .65);height:1px}
+.tablet-shell.dock-left .tablet-dock-action,.tablet-shell.dock-right .tablet-dock-action{width:var(--dock-icon);height:calc(var(--dock-icon) * .74)}
+.tablet-shell.dock-left .tablet-dock-app i{bottom:auto;left:-7px;width:4px;height:4px}
+.tablet-shell.dock-right .tablet-dock-app i{bottom:auto;right:-7px;left:auto;width:4px;height:4px}
+.tablet-shell.dock-left .tablet-dock-app.active i,.tablet-shell.dock-right .tablet-dock-app.active i{width:4px;height:12px}
+.tablet-shell.dock-left .tablet-dock-app:hover .app-icon{transform:translateX(5px)}
+.tablet-shell.dock-right .tablet-dock-app:hover .app-icon{transform:translateX(-5px)}
+.tablet-shell.dock-left .tablet-dock-tooltip{bottom:auto;left:calc(var(--dock-icon) + 16px)}
+.tablet-shell.dock-right .tablet-dock-tooltip{bottom:auto;right:calc(var(--dock-icon) + 16px)}
+.tablet-shell .tablet-dock.dock-away{transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none}
+.tablet-shell.dock-left .tablet-dock.dock-away{transform:translate(calc(-100% - 24px),-50%)}
+.tablet-shell.dock-right .tablet-dock.dock-away{transform:translate(calc(100% + 24px),-50%)}
+
+/* Tray: bell with unread count, connection / Control Center, clock. */
+.dock-tray{display:flex;align-items:center;gap:4px}
+.dock-left .dock-tray,.dock-right .dock-tray{flex-direction:column}
+.tablet-shell .dock-bell,.tablet-shell .dock-status{position:relative}
+.tablet-shell .dock-bell .status-badge{top:4px;left:auto;right:0}
+.tablet-shell .dock-status .status-dot{position:absolute;top:9px;right:5px}
+.dock-clock{border:0;background:none;color:var(--tablet-ink);display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 7px;border-radius:10px;cursor:pointer;font:inherit;line-height:1.2;flex-shrink:0}
+.dock-clock strong{font-size:13px;font-weight:650}
+.dock-clock small{font-size:10px;color:var(--tablet-muted)}
+.dock-clock:hover{background:color-mix(in srgb,var(--mn-color-on-media) 31%,transparent)}
+
+/* Maximized app: the whole screen; a pill with the bell and a handle stays on the dock edge. */
+.tablet-shell .desktop-window.maximized,.tablet-shell .desktop-window.maximized.focus-mode-window{border-radius:0!important;border:0!important;box-shadow:none!important}
+.dock-hotzone{position:absolute;z-index:225;left:0;right:0;bottom:0;height:6px}
+.dock-left .dock-hotzone{right:auto;top:0;width:6px;height:auto}
+.dock-right .dock-hotzone{left:auto;top:0;width:6px;height:auto}
+.dock-pill{position:absolute;z-index:226;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--tablet-glass);backdrop-filter:blur(20px);border:1px solid color-mix(in srgb,var(--mn-color-on-media) 40%,transparent);box-shadow:0 6px 20px color-mix(in srgb,var(--mn-color-shadow) 18%,transparent);opacity:.9}
+.dock-left .dock-pill{left:6px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column}
+.dock-right .dock-pill{left:auto;right:6px;bottom:auto;top:50%;transform:translateY(-50%);flex-direction:column}
+.dock-pill button{position:relative;width:30px;height:30px;border:0;border-radius:50%;display:grid;place-items:center;background:none;color:var(--tablet-ink);cursor:pointer}
+.dock-pill button:hover{background:color-mix(in srgb,var(--mn-color-on-media) 31%,transparent)}
+.dock-pill .status-badge{top:-4px;left:auto;right:-5px}
+.dock-left .dock-pill-show svg{transform:rotate(90deg)}
+.dock-right .dock-pill-show svg{transform:rotate(-90deg)}
+
+/* Panels beside the dock: Control Center near the tray, notifications as a full-height side panel. */
+.tablet-shell .tablet-control{top:auto;right:12px;bottom:calc(var(--dock-reserve) + 4px)}
+.tablet-shell.dock-left .tablet-control{right:auto;left:calc(var(--dock-reserve) + 4px);bottom:12px}
+.tablet-shell.dock-right .tablet-control{right:calc(var(--dock-reserve) + 4px);bottom:12px}
+.tablet-shell .tablet-control.tablet-notifications{top:8px;bottom:calc(var(--dock-reserve) + 4px);right:8px;left:auto;width:390px;max-width:calc(100vw - 16px);overflow-y:auto;border-radius:22px}
+.tablet-shell.dock-left .tablet-control.tablet-notifications,.tablet-shell.dock-right .tablet-control.tablet-notifications{bottom:8px}
+.tablet-shell.dock-right .tablet-control.tablet-notifications{right:calc(var(--dock-reserve) + 4px)}
+.tablet-shell.dock-immersive .tablet-control.tablet-notifications{bottom:8px}
+.tablet-shell .tablet-overlay{inset:40px max(25px,calc((100vw - 1200px)/2)) calc(var(--dock-reserve) + 10px)}
+.tablet-shell.dock-left .tablet-overlay{left:calc(var(--dock-reserve) + 15px);bottom:40px}
+.tablet-shell.dock-right .tablet-overlay{right:calc(var(--dock-reserve) + 15px);bottom:40px}
+.tablet-shell.dock-right .tablet-save-error,.tablet-shell.dock-right .tablet-saving{right:calc(var(--dock-reserve) + 8px)}
+
+/* Context menu of the dock and Home icons. */
+.dock-menu-scrim{position:fixed;inset:0;z-index:298}
+.dock-menu{position:fixed;z-index:299;min-width:210px;display:flex;flex-direction:column;padding:6px;border-radius:14px;background:var(--tablet-glass);backdrop-filter:blur(30px);color:var(--tablet-ink);border:1px solid color-mix(in srgb,var(--mn-color-on-media) 38%,transparent);box-shadow:0 16px 50px color-mix(in srgb,var(--mn-color-shadow) 22%,transparent)}
+.dock-menu button{display:flex;align-items:center;gap:9px;border:0;background:none;color:inherit;text-align:left;padding:8px 10px;border-radius:9px;font:inherit;font-size:13px;cursor:pointer}
+.dock-menu button:hover,.dock-menu button:focus-visible{background:color-mix(in srgb,var(--mn-accent-slate-500) 13%,transparent);outline:none}
+.dock-menu-label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--tablet-muted);padding:8px 10px 2px}
+.dock-menu-gap{display:inline-block;width:15px}
+.home-all-pinned{grid-column:1/-1;font-size:13px;opacity:.85}
+
+/* Settings → Desktop → Appearance → Dock. */
+.dock-setting{margin:22px 0}
+.dock-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+.dock-options{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.dock-options button{border:0;background:transparent;color:inherit;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+.dock-options button+button{border-left:1px solid var(--border)}
+.dock-options button.chosen{background:var(--mn-color-selection);color:var(--mn-color-action-primary);font-weight:600}
+
+@media(max-width:700px){.tablet-shell .tablet-dock{bottom:6px;gap:6px;padding:8px 9px 10px}.dock-clock small{display:none}.tablet-shell .tablet-control.tablet-notifications{width:calc(100vw - 16px)}}
+@media(prefers-reduced-motion:reduce){.tablet-shell .tablet-dock{transition:none}}

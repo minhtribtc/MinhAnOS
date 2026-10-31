@@ -102,3 +102,23 @@ func TestKnownAppsMigratesLegacyLayout(t *testing.T) {
 		t.Fatal("legacy layout", p)
 	}
 }
+
+func TestDockPreferences(t *testing.T) {
+	// Preferences saved before the dock existed read as bottom/medium (ADR 0013).
+	if p := withDock(Preferences{}); p.Dock.Position != "bottom" || p.Dock.Size != "medium" {
+		t.Fatal(p.Dock)
+	}
+	ok := withDock(defaultPreferences())
+	for _, d := range []Dock{{"left", "small"}, {"right", "large"}, {"bottom", "medium"}} {
+		ok.Dock = d
+		if !validPreferences(ok) {
+			t.Fatal("refused", d)
+		}
+	}
+	for _, d := range []Dock{{"top", "medium"}, {"left", "huge"}} {
+		ok.Dock = d
+		if validPreferences(ok) {
+			t.Fatal("accepted", d)
+		}
+	}
+}
