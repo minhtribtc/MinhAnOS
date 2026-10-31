@@ -72,7 +72,7 @@ defineExpose({canClose:()=>true})
    <label v-if="orgs.length>1">{{t('filters.organization')}}<select v-model="filter.organization"><option value="">{{t('filters.all')}}</option><option v-for="o in orgs" :key="o.id" :value="o.id">{{o.name}}</option></select></label>
   </div>
   <section v-if="live" class="lc-live" :aria-label="t('live.title')">
-   <button class="lc-live-head" :aria-expanded="liveOpen" ="liveOpen=!liveOpen"><component :is="liveOpen?ChevronDown:ChevronRight" :size="15"/><Radio :size="16"/><strong>{{t('live.title')}}</strong><span class="lc-muted">{{live.level==='full'?t('live.count',{n:liveItems.length}):t('live.off')}}</span></button>
+   <button class="lc-live-head" :aria-expanded="liveOpen" @click="liveOpen=!liveOpen"><component :is="liveOpen?ChevronDown:ChevronRight" :size="15"/><Radio :size="16"/><strong>{{t('live.title')}}</strong><span class="lc-muted">{{live.level==='full'?t('live.count',{n:liveItems.length}):t('live.off')}}</span></button>
    <div v-if="liveOpen&&live.level==='full'" class="lc-table">
     <table v-if="liveItems.length">
      <thead><tr><th>{{t('columns.actor')}}</th><th>{{t('live.kind')}}</th><th>{{t('live.where')}}</th><th>{{t('live.since')}}</th><th>{{t('live.client')}}</th></tr></thead>
