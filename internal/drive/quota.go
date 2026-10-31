@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io/fs"
-	"log"
 	"net/http"
 	"path"
 	"path/filepath"
@@ -100,10 +99,10 @@ func (s *Server) runMeasurer(ctx context.Context, interval time.Duration) {
 	defer ticker.Stop()
 	for {
 		if e := s.measurePending(ctx); e != nil && ctx.Err() == nil {
-			log.Printf("drive quota measurement failed: %v", e)
+			logError(ctx, "files.quota.measure_failed", e)
 		}
 		if e := s.measureShares(ctx); e != nil && ctx.Err() == nil {
-			log.Printf("drive share measurement failed: %v", e)
+			logError(ctx, "files.share.measure_failed", e)
 		}
 		select {
 		case <-ctx.Done():

@@ -185,7 +185,7 @@ func (f fakeIdentity) Authorize(_ context.Context, _ User, permission string) er
 	}
 	return nil
 }
-func (f fakeIdentity) Audit(context.Context, User, string, string) error { return nil }
+func (f fakeIdentity) Audit(context.Context, User, AuditEvent) error { return nil }
 func TestAuthorizationBoundary(t *testing.T) {
 	s := &Server{Identity: fakeIdentity{role: "user"}, DataDir: t.TempDir(), StaticDir: t.TempDir()}
 	handler := s.Handler()

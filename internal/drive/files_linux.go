@@ -24,13 +24,17 @@ import (
 const MaxUpload = 128 << 20
 const MaxText = 256 << 10
 
+// FileError carries a stable code (app standard row 8); Message is a developer hint, never shown by the UI.
 type FileError struct {
 	Status  int
+	Code    string
 	Message string
 }
 
-func (e *FileError) Error() string           { return e.Message }
-func problem(code int, message string) error { return &FileError{code, message} }
+func (e *FileError) Error() string { return e.Message }
+func problem(status int, code, message string) error {
+	return &FileError{status, code, message}
+}
 
 type Entry struct {
 	Name     string    `json:"name"`
@@ -58,11 +62,11 @@ type Engine struct {
 
 func clean(value string) (string, error) {
 	if len(value) > 4096 || strings.ContainsAny(value, "\x00\\") {
-		return "", problem(400, "Đường dẫn không hợp lệ.")
+		return "", problem(400, "FILES_PATH_INVALID", "Đường dẫn không hợp lệ.")
 	}
 	for _, s := range strings.Split(value, "/") {
 		if s == ".." {
-			return "", problem(400, "Không được đi ra ngoài không gian lưu trữ.")
+			return "", problem(400, "FILES_PATH_OUTSIDE", "Không được đi ra ngoài không gian lưu trữ.")
 		}
 	}
 	p := strings.TrimPrefix(path.Clean("/"+value), "/")
@@ -82,7 +86,7 @@ func (e *Engine) logical(value string) (string, error) {
 	if e.Host {
 		first := strings.Split(p, "/")[0]
 		if first == "proc" || first == "sys" || first == "dev" || first == "run" {
-			return "", problem(403, "Filesystem ảo và thiết bị không được quản lý trong File Station.")
+			return "", problem(403, "FILES_VIRTUAL_FS", "Filesystem ảo và thiết bị không được quản lý trong File Station.")
 		}
 	}
 	return p, nil
@@ -167,7 +171,7 @@ func (e *Engine) List(value string) ([]Entry, error) {
 		return nil, err
 	}
 	if len(entries) > 10000 {
-		return nil, problem(422, "Thư mục vượt giới hạn 10.000 mục của bản đầu.")
+		return nil, problem(422, "FILES_FOLDER_LIMIT", "Thư mục vượt giới hạn 10.000 mục của bản đầu.")
 	}
 	out := []Entry{}
 	for _, d := range entries {
@@ -200,7 +204,7 @@ func (e *Engine) Read(value string) (*os.File, os.FileInfo, error) {
 	if err != nil || !fi.Mode().IsRegular() {
 		f.Close()
 		if err == nil {
-			err = problem(400, "Chỉ hỗ trợ tệp thông thường; không mở symlink, thiết bị hoặc socket.")
+			err = problem(400, "FILES_NOT_REGULAR", "Chỉ hỗ trợ tệp thông thường; không mở symlink, thiết bị hoặc socket.")
 		}
 		return nil, nil, err
 	}
@@ -208,7 +212,7 @@ func (e *Engine) Read(value string) (*os.File, os.FileInfo, error) {
 }
 func (e *Engine) Mkdir(value, name string) error {
 	if !validName(name) {
-		return problem(400, "Tên thư mục không hợp lệ.")
+		return problem(400, "FILES_NAME_INVALID", "Tên thư mục không hợp lệ.")
 	}
 	p, err := e.logical(path.Join(value, "."))
 	if err != nil {
@@ -228,7 +232,7 @@ func (e *Engine) Rename(source, destination string) error {
 	}
 	defer src.Close()
 	if sp == "." {
-		return problem(400, "Không thể di chuyển thư mục gốc.")
+		return problem(400, "FILES_ROOT_PROTECTED", "Không thể di chuyển thư mục gốc.")
 	}
 	dst, dn, dp, err := e.parent(destination)
 	if err != nil {
@@ -236,20 +240,20 @@ func (e *Engine) Rename(source, destination string) error {
 	}
 	defer dst.Close()
 	if dp == "." {
-		return problem(400, "Đích không hợp lệ.")
+		return problem(400, "FILES_DESTINATION_INVALID", "Đích không hợp lệ.")
 	}
 	var st unix.Stat_t
 	if err = unix.Fstatat(int(src.Fd()), sn, &st, unix.AT_SYMLINK_NOFOLLOW); err != nil {
 		return err
 	}
 	if st.Mode&unix.S_IFMT != unix.S_IFREG && st.Mode&unix.S_IFMT != unix.S_IFDIR {
-		return problem(400, "Không di chuyển tệp đặc biệt hoặc symlink.")
+		return problem(400, "FILES_NOT_REGULAR", "Không di chuyển tệp đặc biệt hoặc symlink.")
 	}
 	return unix.Renameat2(int(src.Fd()), sn, int(dst.Fd()), dn, unix.RENAME_NOREPLACE)
 }
 func (e *Engine) Upload(value, name string, body io.Reader) (Entry, error) {
 	if !validName(name) {
-		return Entry{}, problem(400, "Tên tệp không hợp lệ.")
+		return Entry{}, problem(400, "FILES_NAME_INVALID", "Tên tệp không hợp lệ.")
 	}
 	dir, p, err := e.open(value, unix.O_RDONLY|unix.O_DIRECTORY)
 	if err != nil {
@@ -268,7 +272,7 @@ func (e *Engine) Upload(value, name string, body io.Reader) (Entry, error) {
 		return Entry{}, err
 	}
 	if count > MaxUpload {
-		return Entry{}, problem(413, "Tệp vượt giới hạn 128 MB của bản đầu.")
+		return Entry{}, problem(413, "FILES_UPLOAD_TOO_LARGE", "Tệp vượt giới hạn 128 MB của bản đầu.")
 	}
 	if err = f.Sync(); err != nil {
 		return Entry{}, err
@@ -292,14 +296,14 @@ func (e *Engine) Text(value string) (string, string, error) {
 	}
 	defer f.Close()
 	if fi.Size() > MaxText {
-		return "", "", problem(413, "Xem/sửa văn bản giới hạn 256 KB.")
+		return "", "", problem(413, "FILES_TEXT_TOO_LARGE", "Xem/sửa văn bản giới hạn 256 KB.")
 	}
 	b, err := io.ReadAll(io.LimitReader(f, MaxText+1))
 	if err != nil {
 		return "", "", err
 	}
 	if len(b) > MaxText || !utf8.Valid(b) || strings.ContainsRune(string(b), 0) {
-		return "", "", problem(415, "Tệp không phải văn bản UTF-8 được hỗ trợ.")
+		return "", "", problem(415, "FILES_NOT_TEXT", "Tệp không phải văn bản UTF-8 được hỗ trợ.")
 	}
 	return string(b), etag(fi), nil
 }
@@ -311,14 +315,14 @@ func (e *Engine) Copy(source, destination string) (Entry, error) {
 	}
 	defer src.Close()
 	if fi.Size() > MaxUpload {
-		return Entry{}, problem(413, "Sao chép tệp giới hạn 128 MB trong bản này.")
+		return Entry{}, problem(413, "FILES_COPY_TOO_LARGE", "Sao chép tệp giới hạn 128 MB trong bản này.")
 	}
 	dest, err := e.logical(destination)
 	if err != nil {
 		return Entry{}, err
 	}
 	if dest == "." {
-		return Entry{}, problem(400, "Đích sao chép không hợp lệ.")
+		return Entry{}, problem(400, "FILES_DESTINATION_INVALID", "Đích sao chép không hợp lệ.")
 	}
 	return e.Upload(path.Dir(dest), path.Base(dest), src)
 }
@@ -326,7 +330,7 @@ func (e *Engine) Copy(source, destination string) (Entry, error) {
 // SaveText checks optimistic concurrency and keeps a backup before atomic replacement.
 func (e *Engine) SaveText(value, content, expected string) (string, error) {
 	if len(content) > MaxText || !utf8.ValidString(content) || strings.ContainsRune(content, 0) {
-		return "", problem(413, "Văn bản không hợp lệ hoặc quá 256 KB.")
+		return "", problem(413, "FILES_TEXT_TOO_LARGE", "Văn bản không hợp lệ hoặc quá 256 KB.")
 	}
 	old, fi, err := e.Read(value)
 	if err != nil {
@@ -334,10 +338,10 @@ func (e *Engine) SaveText(value, content, expected string) (string, error) {
 	}
 	defer old.Close()
 	if expected == "" || etag(fi) != expected {
-		return "", problem(409, "Tệp đã thay đổi. Nạp lại trước khi lưu.")
+		return "", problem(409, "FILES_CHANGED", "Tệp đã thay đổi. Nạp lại trước khi lưu.")
 	}
 	if fi.Size() > MaxText {
-		return "", problem(413, "Không sửa tệp lớn hơn 256 KB.")
+		return "", problem(413, "FILES_TEXT_TOO_LARGE", "Không sửa tệp lớn hơn 256 KB.")
 	}
 	dir, name, _, err := e.parent(value)
 	if err != nil {
@@ -347,10 +351,10 @@ func (e *Engine) SaveText(value, content, expected string) (string, error) {
 	// Hard links and config mountpoints require semantics that this editor does not promise.
 	st := fi.Sys().(*syscall.Stat_t)
 	if st.Nlink != 1 {
-		return "", problem(409, "Tệp có hard link; không hỗ trợ thay thế trong trình sửa này.")
+		return "", problem(409, "FILES_EDIT_UNSUPPORTED", "Tệp có hard link; không hỗ trợ thay thế trong trình sửa này.")
 	}
 	if fi.Mode()&(os.ModeSetuid|os.ModeSetgid|os.ModeSticky) != 0 {
-		return "", problem(409, "Tệp có mode đặc biệt; không thay thế trong trình sửa này.")
+		return "", problem(409, "FILES_EDIT_UNSUPPORTED", "Tệp có mode đặc biệt; không thay thế trong trình sửa này.")
 	}
 	if e.Host {
 		n, er := unix.Flistxattr(int(old.Fd()), nil)
@@ -358,7 +362,7 @@ func (e *Engine) SaveText(value, content, expected string) (string, error) {
 			return "", er
 		}
 		if n > 0 {
-			return "", problem(409, "Tệp có ACL/xattr; bản đầu không thay thế để tránh mất thuộc tính.")
+			return "", problem(409, "FILES_EDIT_UNSUPPORTED", "Tệp có ACL/xattr; bản đầu không thay thế để tránh mất thuộc tính.")
 		}
 	}
 	backup := name + ".minhanos-backup-" + time.Now().UTC().Format("20060102T150405") + "-" + authn.Token()[:8]
@@ -401,7 +405,7 @@ func (e *Engine) SaveText(value, content, expected string) (string, error) {
 		return "", err
 	}
 	if latest.Ino != st.Ino || latest.Mtim.Sec != st.Mtim.Sec || latest.Mtim.Nsec != st.Mtim.Nsec || latest.Size != st.Size {
-		return "", problem(409, "Tệp đã được thay đổi trong lúc lưu.")
+		return "", problem(409, "FILES_CHANGED", "Tệp đã được thay đổi trong lúc lưu.")
 	}
 	if err = unix.Renameat(int(dir.Fd()), temp, int(dir.Fd()), name); err != nil {
 		return "", err
@@ -411,14 +415,14 @@ func (e *Engine) SaveText(value, content, expected string) (string, error) {
 }
 func (e *Engine) Trash(value string) (TrashItem, error) {
 	if e.Host {
-		return TrashItem{}, problem(400, "Tệp hệ thống không có thùng rác; dùng thao tác xóa riêng.")
+		return TrashItem{}, problem(400, "FILES_NO_SYSTEM_TRASH", "Tệp hệ thống không có thùng rác; dùng thao tác xóa riêng.")
 	}
 	p, err := e.logical(value)
 	if err != nil {
 		return TrashItem{}, err
 	}
 	if p == "." {
-		return TrashItem{}, problem(400, "Không xóa thư mục gốc.")
+		return TrashItem{}, problem(400, "FILES_ROOT_PROTECTED", "Không xóa thư mục gốc.")
 	}
 	item := TrashItem{ID: authn.Token(), Path: p, Name: path.Base(p), Deleted: time.Now().UTC()}
 	dir := path.Join("trash", item.ID)
@@ -453,7 +457,7 @@ func (e *Engine) Trash(value string) (TrashItem, error) {
 }
 func (e *Engine) TrashList() ([]TrashItem, error) {
 	if e.Host {
-		return nil, problem(400, "Không có thùng rác hệ thống.")
+		return nil, problem(400, "FILES_NO_SYSTEM_TRASH", "Không có thùng rác hệ thống.")
 	}
 	f, err := e.Root.Open("trash")
 	if err != nil {
@@ -465,7 +469,7 @@ func (e *Engine) TrashList() ([]TrashItem, error) {
 		return nil, err
 	}
 	if len(dirs) > 10000 {
-		return nil, problem(422, "Thùng rác vượt giới hạn.")
+		return nil, problem(422, "FILES_TRASH_LIMIT", "Thùng rác vượt giới hạn.")
 	}
 	items := []TrashItem{}
 	for _, d := range dirs {
@@ -491,7 +495,7 @@ func (e *Engine) TrashList() ([]TrashItem, error) {
 }
 func (e *Engine) Restore(id string) error {
 	if e.Host || !validID(id) {
-		return problem(400, "Mục khôi phục không hợp lệ.")
+		return problem(400, "FILES_TRASH_ITEM_INVALID", "Mục khôi phục không hợp lệ.")
 	}
 	meta, err := e.Root.Open(path.Join("trash", id, "meta.json"))
 	if err != nil {
@@ -522,7 +526,7 @@ func (e *Engine) Restore(id string) error {
 }
 func (e *Engine) Remove(value string) error {
 	if !e.Host {
-		return problem(400, "Dùng Thùng rác cho tệp cá nhân.")
+		return problem(400, "FILES_USE_TRASH", "Dùng Thùng rác cho tệp cá nhân.")
 	}
 	dir, name, p, err := e.parent(value)
 	if err != nil {
@@ -530,7 +534,7 @@ func (e *Engine) Remove(value string) error {
 	}
 	defer dir.Close()
 	if p == "." {
-		return problem(400, "Không được xóa thư mục gốc.")
+		return problem(400, "FILES_ROOT_PROTECTED", "Không được xóa thư mục gốc.")
 	}
 	var st unix.Stat_t
 	if err = unix.Fstatat(int(dir.Fd()), name, &st, unix.AT_SYMLINK_NOFOLLOW); err != nil {
@@ -540,7 +544,7 @@ func (e *Engine) Remove(value string) error {
 	if st.Mode&unix.S_IFMT == unix.S_IFDIR {
 		flags = unix.AT_REMOVEDIR
 	} else if st.Mode&unix.S_IFMT != unix.S_IFREG {
-		return problem(400, "Không xóa tệp đặc biệt hoặc symlink.")
+		return problem(400, "FILES_NOT_REGULAR", "Không xóa tệp đặc biệt hoặc symlink.")
 	}
 	return unix.Unlinkat(int(dir.Fd()), name, flags)
 }
@@ -565,38 +569,46 @@ func validID(id string) bool {
 func handleFileError(w http.ResponseWriter, err error) {
 	var fe *FileError
 	if errors.As(err, &fe) {
-		fail(w, fe.Status, fe.Message)
+		fail(w, fe.Status, fe.Message, fe.Code)
 		return
 	}
-	status := 500
+	status, code := 500, "INTERNAL_ERROR"
 	message := "Không thể hoàn thành thao tác tệp."
 	switch {
 	case errors.Is(err, os.ErrNotExist):
 		status = 404
+		code = "FILES_NOT_FOUND"
 		message = "Không tìm thấy tệp hoặc thư mục."
 	case errors.Is(err, os.ErrExist):
 		status = 409
+		code = "FILES_EXISTS"
 		message = "Tên đã tồn tại; không ghi đè tự động."
 	case errors.Is(err, os.ErrPermission):
 		status = 403
+		code = "FILES_PERMISSION"
 		message = "Không có quyền truy cập tệp."
 	case errors.Is(err, unix.ELOOP):
 		status = 403
+		code = "FILES_SYMLINK"
 		message = "Không theo symlink trong bản đầu."
 	case errors.Is(err, unix.ENOTDIR):
 		status = 400
+		code = "FILES_NOT_DIRECTORY"
 		message = "Đường dẫn không phải thư mục hoặc chứa symlink."
 	case errors.Is(err, unix.ENOTEMPTY):
 		status = 409
+		code = "FILES_NOT_EMPTY"
 		message = "Chỉ xóa thư mục hệ thống rỗng."
 	case errors.Is(err, unix.EXDEV):
 		status = 409
+		code = "FILES_CROSS_DEVICE"
 		message = "Bản đầu chưa hỗ trợ di chuyển qua filesystem khác."
 	case errors.Is(err, unix.ENOSPC):
 		status = 507
+		code = "STORAGE_FULL"
 		message = "Không đủ dung lượng lưu trữ."
 	}
-	fail(w, status, message)
+	fail(w, status, message, code)
 }
 func checksum(value string) string {
 	h := sha256.Sum256([]byte(value))

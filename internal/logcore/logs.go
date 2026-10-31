@@ -31,11 +31,12 @@ type Source struct {
 
 func days(n int) *int { return &n }
 
-// Sources lists what Log Center reads. Files' legacy drive_audit is not a source: it holds personal file
-// paths, which administrators must not read implicitly (app standard row 17).
+// Sources lists what Log Center reads. Files writes files_events without personal paths (app standard
+// row 17); its legacy drive_audit table holds personal file paths and is not a source.
 var Sources = []Source{
 	{ID: "identity", AppID: "com.minhanos.account-center", RetentionDays: days(365)},
 	{ID: "storage", AppID: "com.minhanos.storage"},
+	{ID: "files", AppID: "com.minhanos.files", RetentionDays: days(365)},
 }
 
 type Person struct {
@@ -99,7 +100,7 @@ func (s Store) Events(ctx context.Context, f Filter) (Page, error) {
 		return Page{}, ErrInvalid
 	}
 	switch f.Source {
-	case "", "identity", "storage":
+	case "", "identity", "storage", "files":
 	default:
 		return Page{}, ErrInvalid
 	}
@@ -121,6 +122,10 @@ func (s Store) Events(ctx context.Context, f Filter) (Page, error) {
 		 (SELECT s.id,'storage',s.occurred_at,s.action,'success',s.actor_id,s.target,s.request_id,s.correlation_id,s.details FROM storage_events s
 		  WHERE $1 IN ('','storage') AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (s.occurred_at,s.id)<($3,$4::uuid))
 		  ORDER BY s.occurred_at DESC,s.id DESC LIMIT $5)
+		 UNION ALL
+		 (SELECT f.id,'files',f.occurred_at,f.action,'success',f.actor_id,coalesce(f.share_key,f.root),f.request_id,f.correlation_id,f.details||jsonb_build_object('root',f.root) FROM files_events f
+		  WHERE $1 IN ('','files') AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (f.occurred_at,f.id)<($3,$4::uuid))
+		  ORDER BY f.occurred_at DESC,f.id DESC LIMIT $5)
 		) x
 		LEFT JOIN users a ON a.public_id=x.actor_id
 		LEFT JOIN users t ON t.public_id::text=x.target

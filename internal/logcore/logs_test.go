@@ -45,6 +45,7 @@ func fixture(t *testing.T) Store {
 		"CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text)",
 		"CREATE TABLE identity_admin_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target_id text,outcome text NOT NULL,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
 		"CREATE TABLE storage_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
+		"CREATE TABLE files_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,root text NOT NULL,share_key text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
 		"INSERT INTO users VALUES('1','" + admin + "','root')",
 	} {
 		if _, e = db.Exec(ctx, q); e != nil {
@@ -95,6 +96,13 @@ func TestEventsMergeFilterAndPage(t *testing.T) {
 	}
 	if seen != 8 {
 		t.Fatal("pagination", seen)
+	}
+	if _, e := s.DB.Exec(ctx, "INSERT INTO files_events(actor_id,action,root,share_key,request_id,occurred_at) VALUES($1,'files.upload','share','media','req_f',now()-interval '30 minutes')", admin); e != nil {
+		t.Fatal(e)
+	}
+	files, e := s.Events(ctx, Filter{Source: "files", Limit: 50})
+	if e != nil || len(files.Items) != 1 || files.Items[0].Target == nil || *files.Items[0].Target != "media" || files.Items[0].Details["root"] != "share" {
+		t.Fatal("files source", files, e)
 	}
 	storage, _ := s.Events(ctx, Filter{Source: "storage", Limit: 50})
 	denied, _ := s.Events(ctx, Filter{Outcome: "denied", Limit: 50})

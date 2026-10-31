@@ -725,14 +725,14 @@ export interface NotificationPage {
 }
 
 export interface LogSource {
-  id: "identity" | "storage";
+  id: "identity" | "storage" | "files";
   appId: string;
   retentionDays: number | null;
 }
 
 export interface LogEvent {
   id: string;
-  source: "identity" | "storage";
+  source: "identity" | "storage" | "files";
   occurredAt: string;
   action: string;
   outcome: "success" | "denied" | "failure";
@@ -749,7 +749,7 @@ export interface LogEvent {
 
 export interface LogSourceList {
   items: {
-    id: "identity" | "storage";
+    id: "identity" | "storage" | "files";
     appId: string;
     retentionDays: number | null;
   }[];
@@ -758,7 +758,7 @@ export interface LogSourceList {
 export interface LogEventPage {
   items: {
     id: string;
-    source: "identity" | "storage";
+    source: "identity" | "storage" | "files";
     occurredAt: string;
     action: string;
     outcome: "success" | "denied" | "failure";

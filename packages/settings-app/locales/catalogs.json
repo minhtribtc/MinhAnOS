@@ -10,7 +10,9 @@
     "settings.language.hint": "Áp dụng cho mọi ứng dụng MinhAnOS của tài khoản này.",
     "settings.language.locale": "Ngôn ngữ",
     "settings.language.timeZone": "Múi giờ",
-    "settings.language.preview": "Xem trước"
+    "settings.language.preview": "Xem trước",
+    "settings.app.name": "Cài đặt",
+    "settings.app.description": "Ngôn ngữ, giao diện và cài đặt của ứng dụng"
   },
   "en-US": {
     "settings.title": "Settings",
@@ -23,6 +25,8 @@
     "settings.language.hint": "Applies to every MinhAnOS app for this account.",
     "settings.language.locale": "Language",
     "settings.language.timeZone": "Time zone",
-    "settings.language.preview": "Preview"
+    "settings.language.preview": "Preview",
+    "settings.app.name": "Settings",
+    "settings.app.description": "Language, appearance and app settings"
   }
 }

@@ -42,7 +42,8 @@
     "notifications.errors.network": "Không kết nối được máy chủ.",
     "notifications.errors.INVALID_REQUEST": "Yêu cầu không hợp lệ. Hãy tải lại.",
     "notifications.errors.APP_ACCESS_DENIED": "Bạn không được dùng Trung tâm thông báo.",
-    "notifications.errors.APP_PERMISSION_DENIED": "Bạn không được dùng Trung tâm thông báo."
+    "notifications.errors.APP_PERMISSION_DENIED": "Bạn không được dùng Trung tâm thông báo.",
+    "notifications.app.description": "Thông báo bảo mật và hệ thống"
   },
   "en-US": {
     "notifications.app.name": "Notification Center",
@@ -87,6 +88,7 @@
     "notifications.errors.network": "Cannot reach the server.",
     "notifications.errors.INVALID_REQUEST": "Invalid request. Please reload.",
     "notifications.errors.APP_ACCESS_DENIED": "You may not use Notification Center.",
-    "notifications.errors.APP_PERMISSION_DENIED": "You may not use Notification Center."
+    "notifications.errors.APP_PERMISSION_DENIED": "You may not use Notification Center.",
+    "notifications.app.description": "Security and system notices"
   }
 }

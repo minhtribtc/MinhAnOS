@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -105,7 +104,7 @@ func (s *Server) planFolders(r *http.Request, e *Engine, folders []storagecore.F
 	if op != "upload" {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			return nil, problem(400, "Dữ liệu yêu cầu không hợp lệ.")
+			return nil, problem(400, "INVALID_REQUEST", "Dữ liệu yêu cầu không hợp lệ.")
 		}
 		r.Body = io.NopCloser(bytes.NewReader(raw))
 		_ = json.Unmarshal(raw, &body) // ServeEngine validates strictly
@@ -195,7 +194,7 @@ func (s *Server) settleFolders(shareID string, plan *folderPlan, ok bool) {
 		err = s.Shares.AdjustFolders(ctx, plan.to, plan.size)
 	}
 	if err != nil {
-		log.Printf("drive quota folder settle failed share=%s: %v", shareID, err)
+		logError(context.Background(), "files.quota_folder.settle_failed", err, "share", shareID)
 	}
 }
 
@@ -221,7 +220,7 @@ func (s *Server) measureShares(ctx context.Context) error {
 			e = s.Shares.SetFolderMeasured(ctx, f.ID, n)
 		}
 		if e != nil {
-			log.Printf("drive quota folder %s not measured: %v", f.ID, e) // retried on the next pass
+			logError(ctx, "files.quota_folder.measure_failed", e, "folder", f.ID) // retried on the next pass
 		}
 	}
 	shares, e := s.Shares.PendingShareMeasures(ctx, 5)
@@ -234,7 +233,7 @@ func (s *Server) measureShares(ctx context.Context) error {
 			e = s.Shares.SetShareMeasured(ctx, share.ID, n)
 		}
 		if e != nil {
-			log.Printf("drive share %s not measured: %v", share.Key, e)
+			logError(ctx, "files.share.measure_failed", e, "share", share.Key)
 		}
 	}
 	return nil

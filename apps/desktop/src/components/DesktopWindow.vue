@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Minus, Square, X, Copy, Grip } from 'lucide-vue-next'
+import { useHost } from '@minhanos/app-sdk'
 import { useDesktop } from '../store'
+import { nameKey } from '../registry'
 import type { DesktopWindow, AppDefinition } from '../api'
 import AppIcon from './AppIcon.vue'
 import AppContent from './AppContent.vue'
 
 const props = defineProps<{ window: DesktopWindow; app: AppDefinition; foreground?: boolean }>()
 const desktop = useDesktop()
+const host = useHost()
+const title = computed(() => (host.profile.value.locale, host.i18n.t(nameKey(props.app.id))))
+const label = (key: string) => host.i18n.t(key, { name: title.value })
 const content=ref<{canClose:()=>boolean}|null>(null)
 let unregisterGuard=()=>{}
 onMounted(()=>{unregisterGuard=desktop.registerCloseGuard(props.window.id,()=>content.value?.canClose()??true)})
@@ -60,16 +65,16 @@ onBeforeUnmount(() => { unregisterGuard(); cleanup(); globalThis.removeEventList
 </script>
 
 <template>
-  <section class="desktop-window" :class="{ focused: desktop.active === window.id, maximized: window.maximized, 'focus-mode-window': desktop.preferences.mode === 'focus' }" :style="style" role="dialog" :aria-label="app.title" :data-window="window.id" @pointerdown="desktop.focus(window.id)">
+  <section class="desktop-window" :class="{ focused: desktop.active === window.id, maximized: window.maximized, 'focus-mode-window': desktop.preferences.mode === 'focus' }" :style="style" role="region" :aria-label="title" :data-window="window.id" @pointerdown="desktop.focus(window.id)">
     <header class="window-titlebar" @pointerdown="begin($event)" @dblclick="desktop.preferences.mode === 'windows' && desktop.maximize(window.id)">
-      <div class="window-title"><AppIcon :id="app.icon" :color="app.color" small /><span>{{ app.title }}</span><span class="window-version">MinhAnOS</span></div>
+      <div class="window-title"><AppIcon :id="app.icon" :color="app.color" small /><span>{{ title }}</span></div>
       <div class="window-controls" @dblclick.stop>
-        <button :aria-label="`Thu nhỏ ${app.title}`" @click="desktop.minimize(window.id)"><Minus :size="16" /></button>
-        <button v-if="desktop.preferences.mode === 'windows'" :aria-label="window.maximized ? `Khôi phục ${app.title}` : `Phóng to ${app.title}`" @click="desktop.maximize(window.id)"><component :is="window.maximized ? Copy : Square" :size="13" /></button>
-        <button class="close-window" :aria-label="`Đóng ${app.title}`" @click="closeWindow"><X :size="17" /></button>
+        <button :aria-label="label('desktop.window.minimize')" @click="desktop.minimize(window.id)"><Minus :size="16" /></button>
+        <button v-if="desktop.preferences.mode === 'windows'" :aria-label="label(window.maximized ? 'desktop.window.restore' : 'desktop.window.maximize')" @click="desktop.maximize(window.id)"><component :is="window.maximized ? Copy : Square" :size="13" /></button>
+        <button class="close-window" :aria-label="label('desktop.window.close')" @click="closeWindow"><X :size="17" /></button>
       </div>
     </header>
     <div class="window-content"><AppContent ref="content" :foreground="foreground" :app="app" /></div>
-    <button v-if="!window.maximized && desktop.preferences.mode === 'windows'" class="resize-grip" :aria-label="`Thay đổi kích thước ${app.title}`" @pointerdown.stop="begin($event, true)" @keydown="keyboardResize"><Grip :size="13" /></button>
+    <button v-if="!window.maximized && desktop.preferences.mode === 'windows'" class="resize-grip" :aria-label="label('desktop.window.resize')" @pointerdown.stop="begin($event, true)" @keydown="keyboardResize"><Grip :size="13" /></button>
   </section>
 </template>

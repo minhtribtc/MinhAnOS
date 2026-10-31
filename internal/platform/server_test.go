@@ -42,16 +42,17 @@ func TestUntrustedWindowState(t *testing.T) {
 	if !validPreferences(p) {
 		t.Fatal("defaults invalid")
 	}
-	p.Windows = append(p.Windows, p.Windows[0])
+	window := Window{ID: "files", X: 250, Y: 95, Width: 1000, Height: 650}
+	p.Windows = []Window{window, window}
 	if validPreferences(p) {
 		t.Fatal("duplicate window accepted")
 	}
-	p = defaultPreferences()
+	p.Windows = []Window{window}
 	p.Windows[0].ID = "../../shell"
 	if validPreferences(p) {
 		t.Fatal("unknown app accepted")
 	}
-	p = defaultPreferences()
+	p.Windows = []Window{window}
 	p.Windows[0].Width = -2
 	if validPreferences(p) {
 		t.Fatal("invalid geometry accepted")
@@ -91,5 +92,13 @@ func TestRouteRegistration(t *testing.T) {
 	handler.ServeHTTP(w, r)
 	if w.Code != 404 {
 		t.Fatalf("unknown API: expected 404, got %d", w.Code)
+	}
+}
+
+// Saved layouts from before 2026-10-31 keep working: removed built-in apps drop out, "notes" is renamed.
+func TestKnownAppsMigratesLegacyLayout(t *testing.T) {
+	p := knownApps(Preferences{Windows: []Window{{ID: "overview"}, {ID: "notes"}, {ID: "files"}}, Pinned: []string{"apps", "notes", "files", "activity"}})
+	if len(p.Windows) != 2 || p.Windows[0].ID != "com.minhanos.notes" || len(p.Pinned) != 2 || p.Pinned[0] != "com.minhanos.notes" || p.Pinned[1] != "files" {
+		t.Fatal("legacy layout", p)
 	}
 }

@@ -4854,7 +4854,8 @@
               "type": "string",
               "enum": [
                 "identity",
-                "storage"
+                "storage",
+                "files"
               ]
             }
           },
@@ -7322,7 +7323,8 @@
           "id": {
             "enum": [
               "identity",
-              "storage"
+              "storage",
+              "files"
             ]
           },
           "appId": {
@@ -7353,7 +7355,8 @@
           "source": {
             "enum": [
               "identity",
-              "storage"
+              "storage",
+              "files"
             ]
           },
           "occurredAt": {
@@ -7443,7 +7446,8 @@
                 "id": {
                   "enum": [
                     "identity",
-                    "storage"
+                    "storage",
+                    "files"
                   ]
                 },
                 "appId": {
@@ -7486,7 +7490,8 @@
                 "source": {
                   "enum": [
                     "identity",
-                    "storage"
+                    "storage",
+                    "files"
                   ]
                 },
                 "occurredAt": {

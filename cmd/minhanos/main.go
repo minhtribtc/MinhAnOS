@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 )
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 	pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
@@ -45,7 +47,7 @@ func main() {
 		defer cancel()
 		_ = server.Shutdown(shutdownCtx)
 	}()
-	log.Print("MinhAnOS 0.2.0 listening on :8081")
+	slog.Info("platform.listening", "addr", ":8081")
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

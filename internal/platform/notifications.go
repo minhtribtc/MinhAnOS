@@ -26,7 +26,7 @@ func (a *App) notificationsHandler() http.Handler {
 		}
 		user, err := identityschema.Repository{DB: a.db}.PublicUser(r.Context(), identity(r).User.ID)
 		if err != nil {
-			internalError(w, err)
+			internalError(w, r, err)
 			return "", false
 		}
 		return user.ID, true
@@ -36,7 +36,7 @@ func (a *App) notificationsHandler() http.Handler {
 			v1Error(w, r, 400, "INVALID_REQUEST")
 			return
 		}
-		internalError(w, err)
+		internalError(w, r, err)
 	}
 	mux.HandleFunc("GET /api/v1/notifications/inbox", func(w http.ResponseWriter, r *http.Request) {
 		id, ok := recipient(w, r, "notifications.own.read")
@@ -130,7 +130,7 @@ func (a *App) logsHandler() http.Handler {
 			return
 		}
 		if err != nil {
-			internalError(w, err)
+			internalError(w, r, err)
 			return
 		}
 		writeJSON(w, 200, page)

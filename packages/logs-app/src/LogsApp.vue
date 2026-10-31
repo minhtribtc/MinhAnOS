@@ -43,7 +43,7 @@ defineExpose({canClose:()=>true})
    <button :aria-label="t('refresh')" :title="t('refresh')" :disabled="loading" @click="load()"><RefreshCw :size="17"/></button>
   </header>
   <div class="lc-filters">
-   <label>{{t('filters.source')}}<select v-model="filter.source"><option value="">{{t('filters.all')}}</option><option v-for="s in ['identity','storage']" :key="s" :value="s">{{t('sources.'+s)}}</option></select></label>
+   <label>{{t('filters.source')}}<select v-model="filter.source"><option value="">{{t('filters.all')}}</option><option v-for="s in ['identity','storage','files']" :key="s" :value="s">{{t('sources.'+s)}}</option></select></label>
    <label>{{t('filters.outcome')}}<select v-model="filter.outcome"><option value="">{{t('filters.all')}}</option><option v-for="o in ['success','denied','failure']" :key="o" :value="o">{{t('outcomes.'+o)}}</option></select></label>
   </div>
   <p v-if="error" class="lc-error" role="alert">{{error}}</p>

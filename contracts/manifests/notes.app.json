@@ -1,0 +1,20 @@
+{
+  "manifestVersion": "1",
+  "id": "com.minhanos.notes",
+  "version": "0.1.0",
+  "sdk": "^0.1.0",
+  "entrypoint": "/apps/notes",
+  "nameKey": "notes.app.name",
+  "display": [
+    "window",
+    "maximized",
+    "fullscreen"
+  ],
+  "capabilities": [],
+  "navigation": [],
+  "lifecycle": {
+    "version": "1",
+    "supports": ["foreground", "background", "requestClose"]
+  },
+  "settingsIntegration": []
+}

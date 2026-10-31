@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
   "id": "com.minhanos.desktop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "sdk": "^0.1.0",
   "entrypoint": "/apps/desktop",
   "nameKey": "desktop.app.name",
@@ -9,6 +9,11 @@
     "fullscreen"
   ],
   "capabilities": [],
+  "navigation": [],
+  "lifecycle": {
+    "version": "1",
+    "supports": ["foreground"]
+  },
   "settingsIntegration": [
     {"id": "appearance", "labelKey": "desktop.settings.appearance", "path": "/appearance"}
   ]

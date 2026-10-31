@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,7 +35,7 @@ func (a *App) storageHandler() http.Handler {
 			}
 			actor, err := identityschema.Repository{DB: a.db}.PublicUser(r.Context(), identity(r).User.ID)
 			if err != nil {
-				internalError(w, err)
+				internalError(w, r, err)
 				return
 			}
 			raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 32768))
@@ -61,7 +60,7 @@ func (a *App) storageHandler() http.Handler {
 				v1Error(w, r, 409, "IDEMPOTENCY_CONFLICT")
 				return
 			case err != nil:
-				internalError(w, err)
+				internalError(w, r, err)
 				return
 			case found:
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -74,7 +73,7 @@ func (a *App) storageHandler() http.Handler {
 			if rec.status < 300 {
 				if err = a.storage.Remember(r.Context(), actor.ID, keyHash, reqHash, rec.status, rec.body.Bytes()); err != nil {
 					// The change is done; only replay protection is missing for this key.
-					log.Print("storage idempotency not stored: ", err)
+					logError(r.Context(), "storage.idempotency_not_stored", err)
 				}
 			}
 		}
@@ -344,7 +343,7 @@ func (a *App) v1Denied(w http.ResponseWriter, r *http.Request, err error) bool {
 	case errors.Is(err, identityschema.ErrUnauthorized):
 		v1Error(w, r, 401, "AUTH_REQUIRED")
 	default:
-		internalError(w, err)
+		internalError(w, r, err)
 	}
 	return true
 }
@@ -369,6 +368,6 @@ func (a *App) storageFailure(w http.ResponseWriter, r *http.Request, err error) 
 	case errors.As(err, &agent):
 		v1Error(w, r, 502, "STORAGE_AGENT_ERROR")
 	default:
-		internalError(w, err)
+		internalError(w, r, err)
 	}
 }

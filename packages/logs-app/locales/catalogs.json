@@ -20,6 +20,7 @@
     "logs.filters.all": "Tất cả",
     "logs.sources.identity": "Tài khoản (Identity)",
     "logs.sources.storage": "Lưu trữ (Storage)",
+    "logs.sources.files": "Tệp (Files)",
     "logs.outcomes.success": "Thành công",
     "logs.outcomes.denied": "Bị từ chối",
     "logs.outcomes.failure": "Thất bại",
@@ -33,7 +34,8 @@
     "logs.errors.INVALID_REQUEST": "Bộ lọc không hợp lệ. Hãy tải lại.",
     "logs.errors.APP_ACCESS_DENIED": "Bạn không được dùng Trung tâm nhật ký.",
     "logs.errors.APP_PERMISSION_DENIED": "Bạn không được dùng Trung tâm nhật ký.",
-    "logs.errors.IDENTITY_PERMISSION_DENIED": "Chỉ System Admin được xem nhật ký kiểm toán."
+    "logs.errors.IDENTITY_PERMISSION_DENIED": "Chỉ System Admin được xem nhật ký kiểm toán.",
+    "logs.app.description": "Nhật ký kiểm toán của các module"
   },
   "en-US": {
     "logs.app.name": "Log Center",
@@ -56,6 +58,7 @@
     "logs.filters.all": "All",
     "logs.sources.identity": "Accounts (Identity)",
     "logs.sources.storage": "Storage",
+    "logs.sources.files": "Files",
     "logs.outcomes.success": "Success",
     "logs.outcomes.denied": "Denied",
     "logs.outcomes.failure": "Failed",
@@ -69,6 +72,7 @@
     "logs.errors.INVALID_REQUEST": "Invalid filter. Please reload.",
     "logs.errors.APP_ACCESS_DENIED": "You may not use Log Center.",
     "logs.errors.APP_PERMISSION_DENIED": "You may not use Log Center.",
-    "logs.errors.IDENTITY_PERMISSION_DENIED": "Only System Admins can read the audit log."
+    "logs.errors.IDENTITY_PERMISSION_DENIED": "Only System Admins can read the audit log.",
+    "logs.app.description": "Audit history of every module"
   }
 }

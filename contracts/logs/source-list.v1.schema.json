@@ -13,7 +13,8 @@
           "id": {
             "enum": [
               "identity",
-              "storage"
+              "storage",
+              "files"
             ]
           },
           "appId": {

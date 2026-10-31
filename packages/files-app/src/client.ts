@@ -11,7 +11,7 @@ function setCSRF(value:string){csrf=value;client.setCSRF(value)}
 const request=client.request
 function upload(root:string,path:string,file:File,onProgress:(value:number)=>void){
  const xhr=new XMLHttpRequest()
- const done=new Promise<void>((resolve,reject)=>{xhr.open('POST',`${base}${endpoint('upload',root,path,file.name)}`);xhr.withCredentials=true;xhr.setRequestHeader('X-CSRF-Token',csrf);xhr.setRequestHeader('Content-Type','application/octet-stream');xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(Math.round(e.loaded/e.total*100))};xhr.onerror=()=>reject(new Error('Mất kết nối.'));xhr.onabort=()=>reject(new Error('Đã hủy.'));xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else{let message='Tải lên thất bại.';try{message=JSON.parse(xhr.responseText).error||message}catch{}reject(new ApiError(xhr.status,(()=>{try{return JSON.parse(xhr.responseText)}catch{return {error:message,code:'INVALID_RESPONSE'}}})()))}};xhr.send(file)})
+ const done=new Promise<void>((resolve,reject)=>{xhr.open('POST',`${base}${endpoint('upload',root,path,file.name)}`);xhr.withCredentials=true;xhr.setRequestHeader('X-CSRF-Token',csrf);xhr.setRequestHeader('Content-Type','application/octet-stream');xhr.upload.onprogress=e=>{if(e.lengthComputable)onProgress(Math.round(e.loaded/e.total*100))};xhr.onerror=()=>reject(new ApiError(0,{code:'NETWORK_ERROR'}));xhr.onabort=()=>reject(new ApiError(0,{code:'UPLOAD_ABORTED'}));xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve();else reject(new ApiError(xhr.status,(()=>{try{return JSON.parse(xhr.responseText)}catch{return {code:'INVALID_RESPONSE'}}})()))};xhr.send(file)})
  return {xhr,done}
 }
 

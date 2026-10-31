@@ -43,14 +43,14 @@ const original = structuredClone((await admin.request('/preferences')).data)
 assert.equal((await admin.request('/preferences', { method:'PUT', body:original, csrf:false })).response.status, 403)
 assert.equal((await admin.request('/preferences', { method:'PUT', body:original, origin:'https://attacker.example' })).response.status, 403)
 passed('CSRF and cross-origin writes denied')
-assert.equal((await admin.request('/preferences', { method:'PUT', body:{ ...original, windows:[{...original.windows[0], id:'shell-exec'}] } })).response.status, 400)
+assert.equal((await admin.request('/preferences', { method:'PUT', body:{ ...original, windows:[{id:'shell-exec',x:40,y:40,width:400,height:300,minimized:false,maximized:false}] } })).response.status, 400)
 passed('Unknown app rejected in persisted window state')
 const system = (await admin.request('/system')).data
 assert.equal(system.database, 'connected')
 assert.ok(system.heapBytes > 0)
 assert.ok(system.diskTotalBytes > 0)
-assert.ok(system.integrations.every(i => i.status === 'unconfigured'))
-passed('Real system status and honest integration state')
+assert.equal(system.integrations, undefined)
+passed('Real system status, no placeholder integrations')
 const testUsername = `e2e_${randomBytes(5).toString('hex')}`
 const testPassword = randomBytes(20).toString('hex')
 try {

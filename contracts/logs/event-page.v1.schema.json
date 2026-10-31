@@ -17,7 +17,8 @@
           "source": {
             "enum": [
               "identity",
-              "storage"
+              "storage",
+              "files"
             ]
           },
           "occurredAt": {

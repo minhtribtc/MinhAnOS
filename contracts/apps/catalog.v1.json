@@ -113,15 +113,29 @@
       "displayName": "App Center",
       "moduleName": "minhanos-app-center",
       "appId": "com.minhanos.app-center",
-      "implementation": "partial",
+      "implementation": "planned",
       "legacyRegistryIds": [
         "apps"
       ],
       "legacyDisplayNames": [
         "Trung tâm ứng dụng"
       ],
+      "currentPaths": []
+    },
+    {
+      "key": "notes",
+      "displayName": "Notes",
+      "moduleName": "minhanos-notes",
+      "appId": "com.minhanos.notes",
+      "implementation": "implemented",
+      "legacyRegistryIds": [
+        "notes"
+      ],
+      "legacyDisplayNames": [
+        "Ghi chú"
+      ],
       "currentPaths": [
-        "apps/desktop/src/components/AppContent.vue"
+        "packages/notes-app"
       ]
     },
     {

@@ -1,15 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api, setCSRF, type User, type AppDefinition, type Preferences, type DesktopWindow, type SystemInfo } from './api'
+import { registryIdForPath } from './registry'
 
-function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['overview', 'files', 'apps', 'settings'] }}
+function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['files', 'settings', 'com.minhanos.notes'] }}
 
 export const useDesktop = defineStore('desktop', () => {
   const user = ref<User | null>(null)
   const apps = ref<AppDefinition[]>([])
   const preferences = ref<Preferences>(freshPreferences())
   const system = ref<SystemInfo | null>(null)
-  const active = ref('overview')
+  const active = ref('')
   // After an administrative reset the server allows only session, logout, profile and the password change.
   const passwordChangeRequired = ref(false)
   const settingsTarget = ref<{ appId: string; panelId?: string; seq: number } | null>(null)
@@ -41,7 +42,7 @@ export const useDesktop = defineStore('desktop', () => {
     saving.value = true
     savePromise = (async () => {
       try { await api('/preferences', { method: 'PUT', body: payload }); if(epoch===sessionEpoch){savedRevision = sentRevision; saveError.value = ''} }
-      catch (error) { if(epoch===sessionEpoch)saveError.value = error instanceof Error ? error.message : 'Không lưu được cài đặt' }
+      catch { if(epoch===sessionEpoch)saveError.value = 'SAVE_FAILED' }
       finally { if(epoch===sessionEpoch){saving.value = false; savePromise = null} }
     })()
     await savePromise
@@ -53,7 +54,7 @@ export const useDesktop = defineStore('desktop', () => {
     let window = preferences.value.windows.find(w => w.id === id)
     if (!window) {
       const offset = (preferences.value.windows.length % 5) * 28
-      const width = Math.min(id === 'notes' ? 680 : 1000, globalThis.innerWidth - 48)
+      const width = Math.min(id === 'com.minhanos.notes' ? 680 : 1000, globalThis.innerWidth - 48)
       const height = Math.min(650, globalThis.innerHeight - 112)
       window = { id, x: Math.max(24, (globalThis.innerWidth - width) / 2 + offset - 25), y: Math.max(20, (globalThis.innerHeight - height - 58) / 2 + offset), width, height, minimized: false, maximized: false }
       preferences.value.windows.push(window)
@@ -80,10 +81,12 @@ export const useDesktop = defineStore('desktop', () => {
     preferences.value = prefs
     preferences.value.mode = prefs.mode === 'windows' ? 'windows' : 'focus'
     preferences.value.windows = prefs.windows.filter(w => registry.some(a => a.id === w.id))
+    preferences.value.pinned = prefs.pinned.filter(id => registry.some(a => a.id === id))
     order.value = preferences.value.windows.map(w => w.id)
     active.value = preferences.value.windows.filter(w => !w.minimized).at(-1)?.id || ''
     ready.value = true
-    const requested = new URLSearchParams(location.search).get('app')
+    // Deep links: an app's manifest entrypoint (/apps/<name>) or the legacy ?app=<registry ID>.
+    const requested = registryIdForPath(location.pathname, registry.map(a => a.id)) ?? new URLSearchParams(location.search).get('app')
     if (requested && apps.value.some(a => a.id === requested)) open(requested)
     await refreshSystem()
   }

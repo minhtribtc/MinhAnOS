@@ -10,7 +10,7 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "check": "node tests/foundations.mjs && node tests/accounts-session-state.mjs && node tests/settings-standard.mjs && node tests/insecure-context.mjs && node tests/docker-context.mjs && npm run contracts:check",
+    "check": "node tests/foundations.mjs && node tests/accounts-session-state.mjs && node tests/settings-standard.mjs && node tests/app-standard.mjs &&node tests/insecure-context.mjs && node tests/docker-context.mjs && npm run contracts:check",
     "build": "npm run check && npm run build --workspace=minhanos-desktop && npm run build --workspace=minhanos-files && npm run build --workspace=minhanos-accounts",
     "contracts:generate": "node scripts/generate-contract-types.mjs && node scripts/generate-identity-client.mjs",
     "contracts:check": "node tests/contracts.mjs && node tests/identity-contracts.mjs && node tests/storage-contracts.mjs && node tests/module-contracts.mjs && tsc --project tests/tsconfig.contracts.json && redocly lint --extends=minimal contracts/api/openapi.yaml"

@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	identityschema "minhanos.local/platform/internal/identity"
@@ -30,6 +30,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/authn"
+	"minhanos.local/platform/internal/drive"
 )
 
 const Version = "0.2.0"
@@ -105,29 +106,25 @@ type Preferences struct {
 	Notes     string   `json:"notes"`
 	Pinned    []string `json:"pinned"`
 }
+
+// AppDefinition is one launcher entry. Names and descriptions are not sent: the Shell reads them from the
+// app's manifest catalog (nameKey, <namespace>.app.description) so they follow the user's locale.
 type AppDefinition struct {
-	ID       string `json:"id"`
-	Title    string `json:"title"`
-	Subtitle string `json:"subtitle"`
-	Icon     string `json:"icon"`
-	Color    string `json:"color"`
-	Category string `json:"category"`
-	Status   string `json:"status"`
+	ID    string `json:"id"`
+	Icon  string `json:"icon"`
+	Color string `json:"color"`
 }
 
+// registry lists the first-party apps compiled into this Shell by App ID. The legacy IDs "files" and
+// "settings" stay so saved layouts survive (contracts/apps/catalog.v1.json maps them).
 var registry = []AppDefinition{
-	{"com.minhanos.notifications", "Notification Center", "Thông báo bảo mật và hệ thống", "bell", "coral", "Hệ thống", "ready"},
-	{"com.minhanos.logs", "Log Center", "Nhật ký kiểm toán của các module", "logs", "slate", "Hệ thống", "ready"},
-	{"com.minhanos.storage", "Storage Manager", "Volume, shared folder, quota", "storage", "teal", "Hệ thống", "ready"},
-	{"com.minhanos.account-center", "Account Center", "MinhAnOS", "shield", "blue", "MinhAnOS", "ready"},
-	{"overview", "Tổng quan", "Không gian làm việc của bạn", "overview", "mint", "Hệ thống", "ready"},
-	{"files", "File Station", "Mở trực tiếp trong desktop · Drive độc lập", "files", "amber", "Dữ liệu", "ready"},
-	{"apps", "Trung tâm ứng dụng", "Khám phá MinhAnOS", "apps", "blue", "Hệ thống", "ready"},
-	{"connections", "Kết nối", "NetBird · Authentik · 1Panel", "connections", "violet", "Quản trị", "planned"},
-	{"settings", "Cài đặt", "Cá nhân hóa desktop", "settings", "slate", "Hệ thống", "ready"},
-	{"activity", "Nhật ký", "Hoạt động tài khoản", "activity", "coral", "Hệ thống", "ready"},
-	{"notes", "Ghi chú", "Một nơi cho ý tưởng mới", "notes", "lime", "Tiện ích", "ready"},
-	{"about", "Về MinhAnOS", "Hành trình đang bắt đầu", "about", "teal", "Hệ thống", "ready"},
+	{"files", "files", "amber"},
+	{"settings", "settings", "slate"},
+	{"com.minhanos.notes", "notes", "lime"},
+	{"com.minhanos.account-center", "shield", "blue"},
+	{"com.minhanos.storage", "storage", "teal"},
+	{"com.minhanos.notifications", "bell", "coral"},
+	{"com.minhanos.logs", "logs", "slate"},
 }
 
 func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
@@ -165,7 +162,7 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		if err != nil {
 			return nil, err
 		}
-		log.Print("bootstrap administrator created; password is not logged")
+		slog.Info("platform.bootstrap_admin_created")
 	}
 	if _, err = tx.Exec(ctx, "DELETE FROM sessions WHERE expires_at < now()"); err != nil {
 		return nil, err
@@ -177,6 +174,10 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 		return nil, err
 	}
 	if err = storagecore.ApplySchema(ctx, db); err != nil {
+		return nil, err
+	}
+	// Log Center reads the Files audit, so the Files schema exists before the first query.
+	if err = drive.ApplySchema(ctx, db); err != nil {
 		return nil, err
 	}
 	a.storage = storagecore.Manager{Store: storagecore.Store{DB: db}, Agent: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
@@ -228,7 +229,6 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
 	mux.Handle("GET /api/system", a.auth(http.HandlerFunc(a.system)))
-	mux.Handle("GET /api/audit", a.auth(http.HandlerFunc(a.auditList)))
 	mux.Handle("GET /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.users))))
 	mux.Handle("POST /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.createUser))))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { writeError(w, 404, "API không tồn tại.") })
@@ -298,7 +298,7 @@ func (a *App) auth(next http.Handler) http.Handler {
 		i := Identity{User: User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}, CSRF: v.CSRF, PasswordChangeRequired: v.Principal.PasswordChangeRequired}
 		if err != nil {
 			if !errors.Is(err, identityschema.ErrUnauthorized) {
-				log.Print("session lookup failed: ", err)
+				logError(r.Context(), "platform.session_lookup_failed", err)
 				writeError(w, 503, "Không kiểm tra được phiên đăng nhập.")
 				return
 			}
@@ -318,7 +318,8 @@ func (a *App) auth(next http.Handler) http.Handler {
 }
 func (a *App) admin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if identity(r).User.Role != "admin" {
+		// The identity policy decides; the legacy role column is only the fallback when it is not wired.
+		if a.identityService == nil && identity(r).User.Role != "admin" {
 			writeError(w, 403, "Bạn không có quyền quản trị tài khoản.")
 			return
 		}
@@ -333,7 +334,7 @@ func (a *App) admin(next http.Handler) http.Handler {
 				if errors.As(err, &f) {
 					writeError(w, f.Status, "Không được phép quản trị tài khoản.", f.Code)
 				} else {
-					internalError(w, err)
+					internalError(w, r, err)
 				}
 				return
 			}
@@ -394,17 +395,12 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, identityschema.ErrBusy):
 			writeError(w, 503, "Dịch vụ đăng nhập đang bận.", "AUTH_BUSY")
 		default:
-			internalError(w, err)
+			internalError(w, r, err)
 		}
 		return
 	}
 	user := User{ID: v.Principal.StorageID, Username: v.Principal.Username, DisplayName: v.Principal.DisplayName, Role: v.Principal.Role}
 	csrf := v.CSRF
-	if _, err = a.db.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.login','Local account login')", user.ID, user.Username); err != nil {
-		_ = a.authCore.Logout(r.Context(), identityschema.DesktopRealm, sessionToken)
-		internalError(w, err)
-		return
-	}
 	http.SetCookie(w, &http.Cookie{Name: "minhanos_session", Value: sessionToken, Path: "/", HttpOnly: true, Secure: a.secureCookie, SameSite: http.SameSiteStrictMode, MaxAge: 86400})
 	writeJSON(w, 200, map[string]any{"user": user, "csrfToken": csrf, "passwordChangeRequired": v.Principal.PasswordChangeRequired})
 }
@@ -444,20 +440,46 @@ func (a *App) session(w http.ResponseWriter, r *http.Request) {
 }
 func (a *App) logout(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie("minhanos_session")
-	i := identity(r)
 	if err := a.authCore.Logout(r.Context(), identityschema.DesktopRealm, cookie.Value); err != nil {
-		internalError(w, err)
-		return
-	}
-	if _, err := a.db.Exec(r.Context(), "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'auth.logout','Logout')", i.User.ID, i.User.Username); err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: "minhanos_session", Value: "", Path: "/", HttpOnly: true, Secure: a.secureCookie, SameSite: http.SameSiteStrictMode, MaxAge: -1})
 	writeJSON(w, 200, map[string]bool{"ok": true})
 }
 func defaultPreferences() Preferences {
-	return Preferences{Theme: "light", Wallpaper: "mountain", Mode: "focus", Windows: []Window{{ID: "overview", X: 250, Y: 95, Width: 1000, Height: 650}}, Pinned: []string{"overview", "files", "apps", "settings"}}
+	return Preferences{Theme: "light", Wallpaper: "mountain", Mode: "focus", Windows: []Window{}, Pinned: []string{"files", "settings", "com.minhanos.notes"}}
+}
+
+// knownApps drops windows and pins of apps no longer in the registry (Overview, App Center, Connections,
+// Activity and About were removed on 2026-10-31) and maps the legacy "notes" ID to com.minhanos.notes.
+func knownApps(p Preferences) Preferences {
+	known := map[string]bool{}
+	for _, app := range registry {
+		known[app.ID] = true
+	}
+	rename := func(id string) string {
+		if id == "notes" {
+			return "com.minhanos.notes"
+		}
+		return id
+	}
+	windows, pinned, seen := []Window{}, []string{}, map[string]bool{}
+	for _, w := range p.Windows {
+		if w.ID = rename(w.ID); known[w.ID] && !seen[w.ID] {
+			seen[w.ID] = true
+			windows = append(windows, w)
+		}
+	}
+	seen = map[string]bool{}
+	for _, id := range p.Pinned {
+		if id = rename(id); known[id] && !seen[id] {
+			seen[id] = true
+			pinned = append(pinned, id)
+		}
+	}
+	p.Windows, p.Pinned = windows, pinned
+	return p
 }
 func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
 	var raw []byte
@@ -467,18 +489,18 @@ func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	var prefs Preferences
 	if err = json.Unmarshal(raw, &prefs); err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	if prefs.Mode == "" {
 		prefs.Mode = "focus"
 	}
-	writeJSON(w, 200, prefs)
+	writeJSON(w, 200, knownApps(prefs))
 }
 func validPreferences(p Preferences) bool {
 	if p.Mode != "focus" && p.Mode != "windows" {
@@ -521,12 +543,12 @@ func (a *App) putPreferences(w http.ResponseWriter, r *http.Request) {
 	}
 	raw, err := json.Marshal(p)
 	if err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	_, err = a.db.Exec(r.Context(), "INSERT INTO preferences(user_id,value) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET value=EXCLUDED.value,updated_at=now()", identity(r).User.ID, raw)
 	if err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	writeJSON(w, 200, map[string]bool{"ok": true})
@@ -544,46 +566,15 @@ func (a *App) system(w http.ResponseWriter, r *http.Request) {
 		dbState = "disconnected"
 	}
 	writeJSON(w, 200, map[string]any{
-		"version": Version, "node": "MinhAnOS · VM phát triển", "hostname": hostname, "os": runtime.GOOS, "architecture": runtime.GOARCH, "goVersion": runtime.Version(),
+		"version": Version, "hostname": hostname, "os": runtime.GOOS, "architecture": runtime.GOARCH, "goVersion": runtime.Version(),
 		"cpus": runtime.NumCPU(), "goroutines": runtime.NumGoroutine(), "heapBytes": mem.HeapAlloc, "uptimeSeconds": int(time.Since(a.started).Seconds()),
 		"diskTotalBytes": disk.Blocks * uint64(disk.Bsize), "diskFreeBytes": disk.Bavail * uint64(disk.Bsize), "database": dbState,
-		"scope": "Thông số tiến trình Go và filesystem /data của container; chưa có agent đo toàn bộ máy chủ.",
-		"integrations": []map[string]string{
-			{"id": "netbird", "name": "NetBird", "status": "unconfigured", "description": "Quản lý thiết bị và mạng riêng"},
-			{"id": "authentik", "name": "Authentik", "status": "unconfigured", "description": "Đăng nhập tập trung và danh tính"},
-			{"id": "onepanel", "name": "1Panel", "status": "unconfigured", "description": "Máy chủ, container và ứng dụng"},
-		},
 	})
-}
-func (a *App) auditList(w http.ResponseWriter, r *http.Request) {
-	i := identity(r)
-	rows, err := a.db.Query(r.Context(), "SELECT id,actor,action,detail,created_at FROM audit WHERE ($1='admin' OR user_id=$2) ORDER BY id DESC LIMIT 60", i.User.Role, i.User.ID)
-	if err != nil {
-		internalError(w, err)
-		return
-	}
-	defer rows.Close()
-	result := []map[string]any{}
-	for rows.Next() {
-		var id int64
-		var actor, action, detail string
-		var created time.Time
-		if err = rows.Scan(&id, &actor, &action, &detail, &created); err != nil {
-			internalError(w, err)
-			return
-		}
-		result = append(result, map[string]any{"id": id, "actor": actor, "action": action, "detail": detail, "createdAt": created.UTC().Format(time.RFC3339)})
-	}
-	if err = rows.Err(); err != nil {
-		internalError(w, err)
-		return
-	}
-	writeJSON(w, 200, result)
 }
 func (a *App) users(w http.ResponseWriter, r *http.Request) {
 	rows, err := a.db.Query(r.Context(), "SELECT id,username,display_name,role FROM users WHERE status<>'deleted' ORDER BY created_at")
 	if err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	defer rows.Close()
@@ -591,13 +582,13 @@ func (a *App) users(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var u User
 		if err = rows.Scan(&u.ID, &u.Username, &u.DisplayName, &u.Role); err != nil {
-			internalError(w, err)
+			internalError(w, r, err)
 			return
 		}
 		users = append(users, u)
 	}
 	if err = rows.Err(); err != nil {
-		internalError(w, err)
+		internalError(w, r, err)
 		return
 	}
 	writeJSON(w, 200, users)
@@ -630,7 +621,7 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 		} else if errors.Is(err, identityschema.ErrBusy) {
 			writeError(w, 503, "Dịch vụ đăng nhập đang bận.", "AUTH_BUSY")
 		} else {
-			internalError(w, err)
+			internalError(w, r, err)
 		}
 		return
 	}
@@ -664,7 +655,7 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 func writeError(w http.ResponseWriter, status int, message string, code ...string) {
 	writeJSON(w, status, apicontract.Error(status, message, code...))
 }
-func internalError(w http.ResponseWriter, err error) {
-	log.Print("request failed: ", err)
+func internalError(w http.ResponseWriter, r *http.Request, err error) {
+	logError(r.Context(), "platform.request_failed", err, "method", r.Method, "route", r.Pattern)
 	writeError(w, 500, "Không thể hoàn thành yêu cầu. Vui lòng thử lại.")
 }

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"log"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/identity"
@@ -63,12 +62,12 @@ func (s *Server) authorized(w http.ResponseWriter, r *http.Request, u User, perm
 	case errors.As(e, &f):
 		fail(w, f.Status, "Bạn không có quyền dùng Files cho thao tác này.", f.Code)
 	case errors.Is(e, identity.ErrUnauthorized):
-		fail(w, 401, "Vui lòng đăng nhập Drive.")
+		fail(w, 401, "Vui lòng đăng nhập Drive.", "AUTH_REQUIRED")
 	case errors.Is(e, identity.ErrNotReady):
 		fail(w, 503, "Dữ liệu định danh chưa sẵn sàng.", "IDENTITY_NOT_READY")
 	default:
-		log.Printf("drive authorization failed: %v", e)
-		fail(w, 503, "Không thể kiểm tra quyền.")
+		logError(r.Context(), "files.authorization_failed", e)
+		fail(w, 503, "Không thể kiểm tra quyền.", "SERVICE_UNAVAILABLE")
 	}
 	return false
 }
@@ -79,10 +78,10 @@ func decodeBody(r *http.Request, out any) error {
 	d := json.NewDecoder(io.LimitReader(r.Body, MaxText*6+8192))
 	d.DisallowUnknownFields()
 	if err := d.Decode(out); err != nil {
-		return problem(400, "Dữ liệu yêu cầu không hợp lệ.")
+		return problem(400, "INVALID_REQUEST", "Dữ liệu yêu cầu không hợp lệ.")
 	}
 	if err := d.Decode(&struct{}{}); err != io.EOF {
-		return problem(400, "Yêu cầu phải chứa một đối tượng JSON.")
+		return problem(400, "INVALID_REQUEST", "Yêu cầu phải chứa một đối tượng JSON.")
 	}
 	return nil
 }
@@ -116,7 +115,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/login", func(w http.ResponseWriter, r *http.Request) {
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 		if !s.limiter.allow(ip) {
-			fail(w, 429, "Thử đăng nhập quá nhiều lần; thử lại sau 10 phút.")
+			fail(w, 429, "Thử đăng nhập quá nhiều lần; thử lại sau 10 phút.", "AUTH_RATE_LIMITED")
 			return
 		}
 		var b struct {
@@ -124,7 +123,7 @@ func (s *Server) Handler() http.Handler {
 			Password string `json:"password"`
 		}
 		if decodeBody(r, &b) != nil || len(b.Username) > 64 || len(b.Password) > 256 {
-			fail(w, 400, "Thông tin đăng nhập không hợp lệ.")
+			fail(w, 400, "Thông tin đăng nhập không hợp lệ.", "INVALID_REQUEST")
 			return
 		}
 		var session Session
@@ -145,7 +144,7 @@ func (s *Server) Handler() http.Handler {
 			} else if errors.Is(err, ErrUnauthorized) {
 				fail(w, 401, "Tên đăng nhập hoặc mật khẩu chưa đúng.", "INVALID_CREDENTIALS")
 			} else {
-				fail(w, 503, "Dịch vụ danh tính chưa sẵn sàng.")
+				fail(w, 503, "Dịch vụ danh tính chưa sẵn sàng.", "IDENTITY_NOT_READY")
 			}
 			return
 		}
@@ -160,16 +159,16 @@ func (s *Server) Handler() http.Handler {
 				PlatformSession(context.Context, string) (Session, error)
 			})
 			if !s.AllowPlatformSessions || !ok {
-				fail(w, 403, "Adapter phiên nền tảng không được bật.")
+				fail(w, 403, "Adapter phiên nền tảng không được bật.", "PLATFORM_SESSION_DISABLED")
 				return
 			}
 			if r.URL.Path == "/api/logout" {
-				fail(w, 403, "Đăng xuất tại desktop.")
+				fail(w, 403, "Đăng xuất tại desktop.", "LOGOUT_IN_DESKTOP")
 				return
 			}
 			cookie, e := r.Cookie("minhanos_session")
 			if e != nil {
-				fail(w, 401, "Phiên desktop đã hết hạn.")
+				fail(w, 401, "Phiên desktop đã hết hạn.", "AUTH_REQUIRED")
 				return
 			}
 			session, err = adapter.PlatformSession(r.Context(), cookie.Value)
@@ -178,14 +177,14 @@ func (s *Server) Handler() http.Handler {
 		}
 		if err != nil {
 			if errors.Is(err, ErrUnauthorized) {
-				fail(w, 401, "Vui lòng đăng nhập Drive.")
+				fail(w, 401, "Vui lòng đăng nhập Drive.", "AUTH_REQUIRED")
 			} else {
-				fail(w, 503, "Không thể kiểm tra phiên đăng nhập.")
+				fail(w, 503, "Không thể kiểm tra phiên đăng nhập.", "SERVICE_UNAVAILABLE")
 			}
 			return
 		}
 		if r.Method != "GET" && r.Method != "HEAD" && !validCSRF(r, session) {
-			fail(w, 403, "Mã CSRF không hợp lệ.")
+			fail(w, 403, "Mã CSRF không hợp lệ.", "CSRF_INVALID")
 			return
 		}
 		if r.URL.Path == "/api/session" && r.Method == "GET" {
@@ -194,7 +193,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		if r.URL.Path == "/api/logout" && r.Method == "POST" {
 			if err = s.Identity.Logout(r.Context(), cookieToken(r)); err != nil {
-				fail(w, 503, "Chưa đăng xuất được.")
+				fail(w, 503, "Chưa đăng xuất được.", "SERVICE_UNAVAILABLE")
 				return
 			}
 			s.setCookie(w, "", -1)
@@ -220,7 +219,7 @@ func (s *Server) Handler() http.Handler {
 			if _, e := s.homeDir(r.Context(), session.User.ID, false); errors.Is(e, storagecore.ErrNoHomes) {
 				homes = false
 			} else if e != nil && !errors.Is(e, fs.ErrNotExist) {
-				log.Printf("drive homes lookup failed: %v", e)
+				logError(r.Context(), "files.homes.lookup_failed", e)
 				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
 				return
 			}
@@ -230,7 +229,7 @@ func (s *Server) Handler() http.Handler {
 			if s.Shares != nil {
 				shares, e := s.Shares.UserShares(r.Context(), session.User.ID)
 				if e != nil {
-					log.Printf("drive shares lookup failed: %v", e)
+					logError(r.Context(), "files.shares.lookup_failed", e)
 					fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
 					return
 				}
@@ -239,7 +238,7 @@ func (s *Server) Handler() http.Handler {
 				}
 			}
 			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {
-				fail(w, 503, "Không thể kiểm tra quyền host.")
+				fail(w, 503, "Không thể kiểm tra quyền host.", "SERVICE_UNAVAILABLE")
 				return
 			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
 				roots = append(roots, map[string]string{"id": "system", "kind": "system", "name": "Hệ thống Debian", "access": "write"})
@@ -275,7 +274,7 @@ func (s *Server) Handler() http.Handler {
 				}
 			}
 			if e != nil {
-				log.Printf("drive quota folders failed: %v", e)
+				logError(r.Context(), "files.quota_folders.lookup_failed", e)
 				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
 				return
 			}
@@ -283,7 +282,7 @@ func (s *Server) Handler() http.Handler {
 			return
 		}
 		if !strings.HasPrefix(r.URL.Path, "/api/files/") {
-			fail(w, 404, "API không tồn tại.")
+			fail(w, 404, "API không tồn tại.", "NOT_FOUND")
 			return
 		}
 		root := r.URL.Query().Get("root")
@@ -291,11 +290,10 @@ func (s *Server) Handler() http.Handler {
 			root = "personal"
 		}
 		mutation := r.Method != "GET" && r.Method != "HEAD"
-		target := root + ":" + r.URL.Query().Get("path")
 		if root == "system" {
 			allowed, e := s.hostAllowed(r.Context(), session.User)
 			if e != nil {
-				fail(w, 503, "Không thể kiểm tra quyền host.")
+				fail(w, 503, "Không thể kiểm tra quyền host.", "SERVICE_UNAVAILABLE")
 				return
 			}
 			if !allowed {
@@ -305,7 +303,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		shareKey, isShare := strings.CutPrefix(root, "share:")
 		if root != "personal" && root != "system" && !isShare {
-			fail(w, 400, "Không gian lưu trữ không hợp lệ.")
+			fail(w, 400, "Không gian lưu trữ không hợp lệ.", "FILES_ROOT_INVALID")
 			return
 		}
 		permission := "files.read"
@@ -326,7 +324,7 @@ func (s *Server) Handler() http.Handler {
 		if isShare {
 			found, ok, e := s.userShare(r.Context(), session.User.ID, shareKey)
 			if e != nil {
-				log.Printf("drive share lookup failed: %v", e)
+				logError(r.Context(), "files.share.lookup_failed", e)
 				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
 				return
 			}
@@ -341,21 +339,27 @@ func (s *Server) Handler() http.Handler {
 			share = found
 		}
 		if mutation {
-			if err = s.Identity.Audit(r.Context(), session.User, "files.request."+path.Base(r.URL.Path), target); err != nil {
-				fail(w, 503, "Chưa ghi được nhật ký; thao tác chưa thực hiện.")
+			ev := AuditEvent{Action: "files." + strings.ReplaceAll(path.Base(r.URL.Path), "-", "_"), Root: root}
+			if isShare {
+				ev.Root, ev.Share = "share", shareKey
+			} else if root == "system" {
+				ev.Path = r.URL.Query().Get("path")
+			}
+			if err = s.Identity.Audit(r.Context(), session.User, ev); err != nil {
+				fail(w, 503, "Chưa ghi được nhật ký; thao tác chưa thực hiện.", "AUDIT_UNAVAILABLE")
 				return
 			}
 		}
 		if root == "system" {
 			if s.AgentSocket == "" {
-				fail(w, 503, "Agent Debian chưa cấu hình.")
+				fail(w, 503, "Agent Debian chưa cấu hình.", "AGENT_NOT_CONFIGURED")
 				return
 			}
 			s.proxyAgent(w, r, session.User)
 			return
 		}
 		if !validID(session.User.ID) {
-			fail(w, 403, "Định danh người dùng không hợp lệ.")
+			fail(w, 403, "Định danh người dùng không hợp lệ.", "ACCESS_DENIED")
 			return
 		}
 		// One lock per home or share: writes are serialized with each other and with measurements.
@@ -386,7 +390,7 @@ func (s *Server) Handler() http.Handler {
 			fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
 			return
 		case err != nil:
-			log.Printf("drive storage unit failed root=%s: %v", root, err)
+			logError(r.Context(), "files.storage_unit_failed", err, "root", root)
 			fail(w, 503, "Không mở được vùng lưu trữ.", "SERVICE_UNAVAILABLE")
 			return
 		}
@@ -414,7 +418,7 @@ func (s *Server) Handler() http.Handler {
 		if mutation && isShare && s.Quota != nil && s.Shares != nil {
 			folders, e := s.Shares.ShareFolders(r.Context(), share.ID)
 			if e != nil {
-				log.Printf("drive quota folders lookup failed: %v", e)
+				logError(r.Context(), "files.quota_folders.lookup_failed", e)
 				fail(w, 503, "Không kiểm tra được dung lượng.", "SERVICE_UNAVAILABLE")
 				return
 			}
@@ -458,7 +462,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		if err = ServeEngine(w, r, engine); err != nil {
 			handleFileError(w, err)
-			log.Printf("drive actor=%s operation=%s target=%q error=%v", session.User.Username, r.URL.Path, target, err)
+			logError(r.Context(), "files.operation_failed", err, "actor", session.User.ID, "operation", path.Base(r.URL.Path), "root", root)
 		}
 		s.settleFolders(share.ID, plan, err == nil)
 		if reservation != nil {
@@ -471,7 +475,7 @@ func (s *Server) Handler() http.Handler {
 				err = s.Quota.Release(ctx, *reservation)
 			}
 			if err != nil {
-				log.Printf("drive quota settle failed actor=%s: %v", session.User.Username, err)
+				logError(r.Context(), "files.quota.settle_failed", err, "actor", session.User.ID)
 			}
 		}
 	})
@@ -486,7 +490,7 @@ func (s *Server) Handler() http.Handler {
 		}
 		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/identity/") {
 			if !sameOrigin(r) {
-				fail(w, 403, "Nguồn yêu cầu không hợp lệ.")
+				fail(w, 403, "Nguồn yêu cầu không hợp lệ.", "ORIGIN_INVALID")
 				return
 			}
 			limit := int64(MaxText*6 + 8192)
@@ -505,14 +509,14 @@ func (s *Server) proxyAgent(w http.ResponseWriter, r *http.Request, u User) {
 	defer transport.CloseIdleConnections()
 	request, err := http.NewRequestWithContext(r.Context(), r.Method, "http://agent"+r.URL.RequestURI(), r.Body)
 	if err != nil {
-		fail(w, 500, "Không tạo được yêu cầu agent.")
+		fail(w, 500, "Không tạo được yêu cầu agent.", "INTERNAL_ERROR")
 		return
 	}
 	request.Header.Set("Content-Type", r.Header.Get("Content-Type"))
 	request.Header.Set("X-Drive-Actor", u.Username)
 	response, err := (&http.Client{Transport: transport, Timeout: 5 * time.Minute}).Do(request)
 	if err != nil {
-		fail(w, 503, "Không kết nối được agent Debian.")
+		fail(w, 503, "Không kết nối được agent Debian.", "AGENT_UNAVAILABLE")
 		return
 	}
 	defer response.Body.Close()
@@ -558,7 +562,7 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		}
 	}
 	if r.Method != "POST" {
-		return problem(405, "Phương thức không được hỗ trợ.")
+		return problem(405, "METHOD_NOT_ALLOWED", "Phương thức không được hỗ trợ.")
 	}
 	if op == "upload" {
 		v, err := e.Upload(p, r.URL.Query().Get("name"), r.Body)
@@ -586,7 +590,7 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		err = e.Mkdir(p, b.Name)
 	case "rename":
 		if !validName(b.Name) {
-			return problem(400, "Tên không hợp lệ.")
+			return problem(400, "FILES_NAME_INVALID", "Tên không hợp lệ.")
 		}
 		if _, err = e.logical(p); err == nil {
 			err = e.Rename(p, path.Join(path.Dir(p), b.Name))
@@ -605,7 +609,7 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		err = e.Restore(b.ID)
 	case "remove":
 		if !b.Confirm {
-			return problem(400, "Cần xác nhận xóa tệp hệ thống.")
+			return problem(400, "FILES_CONFIRM_REQUIRED", "Cần xác nhận xóa tệp hệ thống.")
 		}
 		err = e.Remove(p)
 	case "save-text":
@@ -613,7 +617,7 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		backup, err = e.SaveText(p, b.Content, b.ETag)
 		result["backup"] = backup
 	default:
-		return problem(404, "Thao tác chưa hỗ trợ.")
+		return problem(404, "NOT_FOUND", "Thao tác chưa hỗ trợ.")
 	}
 	if err != nil {
 		return err
@@ -625,7 +629,7 @@ func AgentHandler(root *os.Root) http.Handler {
 	var lock sync.RWMutex
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !strings.HasPrefix(r.URL.Path, "/api/files/") {
-			fail(w, 404, "Không có thao tác này.")
+			fail(w, 404, "Không có thao tác này.", "NOT_FOUND")
 			return
 		}
 		if r.Method == "GET" {
@@ -640,7 +644,7 @@ func AgentHandler(root *os.Root) http.Handler {
 		if err != nil {
 			handleFileError(w, err)
 		}
-		log.Printf("host.files actor=%q method=%s operation=%q path=%q success=%t", r.Header.Get("X-Drive-Actor"), r.Method, r.URL.Path, r.URL.Query().Get("path"), err == nil)
+		logInfo(r.Context(), "host.files.operation", "actor", r.Header.Get("X-Drive-Actor"), "method", r.Method, "operation", path.Base(r.URL.Path), "success", err == nil)
 	})
 }
 

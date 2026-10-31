@@ -225,7 +225,9 @@
     "accounts.permissions.files.system.read": "Xem hệ thống tệp máy chủ (cần operator)",
     "accounts.permissions.files.system.write": "Thay đổi hệ thống tệp máy chủ (cần operator)",
     "accounts.permissions.identity.users.sessions.read": "Xem phiên của người dùng",
-    "accounts.permissions.identity.users.sessions.revoke": "Đăng xuất người dùng"
+    "accounts.permissions.identity.users.sessions.revoke": "Đăng xuất người dùng",
+    "accounts.app.name": "Account Center",
+    "accounts.app.description": "Tài khoản, nhóm, vai trò và bảo mật"
   },
   "en-US": {
     "accounts.profile.openSettings": "Language and appearance in Settings",
@@ -453,6 +455,8 @@
     "accounts.permissions.files.system.read": "Read host file system (operator)",
     "accounts.permissions.files.system.write": "Change host file system (operator)",
     "accounts.permissions.identity.users.sessions.read": "View user sessions",
-    "accounts.permissions.identity.users.sessions.revoke": "Sign users out"
+    "accounts.permissions.identity.users.sessions.revoke": "Sign users out",
+    "accounts.app.name": "Account Center",
+    "accounts.app.description": "Accounts, groups, roles and security"
   }
 }

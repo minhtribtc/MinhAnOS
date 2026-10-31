@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1",
   "id": "com.minhanos.files",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "sdk": "^0.1.0",
   "entrypoint": "/apps/files",
   "display": [
@@ -16,5 +16,15 @@
     "files.system.read",
     "files.system.write"
   ],
+  "navigation": [
+    {"id": "personal", "labelKey": "files.roots.personal", "path": "/personal", "requiredPermission": "files.read"},
+    {"id": "shared", "labelKey": "files.nav.shared", "path": "/shared", "requiredPermission": "files.read"},
+    {"id": "trash", "labelKey": "files.trash.title", "path": "/trash", "requiredPermission": "files.write"},
+    {"id": "system", "labelKey": "files.nav.system", "path": "/system", "requiredPermission": "files.system.read"}
+  ],
+  "lifecycle": {
+    "version": "1",
+    "supports": ["foreground", "background", "requestClose"]
+  },
   "settingsIntegration": []
 }

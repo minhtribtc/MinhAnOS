@@ -93,7 +93,8 @@
     "storage.folders.remove": "Gỡ thư mục quota",
     "storage.folders.removeHint": "Chỉ gỡ giới hạn; thư mục và tệp vẫn giữ nguyên.",
     "storage.folders.created": "Đã thêm; Files sẽ đo dung lượng trong ít phút.",
-    "storage.shares.measureHint": "Files đo lại toàn bộ tệp và thùng rác của Shared Folder trong nền."
+    "storage.shares.measureHint": "Files đo lại toàn bộ tệp và thùng rác của Shared Folder trong nền.",
+    "storage.app.description": "Volume, thư mục chia sẻ và quota"
   },
   "en-US": {
     "storage.app.name": "Storage Manager",
@@ -189,6 +190,7 @@
     "storage.folders.remove": "Remove quota folder",
     "storage.folders.removeHint": "Only the limit is removed; the folder and its files stay.",
     "storage.folders.created": "Added; Files measures it within a few minutes.",
-    "storage.shares.measureHint": "Files re-measures all files and trash of the shared folder in the background."
+    "storage.shares.measureHint": "Files re-measures all files and trash of the shared folder in the background.",
+    "storage.app.description": "Volumes, shared folders and quota"
   }
 }

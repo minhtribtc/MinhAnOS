@@ -1,10 +1,10 @@
 import {createApiClient,ApiError} from '@minhanos/api-client'
 export interface User { id: string; username: string; displayName: string; role: 'admin' | 'user' }
-export interface AppDefinition { id: string; title: string; subtitle: string; icon: string; color: string; category: string; status: string }
+// Launcher entry from GET /api/apps; names and descriptions come from the app's manifest catalog (registry.ts).
+export interface AppDefinition { id: string; icon: string; color: string }
 export interface DesktopWindow { id: string; x: number; y: number; width: number; height: number; minimized: boolean; maximized: boolean }
 export interface Preferences { theme: 'light' | 'dark'; wallpaper: 'mountain' | 'midnight' | 'sage'; mode: 'focus' | 'windows'; displayName?: string; windows: DesktopWindow[]; notes: string; pinned: string[] }
-export interface SystemInfo { version: string; node: string; hostname: string; os: string; architecture: string; goVersion: string; cpus: number; goroutines: number; heapBytes: number; uptimeSeconds: number; diskTotalBytes: number; diskFreeBytes: number; database: string; scope: string; integrations: {id: string; name: string; status: string; description: string}[] }
-export interface AuditEntry { id: number; action: string; actor: string; detail: string; createdAt: string }
+export interface SystemInfo { version: string; hostname: string; os: string; architecture: string; goVersion: string; cpus: number; goroutines: number; heapBytes: number; uptimeSeconds: number; diskTotalBytes: number; diskFreeBytes: number; database: string }
 
 const client=createApiClient('/api')
 let authVersion=0

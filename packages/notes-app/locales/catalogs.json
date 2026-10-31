@@ -1,0 +1,26 @@
+{
+  "vi-VN": {
+    "notes.app.name": "Ghi chú",
+    "notes.app.description": "Một ghi chú riêng cho ý tưởng mới",
+    "notes.owner": "Ghi chú riêng của {name}",
+    "notes.autosave": "Tự động lưu",
+    "notes.saving": "Đang lưu…",
+    "notes.saveFailed": "Chưa lưu được",
+    "notes.retry": "Thử lưu lại",
+    "notes.content": "Nội dung ghi chú",
+    "notes.placeholder": "Một ý tưởng mới bắt đầu từ đây… Ghi chú này chỉ hiển thị trong tài khoản của bạn.",
+    "notes.count": "{count} / {max} ký tự"
+  },
+  "en-US": {
+    "notes.app.name": "Notes",
+    "notes.app.description": "A private note for new ideas",
+    "notes.owner": "Private note · {name}",
+    "notes.autosave": "Saved automatically",
+    "notes.saving": "Saving…",
+    "notes.saveFailed": "Not saved",
+    "notes.retry": "Try again",
+    "notes.content": "Note content",
+    "notes.placeholder": "A new idea starts here… Only your account can see this note.",
+    "notes.count": "{count} / {max} characters"
+  }
+}

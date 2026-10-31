@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"io/fs"
 	"log"
+	"log/slog"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/drive"
 	"minhanos.local/platform/internal/storagecore"
@@ -24,6 +25,7 @@ func env(key, fallback string) string {
 	return fallback
 }
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 	db, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
@@ -51,6 +53,21 @@ func main() {
 	if err = storagecore.ApplySchema(ctx, db); err != nil {
 		log.Fatal(err)
 	}
+	if err = drive.ApplySchema(ctx, db); err != nil {
+		log.Fatal(err)
+	}
+	go func() {
+		for {
+			if e := drive.RetainAudit(ctx, db); e != nil && ctx.Err() == nil {
+				slog.Error("files.audit.retention_failed", "error", e.Error())
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(6 * time.Hour):
+			}
+		}
+	}()
 	profile, err := coreprofile.New(ctx, db)
 	if err != nil {
 		log.Fatal(err)
@@ -66,7 +83,7 @@ func main() {
 	if retired, err := store.RetireEmptyLegacyHomes(ctx, len(users) > 0); err != nil {
 		log.Fatal(err)
 	} else if retired {
-		log.Print("storage: empty legacy homes share retired; create the share hosting homes in Storage Manager")
+		slog.Info("storage.homes.legacy_retired")
 	}
 	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: dataDir, StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: store, Shares: store, Units: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}}
 	app.StartMeasurer(ctx, 30*time.Second)
@@ -77,7 +94,7 @@ func main() {
 		defer cancel()
 		_ = server.Shutdown(c)
 	}()
-	log.Print("MinhAnOS Drive 0.1 listening on ", server.Addr)
+	slog.Info("files.listening", "addr", server.Addr)
 	if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

@@ -7,6 +7,7 @@ import desktopManifest from '../../../contracts/manifests/desktop.app.json'
 import filesManifest from '../../../contracts/manifests/files.app.json'
 import notificationsManifest from '../../../contracts/manifests/notifications.app.json'
 import logsManifest from '../../../contracts/manifests/logs.app.json'
+import notesManifest from '../../../contracts/manifests/notes.app.json'
 import AppearancePanel from './components/AppearancePanel.vue'
 import {api} from './api'
 
@@ -20,6 +21,7 @@ const providers:SettingsProvider[]=[
  defineSettingsProvider({manifest:filesManifest,panels:{}}),
  defineSettingsProvider({manifest:notificationsManifest,panels:{}}),
  defineSettingsProvider({manifest:logsManifest,panels:{}}),
+ defineSettingsProvider({manifest:notesManifest,panels:{}}),
 ]
 
 // System settings and the Shell itself are always present; other apps only when the backend registry lists them
