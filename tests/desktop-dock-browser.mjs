@@ -24,6 +24,7 @@ try{
  await dock.getByRole('button',{name:/MinhAnOS Files/}).click()
  const win=page.locator('.desktop-window[data-window="files"]')
  await win.waitFor()
+ await page.waitForTimeout(700)
  let r=await win.boundingBox()
  assert(r.width>=1260&&r.height>=670&&r.y<=10,'focus window uses the work area '+JSON.stringify(r))
  // Maximize: whole screen, dock away, pill on the edge; the bottom edge shows the dock again.
@@ -40,6 +41,7 @@ try{
  await page.waitForTimeout(900)
  assert(await dock.evaluate(el=>el.classList.contains('dock-away')),'dock hides again')
  await win.getByRole('button',{name:/Khôi phục/}).click()
+ await page.waitForTimeout(500)
  // Context menu on empty dock space: move the dock to the left; it is saved.
  const d=await dock.boundingBox()
  await page.mouse.click(d.x+4,d.y+d.height/2,{button:'right'})
