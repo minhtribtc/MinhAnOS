@@ -402,23 +402,23 @@ type CreateUser struct {
 
 // LegacyCreate preserves the old DTO while routing creation through the same
 // committing service. Creating another admin never creates a host-operator row.
-func (s *Service) Create(ctx context.Context, realm Realm, token string, input CreateUser, role, key, requestID string, raw []byte, legacy bool) (Result, error) {
+func (s *Service) Create(ctx context.Context, realm Realm, token string, input CreateUser, role, key, requestID string, raw []byte) (Result, error) {
 	input.Username = normalize(input.Username)
 	input.DisplayName = strings.TrimSpace(input.DisplayName)
-	if !legacy && len([]rune(input.Password)) < 12 {
+	if len([]rune(input.Password)) < 12 {
 		return Result{}, ErrPasswordPolicy
 	}
 	if !namePattern.MatchString(input.Username) || len([]rune(input.DisplayName)) < 1 || len([]rune(input.DisplayName)) > 100 || (role != "admin" && role != "user") {
 		return Result{}, fault(422, "IDENTITY_INVALID_USER")
 	}
-	if e := s.preflight(ctx, realm, token, "identity.users.write", !legacy || role == "admin"); e != nil {
+	if e := s.preflight(ctx, realm, token, "identity.users.write", true); e != nil {
 		return Result{}, e
 	}
 	hash, e := s.Auth.PasswordHash(input.Password)
 	if e != nil {
 		return Result{}, e
 	}
-	return s.mutate(ctx, realm, token, "identity.users.write", requestID, key, "POST /api/v1/identity/users", raw, !legacy || role == "admin", func(tx pgx.Tx, a Actor) (Result, error) {
+	return s.mutate(ctx, realm, token, "identity.users.write", requestID, key, "POST /api/v1/identity/users", raw, true, func(tx pgx.Tx, a Actor) (Result, error) {
 		if role == "admin" {
 			if a.Role != "admin" {
 				return Result{}, fault(403, "IDENTITY_PERMISSION_DENIED")
@@ -435,20 +435,6 @@ func (s *Service) Create(ctx context.Context, realm Realm, token string, input C
 		}
 		if e != nil {
 			return Result{}, e
-		}
-		if legacy {
-			var exists bool
-			if e = tx.QueryRow(ctx, "SELECT to_regclass('audit') IS NOT NULL").Scan(&exists); e != nil {
-				return Result{}, e
-			}
-			if exists {
-				if _, e = tx.Exec(ctx, "INSERT INTO audit(user_id,actor,action,detail) VALUES($1,$2,'user.create',$3)", a.StorageID, a.Username, "Created account "+u.Username+" ("+role+")"); e != nil {
-					return Result{}, e
-				}
-			}
-		}
-		if legacy {
-			return result(map[string]string{"id": storage, "username": u.Username, "displayName": u.DisplayName, "role": role}, 201, 0), nil
 		}
 		return result(u, 201, u.Version), nil
 	})

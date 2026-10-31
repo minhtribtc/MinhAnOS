@@ -45,8 +45,8 @@ func fixture(t *testing.T) Store {
 		t.Fatal(e)
 	}
 	t.Cleanup(func() { db.Close(); admin.Exec(ctx, "DROP SCHEMA "+quoted+" CASCADE"); admin.Close() })
-	// Minimal stand-in for the identity-owned users table (only columns read by Homes).
-	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text,display_name text,status text)"); e != nil {
+	// Minimal stand-in for the identity-owned users table (columns read by Homes and the quota notice trigger).
+	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text,display_name text,status text,role text NOT NULL DEFAULT 'user')"); e != nil {
 		t.Fatal(e)
 	}
 	if _, e = db.Exec(ctx, "CREATE TABLE identity_groups(id uuid PRIMARY KEY,key text,name text); CREATE TABLE identity_group_members(group_id uuid,user_id uuid)"); e != nil {

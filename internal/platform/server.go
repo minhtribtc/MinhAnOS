@@ -2,7 +2,9 @@ package platform
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,7 +22,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -229,8 +230,6 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/preferences", a.auth(http.HandlerFunc(a.getPreferences)))
 	mux.Handle("PUT /api/preferences", a.auth(http.HandlerFunc(a.putPreferences)))
 	mux.Handle("GET /api/system", a.auth(http.HandlerFunc(a.system)))
-	mux.Handle("GET /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.users))))
-	mux.Handle("POST /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.createUser))))
 	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 404, "API không tồn tại.", "NOT_FOUND")
 	})
@@ -316,32 +315,6 @@ func (a *App) auth(next http.Handler) http.Handler {
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), identityKey{}, i)))
-	})
-}
-func (a *App) admin(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// The identity policy decides; the legacy role column is only the fallback when it is not wired.
-		if a.identityService == nil && identity(r).User.Role != "admin" {
-			writeError(w, 403, "Bạn không có quyền quản trị tài khoản.", "ACCESS_DENIED")
-			return
-		}
-		if a.identityService != nil {
-			cookie, _ := r.Cookie("minhanos_session")
-			permission := "identity.users.read"
-			if r.Method != "GET" {
-				permission = "identity.users.write"
-			}
-			if err := a.identityService.Check(r.Context(), identityschema.DesktopRealm, cookie.Value, permission); err != nil {
-				var f *identityschema.Fault
-				if errors.As(err, &f) {
-					writeError(w, f.Status, "Không được phép quản trị tài khoản.", f.Code)
-				} else {
-					internalError(w, r, err)
-				}
-				return
-			}
-		}
-		next.ServeHTTP(w, r)
 	})
 }
 func identity(r *http.Request) Identity { return r.Context().Value(identityKey{}).(Identity) }
@@ -483,26 +456,47 @@ func knownApps(p Preferences) Preferences {
 	p.Windows, p.Pinned = windows, pinned
 	return p
 }
-func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
+
+// preferencesTag is the version of a user's preferences as GET returns them (strong ETag over the JSON).
+func preferencesTag(p Preferences) string {
+	raw, _ := json.Marshal(p)
+	sum := sha256.Sum256(raw)
+	return `"` + hex.EncodeToString(sum[:16]) + `"`
+}
+
+// storedPreferences reads the user's preferences as GET returns them (defaults when none are saved).
+func storedPreferences(ctx context.Context, q interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}, user string, lock bool) (Preferences, error) {
 	var raw []byte
-	err := a.db.QueryRow(r.Context(), "SELECT value FROM preferences WHERE user_id=$1", identity(r).User.ID).Scan(&raw)
+	query := "SELECT value FROM preferences WHERE user_id=$1"
+	if lock {
+		query += " FOR UPDATE"
+	}
+	err := q.QueryRow(ctx, query, user).Scan(&raw)
 	if errors.Is(err, pgx.ErrNoRows) {
-		writeJSON(w, 200, defaultPreferences())
-		return
+		return defaultPreferences(), nil
 	}
 	if err != nil {
-		internalError(w, r, err)
-		return
+		return Preferences{}, err
 	}
 	var prefs Preferences
 	if err = json.Unmarshal(raw, &prefs); err != nil {
-		internalError(w, r, err)
-		return
+		return Preferences{}, err
 	}
 	if prefs.Mode == "" {
 		prefs.Mode = "focus"
 	}
-	writeJSON(w, 200, knownApps(prefs))
+	return knownApps(prefs), nil
+}
+func (a *App) getPreferences(w http.ResponseWriter, r *http.Request) {
+	prefs, err := storedPreferences(r.Context(), a.db, identity(r).User.ID, false)
+	if err != nil {
+		internalError(w, r, err)
+		return
+	}
+	w.Header().Set("ETag", preferencesTag(prefs))
+	writeJSON(w, 200, prefs)
 }
 func validPreferences(p Preferences) bool {
 	if p.Mode != "focus" && p.Mode != "windows" {
@@ -548,11 +542,36 @@ func (a *App) putPreferences(w http.ResponseWriter, r *http.Request) {
 		internalError(w, r, err)
 		return
 	}
-	_, err = a.db.Exec(r.Context(), "INSERT INTO preferences(user_id,value) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET value=EXCLUDED.value,updated_at=now()", identity(r).User.ID, raw)
+	// Writes are versioned: If-Match must carry the ETag of the preferences this client last read.
+	match := r.Header.Get("If-Match")
+	if match == "" {
+		writeError(w, 428, "Cần If-Match.", "PRECONDITION_REQUIRED")
+		return
+	}
+	tx, err := a.db.Begin(r.Context())
 	if err != nil {
 		internalError(w, r, err)
 		return
 	}
+	defer tx.Rollback(r.Context())
+	current, err := storedPreferences(r.Context(), tx, identity(r).User.ID, true)
+	if err != nil {
+		internalError(w, r, err)
+		return
+	}
+	if match != preferencesTag(current) {
+		writeError(w, 412, "Cài đặt desktop đã thay đổi ở nơi khác.", "VERSION_CONFLICT")
+		return
+	}
+	_, err = tx.Exec(r.Context(), "INSERT INTO preferences(user_id,value) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET value=EXCLUDED.value,updated_at=now()", identity(r).User.ID, raw)
+	if err == nil {
+		err = tx.Commit(r.Context())
+	}
+	if err != nil {
+		internalError(w, r, err)
+		return
+	}
+	w.Header().Set("ETag", preferencesTag(knownApps(p)))
 	writeJSON(w, 200, map[string]bool{"ok": true})
 }
 func (a *App) system(w http.ResponseWriter, r *http.Request) {
@@ -573,65 +592,6 @@ func (a *App) system(w http.ResponseWriter, r *http.Request) {
 		"diskTotalBytes": disk.Blocks * uint64(disk.Bsize), "diskFreeBytes": disk.Bavail * uint64(disk.Bsize), "database": dbState,
 	})
 }
-func (a *App) users(w http.ResponseWriter, r *http.Request) {
-	rows, err := a.db.Query(r.Context(), "SELECT id,username,display_name,role FROM users WHERE status<>'deleted' ORDER BY created_at")
-	if err != nil {
-		internalError(w, r, err)
-		return
-	}
-	defer rows.Close()
-	users := []User{}
-	for rows.Next() {
-		var u User
-		if err = rows.Scan(&u.ID, &u.Username, &u.DisplayName, &u.Role); err != nil {
-			internalError(w, r, err)
-			return
-		}
-		users = append(users, u)
-	}
-	if err = rows.Err(); err != nil {
-		internalError(w, r, err)
-		return
-	}
-	writeJSON(w, 200, users)
-}
-
-var usernamePattern = regexp.MustCompile(`^[a-z][a-z0-9_-]{2,31}$`)
-
-func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
-	var b struct {
-		Username    string `json:"username"`
-		DisplayName string `json:"displayName"`
-		Password    string `json:"password"`
-		Role        string `json:"role"`
-	}
-	if !decode(w, r, &b) {
-		return
-	}
-	b.Username = strings.ToLower(strings.TrimSpace(b.Username))
-	b.DisplayName = strings.TrimSpace(b.DisplayName)
-	if !usernamePattern.MatchString(b.Username) || len(b.DisplayName) < 1 || len(b.DisplayName) > 100 || len(b.Password) < 12 || len(b.Password) > 256 || (b.Role != "admin" && b.Role != "user") {
-		writeError(w, 400, "Tên đăng nhập gồm 3–32 ký tự a-z, số, _ hoặc -. Mật khẩu cần ít nhất 12 ký tự.", "INVALID_REQUEST")
-		return
-	}
-	cookie, _ := r.Cookie("minhanos_session")
-	out, err := a.identityService.Create(r.Context(), identityschema.DesktopRealm, cookie.Value, identityschema.CreateUser{Username: b.Username, DisplayName: b.DisplayName, Password: b.Password}, b.Role, "", token(), nil, true)
-	if err != nil {
-		var f *identityschema.Fault
-		if errors.As(err, &f) {
-			writeError(w, f.Status, "Không thể tạo tài khoản.", f.Code)
-		} else if errors.Is(err, identityschema.ErrBusy) {
-			writeError(w, 503, "Dịch vụ đăng nhập đang bận.", "AUTH_BUSY")
-		} else {
-			internalError(w, r, err)
-		}
-		return
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(out.Status)
-	w.Write(out.Body)
-}
-
 func hashPassword(password string) (string, error) { return authn.Hash(password) }
 func verifyPassword(password, hash string) bool    { return authn.Verify(password, hash) }
 func token() string                                { return authn.Token() }

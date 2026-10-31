@@ -4,9 +4,11 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"minhanos.local/platform/internal/storagecore"
 )
@@ -66,6 +68,9 @@ func quotaRequest(t *testing.T, s *Server, method, target, body string) *httptes
 	r.AddCookie(&http.Cookie{Name: CookieName, Value: "valid"})
 	r.Header.Set("X-CSRF-Token", "csrf")
 	r.Header.Set("Origin", "http://drive.test")
+	if method == "POST" {
+		r.Header.Set("Idempotency-Key", "test-"+strconv.FormatInt(time.Now().UnixNano(), 36)+"-key")
+	}
 	w := httptest.NewRecorder()
 	s.Handler().ServeHTTP(w, r)
 	return w

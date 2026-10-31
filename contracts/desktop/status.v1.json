@@ -1,0 +1,13 @@
+{
+  "contractVersion": "1",
+  "implementedOperations": [
+    "desktopHealth",
+    "desktopLogin",
+    "desktopSession",
+    "desktopLogout",
+    "desktopApps",
+    "desktopGetPreferences",
+    "desktopPutPreferences",
+    "desktopSystem"
+  ]
+}

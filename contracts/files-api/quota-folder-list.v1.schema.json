@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-quota-folder-list.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "shareId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "path": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "usage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "limitBytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "usedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reservedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "measured": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limitBytes",
+              "usedBytes",
+              "reservedBytes",
+              "measured"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "shareId",
+          "path",
+          "version",
+          "usage"
+        ]
+      }
+    }
+  },
+  "required": [
+    "items"
+  ]
+}

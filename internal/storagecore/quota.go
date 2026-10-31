@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"minhanos.local/platform/internal/migrate"
+	"minhanos.local/platform/internal/requestid"
 )
 
 //go:embed migrations/001_registry_quota.sql
@@ -26,8 +27,11 @@ var shareAccessSQL string
 //go:embed migrations/004_quota_folders.sql
 var quotaFoldersSQL string
 
+//go:embed migrations/005_quota_notices.sql
+var quotaNoticesSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}, {ID: 3, Name: "share_access", SQL: shareAccessSQL}, {ID: 4, Name: "quota_folders", SQL: quotaFoldersSQL}}}
+	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}, {ID: 3, Name: "share_access", SQL: shareAccessSQL}, {ID: 4, Name: "quota_folders", SQL: quotaFoldersSQL}, {ID: 5, Name: "quota_notices", SQL: quotaNoticesSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -150,6 +154,13 @@ func (s Store) reserve(ctx context.Context, home, share string, folders []string
 	return r, tx.Commit(ctx)
 }
 
+// tagRequest lets the quota notice trigger (SQL 005) record the request and correlation IDs of the change.
+func tagRequest(ctx context.Context, tx pgx.Tx) error {
+	ids := requestid.From(ctx)
+	_, e := tx.Exec(ctx, "SELECT set_config('minhanos.request_id', $1, true), set_config('minhanos.correlation_id', $2, true)", ids.Request, ids.Correlation)
+	return e
+}
+
 // settle ends a reservation; written bytes (actual) become usage. If the reservation already expired and
 // was released, only the usage is added, so nothing is subtracted twice.
 func (s Store) settle(ctx context.Context, r Reservation, actual int64) error {
@@ -158,6 +169,9 @@ func (s Store) settle(ctx context.Context, r Reservation, actual int64) error {
 		return e
 	}
 	defer tx.Rollback(ctx)
+	if e = tagRequest(ctx, tx); e != nil {
+		return e
+	}
 	var held int64
 	e = tx.QueryRow(ctx, "DELETE FROM storage_reservations WHERE id=$1 RETURNING bytes", r.ID).Scan(&held)
 	if errors.Is(e, pgx.ErrNoRows) {

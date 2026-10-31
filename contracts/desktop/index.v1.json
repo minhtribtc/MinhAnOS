@@ -1,0 +1,33 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "session.v1.schema.json",
+      "type": "DesktopSession"
+    },
+    {
+      "file": "login-input.v1.schema.json",
+      "type": "DesktopLoginInput"
+    },
+    {
+      "file": "app-list.v1.schema.json",
+      "type": "DesktopAppList"
+    },
+    {
+      "file": "preferences.v1.schema.json",
+      "type": "DesktopPreferences"
+    },
+    {
+      "file": "system-status.v1.schema.json",
+      "type": "DesktopSystemStatus"
+    },
+    {
+      "file": "ok.v1.schema.json",
+      "type": "DesktopOk"
+    },
+    {
+      "file": "health.v1.schema.json",
+      "type": "DesktopHealth"
+    }
+  ]
+}

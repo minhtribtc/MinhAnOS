@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-write-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "ok": {
+      "const": true
+    },
+    "item": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "file",
+                "folder",
+                "symlink",
+                "special"
+              ]
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "modified": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "mode": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "gid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "etag": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "path",
+            "kind",
+            "size",
+            "modified",
+            "mode",
+            "uid",
+            "gid",
+            "etag"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$"
+            },
+            "path": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "deleted": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "id",
+            "path",
+            "name",
+            "deleted"
+          ]
+        }
+      ]
+    },
+    "backup": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ok"
+  ]
+}

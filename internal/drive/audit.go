@@ -12,9 +12,12 @@ import (
 //go:embed migrations/001_files_events.sql
 var filesEventsSQL string
 
+//go:embed migrations/002_files_idempotency.sql
+var filesIdempotencySQL string
+
 // Module is the Files schema owned by this package (migration runner, app standard row 18).
 func Module() migrate.Module {
-	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}}}
+	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -48,7 +51,7 @@ func (s *SQLIdentity) Audit(ctx context.Context, u User, ev AuditEvent) error {
 	return err
 }
 
-// RetainAudit removes a bounded batch of expired Files audit rows.
+// RetainAudit removes a bounded batch of expired Files audit rows and expired replay records.
 func RetainAudit(ctx context.Context, db *pgxpool.Pool) error {
 	tx, err := db.Begin(ctx)
 	if err != nil {
@@ -59,6 +62,9 @@ func RetainAudit(ctx context.Context, db *pgxpool.Pool) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, "DELETE FROM files_events WHERE id IN (SELECT id FROM files_events WHERE occurred_at<now()-make_interval(days=>$1) ORDER BY occurred_at LIMIT 500)", AuditRetentionDays); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, "DELETE FROM files_idempotency WHERE ctid IN (SELECT ctid FROM files_idempotency WHERE expires_at<now() LIMIT 500)"); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

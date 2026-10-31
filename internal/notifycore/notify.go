@@ -8,7 +8,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"errors"
-	"log"
+	"log/slog"
 	"regexp"
 	"strconv"
 	"strings"
@@ -149,8 +149,9 @@ func (s Store) MarkRead(ctx context.Context, recipient string, ids []string, upT
 	return tag.RowsAffected(), unread, e
 }
 
-// Deliver moves one batch of undelivered identity security notices into the inbox in one transaction.
-// The inbox id is the outbox id (ON CONFLICT DO NOTHING), so a crash between the two steps cannot duplicate.
+// Deliver moves one batch of undelivered notices from each module outbox (identity security notices,
+// storage quota notices) into the inbox in one transaction. The inbox id is the outbox id (ON CONFLICT DO
+// NOTHING), so a crash between the two steps cannot duplicate.
 func (s Store) Deliver(ctx context.Context) (int64, error) {
 	tx, e := s.DB.Begin(ctx)
 	if e != nil {
@@ -165,12 +166,25 @@ func (s Store) Deliver(ctx context.Context) (int64, error) {
 	if e != nil {
 		return 0, e
 	}
-	return tag.RowsAffected(), tx.Commit(ctx)
+	quota, e := tx.Exec(ctx, `WITH batch AS (SELECT id FROM storage_notification_outbox WHERE delivered_at IS NULL ORDER BY created_at LIMIT $1 FOR UPDATE SKIP LOCKED),
+		moved AS (INSERT INTO notifications(id,recipient_id,source,kind,severity,mandatory,params,request_id,correlation_id,created_at)
+			SELECT o.id,o.recipient_id,o.source,o.kind,o.severity,false,o.details,o.request_id,o.correlation_id,o.created_at
+			FROM storage_notification_outbox o JOIN batch USING(id) ON CONFLICT(id) DO NOTHING)
+		UPDATE storage_notification_outbox SET delivered_at=now() WHERE id IN (SELECT id FROM batch)`, deliverBatch)
+	if e != nil {
+		return 0, e
+	}
+	return max(tag.RowsAffected(), quota.RowsAffected()), tx.Commit(ctx)
 }
 
 // Purge removes notices older than the retention period, a bounded batch per call.
 func (s Store) Purge(ctx context.Context) error {
 	_, e := s.DB.Exec(ctx, "DELETE FROM notifications WHERE id IN (SELECT id FROM notifications WHERE created_at<now()-make_interval(days=>$1) LIMIT 500)", RetentionDays)
+	if e != nil {
+		return e
+	}
+	// Delivered quota outbox rows are only a hand-over buffer: kept 30 days for diagnosis (storage SQL 005).
+	_, e = s.DB.Exec(ctx, "DELETE FROM storage_notification_outbox WHERE id IN (SELECT id FROM storage_notification_outbox WHERE delivered_at<now()-interval '30 days' LIMIT 500)")
 	return e
 }
 
@@ -183,7 +197,7 @@ func (s Store) Run(ctx context.Context, interval time.Duration) {
 			n, e := s.Deliver(ctx)
 			if e != nil {
 				if ctx.Err() == nil {
-					log.Printf("notification delivery failed: %v", e)
+					slog.Error("notifications.delivery_failed", "error", e)
 				}
 				break
 			}
@@ -192,7 +206,7 @@ func (s Store) Run(ctx context.Context, interval time.Duration) {
 			}
 		}
 		if e := s.Purge(ctx); e != nil && ctx.Err() == nil {
-			log.Printf("notification retention failed: %v", e)
+			slog.Error("notifications.retention_failed", "error", e)
 		}
 		select {
 		case <-ctx.Done():

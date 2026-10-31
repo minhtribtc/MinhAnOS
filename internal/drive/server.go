@@ -110,7 +110,7 @@ func (s *Server) Handler() http.Handler {
 		mux.Handle("/api/v1/identity/", adapter.IdentityHandler())
 	}
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
-		jsonResponse(w, 200, map[string]any{"app": "MinhAnOS Drive", "version": "0.1.0", "independent": true})
+		jsonResponse(w, 200, map[string]any{"app": "MinhAnOS Files", "version": "0.3.0", "independent": true})
 	})
 	mux.HandleFunc("POST /api/login", func(w http.ResponseWriter, r *http.Request) {
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
@@ -224,7 +224,7 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			if homes {
-				roots = append(roots, map[string]string{"id": "personal", "kind": "home", "name": "Tệp của tôi", "access": "write"})
+				roots = append(roots, map[string]string{"id": "personal", "kind": "home", "access": "write"})
 			}
 			if s.Shares != nil {
 				shares, e := s.Shares.UserShares(r.Context(), session.User.ID)
@@ -241,7 +241,7 @@ func (s *Server) Handler() http.Handler {
 				fail(w, 503, "Không thể kiểm tra quyền host.", "SERVICE_UNAVAILABLE")
 				return
 			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
-				roots = append(roots, map[string]string{"id": "system", "kind": "system", "name": "Hệ thống Debian", "access": "write"})
+				roots = append(roots, map[string]string{"id": "system", "kind": "system", "access": "write"})
 			}
 			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
 			if homes && s.Quota != nil && validID(session.User.ID) {
@@ -337,6 +337,14 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			share = found
+		}
+		if mutation {
+			rec, finish, done := s.idempotent(w, r, session.User)
+			if done {
+				return
+			}
+			defer finish()
+			w = rec
 		}
 		if mutation {
 			ev := AuditEvent{Action: "files." + strings.ReplaceAll(path.Base(r.URL.Path), "-", "_"), Root: root}
@@ -466,8 +474,8 @@ func (s *Server) Handler() http.Handler {
 		}
 		s.settleFolders(share.ID, plan, err == nil)
 		if reservation != nil {
-			// Use a fresh context: the client may already have gone, but the ledger must still settle.
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			// Not cancelled with the client (the ledger must still settle) but keeps the request IDs for quota notices.
+			ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 10*time.Second)
 			defer cancel()
 			if err == nil {
 				err = s.Quota.Commit(ctx, *reservation, quotaActual(r, engine, reservation.Bytes))
@@ -513,6 +521,9 @@ func (s *Server) proxyAgent(w http.ResponseWriter, r *http.Request, u User) {
 		return
 	}
 	request.Header.Set("Content-Type", r.Header.Get("Content-Type"))
+	if match := r.Header.Get("If-Match"); match != "" {
+		request.Header.Set("If-Match", match)
+	}
 	request.Header.Set("X-Drive-Actor", u.Username)
 	response, err := (&http.Client{Transport: transport, Timeout: 5 * time.Minute}).Do(request)
 	if err != nil {
@@ -541,7 +552,11 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 			if err != nil {
 				return err
 			}
-			jsonResponse(w, 200, map[string]any{"path": p, "entries": v})
+			page, next, err := pageEntries(v, r.URL.Query().Get("cursor"), r.URL.Query().Get("limit"))
+			if err != nil {
+				return err
+			}
+			jsonResponse(w, 200, map[string]any{"path": p, "entries": page, "nextCursor": next})
 			return nil
 		case "download":
 			return sendFile(w, r, e, p)
@@ -613,8 +628,16 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		}
 		err = e.Remove(p)
 	case "save-text":
+		// The version precondition comes in If-Match (contract); the body field stays for older clients.
+		tag := strings.Trim(r.Header.Get("If-Match"), `"`)
+		if tag == "" {
+			tag = b.ETag
+		}
+		if tag == "" {
+			return problem(428, "PRECONDITION_REQUIRED", "Cần If-Match.")
+		}
 		var backup string
-		backup, err = e.SaveText(p, b.Content, b.ETag)
+		backup, err = e.SaveText(p, b.Content, tag)
 		result["backup"] = backup
 	default:
 		return problem(404, "NOT_FOUND", "Thao tác chưa hỗ trợ.")

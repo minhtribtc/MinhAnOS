@@ -1,0 +1,3 @@
+// Generated from OpenAPI Desktop operations. Do not edit.
+import type {DesktopAppList,DesktopHealth,DesktopLoginInput,DesktopOk,DesktopPreferences,DesktopSession,DesktopSystemStatus} from '@minhanos/shared-types'
+export function createDesktopClient(base?:string):{setCSRF(value:string):void;desktopHealth():Promise<DesktopHealth>;desktopLogin(args:{body:DesktopLoginInput}):Promise<DesktopSession>;desktopSession():Promise<DesktopSession>;desktopLogout():Promise<DesktopOk>;desktopApps():Promise<DesktopAppList>;desktopGetPreferences():Promise<DesktopPreferences>;desktopPutPreferences(args:{ifMatch:string;body:DesktopPreferences}):Promise<DesktopOk>;desktopSystem():Promise<DesktopSystemStatus>}

@@ -81,5 +81,7 @@ for(const file of (await files('internal/platform',['.go'])).filter(f=>!f.endsWi
  for(const [call] of (await text(file)).matchAll(/\bwriteError\(w, [^()\n]*\)/g))assert(/, "[A-Z][A-Z0-9_]+"\)$|\.Code\)$/.test(call),file+': error without a code: '+call)
 }
 // Row 10: the legacy free-text audit tables are no longer written.
-assert(!/INSERT INTO (drive_)?audit\(/.test(registry+await text('internal/drive/auth.go')),'legacy audit write')
+assert(!/INSERT INTO (drive_)?audit\(/.test(registry+await text('internal/drive/auth.go')+await text('internal/identity/policy.go')),'legacy audit write')
+// Row 9: account administration only through the v1 identity API.
+assert(!registry.includes('/api/admin/users'),'legacy /api/admin/users is back')
 console.log('PASS app standard: Desktop, Files, Notes — manifests, registry, i18n parity/keys, tokens only, useCatalog, error codes, structured logs, naming, labelled dialogs')

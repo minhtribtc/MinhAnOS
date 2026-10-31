@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-save-text-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "content": {
+      "type": "string",
+      "maxLength": 1048576
+    }
+  },
+  "required": [
+    "content"
+  ]
+}

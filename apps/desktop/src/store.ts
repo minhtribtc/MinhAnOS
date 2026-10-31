@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api, setCSRF, type User, type AppDefinition, type Preferences, type DesktopWindow, type SystemInfo } from './api'
+import { api, setCSRF, loadPreferences, savePreferences, type User, type AppDefinition, type Preferences, type DesktopWindow, type SystemInfo } from './api'
 import { registryIdForPath } from './registry'
 
 function freshPreferences():Preferences{return { theme: 'light', wallpaper: 'mountain', mode: 'focus', windows: [], notes: '', pinned: ['files', 'settings', 'com.minhanos.notes'] }}
@@ -41,7 +41,7 @@ export const useDesktop = defineStore('desktop', () => {
     const payload = JSON.stringify(preferences.value)
     saving.value = true
     savePromise = (async () => {
-      try { await api('/preferences', { method: 'PUT', body: payload }); if(epoch===sessionEpoch){savedRevision = sentRevision; saveError.value = ''} }
+      try { await savePreferences(payload); if(epoch===sessionEpoch){savedRevision = sentRevision; saveError.value = ''} }
       catch { if(epoch===sessionEpoch)saveError.value = 'SAVE_FAILED' }
       finally { if(epoch===sessionEpoch){saving.value = false; savePromise = null} }
     })()
@@ -76,7 +76,7 @@ export const useDesktop = defineStore('desktop', () => {
     user.value = session.user; setCSRF(session.csrfToken)
     passwordChangeRequired.value = !!session.passwordChangeRequired
     if (passwordChangeRequired.value) return
-    const [registry, prefs] = await Promise.all([api<AppDefinition[]>('/apps'), api<Preferences>('/preferences')])
+    const [registry, prefs] = await Promise.all([api<AppDefinition[]>('/apps'), loadPreferences()])
     apps.value = registry
     preferences.value = prefs
     preferences.value.mode = prefs.mode === 'windows' ? 'windows' : 'focus'

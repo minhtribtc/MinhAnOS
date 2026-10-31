@@ -35,7 +35,7 @@ func policyUser(t *testing.T, s *Service, token, name string) User {
 	t.Helper()
 	input := CreateUser{name, "Disposable", testPassword}
 	raw, _ := json.Marshal(input)
-	out, e := s.Create(context.Background(), DesktopRealm, token, input, "user", authn.Token(), authn.Token(), raw, false)
+	out, e := s.Create(context.Background(), DesktopRealm, token, input, "user", authn.Token(), authn.Token(), raw)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -159,7 +159,7 @@ func TestDelegatedCeilingUnknownScopesAndSelfEscalation(t *testing.T) {
 	} else {
 		code(t, e, "IDENTITY_PERMISSION_DENIED")
 	}
-	if _, e = s.Create(ctx, DesktopRealm, userToken, CreateUser{"forged_admin", "Forged", testPassword}, "admin", authn.Token(), authn.Token(), []byte("test"), false); e == nil {
+	if _, e = s.Create(ctx, DesktopRealm, userToken, CreateUser{"forged_admin", "Forged", testPassword}, "admin", authn.Token(), authn.Token(), []byte("test")); e == nil {
 		t.Fatal("delegate created admin")
 	} else {
 		code(t, e, "IDENTITY_PERMISSION_DENIED")
@@ -183,17 +183,17 @@ func TestMutationReplayPreconditionsAndRevokedAppGrant(t *testing.T) {
 	input := CreateUser{"repeat_user", "Disposable", testPassword}
 	raw, _ := json.Marshal(input)
 	key := authn.Token()
-	first, e := s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw, false)
+	first, e := s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw)
 	if e != nil {
 		t.Fatal(e)
 	}
-	again, e := s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw, false)
+	again, e := s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw)
 	if e != nil || string(first.Body) != string(again.Body) {
 		t.Fatal("replay", e)
 	}
 	input.DisplayName = "Different"
 	raw, _ = json.Marshal(input)
-	if _, e = s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw, false); e == nil {
+	if _, e = s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw); e == nil {
 		t.Fatal("key rebound")
 	} else {
 		code(t, e, "IDEMPOTENCY_CONFLICT")
@@ -208,7 +208,7 @@ func TestMutationReplayPreconditionsAndRevokedAppGrant(t *testing.T) {
 	}
 	input.DisplayName = "Disposable"
 	raw, _ = json.Marshal(input)
-	_, e = s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw, false)
+	_, e = s.Create(ctx, DesktopRealm, token, input, "user", key, authn.Token(), raw)
 	code(t, e, "APP_PERMISSION_DENIED")
 	var serialized string
 	s.db.QueryRow(ctx, "SELECT row_to_json(m)::text FROM identity_mutations m LIMIT 1").Scan(&serialized)
@@ -425,7 +425,7 @@ func TestStandardUserCanPatchOnlySelfWithoutFreshAdminTicket(t *testing.T) {
 	} else {
 		code(t, e, "IDENTITY_PERMISSION_DENIED")
 	}
-	if _, e = s.Create(ctx, DesktopRealm, adminToken, CreateUser{"short_unicode", "Unicode", "密码密码"}, "user", authn.Token(), authn.Token(), []byte("test"), false); !errors.Is(e, ErrPasswordPolicy) {
+	if _, e = s.Create(ctx, DesktopRealm, adminToken, CreateUser{"short_unicode", "Unicode", "密码密码"}, "user", authn.Token(), authn.Token(), []byte("test")); !errors.Is(e, ErrPasswordPolicy) {
 		t.Fatal("schema minLength was bypassed", e)
 	}
 }

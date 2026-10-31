@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/desktop-preferences.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "theme": {
+      "enum": [
+        "light",
+        "dark"
+      ]
+    },
+    "wallpaper": {
+      "enum": [
+        "mountain",
+        "midnight",
+        "sage"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "focus",
+        "windows"
+      ]
+    },
+    "windows": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20000
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20000
+          },
+          "width": {
+            "type": "number",
+            "minimum": 260,
+            "maximum": 10000
+          },
+          "height": {
+            "type": "number",
+            "minimum": 200,
+            "maximum": 10000
+          },
+          "minimized": {
+            "type": "boolean"
+          },
+          "maximized": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "y",
+          "width",
+          "height",
+          "minimized",
+          "maximized"
+        ]
+      }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 32000
+    },
+    "pinned": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "theme",
+    "wallpaper",
+    "mode",
+    "windows",
+    "notes",
+    "pinned"
+  ]
+}

@@ -774,3 +774,238 @@ export interface LogEventPage {
   }[];
   nextCursor: string | null;
 }
+
+export interface FilesEntry {
+  name: string;
+  path: string;
+  kind: "file" | "folder" | "symlink" | "special";
+  size: number;
+  modified: string;
+  mode: string;
+  uid: number;
+  gid: number;
+  etag: string;
+}
+
+export interface FilesListPage {
+  path: string;
+  /**
+   * @maxItems 1000
+   */
+  entries: {
+    name: string;
+    path: string;
+    kind: "file" | "folder" | "symlink" | "special";
+    size: number;
+    modified: string;
+    mode: string;
+    uid: number;
+    gid: number;
+    etag: string;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface FilesText {
+  content: string;
+  etag: string;
+}
+
+export interface FilesTrashItem {
+  id: string;
+  path: string;
+  name: string;
+  deleted: string;
+}
+
+/**
+ * @maxItems 10000
+ */
+export type FilesTrashList = {
+  id: string;
+  path: string;
+  name: string;
+  deleted: string;
+}[];
+
+export interface FilesNameInput {
+  name: string;
+}
+
+export interface FilesDestinationInput {
+  destination: string;
+}
+
+export interface FilesRestoreInput {
+  id: string;
+}
+
+export interface FilesRemoveInput {
+  confirm: true;
+}
+
+export interface FilesSaveTextInput {
+  content: string;
+}
+
+export interface FilesWriteResult {
+  ok: true;
+  item?:
+    | {
+        name: string;
+        path: string;
+        kind: "file" | "folder" | "symlink" | "special";
+        size: number;
+        modified: string;
+        mode: string;
+        uid: number;
+        gid: number;
+        etag: string;
+      }
+    | {
+        id: string;
+        path: string;
+        name: string;
+        deleted: string;
+      };
+  backup?: string;
+}
+
+export interface FilesRootList {
+  /**
+   * @maxItems 1000
+   */
+  roots: {
+    id: string;
+    kind: "home" | "share" | "system";
+    name?: string;
+    access: "read" | "write";
+  }[];
+  homes: boolean;
+  maxUploadBytes: number;
+  maxTextBytes: number;
+  quota?: {
+    limitBytes: number | null;
+    usedBytes: number;
+    reservedBytes: number;
+    measured: boolean;
+  };
+}
+
+export interface FilesQuotaFolderList {
+  /**
+   * @maxItems 1000
+   */
+  items: {
+    id: string;
+    shareId: string;
+    path: string;
+    version: number;
+    usage: {
+      limitBytes: number | null;
+      usedBytes: number;
+      reservedBytes: number;
+      measured: boolean;
+    };
+  }[];
+}
+
+export interface FilesSession {
+  user: {
+    id: string;
+    username: string;
+    displayName: string;
+    role: "admin" | "user";
+  };
+  csrfToken: string;
+  passwordChangeRequired: boolean;
+}
+
+export interface FilesLoginInput {
+  username: string;
+  password: string;
+}
+
+export interface FilesOk {
+  ok: true;
+}
+
+export interface FilesHealth {
+  app: "MinhAnOS Files";
+  version: string;
+  independent: boolean;
+}
+
+export interface FilesEmptyInput {}
+
+export interface DesktopSession {
+  user: {
+    id: string;
+    username: string;
+    displayName: string;
+    role: "admin" | "user";
+  };
+  csrfToken: string;
+  passwordChangeRequired: boolean;
+}
+
+export interface DesktopLoginInput {
+  username: string;
+  password: string;
+}
+
+/**
+ * @maxItems 64
+ */
+export type DesktopAppList = {
+  id: string;
+  icon: string;
+  color: string;
+}[];
+
+export interface DesktopPreferences {
+  theme: "light" | "dark";
+  wallpaper: "mountain" | "midnight" | "sage";
+  mode: "focus" | "windows";
+  /**
+   * @maxItems 32
+   */
+  windows: {
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    minimized: boolean;
+    maximized: boolean;
+  }[];
+  notes: string;
+  /**
+   * @maxItems 32
+   */
+  pinned: string[];
+}
+
+export interface DesktopSystemStatus {
+  version: string;
+  hostname: string;
+  os: string;
+  architecture: string;
+  goVersion: string;
+  cpus: number;
+  goroutines: number;
+  heapBytes: number;
+  uptimeSeconds: number;
+  diskTotalBytes: number;
+  diskFreeBytes: number;
+  database: "connected" | "disconnected";
+}
+
+export interface DesktopOk {
+  ok: true;
+}
+
+export interface DesktopHealth {
+  status: "ok";
+  version: string;
+}

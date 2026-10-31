@@ -117,21 +117,77 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 	if w := call(driveHandler, "/api/session", "GET", oldFC, "", "", ""); w.Code != 401 {
 		t.Fatal("drive fixation", w.Code)
 	}
-	// Legacy admin creation must not bypass freshness or inherit host privilege.
-	createBody := `{"username":"web_admin","displayName":"Web Admin","password":"adapter-test-password-123","role":"admin"}`
-	if w := call(desktop, "/api/admin/users", "POST", dc, csrf, "http://example.com", createBody); w.Code != 403 {
-		t.Fatal("legacy admin create bypassed reauth", w.Code)
+	// The legacy /api/admin/users adapter is gone; creating an account goes through the v1 identity API,
+	// which needs a recent reauthentication, and a web System Admin never inherits host privilege.
+	if w := call(desktop, "/api/admin/users", "GET", dc, "", "", ""); w.Code != 404 {
+		t.Fatal("legacy admin API still served", w.Code)
+	}
+	v1 := func(path, method, body, match string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, "http://example.com"+path, strings.NewReader(body))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Cookie", dc)
+		r.Header.Set("X-CSRF-Token", csrf)
+		r.Header.Set("Origin", "http://example.com")
+		r.Header.Set("Idempotency-Key", token())
+		if match != "" {
+			r.Header.Set("If-Match", match)
+		}
+		w := httptest.NewRecorder()
+		desktop.ServeHTTP(w, r)
+		return w
+	}
+	createBody := `{"username":"web_admin","displayName":"Web Admin","password":"adapter-test-password-123"}`
+	if w := v1("/api/v1/identity/users", "POST", createBody, ""); w.Code != 403 {
+		t.Fatal("create bypassed reauth", w.Code, w.Body.String())
 	}
 	if w := call(desktop, "/api/v1/identity/reauthenticate", "POST", dc, csrf, "http://example.com", `{"password":"adapter-test-password-123"}`); w.Code != 200 {
 		t.Fatal("reauth endpoint", w.Code, w.Body.String())
 	}
-	w := call(desktop, "/api/admin/users", "POST", dc, csrf, "http://example.com", createBody)
+	w := v1("/api/v1/identity/users", "POST", createBody, "")
 	if w.Code != 201 {
-		t.Fatal("legacy create compatibility", w.Code, w.Body.String())
+		t.Fatal("v1 create", w.Code, w.Body.String())
+	}
+	var created struct{ ID string }
+	if e = json.Unmarshal(w.Body.Bytes(), &created); e != nil {
+		t.Fatal(e)
+	}
+	if w = v1("/api/v1/identity/users/"+created.ID+"/role", "PUT", `{"role":"system-admin"}`, w.Header().Get("ETag")); w.Code != 200 {
+		t.Fatal("promote", w.Code, w.Body.String())
 	}
 	var webAdmin User
-	if e = json.Unmarshal(w.Body.Bytes(), &webAdmin); e != nil {
+	if e = db.QueryRow(ctx, "SELECT id FROM users WHERE username='web_admin'").Scan(&webAdmin.ID); e != nil {
 		t.Fatal(e)
+	}
+	// Preferences are versioned: GET gives an ETag, PUT needs it as If-Match and returns the next one.
+	prefs := call(desktop, "/api/preferences", "GET", dc, "", "", "")
+	first := prefs.Header().Get("ETag")
+	if prefs.Code != 200 || first == "" {
+		t.Fatal("preferences etag", prefs.Code)
+	}
+	put := func(match string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("PUT", "http://example.com/api/preferences", strings.NewReader(prefs.Body.String()))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Cookie", dc)
+		r.Header.Set("X-CSRF-Token", csrf)
+		r.Header.Set("Origin", "http://example.com")
+		if match != "" {
+			r.Header.Set("If-Match", match)
+		}
+		w := httptest.NewRecorder()
+		desktop.ServeHTTP(w, r)
+		return w
+	}
+	if w := put(""); w.Code != 428 {
+		t.Fatal("preferences without If-Match", w.Code)
+	}
+	if w := put(first); w.Code != 200 || w.Header().Get("ETag") == "" {
+		t.Fatal("preferences save", w.Code, w.Body.String())
+	}
+	if _, e = db.Exec(ctx, "UPDATE preferences SET value=jsonb_set(value,'{notes}','\"other tab\"')"); e != nil {
+		t.Fatal(e)
+	}
+	if w := put(first); w.Code != 412 {
+		t.Fatal("stale preferences accepted", w.Code)
 	}
 	if allowed, e := app.identityService.CanAccessHost(ctx, webAdmin.ID); e != nil || allowed {
 		t.Fatal("web admin received host privilege", e)
@@ -146,9 +202,6 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 	}
 	if _, e = db.Exec(ctx, "UPDATE identity_app_grants SET state='revoked' WHERE permission_key='identity.users.read'"); e != nil {
 		t.Fatal(e)
-	}
-	if w := call(desktop, "/api/admin/users", "GET", dc, "", "", ""); w.Code != 403 {
-		t.Fatal("legacy read bypassed revoked grant", w.Code)
 	}
 	if w := call(desktop, "/api/v1/identity/users", "GET", dc, "", "", ""); w.Code != 403 {
 		t.Fatal("v1 read bypassed revoked grant", w.Code)

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/desktop-app-list.v1",
+  "type": "array",
+  "maxItems": 64,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9.-]*$"
+      },
+      "icon": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "color": {
+        "type": "string",
+        "pattern": "^[a-z]+$"
+      }
+    },
+    "required": [
+      "id",
+      "icon",
+      "color"
+    ]
+  }
+}

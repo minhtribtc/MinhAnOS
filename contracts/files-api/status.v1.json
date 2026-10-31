@@ -1,0 +1,24 @@
+{
+  "contractVersion": "1",
+  "implementedOperations": [
+    "filesHealth",
+    "filesLogin",
+    "filesSession",
+    "filesLogout",
+    "filesRoots",
+    "filesQuotaFolders",
+    "filesList",
+    "filesDownload",
+    "filesText",
+    "filesTrashList",
+    "filesUpload",
+    "filesMkdir",
+    "filesRename",
+    "filesMove",
+    "filesCopy",
+    "filesTrash",
+    "filesRestore",
+    "filesRemove",
+    "filesSaveText"
+  ]
+}

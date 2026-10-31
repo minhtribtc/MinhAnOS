@@ -1,7 +1,7 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises'
 const root=new URL('../',import.meta.url)
 // One generator for every versioned module API (/api/v1/<module>/...): identity, storage, notifications, logs.
-export async function generateClient({prefix,factory,label}){
+export async function generateClient({prefix,factory,label,module}){
  const api=JSON.parse(await readFile(new URL('contracts/api/openapi.yaml',root),'utf8'))
  const types=new Set(),methods=[],implementations=[]
  const typeOf=schema=>{const name=schema?.$ref?.split('/').at(-1);if(!name||!api.components.schemas[name])throw new Error(label+' client requires a named schema');types.add(name);return name}
@@ -9,6 +9,10 @@ export async function generateClient({prefix,factory,label}){
   if(!path.startsWith(prefix+'/'))continue
   for(const [method,op] of Object.entries(item)){
    if(!['get','post','put','patch','delete'].includes(method))continue
+   if(module&&op['x-module']!==module)continue
+   // Binary bodies (upload, download) are not JSON operations; their callers stream them directly.
+   if(op.requestBody&&!op.requestBody.content['application/json'])continue
+   if(!Object.entries(op.responses).some(([status,r])=>/^2/.test(status)&&r.content?.['application/json']))continue
    const params=[...(item.parameters||[]),...(op.parameters||[])],fields=[],code=[]
    let url=JSON.stringify(path.slice(prefix.length))
    for(const param of params.filter(p=>p.in==='path')){fields.push(`${param.name}:string`);code.push(`path=path.replace(${JSON.stringify('{'+param.name+'}')},encodeURIComponent(args.${param.name}));`)}
@@ -33,4 +37,6 @@ export const generateIdentityClient=()=>generateClient({prefix:'/api/v1/identity
 export const generateStorageClient=()=>generateClient({prefix:'/api/v1/storage',factory:'createStorageClient',label:'Storage'})
 export const generateNotificationsClient=()=>generateClient({prefix:'/api/v1/notifications',factory:'createNotificationsClient',label:'Notifications'})
 export const generateLogsClient=()=>generateClient({prefix:'/api/v1/logs',factory:'createLogsClient',label:'Logs'})
-if(process.argv[1]?.replaceAll('\\','/').endsWith('/generate-identity-client.mjs')){await mkdir(new URL('packages/api-client/src/',root),{recursive:true});for(const [name,gen] of [['identity',generateIdentityClient],['storage',generateStorageClient],['notifications',generateNotificationsClient],['logs',generateLogsClient]]){const output=await gen();await writeFile(new URL(`packages/api-client/src/${name}.generated.js`,root),output.js);await writeFile(new URL(`packages/api-client/src/${name}.generated.d.ts`,root),output.dts)}}
+export const generateFilesClient=()=>generateClient({prefix:'/api/drive',factory:'createFilesApiClient',label:'Files',module:'files'})
+export const generateDesktopClient=()=>generateClient({prefix:'/api',factory:'createDesktopClient',label:'Desktop',module:'desktop'})
+if(process.argv[1]?.replaceAll('\\','/').endsWith('/generate-identity-client.mjs')){await mkdir(new URL('packages/api-client/src/',root),{recursive:true});for(const [name,gen] of [['identity',generateIdentityClient],['storage',generateStorageClient],['notifications',generateNotificationsClient],['logs',generateLogsClient],['files',generateFilesClient],['desktop',generateDesktopClient]]){const output=await gen();await writeFile(new URL(`packages/api-client/src/${name}.generated.js`,root),output.js);await writeFile(new URL(`packages/api-client/src/${name}.generated.d.ts`,root),output.dts)}}

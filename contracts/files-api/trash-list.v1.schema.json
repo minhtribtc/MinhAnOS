@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-trash-list.v1",
+  "type": "array",
+  "maxItems": 10000,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]{8,128}$"
+      },
+      "path": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "deleted": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "id",
+      "path",
+      "name",
+      "deleted"
+    ]
+  }
+}

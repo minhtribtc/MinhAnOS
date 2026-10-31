@@ -2,6 +2,7 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import assert from 'node:assert/strict'
 import {readFile,writeFile,mkdir} from 'node:fs/promises'
 import {randomBytes} from 'node:crypto'
+import {createUser} from './identity-user.mjs'
 const ajv=new Ajv2020({strict:true});const checkProfile=ajv.compile(JSON.parse(await readFile('contracts/api/profile.schema.json','utf8')));const checkError=ajv.compile(JSON.parse(await readFile('contracts/api/error.legacy.schema.json','utf8')))
 const desktop='http://10.1.1.20:8081',drive='http://10.1.1.20:8082'
 const password=(await readFile('/run/bootstrap_password','utf8')).trim()
@@ -16,7 +17,7 @@ const invalid=await guest.call('/login','POST',{username:'admin',password:'inval
 const admin=new Client(desktop);await admin.login('admin',password)
 const users=[];await mkdir('artifacts',{recursive:true})
 const accounts=[]
-for(let i=0;i<2;i++){const username='drive_e2e_'+randomBytes(4).toString('hex'),pwd=randomBytes(20).toString('hex');assert.equal((await admin.call('/admin/users','POST',{username,password:pwd,displayName:'Profile disposable test',role:'user'})).status,201);const client=new Client(desktop);const identity=await client.login(username,pwd);users.push({id:identity.id,username});await writeFile('artifacts/drive-test-users.json',JSON.stringify(users));accounts.push({client,username,pwd})}
+for(let i=0;i<2;i++){const username='drive_e2e_'+randomBytes(4).toString('hex'),pwd=randomBytes(20).toString('hex');await createUser(desktop,admin,password,{username,password:pwd,displayName:'Profile disposable test'});const client=new Client(desktop);const identity=await client.login(username,pwd);users.push({id:identity.id,username});await writeFile('artifacts/drive-test-users.json',JSON.stringify(users));accounts.push({client,username,pwd})}
 const [a,b]=accounts;const profile={locale:'en-US',theme:'system',timeZone:'UTC'}
 assert.equal((await a.client.call('/profile','PUT',profile,false)).status,403)
 assert.equal((await a.client.call('/profile','PUT',profile,true,'https://evil.example')).status,403)

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/desktop-session.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "admin",
+            "user"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "displayName",
+        "role"
+      ]
+    },
+    "csrfToken": {
+      "type": "string",
+      "minLength": 16
+    },
+    "passwordChangeRequired": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "user",
+    "csrfToken",
+    "passwordChangeRequired"
+  ]
+}

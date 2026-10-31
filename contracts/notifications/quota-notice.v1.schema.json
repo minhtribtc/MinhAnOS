@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/quota-notice.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "recipientId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "source": {
+      "enum": [
+        "com.minhanos.files",
+        "com.minhanos.storage"
+      ]
+    },
+    "kind": {
+      "enum": [
+        "quota.warning",
+        "quota.critical",
+        "quota.full"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "warning",
+        "critical"
+      ]
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "enum": [
+            "home",
+            "share",
+            "folder"
+          ]
+        },
+        "percent": {
+          "type": "integer",
+          "minimum": 80,
+          "maximum": 100
+        },
+        "usedBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limitBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "share": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "percent",
+        "usedBytes",
+        "limitBytes"
+      ]
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "correlationId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deliveredAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "recipientId",
+    "source",
+    "kind",
+    "severity",
+    "details",
+    "requestId",
+    "createdAt"
+  ]
+}

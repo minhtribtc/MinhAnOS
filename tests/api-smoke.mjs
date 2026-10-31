@@ -8,12 +8,16 @@ const results = []
 class Client {
   cookie = ''
   csrf = ''
-  async request(path, { method = 'GET', body, csrf = true, origin } = {}) {
-    const headers = { 'Content-Type': 'application/json' }
+  preferencesTag = ''
+  async request(path, { method = 'GET', body, csrf = true, origin, headers: extra = {} } = {}) {
+    const headers = { 'Content-Type': 'application/json', ...extra }
     if (this.cookie) headers.Cookie = this.cookie
     if (csrf) headers['X-CSRF-Token'] = this.csrf
     if (origin) headers.Origin = origin
+    // Preferences are versioned: send back the ETag of the last read unless the test sets If-Match itself.
+    if (path === '/preferences' && method === 'PUT' && !('If-Match' in headers)) headers['If-Match'] = this.preferencesTag
     const response = await fetch(`${base}/api${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+    if (path === '/preferences' && response.headers.get('ETag')) this.preferencesTag = response.headers.get('ETag')
     const cookie = response.headers.getSetCookie()[0]
     if (cookie) this.cookie = cookie.split(';')[0]
     const data = await response.json()
@@ -29,7 +33,8 @@ class Client {
 function passed(name) { results.push({ name, passed: true }); console.log(`PASS ${name}`) }
 const guest = new Client()
 assert.equal((await guest.request('/preferences')).response.status, 401)
-assert.equal((await guest.request('/admin/users')).response.status, 401)
+assert.equal((await guest.request('/v1/identity/users')).response.status, 401)
+assert.equal((await guest.request('/admin/users')).response.status, 404)
 passed('Anonymous access denied')
 assert.equal((await guest.request('/login', { method:'POST', body:{username:'admin',password:'invalid-password'} })).response.status, 401)
 passed('Invalid password denied')
@@ -55,9 +60,14 @@ const testUsername = `e2e_${randomBytes(5).toString('hex')}`
 const testPassword = randomBytes(20).toString('hex')
 try {
   const changed = { ...original, notes:'API isolation test — admin private', wallpaper:'sage', mode:'windows', windows:[] }
+  // Versioned writes: no If-Match is refused, a stale one conflicts.
+  assert.equal((await admin.request('/preferences', { method:'PUT', body:changed, headers:{'If-Match':''} })).response.status, 428)
+  assert.equal((await admin.request('/preferences', { method:'PUT', body:changed, headers:{'If-Match':'"stale"'} })).response.status, 412)
   assert.equal((await admin.request('/preferences', { method:'PUT', body:changed })).response.status, 200)
   assert.equal((await admin.request('/preferences')).data.mode, 'windows')
-  const created = await admin.request('/admin/users', { method:'POST', body:{username:testUsername,displayName:'E2E isolation test',password:testPassword,role:'user'} })
+  // Accounts are created through the v1 identity API after a fresh reauthentication.
+  assert.equal((await admin.request('/v1/identity/reauthenticate', { method:'POST', body:{password} })).response.status, 200)
+  const created = await admin.request('/v1/identity/users', { method:'POST', headers:{'Idempotency-Key':randomBytes(16).toString('hex')}, body:{username:testUsername,displayName:'E2E isolation test',password:testPassword} })
   assert.equal(created.response.status, 201)
   assert.equal('password' in created.data, false)
   await mkdir('artifacts', { recursive:true })
@@ -66,8 +76,8 @@ try {
   await user.login(testUsername,testPassword)
   assert.equal((await user.request('/preferences')).data.notes, '')
   assert.equal((await user.request('/preferences')).data.mode, 'focus')
-  assert.equal((await user.request('/admin/users')).response.status, 403)
-  assert.equal((await user.request('/admin/users', { method:'POST',body:{} })).response.status, 403)
+  assert.equal((await user.request('/v1/identity/users')).response.status, 403)
+  assert.equal((await user.request('/v1/identity/users', { method:'POST',headers:{'Idempotency-Key':randomBytes(16).toString('hex')},body:{username:'e2e_forbidden',displayName:'Forbidden',password:testPassword} })).response.status, 403)
   passed('Standard user denied administrator API')
   const userPrefs = (await user.request('/preferences')).data
   userPrefs.notes = 'API isolation test — user private'

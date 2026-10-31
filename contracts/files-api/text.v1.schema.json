@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-text.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "content": {
+      "type": "string",
+      "maxLength": 1048576
+    },
+    "etag": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "content",
+    "etag"
+  ]
+}

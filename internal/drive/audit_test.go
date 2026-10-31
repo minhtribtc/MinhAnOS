@@ -2,8 +2,10 @@ package drive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -71,5 +73,22 @@ func TestFilesAuditPrivacyAndAppendOnly(t *testing.T) {
 	}
 	if e = RetainAudit(ctx, db); e != nil {
 		t.Fatal(e)
+	}
+	// Replay store (files SQL 002): same key + same request replays, another request conflicts.
+	key, req := strings.Repeat("a", 64), strings.Repeat("b", 64)
+	if _, _, found, e := s.Replay(ctx, "u1", key, req); e != nil || found {
+		t.Fatal("empty store", found, e)
+	}
+	if e = s.Remember(ctx, "u1", key, req, 201, []byte(`{"ok":true}`)); e != nil {
+		t.Fatal(e)
+	}
+	if status, body, found, e := s.Replay(ctx, "u1", key, req); e != nil || !found || status != 201 || !strings.Contains(string(body), "ok") {
+		t.Fatal("replay", status, string(body), found, e)
+	}
+	if _, _, _, e := s.Replay(ctx, "u1", key, strings.Repeat("c", 64)); !errors.Is(e, ErrIdempotencyConflict) {
+		t.Fatal("conflict", e)
+	}
+	if _, _, found, _ := s.Replay(ctx, "u2", key, req); found {
+		t.Fatal("replay crossed users")
 	}
 }

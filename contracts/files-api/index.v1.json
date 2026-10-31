@@ -1,0 +1,77 @@
+{
+  "contractVersion": "1",
+  "schemas": [
+    {
+      "file": "entry.v1.schema.json",
+      "type": "FilesEntry"
+    },
+    {
+      "file": "list-page.v1.schema.json",
+      "type": "FilesListPage"
+    },
+    {
+      "file": "text.v1.schema.json",
+      "type": "FilesText"
+    },
+    {
+      "file": "trash-item.v1.schema.json",
+      "type": "FilesTrashItem"
+    },
+    {
+      "file": "trash-list.v1.schema.json",
+      "type": "FilesTrashList"
+    },
+    {
+      "file": "name-input.v1.schema.json",
+      "type": "FilesNameInput"
+    },
+    {
+      "file": "destination-input.v1.schema.json",
+      "type": "FilesDestinationInput"
+    },
+    {
+      "file": "restore-input.v1.schema.json",
+      "type": "FilesRestoreInput"
+    },
+    {
+      "file": "remove-input.v1.schema.json",
+      "type": "FilesRemoveInput"
+    },
+    {
+      "file": "save-text-input.v1.schema.json",
+      "type": "FilesSaveTextInput"
+    },
+    {
+      "file": "write-result.v1.schema.json",
+      "type": "FilesWriteResult"
+    },
+    {
+      "file": "root-list.v1.schema.json",
+      "type": "FilesRootList"
+    },
+    {
+      "file": "quota-folder-list.v1.schema.json",
+      "type": "FilesQuotaFolderList"
+    },
+    {
+      "file": "session.v1.schema.json",
+      "type": "FilesSession"
+    },
+    {
+      "file": "login-input.v1.schema.json",
+      "type": "FilesLoginInput"
+    },
+    {
+      "file": "ok.v1.schema.json",
+      "type": "FilesOk"
+    },
+    {
+      "file": "health.v1.schema.json",
+      "type": "FilesHealth"
+    },
+    {
+      "file": "empty-input.v1.schema.json",
+      "type": "FilesEmptyInput"
+    }
+  ]
+}

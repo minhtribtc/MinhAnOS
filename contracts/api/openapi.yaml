@@ -4893,6 +4893,1687 @@
           }
         ]
       }
+    },
+    "/api/drive/health": {
+      "get": {
+        "operationId": "filesHealth",
+        "summary": "Files service health",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesHealth"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/drive/login": {
+      "post": {
+        "operationId": "filesLogin",
+        "summary": "Sign in to the standalone Files origin (port 8082) without the Desktop",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesLoginInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/session": {
+      "get": {
+        "operationId": "filesSession",
+        "summary": "Current Files session and CSRF token",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/logout": {
+      "post": {
+        "operationId": "filesLogout",
+        "summary": "Sign out of the standalone Files origin (refused for Desktop sessions)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/roots": {
+      "get": {
+        "operationId": "filesRoots",
+        "summary": "Storage roots the user may open, limits and home quota",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesRootList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/quota-folders": {
+      "get": {
+        "operationId": "filesQuotaFolders",
+        "summary": "Quota folders of a Shared Folder the user may read",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesQuotaFolderList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/list": {
+      "get": {
+        "operationId": "filesList",
+        "summary": "One page of a folder listing (folders first, then by name)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "1–1000, default 1000",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "nextCursor of the previous page",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesListPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/download": {
+      "get": {
+        "operationId": "filesDownload",
+        "summary": "Download a file (Content-Disposition attachment)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/text": {
+      "get": {
+        "operationId": "filesText",
+        "summary": "Read a text file up to maxTextBytes with its ETag",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesText"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/trash": {
+      "get": {
+        "operationId": "filesTrashList",
+        "summary": "Items in the trash of the root",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesTrashList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "filesTrash",
+        "summary": "Move to the trash of the root",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesEmptyInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/upload": {
+      "post": {
+        "operationId": "filesUpload",
+        "summary": "Upload a file (body is the raw content, at most maxUploadBytes)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "description": "File name",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesEntry"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/mkdir": {
+      "post": {
+        "operationId": "filesMkdir",
+        "summary": "Create a folder",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesNameInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/rename": {
+      "post": {
+        "operationId": "filesRename",
+        "summary": "Rename a file or folder in place",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesNameInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/move": {
+      "post": {
+        "operationId": "filesMove",
+        "summary": "Move to another path in the same root",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesDestinationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/copy": {
+      "post": {
+        "operationId": "filesCopy",
+        "summary": "Copy to another path in the same root",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesDestinationInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/restore": {
+      "post": {
+        "operationId": "filesRestore",
+        "summary": "Restore a trash item",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesRestoreInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/remove": {
+      "post": {
+        "operationId": "filesRemove",
+        "summary": "Delete permanently (system root only, needs confirm)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesRemoveInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/save-text": {
+      "post": {
+        "operationId": "filesSaveText",
+        "summary": "Replace a text file; If-Match carries its ETag, the previous content is kept as a backup",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "ETag of the version the client last read",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesSaveTextInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "desktopHealth",
+        "summary": "Desktop service health",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopHealth"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/login": {
+      "post": {
+        "operationId": "desktopLogin",
+        "summary": "Sign in to the Desktop",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesktopLoginInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session": {
+      "get": {
+        "operationId": "desktopSession",
+        "summary": "Current Desktop session and CSRF token",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopSession"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "operationId": "desktopLogout",
+        "summary": "Sign out and revoke the session",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      }
+    },
+    "/api/apps": {
+      "get": {
+        "operationId": "desktopApps",
+        "summary": "App IDs the user may open (names come from manifests and catalogs)",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopAppList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      }
+    },
+    "/api/preferences": {
+      "get": {
+        "operationId": "desktopGetPreferences",
+        "summary": "The user's Desktop layout and notes; ETag is the version",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopPreferences"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "desktopPutPreferences",
+        "summary": "Replace the layout; If-Match must be the ETag last read (412 VERSION_CONFLICT otherwise)",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "ETag of the version the client last read",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesktopPreferences"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/system": {
+      "get": {
+        "operationId": "desktopSystem",
+        "summary": "Process and container metrics of the Desktop service",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopSystemStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -7869,6 +9550,920 @@
         "required": [
           "path",
           "limitBytes"
+        ]
+      },
+      "FilesEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "file",
+              "folder",
+              "symlink",
+              "special"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "modified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "uid": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "gid": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "etag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "kind",
+          "size",
+          "modified",
+          "mode",
+          "uid",
+          "gid",
+          "etag"
+        ]
+      },
+      "FilesListPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "path": {
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "file",
+                    "folder",
+                    "symlink",
+                    "special"
+                  ]
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "modified": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "uid": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "gid": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "etag": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "path",
+                "kind",
+                "size",
+                "modified",
+                "mode",
+                "uid",
+                "gid",
+                "etag"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        },
+        "required": [
+          "path",
+          "entries",
+          "nextCursor"
+        ]
+      },
+      "FilesText": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "etag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content",
+          "etag"
+        ]
+      },
+      "FilesTrashItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{8,128}$"
+          },
+          "path": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deleted": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "path",
+          "name",
+          "deleted"
+        ]
+      },
+      "FilesTrashList": {
+        "type": "array",
+        "maxItems": 10000,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$"
+            },
+            "path": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "deleted": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "id",
+            "path",
+            "name",
+            "deleted"
+          ]
+        }
+      },
+      "FilesNameInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "FilesDestinationInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "destination"
+        ]
+      },
+      "FilesRestoreInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{8,128}$"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "FilesRemoveInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "const": true
+          }
+        },
+        "required": [
+          "confirm"
+        ]
+      },
+      "FilesSaveTextInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 1048576
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "FilesWriteResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "item": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "file",
+                      "folder",
+                      "symlink",
+                      "special"
+                    ]
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "modified": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "uid": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "gid": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "etag": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "path",
+                  "kind",
+                  "size",
+                  "modified",
+                  "mode",
+                  "uid",
+                  "gid",
+                  "etag"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{8,128}$"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "deleted": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "id",
+                  "path",
+                  "name",
+                  "deleted"
+                ]
+              }
+            ]
+          },
+          "backup": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "FilesRootList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "roots": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+                },
+                "kind": {
+                  "enum": [
+                    "home",
+                    "share",
+                    "system"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "access": {
+                  "enum": [
+                    "read",
+                    "write"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "access"
+              ]
+            }
+          },
+          "homes": {
+            "type": "boolean"
+          },
+          "maxUploadBytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxTextBytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "quota": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "limitBytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "usedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reservedBytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "measured": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limitBytes",
+              "usedBytes",
+              "reservedBytes",
+              "measured"
+            ]
+          }
+        },
+        "required": [
+          "roots",
+          "homes",
+          "maxUploadBytes",
+          "maxTextBytes"
+        ]
+      },
+      "FilesQuotaFolderList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "shareId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "usage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "limitBytes": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0
+                    },
+                    "usedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "reservedBytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "measured": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "limitBytes",
+                    "usedBytes",
+                    "reservedBytes",
+                    "measured"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "shareId",
+                "path",
+                "version",
+                "usage"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "FilesSession": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+              },
+              "displayName": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "admin",
+                  "user"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "username",
+              "displayName",
+              "role"
+            ]
+          },
+          "csrfToken": {
+            "type": "string",
+            "minLength": 16
+          },
+          "passwordChangeRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "user",
+          "csrfToken",
+          "passwordChangeRequired"
+        ]
+      },
+      "FilesLoginInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "FilesOk": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "const": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "FilesHealth": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "app": {
+            "const": "MinhAnOS Files"
+          },
+          "version": {
+            "type": "string"
+          },
+          "independent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "app",
+          "version",
+          "independent"
+        ]
+      },
+      "FilesEmptyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      },
+      "DesktopSession": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+              },
+              "displayName": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "admin",
+                  "user"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "username",
+              "displayName",
+              "role"
+            ]
+          },
+          "csrfToken": {
+            "type": "string",
+            "minLength": 16
+          },
+          "passwordChangeRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "user",
+          "csrfToken",
+          "passwordChangeRequired"
+        ]
+      },
+      "DesktopLoginInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "DesktopAppList": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*$"
+            },
+            "icon": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^[a-z]+$"
+            }
+          },
+          "required": [
+            "id",
+            "icon",
+            "color"
+          ]
+        }
+      },
+      "DesktopPreferences": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "theme": {
+            "enum": [
+              "light",
+              "dark"
+            ]
+          },
+          "wallpaper": {
+            "enum": [
+              "mountain",
+              "midnight",
+              "sage"
+            ]
+          },
+          "mode": {
+            "enum": [
+              "focus",
+              "windows"
+            ]
+          },
+          "windows": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 20000
+                },
+                "y": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 20000
+                },
+                "width": {
+                  "type": "number",
+                  "minimum": 260,
+                  "maximum": 10000
+                },
+                "height": {
+                  "type": "number",
+                  "minimum": 200,
+                  "maximum": 10000
+                },
+                "minimized": {
+                  "type": "boolean"
+                },
+                "maximized": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "x",
+                "y",
+                "width",
+                "height",
+                "minimized",
+                "maximized"
+              ]
+            }
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 32000
+          },
+          "pinned": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "theme",
+          "wallpaper",
+          "mode",
+          "windows",
+          "notes",
+          "pinned"
+        ]
+      },
+      "DesktopSystemStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "os": {
+            "type": "string"
+          },
+          "architecture": {
+            "type": "string"
+          },
+          "goVersion": {
+            "type": "string"
+          },
+          "cpus": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "goroutines": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "heapBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "uptimeSeconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "diskTotalBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "diskFreeBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "database": {
+            "enum": [
+              "connected",
+              "disconnected"
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "hostname",
+          "os",
+          "architecture",
+          "goVersion",
+          "cpus",
+          "goroutines",
+          "heapBytes",
+          "uptimeSeconds",
+          "diskTotalBytes",
+          "diskFreeBytes",
+          "database"
+        ]
+      },
+      "DesktopOk": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "const": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "DesktopHealth": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "ok"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version"
         ]
       }
     }

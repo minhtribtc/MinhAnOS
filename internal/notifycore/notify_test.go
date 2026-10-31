@@ -47,6 +47,10 @@ func fixture(t *testing.T) Store {
 	if _, e = db.Exec(ctx, `CREATE TABLE identity_notification_outbox(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),recipient_id uuid NOT NULL,kind text NOT NULL,severity text NOT NULL,mandatory boolean NOT NULL DEFAULT false,details jsonb NOT NULL DEFAULT '{}',request_id text NOT NULL,correlation_id text,created_at timestamptz NOT NULL DEFAULT now(),delivered_at timestamptz)`); e != nil {
 		t.Fatal(e)
 	}
+	// Stand-in for the storage-owned quota outbox (storage SQL 005).
+	if _, e = db.Exec(ctx, `CREATE TABLE storage_notification_outbox(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),recipient_id uuid NOT NULL,source text NOT NULL,kind text NOT NULL,severity text NOT NULL,details jsonb NOT NULL DEFAULT '{}',request_id text NOT NULL,correlation_id text,created_at timestamptz NOT NULL DEFAULT now(),delivered_at timestamptz)`); e != nil {
+		t.Fatal(e)
+	}
 	if e = ApplySchema(ctx, db); e != nil {
 		t.Fatal(e)
 	}
@@ -81,6 +85,19 @@ func TestDeliverListMarkRead(t *testing.T) {
 	s.DB.QueryRow(ctx, "SELECT count(*) FROM notifications").Scan(&total)
 	if total != 6 {
 		t.Fatal("duplicate delivery", total)
+	}
+	// Quota notices come from the storage outbox with their own source and are never mandatory.
+	if _, e := s.DB.Exec(ctx, "INSERT INTO storage_notification_outbox(recipient_id,source,kind,severity,details,request_id) VALUES($1,'com.minhanos.files','quota.warning','warning','{\"percent\":81}','r')", bob); e != nil {
+		t.Fatal(e)
+	}
+	if n, e := s.Deliver(ctx); e != nil || n != 1 {
+		t.Fatal("quota deliver", n, e)
+	}
+	if page, e := s.List(ctx, bob, false, "", 5); e != nil || len(page.Items) != 2 || page.Items[0].Source != "com.minhanos.files" || page.Items[0].Mandatory {
+		t.Fatal("quota notice", page, e)
+	}
+	if _, e := s.DB.Exec(ctx, "DELETE FROM notifications WHERE source='com.minhanos.files'"); e != nil {
+		t.Fatal(e)
 	}
 
 	first, e := s.List(ctx, alice, false, "", 2)

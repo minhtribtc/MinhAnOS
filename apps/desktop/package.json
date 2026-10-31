@@ -16,6 +16,7 @@
     "@minhanos/files-app": "0.3.0",
     "@minhanos/notes-app": "0.1.0",
     "@minhanos/api-client": "0.1.0",
+    "@minhanos/shared-types": "0.1.0",
     "@minhanos/accounts-app": "0.1.0",
     "@minhanos/settings-app": "0.1.0",
     "@minhanos/storage-app": "0.1.0",

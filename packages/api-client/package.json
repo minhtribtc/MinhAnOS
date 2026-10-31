@@ -8,7 +8,9 @@
     "./identity": "./src/identity.generated.js",
     "./storage": "./src/storage.generated.js",
     "./notifications": "./src/notifications.generated.js",
-    "./logs": "./src/logs.generated.js"
+    "./logs": "./src/logs.generated.js",
+    "./files": "./src/files.generated.js",
+    "./desktop": "./src/desktop.generated.js"
   },
   "dependencies": {
     "@minhanos/shared-types": "0.1.0"

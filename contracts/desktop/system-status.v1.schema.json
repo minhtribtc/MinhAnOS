@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/desktop-system-status.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "hostname": {
+      "type": "string"
+    },
+    "os": {
+      "type": "string"
+    },
+    "architecture": {
+      "type": "string"
+    },
+    "goVersion": {
+      "type": "string"
+    },
+    "cpus": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "goroutines": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "heapBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "uptimeSeconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "diskTotalBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "diskFreeBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "database": {
+      "enum": [
+        "connected",
+        "disconnected"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "hostname",
+    "os",
+    "architecture",
+    "goVersion",
+    "cpus",
+    "goroutines",
+    "heapBytes",
+    "uptimeSeconds",
+    "diskTotalBytes",
+    "diskFreeBytes",
+    "database"
+  ]
+}

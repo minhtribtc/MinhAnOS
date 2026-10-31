@@ -300,7 +300,7 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 				}
 				var b CreateUser
 				if e = decode(&b); e == nil {
-					out, e = s.Create(ctx, realm, token, b, "user", key, requestID, raw, false)
+					out, e = s.Create(ctx, realm, token, b, "user", key, requestID, raw)
 				}
 			case len(parts) == 2 && parts[0] == "users" && r.Method == "PATCH" || path == "me" && r.Method == "PATCH":
 				var b struct {

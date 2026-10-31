@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-root-list.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "roots": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+          },
+          "kind": {
+            "enum": [
+              "home",
+              "share",
+              "system"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "access": {
+            "enum": [
+              "read",
+              "write"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "access"
+        ]
+      }
+    },
+    "homes": {
+      "type": "boolean"
+    },
+    "maxUploadBytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "maxTextBytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "quota": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "limitBytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "usedBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reservedBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "measured": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "limitBytes",
+        "usedBytes",
+        "reservedBytes",
+        "measured"
+      ]
+    }
+  },
+  "required": [
+    "roots",
+    "homes",
+    "maxUploadBytes",
+    "maxTextBytes"
+  ]
+}

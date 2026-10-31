@@ -197,7 +197,8 @@
     "files.errors.NETWORK_ERROR": "Mất kết nối.",
     "files.errors.UPLOAD_ABORTED": "Đã hủy tải lên.",
     "files.nav.shared": "Thư mục chia sẻ",
-    "files.nav.system": "Hệ thống"
+    "files.nav.system": "Hệ thống",
+    "files.roots.system": "Hệ thống Debian"
   },
   "en-US": {
     "files.app.name": "MinhAnOS Files",
@@ -397,6 +398,7 @@
     "files.errors.NETWORK_ERROR": "Connection lost.",
     "files.errors.UPLOAD_ABORTED": "Upload cancelled.",
     "files.nav.shared": "Shared folders",
-    "files.nav.system": "System"
+    "files.nav.system": "System",
+    "files.roots.system": "Debian system"
   }
 }

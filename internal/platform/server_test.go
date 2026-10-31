@@ -75,9 +75,9 @@ func TestWorkspaceModes(t *testing.T) {
 }
 func TestMissingSessionRejected(t *testing.T) {
 	a := &App{}
-	handler := a.auth(a.admin(nil))
+	handler := a.auth(nil)
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/api/admin/users", nil)
+	r := httptest.NewRequest("GET", "/api/preferences", nil)
 	handler.ServeHTTP(w, r)
 	if w.Code != 401 {
 		t.Fatalf("wanted 401, got %d", w.Code)
