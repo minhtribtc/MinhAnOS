@@ -81,3 +81,5 @@ A NAS keeps working unchanged, as one organization.
 - UI (2026-10-31): Account Center → *Tổ chức* (tree, members, organization users, organization groups);
   Storage Manager → *Tổ chức* (allocations per pool) and an owning organization when creating a share; Log Center
   filters by organization; Notification Center renders `organization.joined/left/role` and allocation quota notices.
+- Deleting an (empty) organization removes its memberships and groups; the accounts stay and remain platform
+  accounts (disable and delete them in Account Center → Users).

@@ -7,6 +7,8 @@ concurrent 20 MiB children of a 100 MiB parent: exactly 5 succeed, delegated = s
 create 403, scoped share list and Log Center, launcher). `npm run check` (incl. `tests/app-standard.mjs` row 27:
 organization columns, no client-side active organization, catalog entries for every tenancy error, per-request scope)
 and vue-tsc builds of Desktop, Files and Accounts PASS.
+Deployed to VM 10.1.1.20 (backup before-organizations.sql): smoke suites, backup-restore and a11y-browser (organization
+screens included, after labelling the usage progress bars) PASS; live API probe of an organization admin PASS.
 
 ## Desktop and Files second standard pass (rows 9, 11, 15, 17, 19, 20, 22) — 2026-10-31
 
