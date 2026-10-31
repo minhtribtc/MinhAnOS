@@ -5770,6 +5770,9 @@ export interface FilesRootList {
     reservedBytes: number;
     measured: boolean;
   };
+  sharing?: boolean;
+  publicBase?: string;
+  publicPort?: string;
 }
 
 export interface FilesQuotaFolderList {
@@ -5838,6 +5841,1223 @@ export interface FilesFavoriteInput {
   root: string;
   path: string;
   dir?: boolean;
+}
+
+export interface FilesGrant {
+  id: string;
+  path: string;
+  name: string;
+  dir: boolean;
+  permission: "view" | "edit";
+  owner: string;
+  granteeId: string;
+  grantee: string;
+  created: string;
+}
+
+export interface FilesLink {
+  id: string;
+  token: string;
+  path: string;
+  name: string;
+  dir: boolean;
+  permission: "view" | "edit" | "drop";
+  hasPassword: boolean;
+  expires: string | null;
+  created: string;
+  lastUsed: string | null;
+  uses: number;
+}
+
+export interface FilesSharingList {
+  /**
+   * @maxItems 1000
+   */
+  grants: {
+    id: string;
+    path: string;
+    name: string;
+    dir: boolean;
+    permission: "view" | "edit";
+    owner: string;
+    granteeId: string;
+    grantee: string;
+    created: string;
+  }[];
+  /**
+   * @maxItems 500
+   */
+  links: {
+    id: string;
+    token: string;
+    path: string;
+    name: string;
+    dir: boolean;
+    permission: "view" | "edit" | "drop";
+    hasPassword: boolean;
+    expires: string | null;
+    created: string;
+    lastUsed: string | null;
+    uses: number;
+  }[];
+  limits: {
+    grants: number;
+    links: number;
+  };
+}
+
+export interface FilesReceivedList {
+  /**
+   * @maxItems 10000
+   */
+  items: {
+    id: string;
+    path: string;
+    name: string;
+    dir: boolean;
+    permission: "view" | "edit";
+    owner: string;
+    granteeId: string;
+    grantee: string;
+    created: string;
+  }[];
+}
+
+export interface FilesRecipientList {
+  /**
+   * @maxItems 20
+   */
+  items:
+    | []
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ]
+    | [
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        },
+        {
+          id: string;
+          username: string;
+          displayName: string;
+        }
+      ];
+}
+
+export interface FilesGrantInput {
+  path: string;
+  recipient: string;
+  permission: "view" | "edit";
+}
+
+export interface FilesLinkInput {
+  path: string;
+  permission: "view" | "edit" | "drop";
+  password?: string;
+  expires?: string;
+}
+
+export interface FilesLinkUpdateInput {
+  id: string;
+  permission: "view" | "edit" | "drop";
+  expires?: string;
+  clearPassword?: boolean;
+  password?: string;
+}
+
+export interface FilesIdInput {
+  id: string;
+}
+
+export interface FilesPublicInfo {
+  name: string;
+  dir: boolean;
+  permission: "view" | "edit" | "drop";
+  owner: string;
+  needsPassword: boolean;
+  expires: string | null;
+  maxUploadBytes: number;
+}
+
+export interface FilesUnlockInput {
+  password: string;
 }
 
 export interface FilesEmptyInput {}

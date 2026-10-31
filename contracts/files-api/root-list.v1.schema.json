@@ -90,6 +90,17 @@
         "reservedBytes",
         "measured"
       ]
+    },
+    "sharing": {
+      "type": "boolean"
+    },
+    "publicBase": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "publicPort": {
+      "type": "string",
+      "maxLength": 5
     }
   },
   "required": [

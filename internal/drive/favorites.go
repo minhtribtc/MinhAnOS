@@ -2,12 +2,16 @@ package drive
 
 import (
 	"context"
+	"errors"
+	"io/fs"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"minhanos.local/platform/internal/storagecore"
 )
 
 // MaxFavorites bounds the favorites of one user (files SQL 007).
@@ -28,6 +32,8 @@ type FavoriteStore interface {
 	// at the limit may pass it by one; the bound is a guard, not an exact count.
 	Add(ctx context.Context, user string, f Favorite) (bool, error)
 	Remove(ctx context.Context, user, root, path string) error
+	// Retarget follows a rename or move (to empty: removal); see SharingStore.Retarget.
+	Retarget(ctx context.Context, owner, root, from, to string) error
 }
 
 type SQLFavorites struct{ DB *pgxpool.Pool }
@@ -48,6 +54,10 @@ func (s SQLFavorites) Add(ctx context.Context, user string, f Favorite) (bool, e
 		WHERE (SELECT count(*) FROM files_favorites WHERE user_id=$1) < $5 OR EXISTS (SELECT 1 FROM files_favorites WHERE user_id=$1 AND root=$2 AND path=$3)
 		ON CONFLICT (user_id,root,path) DO UPDATE SET dir=EXCLUDED.dir`, user, f.Root, f.Path, f.Dir, MaxFavorites)
 	return err == nil && tag.RowsAffected() > 0, err
+}
+
+func (s SQLFavorites) Retarget(ctx context.Context, owner, root, from, to string) error {
+	return SQLSharing{DB: s.DB}.Retarget(ctx, owner, root, from, to)
 }
 
 func (s SQLFavorites) Remove(ctx context.Context, user, root, path string) error {
@@ -76,13 +86,36 @@ func (s *Server) serveFavorites(w http.ResponseWriter, r *http.Request, u User) 
 			return
 		}
 		out := make([]Favorite, 0, len(list))
-		for _, f := range list {
-			if ok, err := s.favoriteRoot(r.Context(), u, f.Root); err != nil {
-				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
-				return
-			} else if ok {
-				out = append(out, f)
+		// Favorites of items that are gone are dropped here, whatever removed them.
+		engines := map[string]*Engine{}
+		visible := map[string]bool{}
+		defer func() {
+			for _, e := range engines {
+				if e != nil {
+					e.Root.Close()
+				}
 			}
+		}()
+		for _, f := range list {
+			ok, seen := visible[f.Root]
+			if !seen {
+				e, _, found, err := s.favoriteEngine(r.Context(), u, f.Root)
+				if err != nil {
+					fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
+					return
+				}
+				engines[f.Root], visible[f.Root], ok = e, found, found
+			}
+			if !ok {
+				continue
+			}
+			if favoriteGone(engines[f.Root], f.Path) {
+				if err := s.Favorites.Remove(r.Context(), u.ID, f.Root, f.Path); err != nil {
+					logError(r.Context(), "files.favorites.remove_failed", err)
+				}
+				continue
+			}
+			out = append(out, f)
 		}
 		jsonResponse(w, 200, map[string]any{"items": out, "limit": MaxFavorites})
 	case r.Method == "POST" && (r.URL.Path == "/api/favorites" || r.URL.Path == "/api/favorites/remove"):
@@ -132,22 +165,76 @@ func (s *Server) serveFavorites(w http.ResponseWriter, r *http.Request, u User) 
 	}
 }
 
-// favoriteRoot reports whether the user may open root now: the home, a Shared Folder they can read, or the
-// host system root for operators.
+// favoriteRoot reports whether the user may open root now: the home, a Shared Folder they can read, an item shared
+// with them, or the host system root for operators.
 func (s *Server) favoriteRoot(ctx context.Context, u User, root string) (bool, error) {
-	if root == "personal" {
-		return true, nil
-	}
-	if root == "system" {
-		return s.hostAllowed(ctx, u)
-	}
-	key, ok := strings.CutPrefix(root, "share:")
-	if !ok || s.Shares == nil {
-		return false, nil
-	}
-	_, ok, err := s.userShare(ctx, u.ID, key)
-	if err != nil {
-		logError(ctx, "files.shares.lookup_failed", err)
+	e, done, ok, err := s.favoriteEngine(ctx, u, root)
+	if e != nil {
+		done()
 	}
 	return ok, err
+}
+
+// favoriteEngine opens root for an existence check (nil engine for the system root, which is not checked).
+func (s *Server) favoriteEngine(ctx context.Context, u User, root string) (*Engine, func(), bool, error) {
+	none := func() {}
+	open := func(dir string, err error) (*Engine, func(), bool, error) {
+		if errors.Is(err, storagecore.ErrNoHomes) || errors.Is(err, fs.ErrNotExist) {
+			return nil, none, false, nil
+		}
+		if err != nil {
+			return nil, none, false, err
+		}
+		r, err := os.OpenRoot(dir)
+		if err != nil {
+			return nil, none, false, nil
+		}
+		return &Engine{Root: r}, func() { r.Close() }, true, nil
+	}
+	switch {
+	case root == "personal":
+		// The home always exists for the user, even before its first write creates the folder.
+		e, done, _, err := open(s.homeDir(ctx, u.ID, false))
+		return e, done, err == nil, err
+	case root == "system":
+		ok, err := s.hostAllowed(ctx, u)
+		return nil, none, ok, err
+	case strings.HasPrefix(root, "share:"):
+		share, ok, err := s.userShare(ctx, u.ID, strings.TrimPrefix(root, "share:"))
+		if err != nil {
+			logError(ctx, "files.shares.lookup_failed", err)
+		}
+		if !ok || err != nil {
+			return nil, none, false, err
+		}
+		return open(s.unitPath(ctx, share.Volume, "shares", share.Key, false))
+	case strings.HasPrefix(root, "shared:") && s.Sharing != nil:
+		g, ok, err := s.Sharing.ReceivedGrant(ctx, strings.TrimPrefix(root, "shared:"), u.ID)
+		if !ok || err != nil {
+			return nil, none, false, err
+		}
+		dir, err := s.homeDir(ctx, g.OwnerID, false)
+		if err != nil {
+			return nil, none, false, nil
+		}
+		e, r, err := sharedEngine(dir, g.Path, g.Dir)
+		if err != nil {
+			return nil, none, false, nil
+		}
+		return e, func() { r.Close() }, true, nil
+	}
+	return nil, none, false, nil
+}
+
+// favoriteGone reports a favorite whose item no longer exists (deleted, moved or renamed outside Files).
+func favoriteGone(e *Engine, p string) bool {
+	if e == nil {
+		return false
+	}
+	q, err := e.logical(p)
+	if err != nil {
+		return true
+	}
+	_, err = e.Root.Lstat(e.disk(q))
+	return errors.Is(err, fs.ErrNotExist)
 }

@@ -55,9 +55,14 @@ type TrashItem struct {
 }
 
 // Engine owns one rooted namespace. Public paths never address its private trash journal.
+// A shared item (ADR 0011) is served by an engine scoped to it: Base is the shared folder (or the folder holding the
+// shared file) inside the owner's files, Only limits a file share to that one name. Scoped engines have no trash
+// view; items they trash land in the owner's trash under the owner's path.
 type Engine struct {
 	Root *os.Root
 	Host bool
+	Base string
+	Only string
 }
 
 func clean(value string) (string, error) {
@@ -83,6 +88,9 @@ func (e *Engine) logical(value string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if e.Only != "" && p != "." && p != e.Only && !strings.HasPrefix(p, e.Only+"/") {
+		return "", problem(404, "FILES_NOT_FOUND", "Không tìm thấy tệp hoặc thư mục.")
+	}
 	if e.Host {
 		first := strings.Split(p, "/")[0]
 		if first == "proc" || first == "sys" || first == "dev" || first == "run" {
@@ -95,8 +103,11 @@ func (e *Engine) disk(p string) string {
 	if e.Host {
 		return p
 	}
-	return path.Join("files", p)
+	return path.Join("files", e.Base, p)
 }
+
+// scoped engines (a shared item) never show or change the owner's trash.
+func (e *Engine) scoped() bool { return e.Base != "" || e.Only != "" }
 
 // Each parent is opened relative to a rooted handle. Reject symlinks instead of following
 // them into unexpected namespaces, and use O_NOFOLLOW on the final directory/file.
@@ -183,6 +194,9 @@ func (e *Engine) List(value string) ([]Entry, error) {
 		fi, er := child.Stat()
 		child.Close()
 		if er != nil {
+			continue
+		}
+		if e.Only != "" && p == "." && d.Name() != e.Only {
 			continue
 		}
 		out = append(out, entry(fi, path.Join(p, d.Name())))
@@ -424,7 +438,7 @@ func (e *Engine) Trash(value string) (TrashItem, error) {
 	if p == "." {
 		return TrashItem{}, problem(400, "FILES_ROOT_PROTECTED", "Không xóa thư mục gốc.")
 	}
-	item := TrashItem{ID: authn.Token(), Path: p, Name: path.Base(p), Deleted: time.Now().UTC()}
+	item := TrashItem{ID: authn.Token(), Path: path.Join(e.Base, p), Name: path.Base(p), Deleted: time.Now().UTC()}
 	dir := path.Join("trash", item.ID)
 	if err = e.Root.Mkdir(dir, 0700); err != nil {
 		return item, err
@@ -456,6 +470,9 @@ func (e *Engine) Trash(value string) (TrashItem, error) {
 	return item, err
 }
 func (e *Engine) TrashList() ([]TrashItem, error) {
+	if e.scoped() {
+		return nil, problem(403, "FILES_SHARED_NO_TRASH", "Mục được chia sẻ không có thùng rác riêng.")
+	}
 	if e.Host {
 		return nil, problem(400, "FILES_NO_SYSTEM_TRASH", "Không có thùng rác hệ thống.")
 	}
@@ -494,6 +511,9 @@ func (e *Engine) TrashList() ([]TrashItem, error) {
 	return items, nil
 }
 func (e *Engine) Restore(id string) error {
+	if e.scoped() {
+		return problem(403, "FILES_SHARED_NO_TRASH", "Mục được chia sẻ không có thùng rác riêng.")
+	}
 	if e.Host || !validID(id) {
 		return problem(400, "FILES_TRASH_ITEM_INVALID", "Mục khôi phục không hợp lệ.")
 	}

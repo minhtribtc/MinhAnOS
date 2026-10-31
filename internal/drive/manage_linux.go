@@ -46,6 +46,12 @@ func (e *Engine) walk(p string, fn func(logical string, d fs.DirEntry) error) (b
 			return nil
 		}
 		logical := path.Join(p, strings.TrimPrefix(strings.TrimPrefix(disk, base), "/"))
+		if e.Only != "" && logical != e.Only && !strings.HasPrefix(logical, e.Only+"/") {
+			if d.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
 		if e.Host && d.IsDir() && !strings.Contains(logical, "/") {
 			if _, err := e.logical(logical); err != nil {
 				return fs.SkipDir
@@ -201,6 +207,9 @@ func (e *Engine) Archive(w io.Writer, items []string) error {
 
 // EmptyTrash permanently removes every trash item (id empty) or one item, and returns the bytes freed.
 func (e *Engine) EmptyTrash(id string) (int64, error) {
+	if e.scoped() {
+		return 0, problem(403, "FILES_SHARED_NO_TRASH", "Mục được chia sẻ không có thùng rác riêng.")
+	}
 	if e.Host {
 		return 0, problem(400, "FILES_NO_SYSTEM_TRASH", "Không có thùng rác hệ thống.")
 	}

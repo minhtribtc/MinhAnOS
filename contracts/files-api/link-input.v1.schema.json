@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-link-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "permission": {
+      "enum": [
+        "view",
+        "edit",
+        "drop"
+      ]
+    },
+    "password": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "expires": {
+      "type": "string",
+      "maxLength": 64
+    }
+  },
+  "required": [
+    "path",
+    "permission"
+  ]
+}

@@ -31,7 +31,7 @@ const files={
  FilesRemoveInput:obj({confirm:{const:true}}),
  FilesSaveTextInput:obj({content:str({maxLength:1048576})}),
  FilesWriteResult:obj({ok:{const:true},item:{anyOf:[entry,trashItem]},backup:str(),job},['ok']),
- FilesRootList:obj({roots:{type:'array',maxItems:1000,items:obj({id:str({pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'}),kind:{enum:['home','share','system']},name:str({minLength:1,maxLength:100}),access:{enum:['read','write']},organizationId:str({format:'uuid'}),organization:str({minLength:1,maxLength:100})},['id','kind','access'])},homes:{type:'boolean'},maxUploadBytes:int({minimum:1}),maxTextBytes:int({minimum:1}),quota:usage},['roots','homes','maxUploadBytes','maxTextBytes']),
+ FilesRootList:obj({roots:{type:'array',maxItems:1000,items:obj({id:str({pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'}),kind:{enum:['home','share','system']},name:str({minLength:1,maxLength:100}),access:{enum:['read','write']},organizationId:str({format:'uuid'}),organization:str({minLength:1,maxLength:100})},['id','kind','access'])},homes:{type:'boolean'},maxUploadBytes:int({minimum:1}),maxTextBytes:int({minimum:1}),quota:usage,sharing:{type:'boolean'},publicBase:str({maxLength:2048}),publicPort:str({maxLength:5})},['roots','homes','maxUploadBytes','maxTextBytes']),
  FilesQuotaFolderList:obj({items:{type:'array',maxItems:1000,items:obj({id:str({format:'uuid'}),shareId:str({format:'uuid'}),path:str(),version:int({minimum:1}),usage})}}),
  FilesSession:session,
  FilesLoginInput:obj({username:str({minLength:1,maxLength:64}),password:str({minLength:1,maxLength:256})}),
@@ -70,11 +70,28 @@ const csrf=header('X-CSRF-Token','CSRF token from the session')
 const idem=header('Idempotency-Key','16–128 characters; a retry with the same key and request replays the response for 24 hours',{type:'string',minLength:16,maxLength:128})
 const ifMatch=header('If-Match','ETag of the version the client last read',{type:'string',minLength:1})
 const q=(name,description,schema={type:'string'},required=false)=>({name,in:'query',required,description,schema})
-const rootQ=q('root','personal, share:<key> or system',{type:'string',pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'})
+const rootQ=q('root','personal, share:<key>, shared:<grant id> (an item shared with the user) or system',{type:'string',pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$'})
 const favorite=obj({root:{type:'string',pattern:rootQ.schema.pattern},path:str({minLength:1,maxLength:4096}),dir:{type:'boolean'},created:time})
 files.FilesFavoriteList=obj({items:{type:'array',maxItems:500,items:favorite},limit:int({minimum:1})})
 files.FilesFavoriteInput=obj({root:{type:'string',pattern:rootQ.schema.pattern},path:str({minLength:1,maxLength:4096}),dir:{type:'boolean'}},['root','path'])
 const pathQ=q('path','Path relative to the root',{type:'string',maxLength:4096})
+// Sharing (ADR 0011): grants to people of a common organization and public links; IDs and tokens are 64 hex.
+const hex64=str({pattern:'^[0-9a-f]{64}$'})
+const grant=obj({id:hex64,path:str({minLength:1,maxLength:4096}),name:str(),dir:{type:'boolean'},permission:{enum:['view','edit']},owner:str(),granteeId:str({format:'uuid'}),grantee:str(),created:time})
+const link=obj({id:hex64,token:hex64,path:str({minLength:1,maxLength:4096}),name:str(),dir:{type:'boolean'},permission:{enum:['view','edit','drop']},hasPassword:{type:'boolean'},expires:{type:['string','null'],format:'date-time'},created:time,lastUsed:{type:['string','null'],format:'date-time'},uses:int({minimum:0})})
+files.FilesGrant=grant
+files.FilesLink=link
+files.FilesSharingList=obj({grants:{type:'array',maxItems:1000,items:grant},links:{type:'array',maxItems:500,items:link},limits:obj({grants:int({minimum:1}),links:int({minimum:1})})})
+files.FilesReceivedList=obj({items:{type:'array',maxItems:10000,items:grant}})
+files.FilesRecipientList=obj({items:{type:'array',maxItems:20,items:obj({id:str({format:'uuid'}),username:str(),displayName:str()})}})
+files.FilesGrantInput=obj({path:str({minLength:1,maxLength:4096}),recipient:str({format:'uuid'}),permission:{enum:['view','edit']}})
+files.FilesLinkInput=obj({path:str({minLength:1,maxLength:4096}),permission:{enum:['view','edit','drop']},password:str({maxLength:256}),expires:str({maxLength:64})},['path','permission'])
+files.FilesLinkUpdateInput=obj({id:hex64,permission:{enum:['view','edit','drop']},expires:str({maxLength:64}),clearPassword:{type:'boolean'},password:str({maxLength:256})},['id','permission'])
+files.FilesIdInput=obj({id:hex64})
+files.FilesPublicInfo=obj({name:str(),dir:{type:'boolean'},permission:{enum:['view','edit','drop']},owner:str(),needsPassword:{type:'boolean'},expires:{type:['string','null'],format:'date-time'},maxUploadBytes:int({minimum:1})})
+files.FilesUnlockInput=obj({password:str({minLength:1,maxLength:256})})
+const tokenP={name:'token',in:'path',required:true,description:'Secret token of the public link',schema:hex64}
+const linkPathQ=q('path','Path relative to the shared item',{type:'string',maxLength:4096})
 const jobID={name:'id',in:'path',required:true,description:'Job ID',schema:{type:'string',format:'uuid'}}
 const ops={}
 const op=(path,method,operationId,summary,{params=[],body,ok='200',response,security='driveSession',module,extra={}}={})=>{
@@ -119,6 +136,21 @@ const filesOps=[
  op(`${F}/favorites`,'get','filesFavorites','Favorites the user can still open',{...fm,response:'FilesFavoriteList'}),
  op(`${F}/favorites`,'post','filesAddFavorite','Add a favorite (409 FILES_FAVORITES_LIMIT at 500)',{...fm,params:[csrf],body:'FilesFavoriteInput',response:'FilesOk'}),
  op(`${F}/favorites/remove`,'post','filesRemoveFavorite','Remove a favorite',{...fm,params:[csrf],body:'FilesFavoriteInput',response:'FilesOk'}),
+ op(`${F}/sharing`,'get','filesSharing','Grants and public links of the personal home (of one item with path)',{...fm,params:[q('path','Only the shares of this item',{type:'string',maxLength:4096})],response:'FilesSharingList'}),
+ op(`${F}/sharing/received`,'get','filesSharingReceived','Items shared with the user by people of a common active organization (open as root shared:<id>)',{...fm,response:'FilesReceivedList'}),
+ op(`${F}/sharing/recipients`,'get','filesSharingRecipients','Up to 20 people the user may share with (same active organization)',{...fm,params:[q('q','Name or username contains',{type:'string',maxLength:100})],response:'FilesRecipientList'}),
+ op(`${F}/sharing/grants`,'post','filesShareWith','Share an item of the home with a person, or change the permission (edit on a file allows saving its text only)',{...fm,params:[csrf,idem],body:'FilesGrantInput',response:'FilesGrant'}),
+ op(`${F}/sharing/grants/remove`,'post','filesUnshare','Stop sharing with a person (their favorites of it go too)',{...fm,params:[csrf,idem],body:'FilesIdInput',response:'FilesOk'}),
+ op(`${F}/sharing/links`,'post','filesCreateLink','Create a public link: view; for folders also edit (upload, new folder) or drop (upload only); optional password (6–256) and expiry',{...fm,params:[csrf,idem],body:'FilesLinkInput',response:'FilesLink'}),
+ op(`${F}/sharing/links/update`,'post','filesUpdateLink','Change permission, expiry or password of a public link',{...fm,params:[csrf,idem],body:'FilesLinkUpdateInput',response:'FilesLink'}),
+ op(`${F}/sharing/links/remove`,'post','filesRemoveLink','Delete a public link',{...fm,params:[csrf,idem],body:'FilesIdInput',response:'FilesOk'}),
+ op(`${F}/public/{token}`,'get','filesPublicInfo','What a public link shares (no account; 404 FILES_LINK_NOT_FOUND, 410 FILES_LINK_EXPIRED)',{...fm,security:null,params:[tokenP],response:'FilesPublicInfo'}),
+ op(`${F}/public/{token}/unlock`,'post','filesPublicUnlock','Unlock a password-protected link for 12 hours (cookie; 403 FILES_LINK_PASSWORD_WRONG, 429 after 10 tries)',{...fm,security:null,params:[tokenP],body:'FilesUnlockInput',response:'FilesOk'}),
+ op(`${F}/public/{token}/files/list`,'get','filesPublicList','One page of a folder of the link (view, edit)',{...fm,security:null,params:[tokenP,linkPathQ,q('cursor','nextCursor of the previous page',{type:'string',pattern:'^[A-Za-z0-9_-]+$'})],response:'FilesListPage'}),
+ op(`${F}/public/{token}/files/download`,'get','filesPublicDownload','Download a file of the link (view, edit)',{...fm,security:null,params:[tokenP,linkPathQ],response:'binary'}),
+ op(`${F}/public/{token}/files/archive`,'get','filesPublicArchive','Download items of the link as a zip archive (view, edit)',{...fm,security:null,params:[tokenP,{...q('item','Path of an item to include; repeat for several (at most 1000)',{type:'array',items:{type:'string',maxLength:4096},minItems:1,maxItems:1000},true),style:'form',explode:true}],response:'zip'}),
+ op(`${F}/public/{token}/files/upload`,'post','filesPublicUpload','Upload through the link (edit; drop at the top folder only); counts against the owner quota',{...fm,security:null,params:[tokenP,linkPathQ,q('name','File name',{type:'string',minLength:1,maxLength:255},true)],body:'binary',response:'FilesEntry',ok:'201'}),
+ op(`${F}/public/{token}/files/mkdir`,'post','filesPublicMkdir','Create a folder through the link (edit)',{...fm,security:null,params:[tokenP,linkPathQ],body:'FilesNameInput',response:'FilesWriteResult'}),
 ]
 ops[`${F}/files/copy`].post.responses['202']={description:'Queued as a background job (job holds its id and progress)',content:json('FilesWriteResult')}
 ops[`${F}/favorites`].post.responses['409']={description:'FILES_FAVORITES_LIMIT: the user already has 500 favorites',content:json('LegacyError')}

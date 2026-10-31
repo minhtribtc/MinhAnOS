@@ -1,3 +1,10 @@
+## Files: chia sẻ nội bộ và liên kết công khai — 2026-10-31
+
+- **Chia sẻ với người trong tổ chức**: chọn tệp/thư mục ở vùng riêng → *Chia sẻ*, tìm người cùng tổ chức, cho quyền *Chỉ xem* hoặc *Được sửa*. Người nhận thấy ở mục **Chia sẻ với tôi** trên thanh bên; thay đổi lưu thẳng vào kho của người chia sẻ.
+- **Liên kết công khai** (không cần tài khoản): xem và tải về, cho tải lên + tạo thư mục, hoặc *chỉ nhận tệp*; có mật khẩu và ngày hết hạn tuỳ chọn, xem số lượt dùng, xoá là thu hồi ngay. Trang liên kết cho tải từng tệp hoặc cả thư mục (.zip).
+- Mục **Đã chia sẻ** trên thanh bên liệt kê mọi mục bạn đã chia sẻ; mục đã chia sẻ có biểu tượng riêng.
+- Sửa lỗi: tệp trong **Yêu thích** đã bị xoá vẫn còn hiện. Nay mục Yêu thích (và chia sẻ, liên kết) tự đi theo khi đổi tên/di chuyển và tự bỏ khi xoá.
+
 ## Files: quản lý tệp đầy đủ hơn — 2026-10-31
 
 - **Sắp xếp** theo tên, kích thước, ngày sửa, loại tệp (tăng/giảm dần, thư mục luôn trước), được nhớ lại.

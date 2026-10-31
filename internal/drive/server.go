@@ -46,8 +46,14 @@ type Server struct {
 	Jobs *jobcore.Worker
 	// Favorites keeps the items pinned in the Files sidebar; nil disables them.
 	Favorites FavoriteStore
-	locks     sync.Map
-	limiter   loginLimiter
+	// Sharing keeps grants and public links (ADR 0011); nil disables sharing. PublicBase (FILES_PUBLIC_URL) or the
+	// page host with PublicPort forms the public link URL.
+	Sharing    SharingStore
+	PublicBase string
+	PublicPort string
+	locks      sync.Map
+	limiter    loginLimiter
+	linkTries  loginLimiter // password tries on public links, apart from logins so one cannot crowd out the other
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -255,7 +261,9 @@ func (s *Server) Handler() http.Handler {
 			} else if allowed && s.AgentSocket != "" && s.Identity.Authorize(r.Context(), session.User, "files.system.read") == nil {
 				roots = append(roots, map[string]string{"id": "system", "kind": "system", "access": "write"})
 			}
-			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText}
+			// Public links live on the Files origin (/s/<token>); embedded in the Desktop, the app builds the URL
+			// from publicBase, or from the page's host and publicPort.
+			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText, "sharing": s.Sharing != nil, "publicBase": s.PublicBase, "publicPort": s.PublicPort}
 			if homes && s.Quota != nil && validID(session.User.ID) {
 				// Never measure here: large homes are walked by the background measurer.
 				usage, err := s.Quota.HomeUsage(r.Context(), session.User.ID)
@@ -299,6 +307,12 @@ func (s *Server) Handler() http.Handler {
 			}
 			return
 		}
+		if r.URL.Path == "/api/sharing" || strings.HasPrefix(r.URL.Path, "/api/sharing/") {
+			if s.authorized(w, r, session.User, "files.read") {
+				s.serveSharing(w, r, session.User)
+			}
+			return
+		}
 		if r.URL.Path == "/api/jobs" || strings.HasPrefix(r.URL.Path, "/api/jobs/") {
 			permission := "files.read"
 			if r.Method == "POST" {
@@ -330,7 +344,8 @@ func (s *Server) Handler() http.Handler {
 			}
 		}
 		shareKey, isShare := strings.CutPrefix(root, "share:")
-		if root != "personal" && root != "system" && !isShare {
+		grantID, isGrant := strings.CutPrefix(root, "shared:")
+		if root != "personal" && root != "system" && !isShare && !isGrant {
 			fail(w, 400, "Không gian lưu trữ không hợp lệ.", "FILES_ROOT_INVALID")
 			return
 		}
@@ -366,6 +381,30 @@ func (s *Server) Handler() http.Handler {
 			}
 			share = found
 		}
+		// An item shared with the user (ADR 0011) is served from the owner's home: edit allows writes inside a shared
+		// folder, a shared file can only be saved (text) in place.
+		var grant Grant
+		owner := session.User.ID
+		if isGrant {
+			found, ok, e := Grant{}, false, error(nil)
+			if s.Sharing != nil && validID(grantID) {
+				found, ok, e = s.Sharing.ReceivedGrant(r.Context(), grantID, session.User.ID)
+			}
+			if e != nil {
+				logError(r.Context(), "files.grant.lookup_failed", e)
+				fail(w, 503, "Không đọc được chia sẻ.", "SERVICE_UNAVAILABLE")
+				return
+			}
+			if !ok || !validID(found.OwnerID) {
+				fail(w, 404, "Không tìm thấy mục được chia sẻ.", "SHARE_NOT_FOUND")
+				return
+			}
+			if mutation && (found.Permission != "edit" || (!found.Dir && path.Base(r.URL.Path) != "save-text")) {
+				fail(w, 403, "Mục được chia sẻ này chỉ cho phép xem.", "SHARE_READ_ONLY")
+				return
+			}
+			grant, owner = found, found.OwnerID
+		}
 		if mutation {
 			rec, finish, done := s.idempotent(w, r, session.User)
 			if done {
@@ -378,6 +417,8 @@ func (s *Server) Handler() http.Handler {
 			ev := AuditEvent{Action: "files." + strings.ReplaceAll(path.Base(r.URL.Path), "-", "_"), Root: root}
 			if isShare {
 				ev.Root, ev.Share = "share", shareKey
+			} else if isGrant {
+				ev.Root = "personal" // the owner's home; no path, like any personal write
 			} else if root == "system" {
 				ev.Path = r.URL.Query().Get("path")
 			}
@@ -399,7 +440,7 @@ func (s *Server) Handler() http.Handler {
 			return
 		}
 		// One lock per home or share: writes are serialized with each other and with measurements.
-		lockKey := session.User.ID
+		lockKey := owner
 		if isShare {
 			lockKey = "share:" + share.ID
 		}
@@ -417,7 +458,7 @@ func (s *Server) Handler() http.Handler {
 		if isShare {
 			dir, err = s.unitPath(r.Context(), share.Volume, "shares", share.Key, false)
 		} else {
-			dir, err = s.homeDir(r.Context(), session.User.ID, true)
+			dir, err = s.homeDir(r.Context(), owner, !isGrant)
 		}
 		switch {
 		case errors.Is(err, storagecore.ErrNoHomes):
@@ -439,15 +480,25 @@ func (s *Server) Handler() http.Handler {
 			handleFileError(w, err)
 			return
 		}
-		rootFS, err := os.OpenRoot(dir)
-		if err != nil {
+		var rootFS *os.Root
+		var engine *Engine
+		if isGrant {
+			if engine, rootFS, err = sharedEngine(dir, grant.Path, grant.Dir); err != nil {
+				fail(w, 404, "Mục được chia sẻ không còn tồn tại.", "SHARE_NOT_FOUND")
+				return
+			}
+		} else if rootFS, err = os.OpenRoot(dir); err != nil {
 			handleFileError(w, err)
 			return
+		} else {
+			engine = &Engine{Root: rootFS}
 		}
 		defer rootFS.Close()
-		engine := &Engine{Root: rootFS}
-		// A folder, or a file too large for one request, is copied by a durable job (row 20): 202 + the job.
-		if path.Base(r.URL.Path) == "copy" && r.Method == "POST" {
+		// Favorites and shares follow renames and moves and end with the item (read before ServeEngine consumes it).
+		retarget := s.retargetPlan(r, engine)
+		// A folder, or a file too large for one request, is copied by a durable job (row 20): 202 + the job. Jobs run
+		// in the actor's own roots, so a copy inside an item shared with them copies files only.
+		if path.Base(r.URL.Path) == "copy" && r.Method == "POST" && !isGrant {
 			job, queued, e := s.copyJob(r, engine, session.User, root)
 			if e != nil {
 				handleFileError(w, e)
@@ -500,7 +551,7 @@ func (s *Server) Handler() http.Handler {
 					}
 					res, e = s.Shares.ReserveShare(r.Context(), share.ID, write, size)
 				} else {
-					res, e = s.Quota.Reserve(r.Context(), session.User.ID, size)
+					res, e = s.Quota.Reserve(r.Context(), owner, size)
 				}
 				if e != nil {
 					quotaFailure(w, e)
@@ -515,7 +566,10 @@ func (s *Server) Handler() http.Handler {
 		}
 		s.settleFolders(share.ID, plan, err == nil)
 		if op := path.Base(r.URL.Path); err == nil && (op == "empty-trash" || op == "trash-delete") {
-			s.purged(r.Context(), isShare, share.ID, session.User.ID, dir)
+			s.purged(r.Context(), isShare, share.ID, owner, dir)
+		}
+		if err == nil && retarget != nil {
+			s.retarget(r.Context(), root, owner, isShare, engine, retarget)
 		}
 		if reservation != nil {
 			// Not cancelled with the client (the ledger must still settle) but keeps the request IDs for quota notices.
@@ -531,6 +585,8 @@ func (s *Server) Handler() http.Handler {
 			}
 		}
 	})
+	mux.HandleFunc("/api/public/", s.servePublic)
+	mux.HandleFunc("GET /s/", s.serveSharedPage)
 	mux.Handle("/", http.FileServer(http.Dir(s.StaticDir)))
 	return requestid.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -546,7 +602,7 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			limit := int64(MaxText*6 + 8192)
-			if r.URL.Path == "/api/files/upload" {
+			if r.URL.Path == "/api/files/upload" || (strings.HasPrefix(r.URL.Path, "/api/public/") && strings.HasSuffix(r.URL.Path, "/files/upload")) {
 				limit = MaxUpload + 1
 			}
 			r.Body = http.MaxBytesReader(w, r.Body, limit)

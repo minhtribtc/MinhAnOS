@@ -98,6 +98,50 @@
       "type": "FilesFavoriteInput"
     },
     {
+      "file": "grant.v1.schema.json",
+      "type": "FilesGrant"
+    },
+    {
+      "file": "link.v1.schema.json",
+      "type": "FilesLink"
+    },
+    {
+      "file": "sharing-list.v1.schema.json",
+      "type": "FilesSharingList"
+    },
+    {
+      "file": "received-list.v1.schema.json",
+      "type": "FilesReceivedList"
+    },
+    {
+      "file": "recipient-list.v1.schema.json",
+      "type": "FilesRecipientList"
+    },
+    {
+      "file": "grant-input.v1.schema.json",
+      "type": "FilesGrantInput"
+    },
+    {
+      "file": "link-input.v1.schema.json",
+      "type": "FilesLinkInput"
+    },
+    {
+      "file": "link-update-input.v1.schema.json",
+      "type": "FilesLinkUpdateInput"
+    },
+    {
+      "file": "id-input.v1.schema.json",
+      "type": "FilesIdInput"
+    },
+    {
+      "file": "public-info.v1.schema.json",
+      "type": "FilesPublicInfo"
+    },
+    {
+      "file": "unlock-input.v1.schema.json",
+      "type": "FilesUnlockInput"
+    },
+    {
       "file": "empty-input.v1.schema.json",
       "type": "FilesEmptyInput"
     }

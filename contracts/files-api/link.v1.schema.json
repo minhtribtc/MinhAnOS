@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-link.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "token": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "name": {
+      "type": "string"
+    },
+    "dir": {
+      "type": "boolean"
+    },
+    "permission": {
+      "enum": [
+        "view",
+        "edit",
+        "drop"
+      ]
+    },
+    "hasPassword": {
+      "type": "boolean"
+    },
+    "expires": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastUsed": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "uses": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "id",
+    "token",
+    "path",
+    "name",
+    "dir",
+    "permission",
+    "hasPassword",
+    "expires",
+    "created",
+    "lastUsed",
+    "uses"
+  ]
+}

@@ -178,7 +178,27 @@ hoặc **Dọn sạch thùng rác** (nút trên đầu, hoặc chuột phải v�
 
 **Yêu thích:** chọn tệp/thư mục rồi bấm *Thêm vào Yêu thích* (menu, cột Thông tin). Mục Yêu thích ở thanh bên
 gom mọi không gian; bấm để mở thư mục, hoặc mở thư mục chứa tệp và chọn sẵn tệp. Tối đa 500 mục; mục ở
-Shared Folder bạn không còn quyền sẽ tự ẩn. Yêu thích bị xóa cùng tài khoản.
+Shared Folder bạn không còn quyền sẽ tự ẩn. Yêu thích bị xóa cùng tài khoản. Khi tệp/thư mục bị xóa, chuyển
+vào thùng rác, đổi tên hoặc di chuyển, mục Yêu thích tự bỏ đi hoặc đi theo vị trí mới.
+
+**Chia sẻ (vùng riêng):** chọn tệp/thư mục trong vùng riêng → *Chia sẻ* (menu, cột Thông tin). Hộp thoại có hai phần:
+- *Người trong tổ chức*: tìm theo tên hoặc tên đăng nhập (chỉ người cùng tổ chức đang hoạt động), chọn quyền
+  **Chỉ xem** hoặc **Được sửa**, bấm *Chia sẻ*. Đổi quyền hoặc ngừng chia sẻ ngay trong danh sách. Với một tệp,
+  *Được sửa* chỉ cho sửa nội dung văn bản; với thư mục là tải lên, tạo, đổi tên, di chuyển, xóa bên trong.
+- *Liên kết công khai*: ai có liên kết đều mở được, không cần tài khoản. Chọn **Xem và tải về**, hoặc với thư mục
+  **Xem, tải lên và tạo thư mục** hay **Chỉ nhận tệp tải lên** (người nhận chỉ gửi tệp, không thấy gì bên trong);
+  có thể đặt mật khẩu (≥6 ký tự) và ngày hết hạn (hết ngày đó). Sao chép liên kết bằng nút cạnh địa chỉ; xóa liên
+  kết là thu hồi ngay. Mỗi liên kết hiện số lượt dùng.
+Tệp người khác tải lên qua chia sẻ tính vào dung lượng của bạn và được ghi nhật ký. Mục đã chia sẻ có biểu tượng
+chia sẻ; thanh bên **Đã chia sẻ** liệt kê chúng (bấm để sửa). Đổi tên hay di chuyển vẫn giữ chia sẻ; xóa vào thùng rác
+thì chia sẻ và liên kết của mục đó bị gỡ.
+
+**Chia sẻ với tôi:** thanh bên liệt kê mục người khác chia sẻ với bạn; bấm để mở. Mục chỉ xem không cho ghi; mục
+được sửa lưu thẳng vào kho của người chia sẻ (xóa thì vào thùng rác của họ). Nếu bạn hoặc họ rời tổ chức, mục tự ẩn.
+
+**Trang liên kết công khai** (`http://<máy chủ>:8082/s/…`): nhập mật khẩu nếu có (nhớ 12 giờ trên trình duyệt đó;
+thử sai quá 20 lần trong 10 phút sẽ bị chặn tạm), xem/tải từng tệp, tải tất cả thành .zip, hoặc gửi tệp (≤128 MB mỗi
+tệp). Muốn liên kết dùng tên miền khác, đặt `FILES_PUBLIC_URL` (ví dụ `https://files.example.com`) trong `.env`.
 
 **Hệ thống Debian:** chỉ admin và chỉ khi agent được cấu hình/kết nối.
 Đây là tệp thật của máy chủ; không phải kho tệp cá nhân. Thao tác xóa hệ thống là xóa vĩnh viễn

@@ -31,6 +31,21 @@
     "filesCancelJob",
     "filesFavorites",
     "filesAddFavorite",
-    "filesRemoveFavorite"
+    "filesRemoveFavorite",
+    "filesSharing",
+    "filesSharingReceived",
+    "filesSharingRecipients",
+    "filesShareWith",
+    "filesUnshare",
+    "filesCreateLink",
+    "filesUpdateLink",
+    "filesRemoveLink",
+    "filesPublicInfo",
+    "filesPublicUnlock",
+    "filesPublicList",
+    "filesPublicDownload",
+    "filesPublicArchive",
+    "filesPublicUpload",
+    "filesPublicMkdir"
   ]
 }

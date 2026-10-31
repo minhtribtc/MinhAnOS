@@ -31,9 +31,12 @@ var filesJobsPlatformSQL string
 //go:embed migrations/007_files_favorites.sql
 var filesFavoritesSQL string
 
+//go:embed migrations/008_files_sharing.sql
+var filesSharingSQL string
+
 // Module is the Files schema owned by this package (migration runner, app standard row 18).
 func Module() migrate.Module {
-	return migrate.Module{ID: "files", Dependencies: map[string]migrate.Range{"jobs": {Min: 1, Max: 100}}, Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}, {ID: 5, Name: "files_events_organization", SQL: filesEventsOrganizationSQL}, {ID: 6, Name: "files_jobs_platform", SQL: filesJobsPlatformSQL}, {ID: 7, Name: "files_favorites", SQL: filesFavoritesSQL}}}
+	return migrate.Module{ID: "files", Dependencies: map[string]migrate.Range{"jobs": {Min: 1, Max: 100}}, Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}, {ID: 5, Name: "files_events_organization", SQL: filesEventsOrganizationSQL}, {ID: 6, Name: "files_jobs_platform", SQL: filesJobsPlatformSQL}, {ID: 7, Name: "files_favorites", SQL: filesFavoritesSQL}, {ID: 8, Name: "files_sharing", SQL: filesSharingSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {

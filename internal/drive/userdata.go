@@ -106,6 +106,16 @@ func (s *Server) RemoveDeletedUsers(ctx context.Context, db *pgxpool.Pool) error
 	if _, err := db.Exec(ctx, "DELETE FROM files_favorites WHERE user_id IN (SELECT user_id FROM files_removals)"); err != nil {
 		return err
 	}
+	// Shares of a deleted account end at once, whether it owned them or received them (and favorites inside them).
+	if _, err := db.Exec(ctx, "DELETE FROM files_favorites WHERE root IN (SELECT 'shared:'||id FROM files_grants WHERE owner_id IN (SELECT user_id FROM files_removals) OR grantee_id IN (SELECT user_id FROM files_removals))"); err != nil {
+		return err
+	}
+	if _, err := db.Exec(ctx, "DELETE FROM files_grants WHERE owner_id IN (SELECT user_id FROM files_removals) OR grantee_id IN (SELECT user_id FROM files_removals)"); err != nil {
+		return err
+	}
+	if _, err := db.Exec(ctx, "DELETE FROM files_links WHERE owner_id IN (SELECT user_id FROM files_removals)"); err != nil {
+		return err
+	}
 	if _, err := db.Exec(ctx, "DELETE FROM platform_jobs WHERE type LIKE 'files.%' AND actor_id IN (SELECT user_id FROM files_removals)"); err != nil {
 		return err
 	}

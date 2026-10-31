@@ -5133,10 +5133,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           }
         ],
@@ -5183,10 +5183,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5264,10 +5264,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5325,10 +5325,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5385,10 +5385,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           }
         ],
@@ -5453,10 +5453,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5543,10 +5543,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5645,10 +5645,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5735,10 +5735,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5825,10 +5825,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -5915,10 +5915,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -6015,10 +6015,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -6105,10 +6105,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -6195,10 +6195,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8422,10 +8422,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8493,10 +8493,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8553,10 +8553,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8641,10 +8641,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8731,10 +8731,10 @@
             "name": "root",
             "in": "query",
             "required": false,
-            "description": "personal, share:<key> or system",
+            "description": "personal, share:<key>, shared:<grant id> (an item shared with the user) or system",
             "schema": {
               "type": "string",
-              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
             }
           },
           {
@@ -8945,6 +8945,927 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/FilesFavoriteInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/sharing": {
+      "get": {
+        "operationId": "filesSharing",
+        "summary": "Grants and public links of the personal home (of one item with path)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Only the shares of this item",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesSharingList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/sharing/received": {
+      "get": {
+        "operationId": "filesSharingReceived",
+        "summary": "Items shared with the user by people of a common active organization (open as root shared:<id>)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesReceivedList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/sharing/recipients": {
+      "get": {
+        "operationId": "filesSharingRecipients",
+        "summary": "Up to 20 people the user may share with (same active organization)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Name or username contains",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesRecipientList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/sharing/grants": {
+      "post": {
+        "operationId": "filesShareWith",
+        "summary": "Share an item of the home with a person, or change the permission (edit on a file allows saving its text only)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesGrant"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesGrantInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/sharing/grants/remove": {
+      "post": {
+        "operationId": "filesUnshare",
+        "summary": "Stop sharing with a person (their favorites of it go too)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesIdInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/sharing/links": {
+      "post": {
+        "operationId": "filesCreateLink",
+        "summary": "Create a public link: view; for folders also edit (upload, new folder) or drop (upload only); optional password (6–256) and expiry",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesLink"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesLinkInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/sharing/links/update": {
+      "post": {
+        "operationId": "filesUpdateLink",
+        "summary": "Change permission, expiry or password of a public link",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesLink"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesLinkUpdateInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/sharing/links/remove": {
+      "post": {
+        "operationId": "filesRemoveLink",
+        "summary": "Delete a public link",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesIdInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/public/{token}": {
+      "get": {
+        "operationId": "filesPublicInfo",
+        "summary": "What a public link shares (no account; 404 FILES_LINK_NOT_FOUND, 410 FILES_LINK_EXPIRED)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesPublicInfo"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/drive/public/{token}/unlock": {
+      "post": {
+        "operationId": "filesPublicUnlock",
+        "summary": "Unlock a password-protected link for 12 hours (cookie; 403 FILES_LINK_PASSWORD_WRONG, 429 after 10 tries)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesUnlockInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/public/{token}/files/list": {
+      "get": {
+        "operationId": "filesPublicList",
+        "summary": "One page of a folder of the link (view, edit)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the shared item",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "nextCursor of the previous page",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesListPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/drive/public/{token}/files/download": {
+      "get": {
+        "operationId": "filesPublicDownload",
+        "summary": "Download a file of the link (view, edit)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the shared item",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/drive/public/{token}/files/archive": {
+      "get": {
+        "operationId": "filesPublicArchive",
+        "summary": "Download items of the link as a zip archive (view, edit)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          {
+            "name": "item",
+            "in": "query",
+            "required": true,
+            "description": "Path of an item to include; repeat for several (at most 1000)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "minItems": 1,
+              "maxItems": 1000
+            },
+            "style": "form",
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/drive/public/{token}/files/upload": {
+      "post": {
+        "operationId": "filesPublicUpload",
+        "summary": "Upload through the link (edit; drop at the top folder only); counts against the owner quota",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the shared item",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "description": "File name",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesEntry"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/public/{token}/files/mkdir": {
+      "post": {
+        "operationId": "filesPublicMkdir",
+        "summary": "Create a folder through the link (edit)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Secret token of the public link",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the shared item",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesWriteResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesNameInput"
               }
             }
           }
@@ -12560,6 +13481,17 @@
               "reservedBytes",
               "measured"
             ]
+          },
+          "sharing": {
+            "type": "boolean"
+          },
+          "publicBase": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "publicPort": {
+            "type": "string",
+            "maxLength": 5
           }
         },
         "required": [
@@ -14143,7 +15075,7 @@
               "properties": {
                 "root": {
                   "type": "string",
-                  "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+                  "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
                 },
                 "path": {
                   "type": "string",
@@ -14182,7 +15114,7 @@
         "properties": {
           "root": {
             "type": "string",
-            "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62}|shared:[0-9a-f]{64})$"
           },
           "path": {
             "type": "string",
@@ -14196,6 +15128,559 @@
         "required": [
           "root",
           "path"
+        ]
+      },
+      "FilesGrant": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "name": {
+            "type": "string"
+          },
+          "dir": {
+            "type": "boolean"
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit"
+            ]
+          },
+          "owner": {
+            "type": "string"
+          },
+          "granteeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantee": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "path",
+          "name",
+          "dir",
+          "permission",
+          "owner",
+          "granteeId",
+          "grantee",
+          "created"
+        ]
+      },
+      "FilesLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "name": {
+            "type": "string"
+          },
+          "dir": {
+            "type": "boolean"
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit",
+              "drop"
+            ]
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "expires": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsed": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "uses": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "token",
+          "path",
+          "name",
+          "dir",
+          "permission",
+          "hasPassword",
+          "expires",
+          "created",
+          "lastUsed",
+          "uses"
+        ]
+      },
+      "FilesSharingList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grants": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "name": {
+                  "type": "string"
+                },
+                "dir": {
+                  "type": "boolean"
+                },
+                "permission": {
+                  "enum": [
+                    "view",
+                    "edit"
+                  ]
+                },
+                "owner": {
+                  "type": "string"
+                },
+                "granteeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "grantee": {
+                  "type": "string"
+                },
+                "created": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "path",
+                "name",
+                "dir",
+                "permission",
+                "owner",
+                "granteeId",
+                "grantee",
+                "created"
+              ]
+            }
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "token": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "name": {
+                  "type": "string"
+                },
+                "dir": {
+                  "type": "boolean"
+                },
+                "permission": {
+                  "enum": [
+                    "view",
+                    "edit",
+                    "drop"
+                  ]
+                },
+                "hasPassword": {
+                  "type": "boolean"
+                },
+                "expires": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "created": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "lastUsed": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "uses": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "id",
+                "token",
+                "path",
+                "name",
+                "dir",
+                "permission",
+                "hasPassword",
+                "expires",
+                "created",
+                "lastUsed",
+                "uses"
+              ]
+            }
+          },
+          "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "grants": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "links": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "grants",
+              "links"
+            ]
+          }
+        },
+        "required": [
+          "grants",
+          "links",
+          "limits"
+        ]
+      },
+      "FilesReceivedList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "name": {
+                  "type": "string"
+                },
+                "dir": {
+                  "type": "boolean"
+                },
+                "permission": {
+                  "enum": [
+                    "view",
+                    "edit"
+                  ]
+                },
+                "owner": {
+                  "type": "string"
+                },
+                "granteeId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "grantee": {
+                  "type": "string"
+                },
+                "created": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "path",
+                "name",
+                "dir",
+                "permission",
+                "owner",
+                "granteeId",
+                "grantee",
+                "created"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "FilesRecipientList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "username",
+                "displayName"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "FilesGrantInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "recipient": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "recipient",
+          "permission"
+        ]
+      },
+      "FilesLinkInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit",
+              "drop"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "expires": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "path",
+          "permission"
+        ]
+      },
+      "FilesLinkUpdateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit",
+              "drop"
+            ]
+          },
+          "expires": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "clearPassword": {
+            "type": "boolean"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "id",
+          "permission"
+        ]
+      },
+      "FilesIDInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "FilesPublicInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dir": {
+            "type": "boolean"
+          },
+          "permission": {
+            "enum": [
+              "view",
+              "edit",
+              "drop"
+            ]
+          },
+          "owner": {
+            "type": "string"
+          },
+          "needsPassword": {
+            "type": "boolean"
+          },
+          "expires": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "maxUploadBytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "name",
+          "dir",
+          "permission",
+          "owner",
+          "needsPassword",
+          "expires",
+          "maxUploadBytes"
+        ]
+      },
+      "FilesUnlockInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "FilesIdInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id"
         ]
       }
     }

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-grant-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "recipient": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "permission": {
+      "enum": [
+        "view",
+        "edit"
+      ]
+    }
+  },
+  "required": [
+    "path",
+    "recipient",
+    "permission"
+  ]
+}

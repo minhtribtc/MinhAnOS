@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-public-info.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "dir": {
+      "type": "boolean"
+    },
+    "permission": {
+      "enum": [
+        "view",
+        "edit",
+        "drop"
+      ]
+    },
+    "owner": {
+      "type": "string"
+    },
+    "needsPassword": {
+      "type": "boolean"
+    },
+    "expires": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "maxUploadBytes": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "name",
+    "dir",
+    "permission",
+    "owner",
+    "needsPassword",
+    "expires",
+    "maxUploadBytes"
+  ]
+}

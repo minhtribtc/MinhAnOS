@@ -1,4 +1,5 @@
 export {default} from './FilesApp.vue'
+export {default as PublicShare} from './PublicShare.vue'
 export {createFilesClient} from './client'
 export type {Entry,User,Root,TrashItem} from './client'
 import './style.css'

@@ -22,8 +22,9 @@ Shipped 2026-10-31 except item 1 (preview, thumbnails and format editors become 
 8. Done: favorites per user across roots (files SQL 007, `/api/favorites`, ≤500, removed with the account) and a Recent view (`GET files/recent`, 50 newest files).
 
 ## Phase 2 — collaboration
-1. Public links: password, expiry, download-only / upload-only (file drop), revocable, audited.
-2. Share a folder with users/groups of the organization (beyond Shared Folders), with read/write.
+Items 1–2 shipped 2026-10-31 (ADR 0011, files SQL 008):
+1. Done: public links `/s/<token>` — view, edit (upload + new folder) or drop (upload only), optional password and expiry, revocable, use count, uploads on the owner's quota and audited.
+2. Done: share a file or folder of the home with people of a common organization, view or edit (`shared:<id>` roots, "Shared with me" / "Shared by me"); favorites, grants and links follow renames and moves, and go with deletes. Groups beyond the organization: later.
 3. Versions: keep previous versions on overwrite, restore, retention.
 4. Tags and comments; per-file activity from `files_events`.
 

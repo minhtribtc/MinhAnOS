@@ -41,6 +41,10 @@ services:
       DRIVE_AGENT_SOCKET: /run/minhanos-files/agent.sock
       STORAGE_AGENT_SOCKET: /run/minhanos-storage/agent.sock
       ALLOW_PLATFORM_SESSIONS: "true"
+      # Public links (ADR 0011): FILES_PUBLIC_URL is the address visitors use (e.g. https://files.example.com);
+      # without it the link uses the host of the page with this port.
+      FILES_PUBLIC_URL: "${FILES_PUBLIC_URL:-}"
+      FILES_PUBLIC_PORT: "${DRIVE_PORT:-8082}"
     secrets: [bootstrap_password]
     volumes:
       - drive-files:/data
