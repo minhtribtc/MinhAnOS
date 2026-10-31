@@ -13,13 +13,13 @@ const files=JSON.parse(await readFile(new URL('../packages/files-app/locales/cat
 const browser=await chromium.launch()
 const results=[]
 const ok=name=>{console.log('PASS '+name);results.push(name)}
-async function signedIn(base,{scheme='light',width=1280,height=860}={}){
+async function signedIn(base,{scheme='light',width=1280,height=860,path='/'}={}){
  // bypassCSP only lets the test inject axe; the app's CSP stays as served.
  const context=await browser.newContext({colorScheme:scheme,viewport:{width,height},locale:'vi-VN',bypassCSP:true})
  const r=await context.request.post(base+'/api/login',{data:{username:'admin',password},headers:{Origin:base}})
  assert.equal(r.status(),200,'login '+base)
  const page=await context.newPage()
- await page.goto(base+'/');await page.waitForLoadState('networkidle')
+ await page.goto(base+path);await page.waitForLoadState('networkidle')
  return {context,page}
 }
 async function audit(page,label){
@@ -62,11 +62,34 @@ for(const scheme of ['light','dark']){
 }
 ok('Files: axe WCAG 2.1 AA in light and dark, new-folder dialog keeps focus and closes with Escape')
 
-for(const [base,label] of [[desktopURL,'Desktop'],[filesURL,'Files']]){
- const {context,page}=await signedIn(base,{width:375,height:812})
+// Organization screens (row 27): Account Center → Tổ chức (tree, selected organization, members, new-organization
+// dialog) and Storage Manager → Tổ chức (allocations). Opens and closes dialogs only.
+const accounts=JSON.parse(await readFile(new URL('../packages/accounts-app/locales/catalogs.json',import.meta.url),'utf8'))['vi-VN']
+const storageText=JSON.parse(await readFile(new URL('../packages/storage-app/locales/catalogs.json',import.meta.url),'utf8'))['vi-VN']
+for(const scheme of ['light','dark']){
+ const {context,page}=await signedIn(desktopURL,{scheme,path:'/apps/account-center'})
+ await page.getByRole('button',{name:accounts['accounts.nav.orgs'],exact:true}).first().click()
+ await page.locator('.mn-accounts .ac-entry').first().click()
+ await page.getByRole('heading',{name:accounts['accounts.actions.members'],exact:true}).waitFor()
+ await audit(page,'Account Center organizations '+scheme)
+ await page.getByRole('button',{name:accounts['accounts.orgs.new']}).first().click()
+ const dialog='.mn-accounts form[role="dialog"]'
+ await page.waitForSelector(dialog)
+ await audit(page,'Account Center organization dialog '+scheme)
+ await focusStaysIn(page,dialog,'Account Center new-organization dialog')
+ await page.goto(desktopURL+'/apps/storage');await page.waitForLoadState('networkidle')
+ await page.getByRole('button',{name:storageText['storage.nav.orgs'],exact:true}).first().click()
+ await page.locator('.mn-storage .sm-card').first().waitFor()
+ await audit(page,'Storage Manager organizations '+scheme)
+ await context.close()
+}
+ok('Account Center and Storage Manager organizations: axe WCAG 2.1 AA in light and dark, dialog keeps focus and closes with Escape')
+
+for(const [base,label,path] of [[desktopURL,'Desktop','/'],[filesURL,'Files','/'],[desktopURL,'Account Center','/apps/account-center'],[desktopURL,'Storage Manager','/apps/storage']]){
+ const {context,page}=await signedIn(base,{width:375,height:812,path})
  await noOverflow(page,label)
  await context.close()
 }
-ok('Desktop and Files: no horizontal overflow at 375 px')
+ok('Desktop, Files, Account Center, Storage Manager: no horizontal overflow at 375 px')
 await browser.close()
 console.log(`a11y browser: ${results.length} checks passed`)
