@@ -1,3 +1,18 @@
+## Platform jobs, events and scheduler — 2026-10-31
+
+`TestJobEngine`: success with payload/actor, coded error fails once with its code, transient error requeues behind its
+backoff and fails when attempts run out, non-retryable handler never repeats, an expired lease is reclaimed by a second
+worker with fencing+1 (the old run gets `ErrLeaseLost`) and cancel reaches the new run, lease beyond maxAttempts →
+`JOB_INTERRUPTED`, dedupe returns the unfinished job, workers claim only their own types, other actors see 404, a
+schedule shared by two workers runs once per slot, retention keeps recent jobs. `TestEventBus`: rolled-back and
+non-matching events are not delivered, no redelivery after success, a failing handler's side effect is rolled back and
+retried after backoff, dead after 8 attempts, watermark passes settled events only, retention. `TestFilesJobsCopyCancelAndLease`
+now runs on the engine and checks that `identity.user.disabled.v1` cancels the account's jobs. `minhanos-verify.sh`
+(check, build, vet, full DB suite incl. jobcore/eventcore) PASS. Deployed a65d21e after pg_dump
+before-platform-jobs.sql; jobs/events modules and files SQL 006 applied; the four schedules ran (succeeded) in Desktop and
+Files; consumer `files.jobs` registered; `tests/backup-restore.sh` PASS (7 modules). Smoke suites not run: the VM now
+holds the owner's own install (no test credentials).
+
 ## First-run setup — 2026-10-31
 
 `TestRenameNoReplaceFallback` (forced EINVAL as on OpenZFS 2.1, also run on the ZFS pool): files and directories are never
