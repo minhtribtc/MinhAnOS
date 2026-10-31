@@ -27,7 +27,7 @@ assert(!v.NotificationItem({...notice,title:'Sign-in failed'}),'notices carry no
 assert(!v.NotificationItem({...notice,params:{detail:{nested:true}}}),'params are flat values')
 assert(v.NotificationMarkRead({ids:[notice.id]})&&v.NotificationMarkRead({upTo:notice.createdAt}))
 assert(!v.NotificationMarkRead({})&&!v.NotificationMarkRead({ids:[notice.id],upTo:notice.createdAt}),'exactly one of ids/upTo')
-const event={id:notice.id,source:'identity',occurredAt:notice.createdAt,action:'identity.user.update',outcome:'denied',actor:{id:notice.id,username:'root'},target:notice.id,targetName:'root',requestId:'req_1',correlationId:null,details:{reasonCode:'LAST_ADMIN'}}
+const event={id:notice.id,source:'identity',occurredAt:notice.createdAt,action:'identity.user.update',outcome:'denied',actor:{id:notice.id,username:'root'},target:notice.id,targetName:'root',requestId:'req_1',correlationId:null,details:{reasonCode:'LAST_ADMIN'},organizationId:null}
 assert(v.LogEvent(event),JSON.stringify(v.LogEvent.errors))
 assert(!v.LogEvent({...event,source:'drive'}),'Files audit (personal paths) is not a Log Center source')
 assert(v.LogSourceList({items:[{id:'identity',appId:'com.minhanos.account-center',retentionDays:365},{id:'storage',appId:'com.minhanos.storage',retentionDays:null}]}))

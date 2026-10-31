@@ -41,7 +41,7 @@ func TestFilesJobsCopyCancelAndLease(t *testing.T) {
 		t.Fatal(e)
 	}
 	t.Cleanup(func() { db.Close(); root.Exec(ctx, "DROP SCHEMA "+quoted+" CASCADE"); root.Close() })
-	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid)"); e != nil {
+	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid); CREATE TABLE storage_shares(key text PRIMARY KEY,organization_id uuid)"); e != nil {
 		t.Fatal(e)
 	}
 	if e = ApplySchema(ctx, db); e != nil {

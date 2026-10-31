@@ -1,3 +1,13 @@
+## Organizations and tenancy (row 27) — 2026-10-31
+
+Go DB suites (`tests/migrations-integration.sh`, 8 packages) PASS, including `TestOrganizationsRolesAndIsolation`,
+`TestOrganizationAdoptionAndDepth`, `TestAllocationCarveOut`, `TestConcurrentAllocationsNeverOverAllocate` (10
+concurrent 20 MiB children of a 100 MiB parent: exactly 5 succeed, delegated = sum of child limits),
+`TestSharesAreTenantIsolated` and `TestTenancyStorageAndLogsOverHTTP` (IDOR 404 on every share route, cross-tenant
+create 403, scoped share list and Log Center, launcher). `npm run check` (incl. `tests/app-standard.mjs` row 27:
+organization columns, no client-side active organization, catalog entries for every tenancy error, per-request scope)
+and vue-tsc builds of Desktop, Files and Accounts PASS.
+
 ## Desktop and Files second standard pass (rows 9, 11, 15, 17, 19, 20, 22) — 2026-10-31
 
 VM /opt/minhanos-std: `npm run check` PASS (new: app-data, a11y-tokens, files-desktop-contracts incl. job routes and job.v1 compatibility); `vue-tsc --noEmit` + `vite build` Desktop and Drive PASS; files-actions, files-client PASS; gofmt, `go vet ./...` PASS; migrations-integration PASS for all packages incl. TestQuotaThresholdNotices, TestFilesJobsCopyCancelAndLease (copy to the end, staging removed, FILES_EXISTS without overwrite, idempotent cancel, reclaimed lease fences the old run, transient failure requeued), TestRemoveDeletedUsers (rows at once, home only after the grace period), TestExportHomeArchive (no links, trash or other users), platform preferences 428/412, export and removal.

@@ -39,6 +39,9 @@ type Share struct {
 	Version       int64  `json:"version"`
 	Usage         Usage  `json:"usage"`
 	PhysicalBytes *int64 `json:"physicalBytes"` // filesystem-reported, ZFS/Btrfs only
+	// Owner (ADR 0008); null for the homes share.
+	OrganizationID   *string `json:"organizationId"`
+	OrganizationName *string `json:"organizationName"`
 }
 
 type Home struct {
@@ -99,7 +102,7 @@ func (m Manager) Volumes(ctx context.Context) ([]Volume, error) {
 }
 
 func (m Manager) Shares(ctx context.Context) ([]Share, error) {
-	rows, e := m.Store.DB.Query(ctx, `SELECT s.id::text,s.key,s.name,s.volume,s.kind,s.version,q.limit_bytes,q.used_bytes,q.reserved_bytes,NOT q.measure_requested FROM storage_shares s JOIN storage_quota q ON q.scope_type='share' AND q.scope_id=s.id::text ORDER BY s.kind DESC,s.name`)
+	rows, e := m.Store.DB.Query(ctx, `SELECT s.id::text,s.key,s.name,s.volume,s.kind,s.version,q.limit_bytes,q.used_bytes,q.reserved_bytes,NOT q.measure_requested,s.organization_id::text,o.name FROM storage_shares s JOIN storage_quota q ON q.scope_type='share' AND q.scope_id=s.id::text LEFT JOIN identity_organizations o ON o.id=s.organization_id ORDER BY s.kind DESC,s.name`)
 	if e != nil {
 		return nil, e
 	}
@@ -107,7 +110,7 @@ func (m Manager) Shares(ctx context.Context) ([]Share, error) {
 	result := []Share{}
 	for rows.Next() {
 		var s Share
-		if e = rows.Scan(&s.ID, &s.Key, &s.Name, &s.Volume, &s.Kind, &s.Version, &s.Usage.LimitBytes, &s.Usage.UsedBytes, &s.Usage.ReservedBytes, &s.Usage.Measured); e != nil {
+		if e = rows.Scan(&s.ID, &s.Key, &s.Name, &s.Volume, &s.Kind, &s.Version, &s.Usage.LimitBytes, &s.Usage.UsedBytes, &s.Usage.ReservedBytes, &s.Usage.Measured, &s.OrganizationID, &s.OrganizationName); e != nil {
 			return nil, e
 		}
 		result = append(result, s)
@@ -136,6 +139,15 @@ func validLimit(limit *int64) bool { return limit == nil || (*limit >= 0 && *lim
 // its own: each home becomes a unit homes/<user> on the same volume when first used. The creator of an
 // ordinary share gets write access so it is usable at once (audited; editable in Storage Manager).
 func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume string, limit *int64, hostsHomes bool) (Share, error) {
+	return m.CreateOrgShare(ctx, actor, "", key, name, volume, limit, hostsHomes)
+}
+
+// CreateOrgShare creates a share owned by an organization (”: the default organization) on its allocation
+// for the volume (ADR 0008). The homes share belongs to no organization.
+func (m Manager) CreateOrgShare(ctx context.Context, actor, org, key, name, volume string, limit *int64, hostsHomes bool) (Share, error) {
+	if (hostsHomes && org != "") || (org != "" && !uuidRE.MatchString(org)) {
+		return Share{}, ErrInvalid
+	}
 	name = strings.TrimSpace(name)
 	if !shareKey.MatchString(key) || (key == "homes" && !hostsHomes) || len([]rune(name)) < 1 || len([]rune(name)) > 100 || !validLimit(limit) {
 		return Share{}, ErrInvalid
@@ -165,7 +177,22 @@ func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume strin
 			return Share{}, ErrHomesExists
 		}
 	}
-	e = tx.QueryRow(ctx, "INSERT INTO storage_shares(key,name,volume,kind) VALUES($1,$2,$3,$4) ON CONFLICT(key) DO NOTHING RETURNING id::text", key, name, volume, s.Kind).Scan(&s.ID)
+	var allocation *string
+	if !hostsHomes {
+		var id string
+		var owner, ownerName string
+		e = tx.QueryRow(ctx, `SELECT a.id::text,o.id::text,o.name FROM storage_allocations a JOIN identity_organizations o ON o.id=a.organization_id
+			WHERE a.volume=$1 AND (o.id::text=$2 OR ($2='' AND o.is_default)) FOR SHARE OF a`, volume, org).Scan(&id, &owner, &ownerName)
+		if errors.Is(e, pgx.ErrNoRows) {
+			return Share{}, ErrNoAllocation
+		}
+		if e != nil {
+			return Share{}, e
+		}
+		allocation, org = &id, owner
+		s.OrganizationID, s.OrganizationName = &owner, &ownerName
+	}
+	e = tx.QueryRow(ctx, "INSERT INTO storage_shares(key,name,volume,kind,organization_id,allocation_id) VALUES($1,$2,$3,$4,nullif($5,'')::uuid,$6) ON CONFLICT(key) DO NOTHING RETURNING id::text", key, name, volume, s.Kind, org, allocation).Scan(&s.ID)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return Share{}, ErrExists
 	}
@@ -183,7 +210,8 @@ func (m Manager) CreateShare(ctx context.Context, actor, key, name, volume strin
 		return s, tx.Commit(ctx)
 	}
 	if uuidRE.MatchString(actor) {
-		if _, e = tx.Exec(ctx, "INSERT INTO storage_share_access(share_id,subject_type,subject_id,access) VALUES($1,'user',$2,'write')", s.ID, actor); e != nil {
+		// Only a member of the owning organization can use the share; Root gets no implicit access.
+		if _, e = tx.Exec(ctx, "INSERT INTO storage_share_access(share_id,subject_type,subject_id,access) SELECT $1,'user',$2,'write' WHERE EXISTS(SELECT 1 FROM identity_memberships WHERE organization_id=$3::uuid AND user_id=$2::uuid)", s.ID, actor, org); e != nil {
 			return Share{}, e
 		}
 	}

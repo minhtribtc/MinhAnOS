@@ -1,5 +1,11 @@
 {
   "vi-VN": {
+    "notifications.kind.organization.joined.title": "Bạn đã được thêm vào tổ chức",
+    "notifications.kind.organization.joined.body": "Bạn là {role, select, admin {quản trị viên} other {thành viên}} của {organization}. Shared Folder của tổ chức sẽ hiện trong Files khi bạn được cấp quyền.",
+    "notifications.kind.organization.left.title": "Bạn đã rời tổ chức",
+    "notifications.kind.organization.left.body": "Bạn không còn là thành viên của {organization}; quyền ở nhóm và Shared Folder của tổ chức đã bị gỡ.",
+    "notifications.kind.organization.role.title": "Vai trò trong tổ chức đã thay đổi",
+    "notifications.kind.organization.role.body": "Bạn hiện là {role, select, admin {quản trị viên} other {thành viên}} của {organization}.",
     "notifications.app.name": "Trung tâm thông báo",
     "notifications.nav.inbox": "Hộp thông báo",
     "notifications.title": "Thông báo",
@@ -46,13 +52,19 @@
     "notifications.app.description": "Thông báo bảo mật và hệ thống",
     "notifications.sources.files": "Files",
     "notifications.kind.quota.warning.title": "Dung lượng sắp đầy",
-    "notifications.kind.quota.warning.body": "{scope, select, home {Vùng riêng của bạn đã dùng {percent}% dung lượng.} share {Shared Folder {share} đã dùng {percent}% dung lượng.} other {Thư mục quota {folder} trong {share} đã dùng {percent}% dung lượng.}}",
+    "notifications.kind.quota.warning.body": "{scope, select, home {Vùng riêng của bạn đã dùng {percent}% dung lượng.} share {Shared Folder {share} đã dùng {percent}% dung lượng.} allocation {Hạn mức của tổ chức {organization} trên pool {volume} đã dùng {percent}%.} other {Thư mục quota {folder} trong {share} đã dùng {percent}% dung lượng.}}",
     "notifications.kind.quota.critical.title": "Dung lượng gần hết",
-    "notifications.kind.quota.critical.body": "{scope, select, home {Vùng riêng của bạn đã dùng {percent}% dung lượng. Hãy xóa bớt tệp hoặc nhờ quản trị viên tăng quota.} share {Shared Folder {share} đã dùng {percent}% dung lượng. Hãy tăng quota trong Storage Manager.} other {Thư mục quota {folder} trong {share} đã dùng {percent}% dung lượng. Hãy tăng quota trong Storage Manager.}}",
+    "notifications.kind.quota.critical.body": "{scope, select, home {Vùng riêng của bạn đã dùng {percent}% dung lượng. Hãy xóa bớt tệp hoặc nhờ quản trị viên tăng quota.} share {Shared Folder {share} đã dùng {percent}% dung lượng. Hãy tăng quota trong Storage Manager.} allocation {Hạn mức của tổ chức {organization} trên pool {volume} đã dùng {percent}%. Hãy xin thêm dung lượng từ tổ chức cha hoặc System Admin.} other {Thư mục quota {folder} trong {share} đã dùng {percent}% dung lượng. Hãy tăng quota trong Storage Manager.}}",
     "notifications.kind.quota.full.title": "Hết dung lượng",
-    "notifications.kind.quota.full.body": "{scope, select, home {Vùng riêng của bạn đã đầy. Không tải lên hoặc lưu thêm được cho đến khi xóa bớt tệp hoặc được tăng quota.} share {Shared Folder {share} đã đầy. Không ghi thêm được cho đến khi tăng quota.} other {Thư mục quota {folder} trong {share} đã đầy. Không ghi thêm được cho đến khi tăng quota.}}"
+    "notifications.kind.quota.full.body": "{scope, select, home {Vùng riêng của bạn đã đầy. Không tải lên hoặc lưu thêm được cho đến khi xóa bớt tệp hoặc được tăng quota.} share {Shared Folder {share} đã đầy. Không ghi thêm được cho đến khi tăng quota.} allocation {Hạn mức của tổ chức {organization} trên pool {volume} đã đầy. Shared Folder của tổ chức không ghi thêm được.} other {Thư mục quota {folder} trong {share} đã đầy. Không ghi thêm được cho đến khi tăng quota.}}"
   },
   "en-US": {
+    "notifications.kind.organization.joined.title": "You were added to an organization",
+    "notifications.kind.organization.joined.body": "You are {role, select, admin {an admin} other {a member}} of {organization}. Its shared folders appear in Files once you are granted access.",
+    "notifications.kind.organization.left.title": "You left an organization",
+    "notifications.kind.organization.left.body": "You are no longer a member of {organization}; its groups and shared folder permissions were removed.",
+    "notifications.kind.organization.role.title": "Organization role changed",
+    "notifications.kind.organization.role.body": "You are now {role, select, admin {an admin} other {a member}} of {organization}.",
     "notifications.app.name": "Notification Center",
     "notifications.nav.inbox": "Inbox",
     "notifications.title": "Notifications",
@@ -99,10 +111,10 @@
     "notifications.app.description": "Security and system notices",
     "notifications.sources.files": "Files",
     "notifications.kind.quota.warning.title": "Storage almost full",
-    "notifications.kind.quota.warning.body": "{scope, select, home {Your personal space has used {percent}% of its quota.} share {Shared Folder {share} has used {percent}% of its quota.} other {Quota folder {folder} in {share} has used {percent}% of its quota.}}",
+    "notifications.kind.quota.warning.body": "{scope, select, home {Your personal space has used {percent}% of its quota.} share {Shared Folder {share} has used {percent}% of its quota.} allocation {The allocation of {organization} on pool {volume} has used {percent}%.} other {Quota folder {folder} in {share} has used {percent}% of its quota.}}",
     "notifications.kind.quota.critical.title": "Storage nearly full",
-    "notifications.kind.quota.critical.body": "{scope, select, home {Your personal space has used {percent}% of its quota. Delete files or ask an administrator for more space.} share {Shared Folder {share} has used {percent}% of its quota. Raise the quota in Storage Manager.} other {Quota folder {folder} in {share} has used {percent}% of its quota. Raise the quota in Storage Manager.}}",
+    "notifications.kind.quota.critical.body": "{scope, select, home {Your personal space has used {percent}% of its quota. Delete files or ask an administrator for more space.} share {Shared Folder {share} has used {percent}% of its quota. Raise the quota in Storage Manager.} allocation {The allocation of {organization} on pool {volume} has used {percent}%. Ask the parent organization or the System Admin for more capacity.} other {Quota folder {folder} in {share} has used {percent}% of its quota. Raise the quota in Storage Manager.}}",
     "notifications.kind.quota.full.title": "Storage full",
-    "notifications.kind.quota.full.body": "{scope, select, home {Your personal space is full. Uploads and saves fail until you delete files or get more quota.} share {Shared Folder {share} is full. Writes fail until the quota is raised.} other {Quota folder {folder} in {share} is full. Writes fail until the quota is raised.}}"
+    "notifications.kind.quota.full.body": "{scope, select, home {Your personal space is full. Uploads and saves fail until you delete files or get more quota.} share {Shared Folder {share} is full. Writes fail until the quota is raised.} allocation {The allocation of {organization} on pool {volume} is full. The organization's shared folders cannot grow.} other {Quota folder {folder} in {share} is full. Writes fail until the quota is raised.}}"
   }
 }

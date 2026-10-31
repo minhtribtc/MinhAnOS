@@ -60,27 +60,60 @@ func readGroup(ctx context.Context, tx pgx.Tx, id string) (Group, error) {
 	return g, e
 }
 func (s *Service) GroupWrite(ctx context.Context, realm Realm, token, id, operation, member, match, key, requestID string, input GroupInput, raw []byte) (Result, error) {
-	route := map[string]string{"create": "POST /api/v1/identity/groups", "patch": "PATCH /api/v1/identity/groups/" + id, "add": "POST /api/v1/identity/groups/" + id + "/members", "remove": "DELETE /api/v1/identity/groups/" + id + "/members/" + member, "delete": "DELETE /api/v1/identity/groups/" + id}[operation]
-	return s.mutate(ctx, realm, token, "identity.groups.write", requestID, key, route, append([]byte(match+"\x00"), raw...), true, func(tx pgx.Tx, a Actor) (Result, error) {
-		if e := managementActor(a); e != nil {
+	return s.groupWrite(ctx, realm, token, "", id, operation, member, match, key, requestID, input, raw)
+}
+
+// OrgGroupWrite manages a group of one organization (its admins or Root; ADR 0008). Only members can join.
+func (s *Service) OrgGroupWrite(ctx context.Context, realm Realm, token, org, id, operation, member, match, key, requestID string, input GroupInput, raw []byte) (Result, error) {
+	if !uuidPattern.MatchString(org) {
+		return Result{}, fault(404, "ORG_NOT_FOUND")
+	}
+	return s.groupWrite(ctx, realm, token, org, id, operation, member, match, key, requestID, input, raw)
+}
+
+// groupWrite: org "" is the platform route (System Admin, any group); new groups land in the default organization.
+func (s *Service) groupWrite(ctx context.Context, realm Realm, token, org, id, operation, member, match, key, requestID string, input GroupInput, raw []byte) (Result, error) {
+	base, permission := "/api/v1/identity/groups", "identity.groups.write"
+	if org != "" {
+		base, permission = "/api/v1/identity/organizations/"+org+"/groups", ""
+	}
+	route := map[string]string{"create": "POST " + base, "patch": "PATCH " + base + "/" + id, "add": "POST " + base + "/" + id + "/members", "remove": "DELETE " + base + "/" + id + "/members/" + member, "delete": "DELETE " + base + "/" + id}[operation]
+	return s.mutate(ctx, realm, token, permission, requestID, key, route, append([]byte(match+"\x00"), raw...), true, func(tx pgx.Tx, a Actor) (Result, error) {
+		if org == "" {
+			if e := managementActor(a); e != nil {
+				return Result{}, e
+			}
+		} else if _, e := needRole(ctx, tx, a, org, "root", "admin"); e != nil {
 			return Result{}, e
 		}
+		owner := org
 		if operation == "create" {
 			input.Name = strings.TrimSpace(input.Name)
 			if !validPolicyName(input.Key, input.Name) {
 				return Result{}, fault(422, "IDENTITY_INVALID_GROUP")
 			}
 			var g Group
-			e := tx.QueryRow(ctx, "INSERT INTO identity_groups(key,name,kind) VALUES($1,$2,'user') ON CONFLICT(key) DO NOTHING RETURNING id::text,key,name,kind,version", input.Key, input.Name).Scan(&g.ID, &g.Key, &g.Name, &g.Kind, &g.Version)
+			e := tx.QueryRow(ctx, "INSERT INTO identity_groups(key,name,kind,organization_id) VALUES($1,$2,'user',coalesce(nullif($3,'')::uuid,(SELECT id FROM identity_organizations WHERE is_default))) ON CONFLICT DO NOTHING RETURNING id::text,key,name,kind,version,coalesce(organization_id::text,'')", input.Key, input.Name, org).Scan(&g.ID, &g.Key, &g.Name, &g.Kind, &g.Version, &owner)
 			if errors.Is(e, pgx.ErrNoRows) {
 				return Result{}, fault(409, "IDENTITY_KEY_EXISTS")
 			}
 			if e != nil {
 				return Result{}, e
 			}
-			return result(g, 201, g.Version), nil
+			out := result(g, 201, g.Version)
+			out.Org = owner
+			return out, nil
 		}
-		g, e := readGroup(ctx, tx, id)
+		var g Group
+		var e error
+		if org != "" {
+			g, e = orgGroup(ctx, tx, org, id)
+		} else {
+			g, e = readGroup(ctx, tx, id)
+			if e == nil {
+				e = tx.QueryRow(ctx, "SELECT coalesce(organization_id::text,'') FROM identity_groups WHERE id=$1", id).Scan(&owner)
+			}
+		}
 		if e != nil {
 			return Result{}, e
 		}
@@ -90,12 +123,13 @@ func (s *Service) GroupWrite(ctx context.Context, realm Realm, token, id, operat
 		if e = requireVersion(g.Version, match); e != nil {
 			return Result{}, e
 		}
+		withOrg := func(r Result) Result { r.Org = owner; return r }
 		switch operation {
 		case "delete":
 			if _, e = tx.Exec(ctx, "DELETE FROM identity_groups WHERE id=$1", id); e != nil {
 				return Result{}, e
 			}
-			return result(map[string]bool{"accepted": true}, 200, 0), nil
+			return withOrg(result(map[string]bool{"accepted": true}, 200, 0)), nil
 		case "patch":
 			input.Name = strings.TrimSpace(input.Name)
 			if len([]rune(input.Name)) < 1 || len([]rune(input.Name)) > 100 {
@@ -111,7 +145,11 @@ func (s *Service) GroupWrite(ctx context.Context, realm Realm, token, id, operat
 				return Result{}, fault(409, "IDENTITY_USER_DELETED")
 			}
 			if operation == "add" {
-				_, e = tx.Exec(ctx, "INSERT INTO identity_group_members(group_id,user_id) VALUES($1,$2) ON CONFLICT DO NOTHING", id, member)
+				// Organization groups only take members of the organization (trigger, identity SQL 012).
+				_, e = savepoint(ctx, tx, "INSERT INTO identity_group_members(group_id,user_id) VALUES($1,$2) ON CONFLICT DO NOTHING", id, member)
+				if pgCode(e) == "P0001" {
+					return Result{}, fault(409, "IDENTITY_NOT_MEMBER")
+				}
 			} else {
 				_, e = tx.Exec(ctx, "DELETE FROM identity_group_members WHERE group_id=$1 AND user_id=$2", id, member)
 			}
@@ -126,9 +164,9 @@ func (s *Service) GroupWrite(ctx context.Context, realm Realm, token, id, operat
 		}
 		g.Version++
 		if operation == "add" || operation == "remove" {
-			return result(map[string]bool{"accepted": true}, 200, g.Version), nil
+			return withOrg(result(map[string]bool{"accepted": true}, 200, g.Version)), nil
 		}
-		return result(g, 200, g.Version), nil
+		return withOrg(result(g, 200, g.Version)), nil
 	})
 }
 func (s *Service) CreateRole(ctx context.Context, realm Realm, token, key, requestID string, input RoleInput, raw []byte) (Result, error) {

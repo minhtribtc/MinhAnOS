@@ -41,16 +41,20 @@ type UserShare struct {
 	Name   string `json:"name"`
 	Volume string `json:"-"`
 	Access string `json:"access"`
+	// Owning organization (ADR 0008); Files groups Shared Folders by it.
+	OrganizationID   string `json:"organizationId"`
+	OrganizationName string `json:"organizationName"`
 }
 
 // UserShares resolves the user's effective access per share: entries for the user and their groups;
-// deny wins, then write, then read. Shares without an entry are not listed.
+// deny wins, then write, then read. Shares without an entry are not listed, and so are shares of an
+// organization the user is not a member of or that is not effectively active (ADR 0008).
 func (s Store) UserShares(ctx context.Context, storageID string) ([]UserShare, error) {
 	rows, e := s.DB.Query(ctx, `WITH me AS (SELECT public_id FROM users WHERE id=$1 AND status='active')
-		SELECT s.id::text,s.key,s.name,s.volume,CASE WHEN bool_or(a.access='deny') THEN 'deny' WHEN bool_or(a.access='write') THEN 'write' ELSE 'read' END
-		FROM storage_shares s JOIN storage_share_access a ON a.share_id=s.id, me
-		WHERE s.kind='share' AND ((a.subject_type='user' AND a.subject_id=me.public_id) OR (a.subject_type='group' AND a.subject_id IN (SELECT group_id FROM identity_group_members WHERE user_id=me.public_id)))
-		GROUP BY 1,2,3,4 ORDER BY 3`, storageID)
+		SELECT s.id::text,s.key,s.name,s.volume,o.id::text,o.name,CASE WHEN bool_or(a.access='deny') THEN 'deny' WHEN bool_or(a.access='write') THEN 'write' ELSE 'read' END
+		FROM storage_shares s JOIN storage_share_access a ON a.share_id=s.id JOIN identity_organizations o ON o.id=s.organization_id, me
+		WHERE s.kind='share' AND EXISTS(SELECT 1 FROM identity_memberships m WHERE m.organization_id=o.id AND m.user_id=me.public_id) AND identity_org_active(o.id) AND ((a.subject_type='user' AND a.subject_id=me.public_id) OR (a.subject_type='group' AND a.subject_id IN (SELECT group_id FROM identity_group_members WHERE user_id=me.public_id)))
+		GROUP BY 1,2,3,4,5,6 ORDER BY 6,3`, storageID)
 	if e != nil {
 		return nil, e
 	}
@@ -58,7 +62,7 @@ func (s Store) UserShares(ctx context.Context, storageID string) ([]UserShare, e
 	result := []UserShare{}
 	for rows.Next() {
 		var u UserShare
-		if e = rows.Scan(&u.ID, &u.Key, &u.Name, &u.Volume, &u.Access); e != nil {
+		if e = rows.Scan(&u.ID, &u.Key, &u.Name, &u.Volume, &u.OrganizationID, &u.OrganizationName, &u.Access); e != nil {
 			return nil, e
 		}
 		if u.Access != "deny" {
@@ -152,8 +156,8 @@ func (m Manager) ShareAccess(ctx context.Context, shareID string) (AccessList, e
 	return list, rows.Err()
 }
 
-// SetShareAccess replaces a share's permission list (If-Match on the share version). Every subject must be an
-// existing account or group; the change is audited with the counts, not the list.
+// SetShareAccess replaces a share's permission list (If-Match on the share version). Every subject must be a
+// member of the owning organization or one of its groups (platform groups too); the change is audited with the counts, not the list.
 func (m Manager) SetShareAccess(ctx context.Context, actor, shareID string, version int64, entries []AccessEntry) error {
 	if !uuidRE.MatchString(shareID) {
 		return ErrNotFound
@@ -174,8 +178,8 @@ func (m Manager) SetShareAccess(ctx context.Context, actor, shareID string, vers
 		return e
 	}
 	defer tx.Rollback(ctx)
-	var kind string
-	if e = tx.QueryRow(ctx, "SELECT kind FROM storage_shares WHERE id=$1 FOR UPDATE", shareID).Scan(&kind); errors.Is(e, pgx.ErrNoRows) {
+	var kind, org string
+	if e = tx.QueryRow(ctx, "SELECT kind,coalesce(organization_id::text,'') FROM storage_shares WHERE id=$1 FOR UPDATE", shareID).Scan(&kind, &org); errors.Is(e, pgx.ErrNoRows) {
 		return ErrNotFound
 	} else if e != nil {
 		return e
@@ -196,11 +200,11 @@ func (m Manager) SetShareAccess(ctx context.Context, actor, shareID string, vers
 	counts := map[string]any{"read": 0, "write": 0, "deny": 0}
 	for _, a := range entries {
 		var ok bool
-		q := "SELECT EXISTS(SELECT 1 FROM users WHERE public_id=$1 AND status<>'deleted')"
+		q := "SELECT EXISTS(SELECT 1 FROM users u JOIN identity_memberships m ON m.user_id=u.public_id AND m.organization_id=$2::uuid WHERE u.public_id=$1 AND u.status<>'deleted')"
 		if a.SubjectType == "group" {
-			q = "SELECT EXISTS(SELECT 1 FROM identity_groups WHERE id=$1)"
+			q = "SELECT EXISTS(SELECT 1 FROM identity_groups WHERE id=$1 AND (organization_id IS NULL OR organization_id=$2::uuid))"
 		}
-		if e = tx.QueryRow(ctx, q, a.SubjectID).Scan(&ok); e != nil {
+		if e = tx.QueryRow(ctx, q, a.SubjectID, org).Scan(&ok); e != nil {
 			return e
 		}
 		if !ok {
@@ -225,10 +229,15 @@ type Subject struct {
 	Detail string `json:"detail"`
 }
 
-// Subjects lists active accounts and all groups (bounded) for the permission editor.
-func (m Manager) Subjects(ctx context.Context) ([]Subject, error) {
-	rows, e := m.Store.DB.Query(ctx, `(SELECT 'user',public_id::text,username,display_name FROM users WHERE status='active' AND public_id IS NOT NULL ORDER BY username LIMIT 500)
-		UNION ALL (SELECT 'group',id::text,name,key FROM identity_groups ORDER BY name LIMIT 500)`)
+// Subjects lists who can receive a share permission (bounded): with an organization, its active members and
+// its groups plus platform groups; without one (System Admin view), every active account and group.
+func (m Manager) Subjects(ctx context.Context, org string) ([]Subject, error) {
+	if org != "" && !uuidRE.MatchString(org) {
+		return nil, ErrNotFound
+	}
+	rows, e := m.Store.DB.Query(ctx, `(SELECT 'user',u.public_id::text,u.username,u.display_name FROM users u WHERE u.status='active' AND u.public_id IS NOT NULL
+		 AND ($1='' OR EXISTS(SELECT 1 FROM identity_memberships x WHERE x.organization_id::text=$1 AND x.user_id=u.public_id)) ORDER BY u.username LIMIT 500)
+		UNION ALL (SELECT 'group',id::text,name,key FROM identity_groups WHERE $1='' OR organization_id IS NULL OR organization_id::text=$1 ORDER BY name LIMIT 500)`, org)
 	if e != nil {
 		return nil, e
 	}
@@ -242,4 +251,29 @@ func (m Manager) Subjects(ctx context.Context) ([]Subject, error) {
 		result = append(result, s)
 	}
 	return result, rows.Err()
+}
+
+// ShareOwner returns the organization owning a share ("" for the homes share) and its kind, for authorization.
+func (m Manager) ShareOwner(ctx context.Context, shareID string) (org, kind string, err error) {
+	if !uuidRE.MatchString(shareID) {
+		return "", "", ErrNotFound
+	}
+	err = m.Store.DB.QueryRow(ctx, "SELECT coalesce(organization_id::text,''),kind FROM storage_shares WHERE id=$1", shareID).Scan(&org, &kind)
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrNotFound
+	}
+	return
+}
+
+// FolderShare returns the share of a quota folder, for authorization.
+func (m Manager) FolderShare(ctx context.Context, folderID string) (string, error) {
+	if !uuidRE.MatchString(folderID) {
+		return "", ErrNotFound
+	}
+	var share string
+	e := m.Store.DB.QueryRow(ctx, "SELECT share_id::text FROM storage_quota_folders WHERE id=$1", folderID).Scan(&share)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return "", ErrNotFound
+	}
+	return share, e
 }

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-create-allocation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "volume": {
+      "type": "string",
+      "minLength": 1
+    },
+    "limitBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1152921504606847000
+    }
+  },
+  "required": [
+    "volume",
+    "limitBytes"
+  ]
+}

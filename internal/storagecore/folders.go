@@ -163,10 +163,11 @@ func (m Manager) DeleteQuotaFolder(ctx context.Context, actor, id string, versio
 		}
 		return ErrConflict
 	}
-	if _, e = tx.Exec(ctx, "DELETE FROM storage_quota_folders WHERE id=$1", id); e != nil {
+	// Audit first: the event resolves the organization through the folder registration.
+	if e = event(ctx, tx, actor, "storage.folder.removed", id, nil); e != nil {
 		return e
 	}
-	if e = event(ctx, tx, actor, "storage.folder.removed", id, nil); e != nil {
+	if _, e = tx.Exec(ctx, "DELETE FROM storage_quota_folders WHERE id=$1", id); e != nil {
 		return e
 	}
 	return tx.Commit(ctx)

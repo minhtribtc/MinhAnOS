@@ -1,3 +1,10 @@
+## Organizations / tenancy (current, ADR 0008)
+
+Tenancy lives in identity (SQL 012: `identity_organizations` tree, `identity_memberships`, `identity_org_role`);
+there is no session organization. Storage SQL 006 adds `storage_allocations` (carve-out ledger, scope `allocation`)
+and organization-owned shares; audit tables of identity, storage and Files carry `organization_id`. The platform
+derives a per-request storage/logs scope; Files lists shares by membership. See [ADR 0008](adr/0008-organizations-and-tenancy.md).
+
 ## Storage Q1 (current)
 
 internal/storagecore owns the storage registry and soft quota ledger (module storage). Drive reserves/commits per write under the user lock; the Desktop host serves the Storage Manager API and talks to the storage agent over its socket (mounted read-only into the Desktop container). See [storage quota](storage-quota.md).

@@ -1,7 +1,7 @@
 # MinhAnOS app standard — review checklist
 
 Every app (Desktop shell included) is reviewed against these rows. Rows 15–26 were added on 2026-10-31
-after a gap review; earlier app reviews covered rows 1–14 only. Sources: AGENTS.md, ADR 0007 (Settings),
+after a gap review, row 27 (tenancy, [ADR 0008](adr/0008-organizations-and-tenancy.md)) the same day; earlier app reviews covered rows 1–14 only. Sources: AGENTS.md, ADR 0007 (Settings),
 [notifications/logs review](notifications-logs-review.md), [Phase A](account-center/PHASE_A_REPORT.md).
 
 | # | Area | Requirement |
@@ -32,12 +32,13 @@ after a gap review; earlier app reviews covered rows 1–14 only. Sources: AGENT
 | 24 | Runtime & packaging | Non-root, read-only rootfs, dropped capabilities, health check; image build copies every package it needs (docker-context check); pinned dependencies and image digests |
 | 25 | Performance & limits | Bounded queries and payloads, pagination, request timeouts, upload/text limits declared; no unbounded scans on request paths; bundle growth watched |
 | 26 | Documentation | Same commit updates user guide, HANDOFF, CHANGELOG, API/architecture docs and validation evidence (AGENTS mandatory documentation) |
+| 27 | Tenancy ([ADR 0008](adr/0008-organizations-and-tenancy.md)) | Every shared resource row the app owns carries `organization_id` (personal data stays per account). Authority is derived on the server per request: `identity_org_role` for organization resources, and the owning organization for resources found by ID. A client-sent organization ID is a selector, never proof of authority. Queries, jobs, audit events and notices are scoped to that organization. Ancestor and Root admins get no implicit data access. Org-scoped capacity goes through the allocation ledger. Tests cover cross-tenant reads/writes (IDOR), membership removal and concurrent allocation |
 
 Notification Center and Log Center exist as minimal v1 (2026-10-31, [design](notification-log-center.md)):
 an app satisfies rows 11–12 by writing its outbox/audit correctly and registering it with
 `notifycore.Deliver` / `logcore.Sources`. Wired today: identity (notices + audit), storage (audit) and Files (audit, `files_events`).
 
-## Known violations of rows 15–26 (2026-10-31)
+## Known violations of rows 15–27 (2026-10-31)
 
 | Row | Where | Gap |
 |---|---|---|
@@ -46,6 +47,7 @@ an app satisfies rows 11–12 by writing its outbox/audit correctly and register
 | 17, 19 | Other apps | Only Desktop and Files have `contracts/data/*.data.json`; identity, storage, notifications, logs and notes still need theirs |
 | 11 | Storage | Storage audit has no retention policy |
 | 22 | Other apps | `tests/a11y-browser.mjs` covers Desktop and Files only (Storage Manager, Account Center, Settings not yet) |
+| 27 | Account Center, Storage Manager | Organization screens are covered by vue-tsc, the API/DB tests and the static row-27 check in `tests/app-standard.mjs`, not yet by `tests/a11y-browser.mjs` |
 
 Fixed on 2026-10-31 (second pass) for Desktop and Files: row 9 (legacy `/api/admin/users` and its middleware
 removed; Desktop preferences versioned with ETag/If-Match), row 11 (quota notices 80/95/100 % through a

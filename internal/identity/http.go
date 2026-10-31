@@ -95,7 +95,22 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			return
 		}
 		var out Result
-		if r.Method == "GET" {
+		if r.Method == "GET" && parts[0] == "organizations" {
+			limit := 50
+			for key := range r.URL.Query() {
+				if key != "limit" && key != "cursor" {
+					fail(fault(400, "INVALID_REQUEST"))
+					return
+				}
+			}
+			if v := r.URL.Query().Get("limit"); v != "" {
+				if limit, e = strconv.Atoi(v); e != nil {
+					fail(fault(400, "INVALID_REQUEST"))
+					return
+				}
+			}
+			out, e = s.ReadOrganizations(ctx, realm, token, parts, r.URL.Query().Get("cursor"), limit)
+		} else if r.Method == "GET" {
 			kind, target := path, ""
 			if len(parts) == 2 && parts[0] == "users" {
 				kind, target = "user", parts[1]
@@ -163,7 +178,21 @@ func (s *Service) HTTPHandler(realm Realm) http.Handler {
 			}
 			key := r.Header.Get("Idempotency-Key")
 			match := r.Header.Get("If-Match")
+			empty := func() error {
+				if len(raw) > 0 {
+					return decode(&struct{}{})
+				}
+				return nil
+			}
+			needKey := func() error {
+				if key == "" {
+					return fault(400, "IDEMPOTENCY_KEY_REQUIRED")
+				}
+				return nil
+			}
 			switch {
+			case parts[0] == "organizations":
+				out, e = s.orgWriteHTTP(ctx, realm, token, r.Method, parts, match, key, requestID, raw, decode, empty, needKey)
 			case path == "reauthenticate" && r.Method == "POST":
 				var b struct {
 					Password string `json:"password"`

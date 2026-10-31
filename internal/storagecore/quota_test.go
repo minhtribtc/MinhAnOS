@@ -18,6 +18,19 @@ import (
 
 const mib = int64(1 << 20)
 
+// defaultOrg is the stand-in default organization; every account inserted by a test joins it (like identity
+// SQL 012 adoption). identityStandIn mirrors only what storage reads of the identity-owned tables.
+const defaultOrg = "00000000-0000-4000-8000-0000000000d0"
+
+const identityStandIn = `CREATE TABLE identity_groups(id uuid PRIMARY KEY,key text,name text,organization_id uuid);
+CREATE TABLE identity_group_members(group_id uuid,user_id uuid);
+CREATE TABLE identity_organizations(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),name text NOT NULL,parent_id uuid REFERENCES identity_organizations(id),status text NOT NULL DEFAULT 'active',is_default boolean NOT NULL DEFAULT false);
+CREATE TABLE identity_memberships(organization_id uuid NOT NULL REFERENCES identity_organizations(id) ON DELETE CASCADE,user_id uuid NOT NULL,role text NOT NULL DEFAULT 'member',PRIMARY KEY(organization_id,user_id));
+CREATE FUNCTION identity_org_active(p uuid) RETURNS boolean STABLE LANGUAGE sql AS $$ SELECT NOT EXISTS(SELECT 1 FROM identity_organizations o WHERE o.status<>'active' AND (o.id=p OR o.id=(SELECT parent_id FROM identity_organizations WHERE id=p))) $$;
+INSERT INTO identity_organizations(id,name,is_default) VALUES('` + defaultOrg + `','Default',true);
+CREATE FUNCTION test_join_default() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO identity_memberships VALUES('` + defaultOrg + `',NEW.public_id,CASE WHEN NEW.role='admin' THEN 'admin' ELSE 'member' END) ON CONFLICT DO NOTHING; RETURN NEW; END $$;
+CREATE TRIGGER test_join_default AFTER INSERT ON users FOR EACH ROW WHEN (NEW.public_id IS NOT NULL) EXECUTE FUNCTION test_join_default();`
+
 func fixture(t *testing.T) Store {
 	t.Helper()
 	dsn := os.Getenv("MIGRATION_TEST_DATABASE_URL")
@@ -49,7 +62,7 @@ func fixture(t *testing.T) Store {
 	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text,display_name text,status text,role text NOT NULL DEFAULT 'user')"); e != nil {
 		t.Fatal(e)
 	}
-	if _, e = db.Exec(ctx, "CREATE TABLE identity_groups(id uuid PRIMARY KEY,key text,name text); CREATE TABLE identity_group_members(group_id uuid,user_id uuid)"); e != nil {
+	if _, e = db.Exec(ctx, identityStandIn); e != nil {
 		t.Fatal(e)
 	}
 	if e = ApplySchema(ctx, db); e != nil {

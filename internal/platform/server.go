@@ -404,8 +404,16 @@ func (a *App) apps(w http.ResponseWriter, r *http.Request) {
 	}
 	visible := make([]AppDefinition, 0, len(registry))
 	for _, app := range registry {
-		if p, governed := launcherPolicy[app.ID]; governed && a.identityService.CheckApp(r.Context(), identity(r).User.ID, p[0], p[1]) != nil {
-			continue
+		if p, governed := launcherPolicy[app.ID]; governed {
+			allowed := a.identityService.CheckApp(r.Context(), identity(r).User.ID, p[0], p[1]) == nil
+			// Storage Manager and Log Center also open for organization admins (scoped; ADR 0008).
+			if !allowed && (app.ID == identityschema.StorageApp || app.ID == identityschema.LogsApp) {
+				scope, err := a.orgAdminScope(r, p[0], p[1])
+				allowed = err == nil && scope != nil
+			}
+			if !allowed {
+				continue
+			}
 		}
 		visible = append(visible, app)
 	}

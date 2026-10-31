@@ -7,3 +7,4 @@
 .mn-accounts button.ac-name-link:hover strong{text-decoration:underline}
 .mn-accounts .ac-detail-actions{display:flex;flex-wrap:wrap;gap:8px}
 .mn-accounts label.ac-check{display:flex;flex-direction:row;align-items:center;gap:8px}
+.mn-accounts .ac-toolbar .ac-header-actions{flex-wrap:wrap;flex:initial}.mn-accounts .ac-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px;margin:0}.mn-accounts .ac-facts dt{font-size:11px;color:var(--mn-color-text-secondary)}.mn-accounts .ac-facts dd{margin:3px 0 0;font-weight:550}.mn-accounts .ac-entry[aria-current]{background:var(--mn-color-selection)}

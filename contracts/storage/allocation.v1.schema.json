@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/storage-allocation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "volume": {
+      "type": "string"
+    },
+    "parentId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "limitBytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1152921504606847000
+    },
+    "delegatedBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "usedBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reservedBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "id",
+    "organizationId",
+    "volume",
+    "parentId",
+    "limitBytes",
+    "delegatedBytes",
+    "usedBytes",
+    "reservedBytes",
+    "version"
+  ]
+}

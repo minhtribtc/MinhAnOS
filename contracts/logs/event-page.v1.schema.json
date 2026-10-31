@@ -79,6 +79,13 @@
           },
           "details": {
             "type": "object"
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         },
         "required": [
@@ -92,7 +99,8 @@
           "targetName",
           "requestId",
           "correlationId",
-          "details"
+          "details",
+          "organizationId"
         ]
       }
     },

@@ -39,7 +39,8 @@
           "enum": [
             "home",
             "share",
-            "folder"
+            "folder",
+            "allocation"
           ]
         },
         "percent": {
@@ -59,6 +60,12 @@
           "type": "string"
         },
         "folder": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "string"
+        },
+        "volume": {
           "type": "string"
         }
       },

@@ -186,6 +186,8 @@ export interface IdentityGroup {
   name: string;
   kind: "system" | "user";
   version: number;
+  organizationId?: string | null;
+  memberCount?: number;
 }
 
 export interface IdentityRole {
@@ -323,6 +325,8 @@ export interface IdentityGroupPage {
     name: string;
     kind: "system" | "user";
     version: number;
+    organizationId?: string | null;
+    memberCount?: number;
   }[];
   nextCursor: string | null;
 }
@@ -501,6 +505,93 @@ export interface IdentityCreateAppAccess {
   };
 }
 
+export interface IdentityOrganization {
+  id: string;
+  name: string;
+  parentId: string | null;
+  depth: number;
+  status: "active" | "suspended";
+  allowChildren: boolean;
+  isDefault: boolean;
+  role: "root" | "admin" | "manager" | "member";
+  memberCount: number;
+  version: number;
+}
+
+export interface IdentityOrganizationPage {
+  /**
+   * @maxItems 100
+   */
+  items: {
+    id: string;
+    name: string;
+    parentId: string | null;
+    depth: number;
+    status: "active" | "suspended";
+    allowChildren: boolean;
+    isDefault: boolean;
+    role: "root" | "admin" | "manager" | "member";
+    memberCount: number;
+    version: number;
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityCreateOrganization {
+  name: string;
+  parentId?: string | null;
+  allowChildren?: boolean;
+}
+
+export interface IdentityPatchOrganization {
+  name?: string;
+  status?: "active" | "suspended";
+  allowChildren?: boolean;
+}
+
+export interface IdentityOrganizationMember {
+  userId: string;
+  username: string;
+  displayName: string;
+  status: "active" | "disabled" | "deleted";
+  role: "admin" | "member";
+}
+
+export interface IdentityOrganizationMemberPage {
+  /**
+   * @maxItems 100
+   */
+  items: {
+    userId: string;
+    username: string;
+    displayName: string;
+    status: "active" | "disabled" | "deleted";
+    role: "admin" | "member";
+  }[];
+  nextCursor: string | null;
+}
+
+export interface IdentityAddOrganizationMember {
+  username: string;
+  role: "admin" | "member";
+}
+
+export interface IdentitySetOrganizationMemberRole {
+  role: "admin" | "member";
+}
+
+export interface IdentityCreateOrganizationUser {
+  username: string;
+  displayName: string;
+  password: string;
+  role: "admin" | "member";
+}
+
+export interface IdentityOrganizationMemberResult {
+  accepted: true;
+  userId: string;
+}
+
 export interface StorageVolume {
   name: string;
   kind: "zfs" | "btrfs" | "directory";
@@ -524,6 +615,8 @@ export interface StorageShare {
     measured: boolean;
   };
   physicalBytes: number | null;
+  organizationId: string | null;
+  organizationName: string | null;
 }
 
 export interface StorageHome {
@@ -546,6 +639,7 @@ export interface StorageCreateShare {
   volume: string;
   limitBytes: number | null;
   hostsHomes?: boolean;
+  organizationId?: string;
 }
 
 export interface StorageSetQuota {
@@ -592,6 +686,8 @@ export interface StorageSharePage {
       measured: boolean;
     };
     physicalBytes: number | null;
+    organizationId: string | null;
+    organizationName: string | null;
   }[];
 }
 
@@ -680,6 +776,50 @@ export interface StorageCreateQuotaFolder {
   limitBytes: number | null;
 }
 
+export interface StorageAllocation {
+  id: string;
+  organizationId: string;
+  volume: string;
+  parentId: string | null;
+  limitBytes: number | null;
+  delegatedBytes: number;
+  usedBytes: number;
+  reservedBytes: number;
+  version: number;
+}
+
+export interface StorageCreateAllocation {
+  volume: string;
+  limitBytes: number | null;
+}
+
+export interface StorageOrganizationPage {
+  /**
+   * @maxItems 500
+   */
+  items: {
+    id: string;
+    name: string;
+    parentId: string | null;
+    status: "active" | "suspended";
+    role: "root" | "admin" | "manager";
+    /**
+     * @maxItems 100
+     */
+    allocations: {
+      id: string;
+      organizationId: string;
+      volume: string;
+      parentId: string | null;
+      limitBytes: number | null;
+      delegatedBytes: number;
+      usedBytes: number;
+      reservedBytes: number;
+      version: number;
+    }[];
+  }[];
+}
+
 export interface NotificationItem {
   id: string;
   source: string;
@@ -745,6 +885,7 @@ export interface LogEvent {
   requestId: string;
   correlationId: string | null;
   details: {};
+  organizationId: string | null;
 }
 
 export interface LogSourceList {
@@ -771,6 +912,7 @@ export interface LogEventPage {
     requestId: string;
     correlationId: string | null;
     details: {};
+    organizationId: string | null;
   }[];
   nextCursor: string | null;
 }
@@ -5593,6 +5735,8 @@ export interface FilesRootList {
     kind: "home" | "share" | "system";
     name?: string;
     access: "read" | "write";
+    organizationId?: string;
+    organization?: string;
   }[];
   homes: boolean;
   maxUploadBytes: number;

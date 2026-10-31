@@ -1,5 +1,7 @@
 {
   "vi-VN": {
+    "logs.filters.organization": "Tổ chức",
+    "logs.organization": "Tổ chức",
     "logs.app.name": "Trung tâm nhật ký",
     "logs.nav.audit": "Nhật ký kiểm toán",
     "logs.title": "Nhật ký kiểm toán",
@@ -38,6 +40,8 @@
     "logs.app.description": "Nhật ký kiểm toán của các module"
   },
   "en-US": {
+    "logs.filters.organization": "Organization",
+    "logs.organization": "Organization",
     "logs.app.name": "Log Center",
     "logs.nav.audit": "Audit log",
     "logs.title": "Audit log",

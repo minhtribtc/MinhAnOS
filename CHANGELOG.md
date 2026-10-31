@@ -1,3 +1,11 @@
+## Tổ chức (NAS + Cloud nhiều tổ chức) — 2026-10-31
+
+- **Tổ chức** dạng cây (tối đa 8 cấp). Máy hiện có tự thành một tổ chức mặc định *MinhAnOS*: mọi tài khoản và nhóm người dùng đã có nằm trong đó, không cần làm gì thêm.
+- Account Center → *Tổ chức*: xem các tổ chức bạn thuộc về; quản trị viên tổ chức thêm thành viên (theo tên đăng nhập), tạo tài khoản mới trong tổ chức, đổi vai trò, gỡ thành viên, quản lý nhóm của tổ chức và tạo tổ chức con (nếu được phép). Quản trị viên tổ chức cha quản lý cấu trúc và hạn mức của tổ chức con nhưng **không xem dữ liệu** của tổ chức con.
+- Storage Manager → *Tổ chức*: System Admin cấp dung lượng cho tổ chức trên từng pool; hạn mức của tổ chức con được trừ khỏi phần còn lại của tổ chức cha, không bao giờ cấp vượt. Khi tạo Shared Folder chọn tổ chức sở hữu; chỉ thành viên tổ chức đó được cấp quyền. Quản trị viên tổ chức tự quản lý Shared Folder, quyền và thư mục quota của tổ chức mình.
+- Files nhóm Shared Folder theo tổ chức. Rời tổ chức hoặc tổ chức bị tạm ngưng thì mất quyền ngay.
+- Trung tâm nhật ký: quản trị viên tổ chức xem được nhật ký của tổ chức mình, lọc theo tổ chức. Thông báo khi được thêm/gỡ khỏi tổ chức, đổi vai trò, và khi hạn mức tổ chức sắp đầy (gửi cho quản trị viên tổ chức).
+
 ## Desktop và Files: hoàn tất các mục quy chuẩn còn thiếu — 2026-10-31
 
 - Files: sao chép **thư mục** (và tệp lớn hơn 128 MB) chạy nền trên máy chủ, có tiến độ và nút hủy trong bảng *Tải lên và sao chép*. Đóng trang không dừng việc sao chép; lỗi tạm thời được thử lại tối đa 3 lần.

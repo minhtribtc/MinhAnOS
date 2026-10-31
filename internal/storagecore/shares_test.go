@@ -19,7 +19,7 @@ func accessFixture(t *testing.T) (Store, Manager) {
 	for _, q := range []string{
 		"INSERT INTO storage_volumes(name,kind) VALUES('tank','zfs')",
 		"INSERT INTO users VALUES('key-a','" + alice + "','alice','Alice','active'),('key-b','" + bob + "','bob','Bob','active')",
-		"INSERT INTO identity_groups VALUES('" + staff + "','staff','Staff')",
+		"INSERT INTO identity_groups VALUES('" + staff + "','staff','Staff','" + defaultOrg + "')",
 		"INSERT INTO identity_group_members VALUES('" + staff + "','" + bob + "')",
 	} {
 		if _, e := s.DB.Exec(ctx, q); e != nil {

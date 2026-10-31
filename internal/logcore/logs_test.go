@@ -43,9 +43,9 @@ func fixture(t *testing.T) Store {
 	// Stand-ins for the tables owned by identity and storage (only the columns Log Center reads).
 	for _, q := range []string{
 		"CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text)",
-		"CREATE TABLE identity_admin_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target_id text,outcome text NOT NULL,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
-		"CREATE TABLE storage_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
-		"CREATE TABLE files_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,root text NOT NULL,share_key text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now())",
+		"CREATE TABLE identity_admin_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target_id text,outcome text NOT NULL,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
+		"CREATE TABLE storage_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
+		"CREATE TABLE files_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,root text NOT NULL,share_key text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
 		"INSERT INTO users VALUES('1','" + admin + "','root')",
 	} {
 		if _, e = db.Exec(ctx, q); e != nil {

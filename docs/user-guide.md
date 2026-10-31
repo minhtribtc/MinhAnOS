@@ -1,3 +1,12 @@
+## Tổ chức (2026-10-31)
+
+- Mỗi tài khoản thuộc một hoặc nhiều **tổ chức**. Máy đang dùng có sẵn tổ chức *MinhAnOS* chứa mọi tài khoản.
+- **System Admin** tạo tổ chức cấp cao nhất (Account Center → *Tổ chức* → *Tổ chức mới*) rồi cấp dung lượng trong Storage Manager → *Tổ chức* → *Cấp dung lượng* (chọn pool, nhập GB; để trống = không giới hạn).
+- **Quản trị viên tổ chức**: Account Center → *Tổ chức* → chọn tổ chức → *Người dùng mới* hoặc *Thêm thành viên* (nhập tên đăng nhập), *Đổi vai trò*, *Gỡ bỏ*; tạo nhóm của tổ chức. Trong Storage Manager tạo Shared Folder (chọn *Tổ chức sở hữu*) và cấp quyền cho thành viên hoặc nhóm của tổ chức.
+- **Tổ chức con**: bật *Cho phép tổ chức con* ở tổ chức cha, sau đó *Tổ chức con*. Quản trị viên tổ chức cha cấp hạn mức cho tổ chức con (trừ vào phần của tổ chức cha), tạm ngưng hoặc xóa tổ chức con, nhưng không xem được tệp của tổ chức con.
+- **Thành viên**: Files hiện Shared Folder của từng tổ chức thành nhóm riêng trong thanh bên. Khi bị gỡ khỏi tổ chức hoặc tổ chức bị tạm ngưng, các Shared Folder đó biến mất ngay.
+- Lỗi thường gặp: *Tổ chức chưa được cấp dung lượng trên vùng lưu trữ này* → nhờ System Admin hoặc quản trị viên tổ chức cha cấp hạn mức; *Vượt quá dung lượng còn lại của tổ chức cha* → giảm hạn mức hoặc xin thêm cho tổ chức cha.
+
 ## Desktop và Files (quy chuẩn 2026-10-31)
 
 - Ứng dụng tệp có tên **MinhAnOS Files** ở mọi nơi; mở trong Desktop hoặc tại cổng 8082 đều là cùng một ứng dụng.

@@ -148,6 +148,46 @@
     {
       "file": "create-app-access.v1.schema.json",
       "type": "IdentityCreateAppAccess"
+    },
+    {
+      "file": "organization.v1.schema.json",
+      "type": "IdentityOrganization"
+    },
+    {
+      "file": "organization-page.v1.schema.json",
+      "type": "IdentityOrganizationPage"
+    },
+    {
+      "file": "create-organization.v1.schema.json",
+      "type": "IdentityCreateOrganization"
+    },
+    {
+      "file": "patch-organization.v1.schema.json",
+      "type": "IdentityPatchOrganization"
+    },
+    {
+      "file": "organization-member.v1.schema.json",
+      "type": "IdentityOrganizationMember"
+    },
+    {
+      "file": "organization-member-page.v1.schema.json",
+      "type": "IdentityOrganizationMemberPage"
+    },
+    {
+      "file": "add-organization-member.v1.schema.json",
+      "type": "IdentityAddOrganizationMember"
+    },
+    {
+      "file": "set-organization-member-role.v1.schema.json",
+      "type": "IdentitySetOrganizationMemberRole"
+    },
+    {
+      "file": "create-organization-user.v1.schema.json",
+      "type": "IdentityCreateOrganizationUser"
+    },
+    {
+      "file": "organization-member-result.v1.schema.json",
+      "type": "IdentityOrganizationMemberResult"
     }
   ]
 }

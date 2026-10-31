@@ -67,6 +67,19 @@
         "null"
       ],
       "minimum": 0
+    },
+    "organizationId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "organizationName": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
@@ -77,6 +90,8 @@
     "kind",
     "version",
     "usage",
-    "physicalBytes"
+    "physicalBytes",
+    "organizationId",
+    "organizationName"
   ]
 }

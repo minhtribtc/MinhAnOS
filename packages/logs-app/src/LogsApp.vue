@@ -3,7 +3,8 @@ import {onBeforeUnmount,onMounted,reactive,ref,watch} from 'vue'
 import {ScrollText,RefreshCw,ChevronDown,ChevronRight} from 'lucide-vue-next'
 import {useHost,ApiError} from '@minhanos/app-sdk'
 import {createLogsClient} from '@minhanos/api-client/logs'
-import type {LogEvent,LogSource} from '@minhanos/shared-types'
+import {createIdentityClient} from '@minhanos/api-client/identity'
+import type {LogEvent,LogSource,IdentityOrganization} from '@minhanos/shared-types'
 import catalogs from '../locales/catalogs.json'
 
 // Log Center (com.minhanos.logs), minimal v1: read-only audit events of every module, newest first.
@@ -14,7 +15,10 @@ onBeforeUnmount(release)
 const t=(key:string,params?:Record<string,string|number>)=>{host.profile.value.locale;return host.i18n.t('logs.'+key,params)}
 const known=(key:string)=>'logs.'+key in catalogs['vi-VN']
 const logs=createLogsClient(props.apiBase+'/v1/logs')
-const filter=reactive({source:'',outcome:''})
+// Organization admins see only their organizations' events (ADR 0008); the filter narrows to one of them.
+const identity=createIdentityClient(props.apiBase+'/v1/identity'),orgs=ref<IdentityOrganization[]>([])
+const orgName=(id:string|null|undefined)=>orgs.value.find(o=>o.id===id)?.name??id??''
+const filter=reactive({source:'',outcome:'',organization:''})
 const events=ref<LogEvent[]>([]),sources=ref<LogSource[]>([]),next=ref<string|null>(null),loading=ref(false),error=ref(''),open=ref<string|null>(null)
 
 function message(e:unknown){if(e instanceof ApiError){return known('errors.'+e.code)?t('errors.'+e.code):host.errorMessage(e)}return t('errors.network')}
@@ -26,13 +30,13 @@ async function load(more=false){
  if(loading.value)return
  loading.value=true;error.value=''
  try{
-  const page=await logs.logsListEvents({source:filter.source||undefined,outcome:filter.outcome||undefined,limit:50,cursor:more?next.value??undefined:undefined})
+  const page=await logs.logsListEvents({source:filter.source||undefined,outcome:filter.outcome||undefined,organization:filter.organization||undefined,limit:50,cursor:more?next.value??undefined:undefined})
   events.value=more?[...events.value,...page.items]:page.items;next.value=page.nextCursor
  }catch(e){error.value=message(e)}finally{loading.value=false}
 }
 watch(filter,()=>load())
 watch(()=>props.active,a=>{if(a&&!events.value.length)void load()})
-onMounted(async()=>{await load();try{sources.value=(await logs.logsListSources()).items}catch{/* retention line is optional */}})
+onMounted(async()=>{await load();try{orgs.value=(await identity.identityListOrganizations({limit:100})).items.filter(o=>o.role==='root'||o.role==='admin')}catch{/* the filter is optional */}try{sources.value=(await logs.logsListSources()).items}catch{/* retention line is optional */}})
 defineExpose({canClose:()=>true})
 </script>
 
@@ -45,6 +49,7 @@ defineExpose({canClose:()=>true})
   <div class="lc-filters">
    <label>{{t('filters.source')}}<select v-model="filter.source"><option value="">{{t('filters.all')}}</option><option v-for="s in ['identity','storage','files']" :key="s" :value="s">{{t('sources.'+s)}}</option></select></label>
    <label>{{t('filters.outcome')}}<select v-model="filter.outcome"><option value="">{{t('filters.all')}}</option><option v-for="o in ['success','denied','failure']" :key="o" :value="o">{{t('outcomes.'+o)}}</option></select></label>
+   <label v-if="orgs.length>1">{{t('filters.organization')}}<select v-model="filter.organization"><option value="">{{t('filters.all')}}</option><option v-for="o in orgs" :key="o.id" :value="o.id">{{o.name}}</option></select></label>
   </div>
   <p v-if="error" class="lc-error" role="alert">{{error}}</p>
   <div class="lc-table" :aria-busy="loading">
@@ -62,6 +67,7 @@ defineExpose({canClose:()=>true})
       </tr>
       <tr v-if="open===e.id" class="lc-detail"><td colspan="6"><dl>
        <dt>{{t('requestId')}}</dt><dd><code>{{e.requestId}}</code></dd>
+       <template v-if="e.organizationId"><dt>{{t('organization')}}</dt><dd>{{orgName(e.organizationId)}}</dd></template>
        <template v-if="e.correlationId"><dt>{{t('correlationId')}}</dt><dd><code>{{e.correlationId}}</code></dd></template>
        <template v-if="e.target&&e.targetName"><dt>{{t('columns.target')}}</dt><dd><code>{{e.target}}</code></dd></template>
        <template v-for="(value,key) in e.details" :key="key"><dt>{{key}}</dt><dd><code>{{detail(value)}}</code></dd></template>

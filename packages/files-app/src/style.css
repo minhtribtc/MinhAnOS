@@ -18,3 +18,4 @@
 .files-app .files-no-storage{font-size:11px;color:var(--mn-color-text-tertiary);padding:6px 12px}
 .files-app .files-quota-folder{margin-top:6px;font-size:11px;color:var(--mn-color-action-primary)}
 .files-app .files-footer .export-link{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;color:var(--mn-color-action-primary);text-decoration:none}.files-app .files-footer .export-link:hover{text-decoration:underline}
+.files-app .drive-sidebar .files-org-label{margin-top:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

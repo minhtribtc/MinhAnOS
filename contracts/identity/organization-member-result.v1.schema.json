@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-organization-member-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "accepted": {
+      "const": true
+    },
+    "userId": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "accepted",
+    "userId"
+  ]
+}

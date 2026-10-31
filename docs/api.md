@@ -1,3 +1,16 @@
+## Organizations and allocations (ADR 0008, 2026-10-31)
+
+Identity: `GET/POST /api/v1/identity/organizations`, `GET/PATCH/DELETE /organizations/{id}`, members
+(`GET/POST /organizations/{id}/members`, `PUT/DELETE /members/{userId}`), `POST /organizations/{id}/users`
+(standard account plus membership) and organization groups (`/organizations/{id}/groups[/{groupId}[/members[/{userId}]]]`).
+The caller's role (`root`, `admin`, `manager`, `member`) is derived per request; an organization without a role reads
+404 `ORG_NOT_FOUND`, a role too low 403 `ORG_PERMISSION_DENIED`. POST/DELETE need `Idempotency-Key`, PATCH `If-Match`,
+every write a recent reauthentication. Storage: `GET /api/v1/storage/organizations` (organizations with allocations),
+`POST /organizations/{org}/allocations`, `PUT`/`DELETE /allocations/{id}` (Root for top level, managers for
+descendants); `POST /shares` takes `organizationId`; `GET /subjects?organization=`. Non-root callers reach only
+volumes, shares, folders, subjects, organizations and allocations; another organization's share or folder is 404.
+Logs: `GET /api/v1/logs/events?organization=`; organization admins see only their organizations' events.
+
 ## Files and Desktop API in OpenAPI (2026-10-31)
 
 All Files routes (`/api/drive/...`, `x-module: files`, 23 operations) and Desktop routes (`/api/...`,

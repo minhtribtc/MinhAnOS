@@ -84,4 +84,15 @@ for(const file of (await files('internal/platform',['.go'])).filter(f=>!f.endsWi
 assert(!/INSERT INTO (drive_)?audit\(/.test(registry+await text('internal/drive/auth.go')+await text('internal/identity/policy.go')),'legacy audit write')
 // Row 9: account administration only through the v1 identity API.
 assert(!registry.includes('/api/admin/users'),'legacy /api/admin/users is back')
-console.log('PASS app standard: Desktop, Files, Notes — manifests, registry, i18n parity/keys, tokens only, useCatalog, error codes, structured logs, naming, labelled dialogs')
+// Row 27 (tenancy, ADR 0008): shared resources and their audit carry the organization; authority is derived on the
+// server per request (no client-sent "active organization"); every tenancy error code has a common catalog entry.
+const migrations=(await Promise.all((await files('internal',['.sql'])).map(f=>text(f)))).join('\n')
+for(const table of ['identity_groups','identity_admin_events','storage_shares','storage_events','storage_notification_outbox','files_events'])assert(new RegExp('ALTER TABLE '+table+' ADD COLUMN organization_id uuid').test(migrations),table+': no organization_id')
+assert(/CREATE TABLE storage_allocations\([^;]*organization_id uuid NOT NULL/.test(migrations),'storage_allocations: no owning organization')
+const srcDirs=[];for(const top of ['apps','packages'])for(const e of await readdir(new URL(top,root),{withFileTypes:true}))if(e.isDirectory())try{await readdir(new URL(top+'/'+e.name+'/src',root));srcDirs.push(top+'/'+e.name+'/src')}catch{}
+const clientCode=(await Promise.all((await Promise.all(srcDirs.map(d=>files(d,['.ts','.vue'])))).flat().map(f=>text(f)))).join('\n')
+assert(!/X-Organization|activeOrganization|active-organization/i.test(clientCode),'client-side active organization (authority must be derived on the server)')
+const common=await json('packages/app-sdk/locales/common.json'),goCode=(await Promise.all((await files('internal',['.go'])).filter(f=>!f.endsWith('_test.go')).map(f=>text(f)))).join('\n')
+for(const [code] of new Set([...goCode.matchAll(/"((?:ORG|STORAGE_ALLOCATION|STORAGE_NO_ALLOCATION|STORAGE_PARENT_ALLOCATION)[A-Z_]*|IDENTITY_NOT_MEMBER)"/g)].map(m=>m[1])).entries())for(const locale of ['vi-VN','en-US'])assert('common.errors.'+code in common[locale],locale+': no catalog entry for tenancy error '+code)
+assert(/storageScope\(r\)/.test(await text('internal/platform/storage.go'))&&/orgAdminScope\(r, identityschema\.LogsApp/.test(await text('internal/platform/notifications.go')),'Storage/Logs without per-request organization scope')
+console.log('PASS app standard: Desktop, Files, Notes — manifests, registry, i18n parity/keys, tokens only, useCatalog, error codes, structured logs, naming, labelled dialogs, tenancy (row 27)')

@@ -27,6 +27,10 @@
     },
     "hostsHomes": {
       "type": "boolean"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid"
     }
   },
   "required": [

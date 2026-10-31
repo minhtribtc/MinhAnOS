@@ -2,6 +2,7 @@ package platform
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -17,9 +18,12 @@ import (
 	"minhanos.local/platform/internal/storagecore"
 )
 
-// storageHandler serves the Storage Manager API v1 (/api/v1/storage/..., contracts/storage). Every call
-// needs storage.manage through the identity policy (System Admin); writes need reauthentication within
-// five minutes, PUT needs If-Match and POST needs Idempotency-Key. Errors use the nested v1 envelope.
+// storageHandler serves the Storage Manager API v1 (/api/v1/storage/..., contracts/storage). System Admins
+// (storage.manage) manage everything. Organization admins manage the shares, quota folders and permissions
+// of their organizations, and managers manage the allocations of descendant organizations (ADR 0008). Each
+// resource is authorized through its owning organization; one the caller may not manage reads as not
+// found. Writes need reauthentication within five minutes, PUT/DELETE need If-Match and POST needs
+// Idempotency-Key. Errors use the nested v1 envelope.
 func (a *App) storageHandler() http.Handler {
 	mux := http.NewServeMux()
 	type writeFunc func(w http.ResponseWriter, r *http.Request, actor string, raw []byte)
@@ -108,6 +112,25 @@ func (a *App) storageHandler() http.Handler {
 			a.storageFailure(w, r, err)
 			return
 		}
+		if sc := scopeOf(r); !sc.root {
+			// Organization admins see only the pools their organizations have an allocation on.
+			allocations, e := a.storage.Allocations(r.Context(), sc.ids())
+			if e != nil {
+				a.storageFailure(w, r, e)
+				return
+			}
+			allowed := map[string]bool{}
+			for _, x := range allocations {
+				allowed[x.Volume] = true
+			}
+			kept := volumes[:0]
+			for _, v := range volumes {
+				if allowed[v.Name] {
+					kept = append(kept, v)
+				}
+			}
+			volumes = kept
+		}
 		writeJSON(w, 200, map[string]any{"items": volumes, "agentError": err != nil})
 	})
 	mux.HandleFunc("GET /api/v1/storage/shares", func(w http.ResponseWriter, r *http.Request) {
@@ -115,6 +138,15 @@ func (a *App) storageHandler() http.Handler {
 		if err != nil {
 			a.storageFailure(w, r, err)
 			return
+		}
+		if sc := scopeOf(r); !sc.root {
+			kept := shares[:0]
+			for _, s := range shares {
+				if s.OrganizationID != nil && sc.admin(*s.OrganizationID) {
+					kept = append(kept, s)
+				}
+			}
+			shares = kept
 		}
 		writeJSON(w, 200, map[string]any{"items": shares})
 	})
@@ -125,11 +157,21 @@ func (a *App) storageHandler() http.Handler {
 			Volume     string `json:"volume"`
 			LimitBytes *int64 `json:"limitBytes"`
 			HostsHomes bool   `json:"hostsHomes"`
+			// Owner; omitted means the default organization (System Admin only).
+			OrganizationID *string `json:"organizationId"`
 		}
 		if !decodeStrict(w, r, raw, &body) {
 			return
 		}
-		share, err := a.storage.CreateShare(r.Context(), actor, body.Key, body.Name, body.Volume, body.LimitBytes, body.HostsHomes)
+		org := ""
+		if body.OrganizationID != nil {
+			org = *body.OrganizationID
+		}
+		if sc := scopeOf(r); !sc.root && (body.HostsHomes || !sc.admin(org)) {
+			v1Error(w, r, 403, "STORAGE_PERMISSION_DENIED")
+			return
+		}
+		share, err := a.storage.CreateOrgShare(r.Context(), actor, org, body.Key, body.Name, body.Volume, body.LimitBytes, body.HostsHomes)
 		if err != nil {
 			a.storageFailure(w, r, err)
 			return
@@ -239,7 +281,12 @@ func (a *App) storageHandler() http.Handler {
 		accepted(w, 200)
 	}))
 	mux.HandleFunc("GET /api/v1/storage/subjects", func(w http.ResponseWriter, r *http.Request) {
-		items, err := a.storage.Subjects(r.Context())
+		org := r.URL.Query().Get("organization")
+		if sc := scopeOf(r); !sc.root && !sc.admin(org) {
+			v1Error(w, r, 404, "STORAGE_NOT_FOUND")
+			return
+		}
+		items, err := a.storage.Subjects(r.Context(), org)
 		if err != nil {
 			a.storageFailure(w, r, err)
 			return
@@ -302,14 +349,187 @@ func (a *App) storageHandler() http.Handler {
 		}
 		accepted(w, 200)
 	}))
+	mux.HandleFunc("GET /api/v1/storage/organizations", func(w http.ResponseWriter, r *http.Request) {
+		sc := scopeOf(r)
+		ids := sc.ids()
+		if sc.root {
+			ids = nil
+		}
+		allocations, err := a.storage.Allocations(r.Context(), ids)
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		byOrg := map[string][]storagecore.Allocation{}
+		for _, x := range allocations {
+			byOrg[x.OrganizationID] = append(byOrg[x.OrganizationID], x)
+		}
+		items := []map[string]any{}
+		for _, o := range sc.list {
+			list := byOrg[o.ID]
+			if list == nil {
+				list = []storagecore.Allocation{}
+			}
+			items = append(items, map[string]any{"id": o.ID, "name": o.Name, "parentId": o.ParentID, "status": o.Status, "role": o.Role, "allocations": list})
+		}
+		writeJSON(w, 200, map[string]any{"items": items})
+	})
+	mux.HandleFunc("POST /api/v1/storage/organizations/{org}/allocations", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		var body struct {
+			Volume     string `json:"volume"`
+			LimitBytes *int64 `json:"limitBytes"`
+		}
+		if !decodeStrict(w, r, raw, &body) {
+			return
+		}
+		org := r.PathValue("org")
+		if !scopeOf(r).allocates(org) {
+			v1Error(w, r, 404, "STORAGE_NOT_FOUND")
+			return
+		}
+		allocation, err := a.storage.CreateAllocation(r.Context(), actor, org, body.Volume, body.LimitBytes)
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		w.Header().Set("ETag", fmt.Sprintf(`"%d"`, allocation.Version))
+		writeJSON(w, 201, allocation)
+	}))
+	allocationOwner := func(w http.ResponseWriter, r *http.Request) bool {
+		org, err := a.storage.AllocationOrganization(r.Context(), r.PathValue("id"))
+		if err == nil && !scopeOf(r).allocates(org) {
+			err = storagecore.ErrNotFound
+		}
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return false
+		}
+		return true
+	}
+	mux.HandleFunc("PUT /api/v1/storage/allocations/{id}", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		version, ok := ifMatch(w, r)
+		var body struct {
+			LimitBytes *int64 `json:"limitBytes"`
+		}
+		if !ok || !decodeStrict(w, r, raw, &body) || !allocationOwner(w, r) {
+			return
+		}
+		if err := a.storage.SetAllocationLimit(r.Context(), actor, r.PathValue("id"), version, body.LimitBytes); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 200)
+	}))
+	mux.HandleFunc("DELETE /api/v1/storage/allocations/{id}", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		version, ok := ifMatch(w, r)
+		if !ok || !allocationOwner(w, r) {
+			return
+		}
+		if err := a.storage.DeleteAllocation(r.Context(), actor, r.PathValue("id"), version); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 200)
+	}))
 	mux.HandleFunc("/api/v1/storage/", func(w http.ResponseWriter, r *http.Request) { v1Error(w, r, 404, "STORAGE_NOT_FOUND") })
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
-		if a.identityService == nil || a.v1Denied(w, r, a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.StorageApp, "storage.manage")) {
+		if a.identityService == nil {
+			v1Error(w, r, 503, "SERVICE_UNAVAILABLE")
 			return
 		}
-		mux.ServeHTTP(w, r)
+		sc, err := a.storageScope(r)
+		if a.v1Denied(w, r, err) {
+			return
+		}
+		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/storage/"), "/")
+		if !sc.root {
+			// Homes and platform settings are System Admin only; a share or quota folder is managed by the
+			// direct admins of its organization and otherwise reads as not found (no ID probing).
+			switch parts[0] {
+			case "volumes", "shares", "folders", "subjects", "organizations", "allocations":
+			default:
+				v1Error(w, r, 403, "STORAGE_PERMISSION_DENIED")
+				return
+			}
+			if len(parts) >= 2 && (parts[0] == "shares" || parts[0] == "folders") {
+				share := parts[1]
+				if parts[0] == "folders" {
+					if share, err = a.storage.FolderShare(r.Context(), parts[1]); err != nil {
+						a.storageFailure(w, r, err)
+						return
+					}
+				}
+				org, kind, err := a.storage.ShareOwner(r.Context(), share)
+				if err == nil && (kind != "share" || !sc.admin(org)) {
+					err = storagecore.ErrNotFound
+				}
+				if err != nil {
+					a.storageFailure(w, r, err)
+					return
+				}
+			}
+		}
+		mux.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), storageScopeKey{}, sc)))
 	})
+}
+
+// storageScope is what the caller may manage in Storage Manager (ADR 0008): everything (System Admin), or the
+// organizations they administer (data) and manage (descendants' allocations).
+type storageScope struct {
+	root bool
+	list []identityschema.Organization // organizations the caller has an admin, manager or root role in
+	role map[string]string
+}
+type storageScopeKey struct{}
+
+func scopeOf(r *http.Request) storageScope {
+	return r.Context().Value(storageScopeKey{}).(storageScope)
+}
+
+func (s storageScope) admin(org string) bool { return s.root || (org != "" && s.role[org] == "admin") }
+
+// allocates: top-level allocations are Root's; a descendant's are its managers' (never its own admins').
+func (s storageScope) allocates(org string) bool {
+	if s.root {
+		_, ok := s.role[org]
+		return ok
+	}
+	return s.role[org] == "manager"
+}
+func (s storageScope) ids() []string {
+	out := []string{}
+	for _, o := range s.list {
+		out = append(out, o.ID)
+	}
+	return out
+}
+
+// storageScope: System Admin via storage.manage; otherwise organization roles. An explicit deny rule on the
+// Storage app is never bypassed by an organization role.
+func (a *App) storageScope(r *http.Request) (storageScope, error) {
+	user := identity(r).User.ID
+	sc := storageScope{role: map[string]string{}}
+	err := a.identityService.CheckApp(r.Context(), user, identityschema.StorageApp, "storage.manage")
+	var f *identityschema.Fault
+	if err != nil && !(errors.As(err, &f) && f.Code == "IDENTITY_PERMISSION_DENIED") {
+		return sc, err
+	}
+	sc.root = err == nil
+	orgs, e := a.identityService.Organizations(r.Context(), user)
+	if e != nil {
+		return sc, e
+	}
+	for _, o := range orgs {
+		if sc.root || o.Role == "admin" || o.Role == "manager" {
+			sc.list = append(sc.list, o)
+			sc.role[o.ID] = o.Role
+		}
+	}
+	if !sc.root && len(sc.list) == 0 {
+		return sc, err
+	}
+	return sc, nil
 }
 
 // recorder keeps a copy of a POST response so it can be replayed for the same Idempotency-Key.
@@ -363,6 +583,16 @@ func (a *App) storageFailure(w http.ResponseWriter, r *http.Request, err error) 
 		v1Error(w, r, 409, "STORAGE_NOT_READY")
 	case errors.Is(err, storagecore.ErrConflict):
 		v1Error(w, r, 412, "VERSION_CONFLICT")
+	case errors.Is(err, storagecore.ErrNoAllocation):
+		v1Error(w, r, 409, "STORAGE_NO_ALLOCATION")
+	case errors.Is(err, storagecore.ErrNoParentAllocation):
+		v1Error(w, r, 409, "STORAGE_PARENT_ALLOCATION_REQUIRED")
+	case errors.Is(err, storagecore.ErrAllocationExceeded):
+		v1Error(w, r, 409, "STORAGE_ALLOCATION_EXCEEDED")
+	case errors.Is(err, storagecore.ErrAllocationCommitted):
+		v1Error(w, r, 409, "STORAGE_ALLOCATION_COMMITTED")
+	case errors.Is(err, storagecore.ErrNotEmpty):
+		v1Error(w, r, 409, "STORAGE_NOT_EMPTY")
 	case errors.Is(err, storagecore.ErrNoAgent):
 		v1Error(w, r, 503, "STORAGE_AGENT_UNAVAILABLE")
 	case errors.As(err, &agent):

@@ -56,6 +56,8 @@ type Event struct {
 	RequestID     string         `json:"requestId"`
 	CorrelationID *string        `json:"correlationId"`
 	Details       map[string]any `json:"details"`
+	// OrganizationID is the organization the event belongs to (ADR 0008); null for platform events.
+	OrganizationID *string `json:"organizationId"`
 }
 
 type Page struct {
@@ -68,6 +70,8 @@ type Filter struct {
 	Outcome string // "" = all
 	Cursor  string
 	Limit   int
+	// Organizations limits events to these organizations (organization admins); nil = every event (Root).
+	Organizations []string
 }
 
 type Store struct{ DB *pgxpool.Pool }
@@ -113,23 +117,23 @@ func (s Store) Events(ctx context.Context, f Filter) (Page, error) {
 	if e != nil {
 		return Page{}, e
 	}
-	rows, e := s.DB.Query(ctx, `SELECT x.id::text,x.source,x.occurred_at,x.action,x.outcome,x.actor_id::text,coalesce(a.username,''),x.target,t.username,x.request_id,x.correlation_id,x.details
+	rows, e := s.DB.Query(ctx, `SELECT x.id::text,x.source,x.occurred_at,x.action,x.outcome,x.actor_id::text,coalesce(a.username,''),x.target,t.username,x.request_id,x.correlation_id,x.details,x.organization_id::text
 		FROM (
-		 (SELECT e.id,'identity' AS source,e.occurred_at,e.action,e.outcome,e.actor_id,e.target_id AS target,e.request_id,e.correlation_id,e.details FROM identity_admin_events e
-		  WHERE $1 IN ('','identity') AND ($2='' OR e.outcome=$2) AND ($3::timestamptz IS NULL OR (e.occurred_at,e.id)<($3,$4::uuid))
+		 (SELECT e.id,'identity' AS source,e.occurred_at,e.action,e.outcome,e.actor_id,e.target_id AS target,e.request_id,e.correlation_id,e.details,e.organization_id FROM identity_admin_events e
+		  WHERE $1 IN ('','identity') AND ($6::uuid[] IS NULL OR e.organization_id=ANY($6::uuid[])) AND ($2='' OR e.outcome=$2) AND ($3::timestamptz IS NULL OR (e.occurred_at,e.id)<($3,$4::uuid))
 		  ORDER BY e.occurred_at DESC,e.id DESC LIMIT $5)
 		 UNION ALL
-		 (SELECT s.id,'storage',s.occurred_at,s.action,'success',s.actor_id,s.target,s.request_id,s.correlation_id,s.details FROM storage_events s
-		  WHERE $1 IN ('','storage') AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (s.occurred_at,s.id)<($3,$4::uuid))
+		 (SELECT s.id,'storage',s.occurred_at,s.action,'success',s.actor_id,s.target,s.request_id,s.correlation_id,s.details,s.organization_id FROM storage_events s
+		  WHERE $1 IN ('','storage') AND ($6::uuid[] IS NULL OR s.organization_id=ANY($6::uuid[])) AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (s.occurred_at,s.id)<($3,$4::uuid))
 		  ORDER BY s.occurred_at DESC,s.id DESC LIMIT $5)
 		 UNION ALL
-		 (SELECT f.id,'files',f.occurred_at,f.action,'success',f.actor_id,coalesce(f.share_key,f.root),f.request_id,f.correlation_id,f.details||jsonb_build_object('root',f.root) FROM files_events f
-		  WHERE $1 IN ('','files') AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (f.occurred_at,f.id)<($3,$4::uuid))
+		 (SELECT f.id,'files',f.occurred_at,f.action,'success',f.actor_id,coalesce(f.share_key,f.root),f.request_id,f.correlation_id,f.details||jsonb_build_object('root',f.root),f.organization_id FROM files_events f
+		  WHERE $1 IN ('','files') AND ($6::uuid[] IS NULL OR f.organization_id=ANY($6::uuid[])) AND $2 IN ('','success') AND ($3::timestamptz IS NULL OR (f.occurred_at,f.id)<($3,$4::uuid))
 		  ORDER BY f.occurred_at DESC,f.id DESC LIMIT $5)
 		) x
 		LEFT JOIN users a ON a.public_id=x.actor_id
 		LEFT JOIN users t ON t.public_id::text=x.target
-		ORDER BY x.occurred_at DESC,x.id DESC LIMIT $5`, f.Source, f.Outcome, at, id, f.Limit+1)
+		ORDER BY x.occurred_at DESC,x.id DESC LIMIT $5`, f.Source, f.Outcome, at, id, f.Limit+1, f.Organizations)
 	if e != nil {
 		return Page{}, e
 	}
@@ -138,7 +142,7 @@ func (s Store) Events(ctx context.Context, f Filter) (Page, error) {
 	for rows.Next() {
 		var ev Event
 		var actorID, actorName *string
-		if e = rows.Scan(&ev.ID, &ev.Source, &ev.OccurredAt, &ev.Action, &ev.Outcome, &actorID, &actorName, &ev.Target, &ev.TargetName, &ev.RequestID, &ev.CorrelationID, &ev.Details); e != nil {
+		if e = rows.Scan(&ev.ID, &ev.Source, &ev.OccurredAt, &ev.Action, &ev.Outcome, &actorID, &actorName, &ev.Target, &ev.TargetName, &ev.RequestID, &ev.CorrelationID, &ev.Details, &ev.OrganizationID); e != nil {
 			return Page{}, e
 		}
 		if actorID != nil {

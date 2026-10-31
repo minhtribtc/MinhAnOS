@@ -29,7 +29,7 @@ const files={
  FilesRemoveInput:obj({confirm:{const:true}}),
  FilesSaveTextInput:obj({content:str({maxLength:1048576})}),
  FilesWriteResult:obj({ok:{const:true},item:{anyOf:[entry,trashItem]},backup:str(),job},['ok']),
- FilesRootList:obj({roots:{type:'array',maxItems:1000,items:obj({id:str({pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'}),kind:{enum:['home','share','system']},name:str({minLength:1,maxLength:100}),access:{enum:['read','write']}},['id','kind','access'])},homes:{type:'boolean'},maxUploadBytes:int({minimum:1}),maxTextBytes:int({minimum:1}),quota:usage},['roots','homes','maxUploadBytes','maxTextBytes']),
+ FilesRootList:obj({roots:{type:'array',maxItems:1000,items:obj({id:str({pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'}),kind:{enum:['home','share','system']},name:str({minLength:1,maxLength:100}),access:{enum:['read','write']},organizationId:str({format:'uuid'}),organization:str({minLength:1,maxLength:100})},['id','kind','access'])},homes:{type:'boolean'},maxUploadBytes:int({minimum:1}),maxTextBytes:int({minimum:1}),quota:usage},['roots','homes','maxUploadBytes','maxTextBytes']),
  FilesQuotaFolderList:obj({items:{type:'array',maxItems:1000,items:obj({id:str({format:'uuid'}),shareId:str({format:'uuid'}),path:str(),version:int({minimum:1}),usage})}}),
  FilesSession:session,
  FilesLoginInput:obj({username:str({minLength:1,maxLength:64}),password:str({minLength:1,maxLength:256})}),

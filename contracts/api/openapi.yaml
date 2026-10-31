@@ -3698,7 +3698,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -3733,7 +3733,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -3766,7 +3766,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "201": {
             "description": "Storage response",
@@ -3832,7 +3832,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -3906,7 +3906,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "202": {
             "description": "Storage response",
@@ -3971,7 +3971,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4015,7 +4015,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "201": {
             "description": "Storage response",
@@ -4090,7 +4090,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4164,7 +4164,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4228,7 +4228,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4272,7 +4272,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4346,7 +4346,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4368,7 +4368,19 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "organization",
+            "in": "query",
+            "required": false,
+            "description": "Members and groups of this organization (required for organization admins)",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
       }
     },
     "/api/v1/storage/homes": {
@@ -4381,7 +4393,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4416,7 +4428,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4490,7 +4502,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "202": {
             "description": "Storage response",
@@ -4555,7 +4567,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4588,7 +4600,7 @@
             "desktopSession": []
           }
         ],
-        "description": "Requires storage.manage (System Admin) through the identity policy; writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files.",
         "responses": {
           "200": {
             "description": "Storage response",
@@ -4889,6 +4901,16 @@
             "schema": {
               "type": "string",
               "maxLength": 200
+            }
+          },
+          {
+            "name": "organization",
+            "in": "query",
+            "required": false,
+            "description": "Only this organization (must be one the caller administers)",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ]
@@ -6808,6 +6830,1507 @@
           }
         ]
       }
+    },
+    "/api/v1/identity/organizations": {
+      "get": {
+        "operationId": "identityListOrganizations",
+        "summary": "Organizations the caller has a role in",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganizationPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "post": {
+        "operationId": "identityCreateOrganization",
+        "summary": "Create a top-level (Root) or child organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganization"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateOrganization"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}": {
+      "get": {
+        "operationId": "identityGetOrganization",
+        "summary": "Read one organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganization"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "patch": {
+        "operationId": "identityPatchOrganization",
+        "summary": "Rename; status and allowChildren for managers and Root",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganization"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityPatchOrganization"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "delete": {
+        "operationId": "identityDeleteOrganization",
+        "summary": "Delete an empty, non-default organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/members": {
+      "get": {
+        "operationId": "identityListOrganizationMembers",
+        "summary": "Members (admins, managers, Root)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganizationMemberPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "post": {
+        "operationId": "identityAddOrganizationMember",
+        "summary": "Add an existing account by username",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganizationMemberResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityAddOrganizationMember"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/members/{userId}": {
+      "put": {
+        "operationId": "identitySetOrganizationMemberRole",
+        "summary": "Change a member role",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganizationMemberResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentitySetOrganizationMemberRole"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "delete": {
+        "operationId": "identityRemoveOrganizationMember",
+        "summary": "Remove a member (leaves its groups and share permissions)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityOrganizationMemberResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/users": {
+      "post": {
+        "operationId": "identityCreateOrganizationUser",
+        "summary": "Create a standard account inside the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityUser"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateOrganizationUser"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/groups": {
+      "get": {
+        "operationId": "identityListOrganizationGroups",
+        "summary": "Groups of the organization (admins, Root)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroupPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "post": {
+        "operationId": "identityCreateOrganizationGroup",
+        "summary": "Create a group of the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityCreateGroup"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/groups/{groupId}": {
+      "patch": {
+        "operationId": "identityPatchOrganizationGroup",
+        "summary": "Rename a group of the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityPatchGroup"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "delete": {
+        "operationId": "identityDeleteOrganizationGroup",
+        "summary": "Delete a group of the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/groups/{groupId}/members": {
+      "get": {
+        "operationId": "identityListOrganizationGroupMembers",
+        "summary": "Members of a group of the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityGroupMemberPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      },
+      "post": {
+        "operationId": "identityAddOrganizationGroupMember",
+        "summary": "Add a member of the organization to its group",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityGroupMember"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/identity/organizations/{organizationId}/groups/{groupId}/members/{userId}": {
+      "delete": {
+        "operationId": "identityRemoveOrganizationGroupMember",
+        "summary": "Remove a member from a group of the organization",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": [],
+            "appDelegation": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized Identity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityMutationResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Identity request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "Implemented (ADR 0008). Organization authority is relationship-based (identity_org_role: root, admin, manager, member) and checked per request; an organization the caller has no role in reads as not found. Writes need recent password verification."
+      }
+    },
+    "/api/v1/storage/organizations": {
+      "get": {
+        "operationId": "storageListOrganizations",
+        "summary": "Organizations the caller manages storage for, with allocations",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageOrganizationPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files."
+      }
+    },
+    "/api/v1/storage/organizations/{organizationId}/allocations": {
+      "post": {
+        "operationId": "storageCreateAllocation",
+        "summary": "Give an organization a budget on a pool (top-level: Root; child: its managers)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAllocation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageCreateAllocation"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          }
+        ],
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files."
+      }
+    },
+    "/api/v1/storage/allocations/{allocationId}": {
+      "put": {
+        "operationId": "storageSetAllocation",
+        "summary": "Change an allocation limit (carve-out, never below committed)",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageSetQuota"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "allocationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files."
+      },
+      "delete": {
+        "operationId": "storageDeleteAllocation",
+        "summary": "Remove an unused allocation",
+        "x-implementation": "implemented",
+        "security": [
+          {
+            "desktopSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Storage response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageAccepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Storage request denied or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "allocationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files."
+      }
     }
   },
   "components": {
@@ -7357,6 +8880,17 @@
           "version": {
             "type": "integer",
             "minimum": 1
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "memberCount": {
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": [
@@ -8642,6 +10176,19 @@
               "null"
             ],
             "minimum": 0
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -8652,7 +10199,9 @@
           "kind",
           "version",
           "usage",
-          "physicalBytes"
+          "physicalBytes",
+          "organizationId",
+          "organizationName"
         ]
       },
       "StorageHome": {
@@ -8744,6 +10293,10 @@
           },
           "hostsHomes": {
             "type": "boolean"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -8947,6 +10500,19 @@
                     "null"
                   ],
                   "minimum": 0
+                },
+                "organizationId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "organizationName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 }
               },
               "required": [
@@ -8957,7 +10523,9 @@
                 "kind",
                 "version",
                 "usage",
-                "physicalBytes"
+                "physicalBytes",
+                "organizationId",
+                "organizationName"
               ]
             }
           }
@@ -9332,6 +10900,13 @@
           },
           "details": {
             "type": "object"
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         },
         "required": [
@@ -9345,7 +10920,8 @@
           "targetName",
           "requestId",
           "correlationId",
-          "details"
+          "details",
+          "organizationId"
         ]
       },
       "LogSourceList": {
@@ -9467,6 +11043,13 @@
                 },
                 "details": {
                   "type": "object"
+                },
+                "organizationId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
                 }
               },
               "required": [
@@ -9480,7 +11063,8 @@
                 "targetName",
                 "requestId",
                 "correlationId",
-                "details"
+                "details",
+                "organizationId"
               ]
             }
           },
@@ -10299,6 +11883,15 @@
                     "read",
                     "write"
                   ]
+                },
+                "organizationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "organization": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
                 }
               },
               "required": [
@@ -11155,6 +12748,584 @@
           "exportVersion",
           "exportedAt",
           "preferences"
+        ]
+      },
+      "IdentityOrganization": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "parentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "allowChildren": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "role": {
+            "enum": [
+              "root",
+              "admin",
+              "manager",
+              "member"
+            ]
+          },
+          "memberCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "parentId",
+          "depth",
+          "status",
+          "allowChildren",
+          "isDefault",
+          "role",
+          "memberCount",
+          "version"
+        ]
+      },
+      "IdentityOrganizationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "parentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "depth": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 8
+                },
+                "status": {
+                  "enum": [
+                    "active",
+                    "suspended"
+                  ]
+                },
+                "allowChildren": {
+                  "type": "boolean"
+                },
+                "isDefault": {
+                  "type": "boolean"
+                },
+                "role": {
+                  "enum": [
+                    "root",
+                    "admin",
+                    "manager",
+                    "member"
+                  ]
+                },
+                "memberCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "parentId",
+                "depth",
+                "status",
+                "allowChildren",
+                "isDefault",
+                "role",
+                "memberCount",
+                "version"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityCreateOrganization": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "parentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "allowChildren": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "IdentityPatchOrganization": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "allowChildren": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "minProperties": 1
+      },
+      "IdentityOrganizationMember": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled",
+              "deleted"
+            ]
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "member"
+            ]
+          }
+        },
+        "required": [
+          "userId",
+          "username",
+          "displayName",
+          "status",
+          "role"
+        ]
+      },
+      "IdentityOrganizationMemberPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "active",
+                    "disabled",
+                    "deleted"
+                  ]
+                },
+                "role": {
+                  "enum": [
+                    "admin",
+                    "member"
+                  ]
+                }
+              },
+              "required": [
+                "userId",
+                "username",
+                "displayName",
+                "status",
+                "role"
+              ]
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "IdentityAddOrganizationMember": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "member"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "role"
+        ]
+      },
+      "IdentitySetOrganizationMemberRole": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "enum": [
+              "admin",
+              "member"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "IdentityCreateOrganizationUser": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 256,
+            "writeOnly": true
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "member"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "displayName",
+          "password",
+          "role"
+        ]
+      },
+      "IdentityOrganizationMemberResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "const": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "accepted",
+          "userId"
+        ]
+      },
+      "StorageAllocation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "volume": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "limitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          },
+          "delegatedBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "usedBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reservedBytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "volume",
+          "parentId",
+          "limitBytes",
+          "delegatedBytes",
+          "usedBytes",
+          "reservedBytes",
+          "version"
+        ]
+      },
+      "StorageCreateAllocation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "volume": {
+            "type": "string",
+            "minLength": 1
+          },
+          "limitBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1152921504606847000
+          }
+        },
+        "required": [
+          "volume",
+          "limitBytes"
+        ]
+      },
+      "StorageOrganizationPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "parentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "status": {
+                  "enum": [
+                    "active",
+                    "suspended"
+                  ]
+                },
+                "role": {
+                  "enum": [
+                    "root",
+                    "admin",
+                    "manager"
+                  ]
+                },
+                "allocations": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "organizationId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "volume": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "uuid"
+                      },
+                      "limitBytes": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1152921504606847000
+                      },
+                      "delegatedBytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "usedBytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "reservedBytes": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "organizationId",
+                      "volume",
+                      "parentId",
+                      "limitBytes",
+                      "delegatedBytes",
+                      "usedBytes",
+                      "reservedBytes",
+                      "version"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "parentId",
+                "status",
+                "role",
+                "allocations"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
         ]
       }
     }

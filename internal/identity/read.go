@@ -121,7 +121,7 @@ func (s *Service) Read(ctx context.Context, realm Realm, token, kind, target, se
 	case "me/credentials":
 		rows, e = tx.Query(ctx, `SELECT password_credential_id::text,jsonb_build_object('id',password_credential_id,'userId',public_id,'kind','password','state','active','lastChangedAt',password_changed_at) FROM users WHERE id=$1 AND password_credential_id::text>$2 ORDER BY password_credential_id::text LIMIT $3`, a.StorageID, after, limit+1)
 	case "groups":
-		rows, e = tx.Query(ctx, `SELECT id::text,jsonb_build_object('id',id,'key',key,'name',name,'kind',kind,'version',version) FROM identity_groups WHERE id::text>$1 AND ($3='' OR id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$3)) ORDER BY id::text LIMIT $2`, after, limit+1, search)
+		rows, e = tx.Query(ctx, `SELECT id::text,jsonb_build_object('id',id,'key',key,'name',name,'kind',kind,'organizationId',organization_id,'version',version) FROM identity_groups WHERE id::text>$1 AND ($3='' OR id IN (SELECT group_id FROM identity_group_members WHERE user_id::text=$3)) ORDER BY id::text LIMIT $2`, after, limit+1, search)
 	case "members":
 		rows, e = tx.Query(ctx, `SELECT user_id::text,jsonb_build_object('userId',user_id) FROM identity_group_members WHERE group_id=$1 AND user_id::text>$2 ORDER BY user_id::text LIMIT $3`, target, after, limit+1)
 	case "role-bindings":

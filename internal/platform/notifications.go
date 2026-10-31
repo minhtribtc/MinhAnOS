@@ -2,10 +2,12 @@ package platform
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"slices"
 	"strconv"
 	"time"
 
@@ -116,6 +118,16 @@ func (a *App) logsHandler() http.Handler {
 	mux.HandleFunc("GET /api/v1/logs/events", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		f := logcore.Filter{Source: q.Get("source"), Outcome: q.Get("outcome"), Cursor: q.Get("cursor"), Limit: 50}
+		// Organization admins read only their organizations' events; ?organization= narrows to one (ADR 0008).
+		scope := r.Context().Value(logScopeKey{}).([]string)
+		if org := q.Get("organization"); org != "" {
+			if scope != nil && !slices.Contains(scope, org) {
+				v1Error(w, r, 404, "LOG_NOT_FOUND")
+				return
+			}
+			scope = []string{org}
+		}
+		f.Organizations = scope
 		if v := q.Get("limit"); v != "" {
 			n, err := strconv.Atoi(v)
 			if err != nil {
@@ -142,9 +154,41 @@ func (a *App) logsHandler() http.Handler {
 			v1Error(w, r, 503, "SERVICE_UNAVAILABLE")
 			return
 		}
-		if a.v1Denied(w, r, a.identityService.CheckApp(r.Context(), identity(r).User.ID, identityschema.LogsApp, "logs.audit.read")) {
+		scope, err := a.orgAdminScope(r, identityschema.LogsApp, "logs.audit.read")
+		if a.v1Denied(w, r, err) {
 			return
 		}
-		mux.ServeHTTP(w, r)
+		mux.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), logScopeKey{}, scope)))
 	})
+}
+
+type logScopeKey struct{}
+
+// orgAdminScope authorizes an app that System Admins use platform-wide and organization admins/managers use for
+// their own organizations: nil means every organization, otherwise the IDs they may see. A deny rule on the app
+// is never bypassed by an organization role.
+func (a *App) orgAdminScope(r *http.Request, app, permission string) ([]string, error) {
+	user := identity(r).User.ID
+	err := a.identityService.CheckApp(r.Context(), user, app, permission)
+	if err == nil {
+		return nil, nil
+	}
+	var f *identityschema.Fault
+	if !errors.As(err, &f) || f.Code != "IDENTITY_PERMISSION_DENIED" {
+		return nil, err
+	}
+	orgs, e := a.identityService.Organizations(r.Context(), user)
+	if e != nil {
+		return nil, e
+	}
+	ids := []string{}
+	for _, o := range orgs {
+		if o.Role == "admin" || o.Role == "manager" {
+			ids = append(ids, o.ID)
+		}
+	}
+	if len(ids) == 0 {
+		return nil, err
+	}
+	return ids, nil
 }

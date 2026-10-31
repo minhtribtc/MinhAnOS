@@ -68,6 +68,18 @@
     {
       "file": "create-quota-folder.v1.schema.json",
       "type": "StorageCreateQuotaFolder"
+    },
+    {
+      "file": "allocation.v1.schema.json",
+      "type": "StorageAllocation"
+    },
+    {
+      "file": "create-allocation.v1.schema.json",
+      "type": "StorageCreateAllocation"
+    },
+    {
+      "file": "organization-page.v1.schema.json",
+      "type": "StorageOrganizationPage"
     }
   ]
 }

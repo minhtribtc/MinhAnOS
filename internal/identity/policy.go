@@ -175,6 +175,10 @@ type Result struct {
 	Body   json.RawMessage
 	Status int
 	ETag   string
+	// Org is the organization the change belongs to (audit only; not stored for replays).
+	Org string
+	// Target overrides the audit target taken from the route (e.g. the member of an organization).
+	Target string
 }
 
 func result(body any, status int, version int64) Result {
@@ -184,7 +188,7 @@ func result(body any, status int, version int64) Result {
 	if version > 0 {
 		etag = fmt.Sprintf("\"%d\"", version)
 	}
-	return Result{raw, status, etag}
+	return Result{Body: raw, Status: status, ETag: etag}
 }
 func (s *Service) mac(value string) string {
 	h := hmac.New(sha256.New, s.key)
@@ -211,8 +215,11 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 	if e != nil {
 		return Result{}, e
 	}
-	if e = authorize(ctx, tx, a, permission); e != nil {
-		return Result{}, e
+	// Organization routes pass no permission: they authorize identity_org_role inside fn (ADR 0008).
+	if permission != "" {
+		if e = authorize(ctx, tx, a, permission); e != nil {
+			return Result{}, e
+		}
 	}
 	if recent {
 		if e = fresh(ctx, tx, realm, token); e != nil {
@@ -262,6 +269,9 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 		return Result{}, e
 	}
 	target := auditTarget(route)
+	if out.Target != "" {
+		target = out.Target
+	}
 	if target == nil {
 		var u struct {
 			ID string `json:"id"`
@@ -271,7 +281,7 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 			target = u.ID
 		}
 	}
-	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id) VALUES(nullif($1,'')::uuid,$2,$3,'success',$4,$5)", a.PublicID, actionName(route), target, requestID, requestid.From(ctx).Correlation); e != nil {
+	if _, e = tx.Exec(ctx, "INSERT INTO identity_admin_events(actor_id,action,target_id,outcome,request_id,correlation_id,organization_id) VALUES(nullif($1,'')::uuid,$2,$3,'success',$4,$5,nullif($6,'')::uuid)", a.PublicID, actionName(route), target, requestID, requestid.From(ctx).Correlation, out.Org); e != nil {
 		return Result{}, e
 	}
 	if key != "" {
@@ -283,6 +293,8 @@ func (s *Service) mutate(ctx context.Context, realm Realm, token, permission, re
 }
 func actionName(route string) string {
 	switch {
+	case strings.Contains(route, "/organizations") && !strings.Contains(route, "/groups"):
+		return orgActionName(route)
 	case strings.Contains(route, "/applications/"):
 		if strings.HasPrefix(route, "DELETE ") {
 			return "app.access.removed"
@@ -436,6 +448,10 @@ func (s *Service) Create(ctx context.Context, realm Realm, token string, input C
 		if e != nil {
 			return Result{}, e
 		}
+		// Platform-created accounts join the default organization (ADR 0008); organization admins use CreateOrgUser.
+		if _, e = tx.Exec(ctx, "INSERT INTO identity_memberships(organization_id,user_id) SELECT id,$1 FROM identity_organizations WHERE is_default", u.ID); e != nil {
+			return Result{}, e
+		}
 		return result(u, 201, u.Version), nil
 	})
 }
@@ -502,6 +518,9 @@ func (s *Service) ChangeUser(ctx context.Context, realm Realm, token, target, op
 			}
 			if e == nil && operation == "delete" {
 				_, e = tx.Exec(ctx, "UPDATE identity_host_operators SET state='revoked' WHERE user_id=(SELECT id FROM users WHERE public_id=$1)", target)
+			}
+			if e == nil && operation == "delete" {
+				_, e = tx.Exec(ctx, "DELETE FROM identity_memberships WHERE user_id=$1", target)
 			}
 		case "enable":
 			_, e = tx.Exec(ctx, "UPDATE users SET status='active',version=version+1 WHERE public_id=$1", target)

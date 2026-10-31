@@ -21,9 +21,12 @@ var filesJobsSQL string
 //go:embed migrations/004_files_removals.sql
 var filesRemovalsSQL string
 
+//go:embed migrations/005_files_events_organization.sql
+var filesEventsOrganizationSQL string
+
 // Module is the Files schema owned by this package (migration runner, app standard row 18).
 func Module() migrate.Module {
-	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}}}
+	return migrate.Module{ID: "files", Steps: []migrate.Step{{ID: 1, Name: "files_events", SQL: filesEventsSQL}, {ID: 2, Name: "files_idempotency", SQL: filesIdempotencySQL}, {ID: 3, Name: "files_jobs", SQL: filesJobsSQL}, {ID: 4, Name: "files_removals", SQL: filesRemovalsSQL}, {ID: 5, Name: "files_events_organization", SQL: filesEventsOrganizationSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -52,8 +55,8 @@ func (s *SQLIdentity) Audit(ctx context.Context, u User, ev AuditEvent) error {
 	if ev.Root == "share" {
 		share = &ev.Share
 	}
-	_, err := s.db.Exec(ctx, `INSERT INTO files_events(actor_id,action,root,share_key,request_id,correlation_id,details)
-		VALUES((SELECT public_id FROM users WHERE id=$1),$2,$3,$4,$5,$6,$7)`, u.ID, ev.Action, ev.Root, share, ids.Request, ids.Correlation, details)
+	_, err := s.db.Exec(ctx, `INSERT INTO files_events(actor_id,action,root,share_key,request_id,correlation_id,details,organization_id)
+		VALUES((SELECT public_id FROM users WHERE id=$1),$2,$3,$4,$5,$6,$7,(SELECT organization_id FROM storage_shares WHERE key=$4))`, u.ID, ev.Action, ev.Root, share, ids.Request, ids.Correlation, details)
 	return err
 }
 

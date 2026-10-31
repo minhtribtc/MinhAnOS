@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/identity-add-organization-member.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "role": {
+      "enum": [
+        "admin",
+        "member"
+      ]
+    }
+  },
+  "required": [
+    "username",
+    "role"
+  ]
+}

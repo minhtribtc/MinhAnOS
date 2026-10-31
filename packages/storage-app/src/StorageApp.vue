@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,reactive,ref,watch} from 'vue'
-import {HardDrive,FolderTree,Users,RefreshCw,Plus,X,Gauge,ShieldCheck,Trash2,Info,User,FolderLock,Ruler} from 'lucide-vue-next'
+import {HardDrive,FolderTree,Users,RefreshCw,Plus,X,Gauge,ShieldCheck,Trash2,Info,User,FolderLock,Ruler,Building2} from 'lucide-vue-next'
 import {useHost,createApiClient,createIdempotencyKey,ApiError} from '@minhanos/app-sdk'
 import {createStorageClient} from '@minhanos/api-client/storage'
 import catalogs from '../locales/catalogs.json'
-import {fromGB,toGB,type AccessEntry,type Home,type QuotaFolder,type Share,type Subject,type Volume} from './api'
+import {fromGB,toGB,type AccessEntry,type Home,type QuotaFolder,type Share,type Subject,type Volume,type Organization,type Allocation} from './api'
 
 // Storage Manager (com.minhanos.storage): volumes, shared folders and per-user soft quota.
 // Writes need storage.manage and a reauthentication; the server enforces both.
@@ -14,11 +14,20 @@ onBeforeUnmount(release)
 const t=(key:string,params?:Record<string,string|number>)=>{host.profile.value.locale;return host.i18n.t('storage.'+key,params)}
 // Session/reauthentication use the host API; storage calls use the client generated from OpenAPI.
 const api=createApiClient(props.apiBase),storage=createStorageClient(props.apiBase+'/v1/storage')
-type Tab='volumes'|'shares'|'homes'
+type Tab='volumes'|'shares'|'homes'|'orgs'
 const tab=ref<Tab>('shares'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('')
-const volumes=ref<Volume[]>([]),shares=ref<Share[]>([]),homes=ref<Home[]>([]),agentError=ref(false)
-type Dialog={kind:'share'|'share-quota'|'home-quota'|'measure'|'access'|'share-measure'|'folder-new'|'folder-quota'|'folder-remove';version?:number;title:string;target?:Share|Home|QuotaFolder}
-const dialog=ref<Dialog|null>(null),form=reactive({key:'',name:'',volume:'',quota:'',password:'',hostsHomes:false,path:''})
+const volumes=ref<Volume[]>([]),shares=ref<Share[]>([]),homes=ref<Home[]>([]),agentError=ref(false),orgs=ref<Organization[]>([])
+type Dialog={kind:'share'|'share-quota'|'home-quota'|'measure'|'access'|'share-measure'|'folder-new'|'folder-quota'|'folder-remove'|'alloc-new'|'alloc-limit'|'alloc-remove';version?:number;title:string;target?:Share|Home|QuotaFolder|Organization|Allocation}
+const dialog=ref<Dialog|null>(null),form=reactive({key:'',name:'',volume:'',quota:'',password:'',hostsHomes:false,path:'',org:''})
+// System Admin manages everything; an organization admin only its organizations' shares, a manager its descendants' allocations.
+const root=computed(()=>orgs.value.some(o=>o.role==='root'))
+const shareOrgs=computed(()=>orgs.value.filter(o=>o.role==='root'||o.role==='admin'))
+const allocates=(o:Organization)=>o.role==='root'||o.role==='manager'
+const orgLabel=(id:string|null)=>orgs.value.find(o=>o.id===id)?.name??''
+// Tree order of the organizations: children under their parent (a parent outside the list makes a root).
+const orgTree=computed(()=>{const ids=new Set(orgs.value.map(o=>o.id)),out:{org:Organization;level:number}[]=[];const walk=(parent:string|null,level:number)=>{for(const o of orgs.value.filter(o=>parent===null?!o.parentId||!ids.has(o.parentId):o.parentId===parent).sort((a,b)=>a.name.localeCompare(b.name))){out.push({org:o,level});walk(o.id,level+1)}};walk(null,0);return out})
+const freeVolumes=(o:Organization)=>managedVolumes.value.filter(v=>!o.allocations.some(a=>a.volume===v.name))
+const nav=computed(()=>([['shares',FolderTree],['homes',Users],['orgs',Building2],['volumes',HardDrive]] as const).filter(i=>root.value||i[0]!=='homes'))
 const managedVolumes=computed(()=>volumes.value.filter(v=>v.managed&&v.online))
 // First-run rule: until one share hosts homes, Files has no personal space.
 const hasHomes=computed(()=>shares.value.some(s=>s.kind==='homes'))
@@ -42,29 +51,34 @@ function message(e:unknown){if(e instanceof ApiError){const key='errors.'+e.code
 async function load(){
  loading.value=true;error.value=''
  try{
-  const [v,s,h]=await Promise.all([storage.storageListVolumes(),storage.storageListShares(),storage.storageListHomes()])
-  volumes.value=v.items;agentError.value=v.agentError;shares.value=s.items;homes.value=h.items
+  // Organizations first: they decide whether the System Admin areas (homes) are loaded at all.
+  orgs.value=(await storage.storageListOrganizations()).items
+  const [v,s,h]=await Promise.all([storage.storageListVolumes(),storage.storageListShares(),root.value?storage.storageListHomes():Promise.resolve(null)])
+  volumes.value=v.items;agentError.value=v.agentError;shares.value=s.items;homes.value=h?.items??[]
+  if(!root.value&&tab.value==='homes')tab.value='shares'
  }catch(e){error.value=message(e)}finally{loading.value=false}
 }
 async function init(){
  try{const s=await api.request<{csrfToken:string}>('/session');api.setCSRF(s.csrfToken);storage.setCSRF(s.csrfToken);await load()}catch(e){error.value=message(e)}
 }
-async function open(kind:Dialog['kind'],target?:Share|Home|QuotaFolder){
+async function open(kind:Dialog['kind'],target?:Share|Home|QuotaFolder|Organization|Allocation){
  if(busy.value)return
- Object.assign(form,{key:'',name:'',volume:managedVolumes.value[0]?.name??'',quota:'',password:'',hostsHomes:false,path:''})
- if(target&&kind!=='folder-new')form.quota=toGB(target.usage.limitBytes)
+ Object.assign(form,{key:'',name:'',volume:managedVolumes.value[0]?.name??'',quota:'',password:'',hostsHomes:false,path:'',org:root.value?'':shareOrgs.value[0]?.id??''})
+ if(target&&'usage' in target&&kind!=='folder-new')form.quota=toGB(target.usage.limitBytes)
+ if(kind==='alloc-limit')form.quota=toGB((target as Allocation).limitBytes)
+ if(kind==='alloc-new')form.volume=freeVolumes(target as Organization)[0]?.name??''
  error.value=''
  if(kind==='access'){
   const s=target as Share
   busy.value=true
   try{
-   const [list,people]=await Promise.all([storage.storageGetShareAccess({shareId:s.id}),storage.storageListSubjects()])
+   const [list,people]=await Promise.all([storage.storageGetShareAccess({shareId:s.id}),storage.storageListSubjects(s.organizationId?{organization:s.organizationId}:undefined)])
    entries.value=list.entries;subjects.value=people.items;pick.value=''
    dialog.value={kind,target,version:list.version,title:t('access.title',{name:s.name})}
   }catch(e){error.value=message(e)}finally{busy.value=false}
   return
  }
- const titles:Partial<Record<Dialog['kind'],string>>={share:'shares.new',measure:'homes.measure','share-measure':'homes.measure','folder-new':'folders.new','folder-remove':'folders.remove'}
+ const titles:Partial<Record<Dialog['kind'],string>>={share:'shares.new',measure:'homes.measure','share-measure':'homes.measure','folder-new':'folders.new','folder-remove':'folders.remove','alloc-new':'orgs.allocate','alloc-limit':'orgs.editLimit','alloc-remove':'orgs.removeAllocation'}
  dialog.value={kind,target,title:t(titles[kind]??'quota.edit')}
 }
 function addEntry(){
@@ -76,13 +90,13 @@ function removeEntry(entry:AccessEntry){entries.value=entries.value.filter(e=>e!
 function close(){if(!busy.value){dialog.value=null;form.password=''}}
 async function submit(){
  const d=dialog.value;if(!d||busy.value)return
- const limitBytes=['measure','access','share-measure','folder-remove'].includes(d.kind)?null:fromGB(form.quota)
+ const limitBytes=['measure','access','share-measure','folder-remove','alloc-remove'].includes(d.kind)?null:fromGB(form.quota)
  if(limitBytes===undefined){error.value=t('errors.quota');return}
  busy.value=true;error.value=''
  try{
   await api.request('/v1/identity/reauthenticate',{method:'POST',body:JSON.stringify({password:form.password})})
   form.password=''
-  if(d.kind==='share')await storage.storageCreateShare({idempotencyKey:createIdempotencyKey(),body:{key:form.key,name:form.name,volume:form.volume,limitBytes,hostsHomes:form.hostsHomes&&!hasHomes.value}})
+  if(d.kind==='share')await storage.storageCreateShare({idempotencyKey:createIdempotencyKey(),body:{key:form.key,name:form.name,volume:form.volume,limitBytes,hostsHomes:root.value&&form.hostsHomes&&!hasHomes.value,...(form.org?{organizationId:form.org}:{})}})
   else if(d.kind==='access'){const s=d.target as Share;await storage.storageSetShareAccess({shareId:s.id,ifMatch:'"'+d.version+'"',body:{entries:entries.value.map(({subjectType,subjectId,access})=>({subjectType,subjectId,access}))}})}
   else if(d.kind==='share-quota'){const s=d.target as Share;await storage.storageSetShareQuota({shareId:s.id,ifMatch:'"'+s.version+'"',body:{limitBytes}})}
   else if(d.kind==='measure'){const h=d.target as Home;await storage.storageMeasureHome({userId:h.userId,idempotencyKey:createIdempotencyKey()})}
@@ -90,6 +104,9 @@ async function submit(){
   else if(d.kind==='folder-new')await storage.storageCreateQuotaFolder({shareId:(d.target as Share).id,idempotencyKey:createIdempotencyKey(),body:{path:form.path.split('/').filter(Boolean).join('/'),limitBytes}})
   else if(d.kind==='folder-quota'){const f=d.target as QuotaFolder;await storage.storageSetQuotaFolderQuota({folderId:f.id,ifMatch:'"'+f.version+'"',body:{limitBytes}})}
   else if(d.kind==='folder-remove'){const f=d.target as QuotaFolder;await storage.storageDeleteQuotaFolder({folderId:f.id,ifMatch:'"'+f.version+'"'})}
+  else if(d.kind==='alloc-new')await storage.storageCreateAllocation({organizationId:(d.target as Organization).id,idempotencyKey:createIdempotencyKey(),body:{volume:form.volume,limitBytes}})
+  else if(d.kind==='alloc-limit'){const x=d.target as Allocation;await storage.storageSetAllocation({allocationId:x.id,ifMatch:'"'+x.version+'"',body:{limitBytes}})}
+  else if(d.kind==='alloc-remove'){const x=d.target as Allocation;await storage.storageDeleteAllocation({allocationId:x.id,ifMatch:'"'+x.version+'"'})}
   else{const h=d.target as Home;await storage.storageSetHomeQuota({userId:h.userId,ifMatch:'"'+h.version+'"',body:{limitBytes}})}
   notice.value=t(d.kind==='measure'||d.kind==='share-measure'?'homes.measureQueued':d.kind==='folder-new'?'folders.created':'saved');dialog.value=null;await load();await loadFolders()
  }catch(e){error.value=message(e)}finally{form.password='';busy.value=false}
@@ -105,7 +122,7 @@ onMounted(init)
   <aside class="sm-sidebar">
    <h1><HardDrive :size="20"/>{{t('title')}}</h1>
    <nav :aria-label="t('title')">
-    <button v-for="item in ([['shares',FolderTree],['homes',Users],['volumes',HardDrive]] as const)" :key="item[0]" :class="{selected:tab===item[0]}" :aria-current="tab===item[0]?'page':undefined" :disabled="busy" @click="tab=item[0];notice=''"><component :is="item[1]" :size="18"/>{{t('nav.'+item[0])}}</button>
+    <button v-for="item in nav" :key="item[0]" :class="{selected:tab===item[0]}" :aria-current="tab===item[0]?'page':undefined" :disabled="busy" @click="tab=item[0];notice=''"><component :is="item[1]" :size="18"/>{{t('nav.'+item[0])}}</button>
    </nav>
    <p class="sm-muted">{{t('softQuotaHint')}}</p>
   </aside>
@@ -114,11 +131,11 @@ onMounted(init)
    <p v-if="notice" class="sm-notice" role="status">{{notice}}</p>
    <p v-if="error&&!dialog" class="sm-error" role="alert">{{error}}</p>
    <p v-if="agentError" class="sm-error" role="alert">{{t('errors.agentOffline')}}</p>
-   <div v-if="!hasHomes&&!loading&&tab!=='volumes'" class="sm-first-run" role="note"><Info :size="18"/><span><strong>{{t('firstRun.title')}}</strong>{{t('firstRun.body')}}</span></div>
+   <div v-if="root&&!hasHomes&&!loading&&tab!=='volumes'&&tab!=='orgs'" class="sm-first-run" role="note"><Info :size="18"/><span><strong>{{t('firstRun.title')}}</strong>{{t('firstRun.body')}}</span></div>
 
    <div v-if="tab==='shares'" class="sm-list">
     <article v-for="s in shares" :key="s.id" class="sm-card">
-     <div class="sm-row"><span class="sm-title"><FolderTree :size="20"/><span><strong>{{s.kind==='homes'?t('shares.homesName'):s.name}}</strong><small>{{s.key}} · {{t('shares.onVolume',{volume:s.volume})}}<template v-if="s.kind==='homes'"> · {{t('shares.hostsHomesBadge')}}</template></small></span></span><span class="sm-actions"><template v-if="s.kind==='share'"><button :disabled="busy" @click="open('access',s)"><ShieldCheck :size="16"/>{{t('shares.access')}}</button><button :disabled="busy" :aria-expanded="openShare===s.id" @click="toggleFolders(s)"><FolderLock :size="16"/>{{t('folders.title')}}</button><button :disabled="busy" @click="open('share-measure',s)"><Ruler :size="16"/>{{t('homes.measure')}}</button></template><button :disabled="busy" @click="open('share-quota',s)"><Gauge :size="16"/>{{t('quota.edit')}}</button></span></div>
+     <div class="sm-row"><span class="sm-title"><FolderTree :size="20"/><span><strong>{{s.kind==='homes'?t('shares.homesName'):s.name}}</strong><small>{{s.key}} · {{t('shares.onVolume',{volume:s.volume})}}<template v-if="s.kind==='homes'"> · {{t('shares.hostsHomesBadge')}}</template><template v-if="s.organizationName"> · {{s.organizationName}}</template></small></span></span><span class="sm-actions"><template v-if="s.kind==='share'"><button :disabled="busy" @click="open('access',s)"><ShieldCheck :size="16"/>{{t('shares.access')}}</button><button :disabled="busy" :aria-expanded="openShare===s.id" @click="toggleFolders(s)"><FolderLock :size="16"/>{{t('folders.title')}}</button><button :disabled="busy" @click="open('share-measure',s)"><Ruler :size="16"/>{{t('homes.measure')}}</button></template><button :disabled="busy" @click="open('share-quota',s)"><Gauge :size="16"/>{{t('quota.edit')}}</button></span></div>
      <div class="sm-bar" role="progressbar" :aria-valuenow="percent(s.usage.usedBytes,s.usage.limitBytes)" aria-valuemin="0" aria-valuemax="100"><i :style="{width:percent(s.usage.usedBytes,s.usage.limitBytes)+'%'}"></i></div>
      <small>{{s.usage.measured?t('quota.usedOf',{used:size(s.usage.usedBytes),limit:size(s.usage.limitBytes)}):t('homes.notMeasured')}}<template v-if="s.physicalBytes!=null"> · {{t('quota.physical',{size:size(s.physicalBytes)})}}</template></small>
      <section v-if="openShare===s.id" class="sm-folders" :aria-label="t('folders.title')">
@@ -133,6 +150,19 @@ onMounted(init)
      </section>
     </article>
     <p v-if="!shares.length&&!loading" class="sm-muted">{{t('empty')}}</p>
+   </div>
+
+   <div v-if="tab==='orgs'" class="sm-list">
+    <article v-for="row in orgTree" :key="row.org.id" class="sm-card" :style="{marginInlineStart:(row.level*20)+'px'}">
+     <div class="sm-row"><span class="sm-title"><Building2 :size="20"/><span><strong>{{row.org.name}}</strong><small>{{t('orgs.role.'+row.org.role)}}<template v-if="row.org.status!=='active'"> · {{t('orgs.suspended')}}</template></small></span></span><span class="sm-actions"><button v-if="allocates(row.org)&&freeVolumes(row.org).length" :disabled="busy" @click="open('alloc-new',row.org)"><Plus :size="16"/>{{t('orgs.allocate')}}</button></span></div>
+     <div v-for="x in row.org.allocations" :key="x.id" class="sm-folder">
+      <span class="sm-title"><HardDrive :size="16"/><span><strong>{{x.volume}}</strong><small>{{t('quota.usedOf',{used:size(x.usedBytes),limit:size(x.limitBytes)})}}<template v-if="x.delegatedBytes"> · {{t('orgs.delegated',{size:size(x.delegatedBytes)})}}</template></small></span></span>
+      <div class="sm-bar" role="progressbar" :aria-valuenow="percent(x.usedBytes+x.delegatedBytes,x.limitBytes)" aria-valuemin="0" aria-valuemax="100"><i :style="{width:percent(x.usedBytes+x.delegatedBytes,x.limitBytes)+'%'}"></i></div>
+      <span v-if="allocates(row.org)" class="sm-actions"><button :disabled="busy" @click="open('alloc-limit',x)">{{t('quota.edit')}}</button><button :disabled="busy" :aria-label="t('orgs.removeAllocation')+': '+x.volume" @click="open('alloc-remove',x)"><Trash2 :size="16"/></button></span>
+     </div>
+     <p v-if="!row.org.allocations.length" class="sm-muted">{{t('orgs.noAllocation')}}</p>
+    </article>
+    <p v-if="!orgs.length&&!loading" class="sm-muted">{{t('empty')}}</p>
    </div>
 
    <div v-if="tab==='homes'" class="sm-table-wrap"><table><thead><tr><th>{{t('homes.user')}}</th><th>{{t('homes.usage')}}</th><th><span class="sm-sr">{{t('homes.actions')}}</span></th></tr></thead><tbody>
@@ -152,7 +182,8 @@ onMounted(init)
      <label>{{t('shares.name')}}<input v-model="form.name" required maxlength="100"></label>
      <label>{{t('shares.key')}}<input v-model="form.key" required pattern="[a-z0-9][a-z0-9\-]{0,62}" maxlength="63"><small>{{t('shares.keyHint')}}</small></label>
      <label>{{t('shares.volume')}}<select v-model="form.volume" required><option v-for="v in managedVolumes" :key="v.name" :value="v.name">{{v.name}} ({{t('kinds.'+v.kind)}})</option></select></label>
-     <label v-if="!hasHomes" class="sm-check"><input v-model="form.hostsHomes" type="checkbox"><span>{{t('shares.hostsHomes')}}<small>{{t('shares.hostsHomesHint')}}</small></span></label>
+     <label v-if="shareOrgs.length>1||!root" >{{t('orgs.owner')}}<select v-model="form.org" :required="!root"><option v-if="root" value="">{{t('orgs.defaultOrg')}}</option><option v-for="o in shareOrgs" :key="o.id" :value="o.id">{{o.name}}</option></select><small>{{t('orgs.ownerHint')}}</small></label>
+     <label v-if="root&&!hasHomes" class="sm-check"><input v-model="form.hostsHomes" type="checkbox"><span>{{t('shares.hostsHomes')}}<small>{{t('shares.hostsHomesHint')}}</small></span></label>
     </template>
     <template v-else-if="dialog.kind==='access'">
      <p class="sm-muted">{{t('access.hint')}}</p>
@@ -173,8 +204,10 @@ onMounted(init)
     </template>
     <p v-else-if="dialog.kind==='folder-quota'||dialog.kind==='folder-remove'" class="sm-muted">{{(dialog.target as QuotaFolder).path}}<template v-if="dialog.kind==='folder-remove'"><br>{{t('folders.removeHint')}}</template></p>
     <p v-else-if="dialog.kind==='share-measure'" class="sm-muted">{{(dialog.target as Share).name}}<br>{{t('shares.measureHint')}}</p>
+    <template v-else-if="dialog.kind==='alloc-new'"><p class="sm-muted">{{(dialog.target as Organization).name}}<br>{{t('orgs.allocateHint')}}</p><label>{{t('shares.volume')}}<select v-model="form.volume" required><option v-for="v in freeVolumes(dialog.target as Organization)" :key="v.name" :value="v.name">{{v.name}} ({{t('kinds.'+v.kind)}})</option></select></label></template>
+    <p v-else-if="dialog.kind==='alloc-limit'||dialog.kind==='alloc-remove'" class="sm-muted">{{orgLabel((dialog.target as Allocation).organizationId)}} · {{(dialog.target as Allocation).volume}}<br>{{t(dialog.kind==='alloc-remove'?'orgs.removeHint':'orgs.limitHint')}}</p>
     <p v-else class="sm-muted">{{dialog.kind==='share-quota'?(dialog.target as Share).name:(dialog.target as Home).displayName}}</p>
-    <label v-if="!['measure','access','share-measure','folder-remove'].includes(dialog.kind)">{{t('quota.limitGB')}}<input v-model="form.quota" inputmode="decimal" :placeholder="t('unlimited')"><small>{{t('quota.limitHint')}}</small></label>
+    <label v-if="!['measure','access','share-measure','folder-remove','alloc-remove'].includes(dialog.kind)">{{t('quota.limitGB')}}<input v-model="form.quota" inputmode="decimal" :placeholder="t('unlimited')"><small>{{t('quota.limitHint')}}</small></label>
     <label>{{t('confirm.password')}}<input v-model="form.password" type="password" autocomplete="current-password" required maxlength="256"><small>{{t('confirm.reauth')}}</small></label>
    </fieldset>
    <footer class="sm-actions"><button type="button" :disabled="busy" @click="close">{{t('cancel')}}</button><button class="sm-primary" :disabled="busy">{{t(busy?'working':'save')}}</button></footer>

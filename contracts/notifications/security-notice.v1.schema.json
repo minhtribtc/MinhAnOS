@@ -19,7 +19,10 @@
         "role.changed",
         "sessions.revoked",
         "login.failures",
-        "recovery.consumed"
+        "recovery.consumed",
+        "organization.joined",
+        "organization.left",
+        "organization.role"
       ]
     },
     "severity": {
@@ -49,6 +52,9 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 21
+        },
+        "organization": {
+          "type": "string"
         }
       }
     },

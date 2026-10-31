@@ -30,8 +30,11 @@ var quotaFoldersSQL string
 //go:embed migrations/005_quota_notices.sql
 var quotaNoticesSQL string
 
+//go:embed migrations/006_allocations.sql
+var allocationsSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}, {ID: 3, Name: "share_access", SQL: shareAccessSQL}, {ID: 4, Name: "quota_folders", SQL: quotaFoldersSQL}, {ID: 5, Name: "quota_notices", SQL: quotaNoticesSQL}}}
+	return migrate.Module{ID: "storage", Steps: []migrate.Step{{ID: 1, Name: "registry_quota", SQL: registrySQL}, {ID: 2, Name: "contract", SQL: contractSQL}, {ID: 3, Name: "share_access", SQL: shareAccessSQL}, {ID: 4, Name: "quota_folders", SQL: quotaFoldersSQL}, {ID: 5, Name: "quota_notices", SQL: quotaNoticesSQL}, {ID: 6, Name: "allocations", SQL: allocationsSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -137,6 +140,9 @@ func (s Store) reserve(ctx context.Context, home, share string, folders []string
 	}
 	for _, scope := range (Reservation{Home: home, Share: share, Folders: folders}).scopes() {
 		tag, e := tx.Exec(ctx, "UPDATE storage_quota SET reserved_bytes=reserved_bytes+$3 WHERE scope_type=$1 AND scope_id=$2 AND (limit_bytes IS NULL OR used_bytes+reserved_bytes+$3<=limit_bytes)", scope.kind, scope.id, bytes)
+		if allocationExceeded(e) {
+			return Reservation{}, QuotaExceeded{"allocation"}
+		}
 		if e != nil {
 			return Reservation{}, e
 		}

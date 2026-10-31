@@ -87,7 +87,7 @@ func TestRemoveDeletedUsers(t *testing.T) {
 	}
 	t.Cleanup(func() { db.Close(); root.Exec(ctx, "DROP SCHEMA "+quoted+" CASCADE"); root.Close() })
 	gone, kept := strings.Repeat("c", 64), strings.Repeat("d", 64)
-	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,status text NOT NULL)"); e != nil {
+	if _, e = db.Exec(ctx, "CREATE TABLE users(id text PRIMARY KEY,public_id uuid,status text NOT NULL); CREATE TABLE storage_shares(key text PRIMARY KEY,organization_id uuid)"); e != nil {
 		t.Fatal(e)
 	}
 	if _, e = db.Exec(ctx, "INSERT INTO users VALUES($1,gen_random_uuid(),'deleted'),($2,gen_random_uuid(),'active')", gone, kept); e != nil {

@@ -242,7 +242,7 @@ func (s *Server) Handler() http.Handler {
 					return
 				}
 				for _, share := range shares {
-					roots = append(roots, map[string]string{"id": "share:" + share.Key, "kind": "share", "name": share.Name, "access": share.Access})
+					roots = append(roots, map[string]string{"id": "share:" + share.Key, "kind": "share", "name": share.Name, "access": share.Access, "organizationId": share.OrganizationID, "organization": share.OrganizationName})
 				}
 			}
 			if allowed, e := s.hostAllowed(r.Context(), session.User); e != nil {

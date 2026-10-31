@@ -1,9 +1,12 @@
 // Storage Manager API types (/api/storage/...). Usage is the soft-quota ledger: logical bytes written
 // through MinhAnOS; physicalBytes is what ZFS/Btrfs report for a share (null for plain volumes).
-import type {StorageHome,StorageShare,StorageQuotaFolder,StorageShareAccess,StorageSubjectPage,StorageVolume} from '@minhanos/shared-types'
+import type {StorageHome,StorageShare,StorageQuotaFolder,StorageShareAccess,StorageSubjectPage,StorageVolume,StorageOrganizationPage,StorageAllocation} from '@minhanos/shared-types'
 export type Home=StorageHome
 export type Share=StorageShare
 export type Volume=StorageVolume
+// Organizations the caller manages in Storage Manager (ADR 0008) with their capacity allocations per pool.
+export type Organization=StorageOrganizationPage['items'][number]
+export type Allocation=StorageAllocation
 // Share permissions (Q2): users and groups; deny > write > read; no entry = no access.
 export type AccessEntry=StorageShareAccess['entries'][number]
 export type Subject=StorageSubjectPage['items'][number]
