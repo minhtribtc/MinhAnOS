@@ -47,6 +47,9 @@ const desktop={
  DesktopSystemStatus:obj({version:str(),hostname:str(),os:str(),architecture:str(),goVersion:str(),cpus:int({minimum:1}),goroutines:int({minimum:0}),heapBytes:int({minimum:0}),uptimeSeconds:int({minimum:0}),diskTotalBytes:int({minimum:0}),diskFreeBytes:int({minimum:0}),database:{enum:['connected','disconnected']}}),
  DesktopOk:obj({ok:{const:true}}),
  DesktopHealth:obj({status:{const:'ok'},version:str()}),
+ DesktopSetupStatus:obj({required:{type:'boolean'}}),
+ DesktopSetupInput:obj({setupCode:str({minLength:1,maxLength:256}),username:str({pattern:'^[a-z][a-z0-9_-]{2,31}$'}),displayName:str({minLength:1,maxLength:100}),password:str({minLength:12,maxLength:256}),organizationName:str({minLength:1,maxLength:100})}),
+ DesktopSetupResult:obj({user:obj({username:str(),displayName:str()}),organization:str()}),
 }
 const fileName=type=>type.replace(/^(Files|Desktop)/,'').replace(/[A-Z]/g,(c,i)=>(i?'-':'')+c.toLowerCase())+'.v1.schema.json'
 async function writeGroup(dir,id,group,implemented){
@@ -116,6 +119,8 @@ const desktopOps=[
  op(`${D}/preferences`,'put','desktopPutPreferences','Replace the layout; If-Match must be the ETag last read (412 VERSION_CONFLICT otherwise)',{...dm,params:[csrf,ifMatch],body:'DesktopPreferences',response:'DesktopOk'}),
  op(`${D}/export`,'get','desktopExport','Download the user\'s own Desktop data (layout, pinned apps, notes) as JSON',{...dm,response:'DesktopExport'}),
  op(`${D}/system`,'get','desktopSystem','Process and container metrics of the Desktop service',{...dm,response:'DesktopSystemStatus'}),
+ op(`${D}/setup`,'get','desktopSetupStatus','Whether the first-run setup is still open (no account exists yet)',{...dm,security:null,response:'DesktopSetupStatus'}),
+ op(`${D}/setup`,'post','desktopSetup','First-run setup: create the System Admin and name the first organization (setup code = the bootstrap secret; 409 SETUP_DONE once any account exists)',{...dm,security:null,body:'DesktopSetupInput',response:'DesktopSetupResult',ok:'201'}),
 ]
 await writeGroup('files-api','files',files,filesOps)
 await writeGroup('desktop','desktop',desktop,desktopOps)

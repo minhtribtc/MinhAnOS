@@ -1,3 +1,12 @@
+## Khởi tạo lần đầu (2026-10-31)
+
+1. Mở Desktop (ví dụ `http://10.1.1.20:8081`). Máy chưa có tài khoản sẽ hiện **Khởi tạo lần đầu · Bước 1/2**.
+2. Nhập **mã cài đặt**: nội dung tệp `secrets/bootstrap_password` trong thư mục cài đặt trên máy chủ (người quản trị máy chủ giữ). Nhập tên hiển thị, tên đăng nhập (chữ thường, 3–32 ký tự) và mật khẩu (tối thiểu 12 ký tự, khác mã cài đặt) hai lần → **Tiếp tục**.
+3. **Bước 2/2**: đặt tên tổ chức đầu tiên (ví dụ tên công ty hoặc gia đình) → **Hoàn tất khởi tạo**. Bạn được đăng nhập ngay với vai trò System Admin và là quản trị viên của tổ chức đó.
+4. Tiếp theo: Storage Manager → tạo Shared Folder chứa vùng riêng người dùng; Account Center → Tổ chức để thêm người dùng hoặc tạo tổ chức khác.
+
+Lỗi thường gặp: *Mã cài đặt chưa đúng* → kiểm tra lại tệp trên máy chủ (không có khoảng trắng thừa); *MinhAnOS đã được khởi tạo* → máy đã có tài khoản, hãy đăng nhập.
+
 ## Tổ chức (2026-10-31)
 
 - Mỗi tài khoản thuộc một hoặc nhiều **tổ chức**. Máy đang dùng có sẵn tổ chức *MinhAnOS* chứa mọi tài khoản.

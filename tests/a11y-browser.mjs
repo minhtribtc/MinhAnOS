@@ -35,6 +35,27 @@ async function focusStaysIn(page,dialog,label){
 }
 const noOverflow=async(page,label)=>assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),label+' overflows horizontally at phone width')
 
+// A fresh install shows the first-run setup instead of sign-in: audit both steps (step 2 is reached client-side, no
+// request is sent) and stop, since there is no account to sign in with yet.
+const setupOpen=await (await fetch(desktopURL+'/api/setup')).json().then(s=>s.required).catch(()=>false)
+if(setupOpen){
+ const desktopText=JSON.parse(await readFile(new URL('../apps/desktop/locales/catalogs.json',import.meta.url),'utf8'))['vi-VN']
+ for(const [scheme,width,height] of [['light',1280,860],['dark',1280,860],['light',375,812]]){
+  const context=await browser.newContext({colorScheme:scheme,viewport:{width,height},locale:'vi-VN',bypassCSP:true}),page=await context.newPage()
+  await page.goto(desktopURL+'/');await page.waitForSelector('.setup-card form')
+  await audit(page,'Setup step 1 '+scheme+' '+width)
+  await page.fill('#setup-code','not-sent-to-the-server');await page.fill('#setup-name','A11y');await page.fill('#setup-username','a11y');await page.fill('#setup-password','not-sent-password');await page.fill('#setup-repeat','not-sent-password')
+  await page.getByRole('button',{name:desktopText['desktop.setup.next']}).click()
+  await page.waitForSelector('#setup-organization')
+  await audit(page,'Setup step 2 '+scheme+' '+width)
+  if(width<400)await noOverflow(page,'Setup')
+  await context.close()
+ }
+ ok('First-run setup: axe WCAG 2.1 AA in light and dark for both steps, no overflow at 375 px (no account yet, sign-in checks skipped)')
+ await browser.close();console.log(`a11y browser: ${results.length} checks passed`);process.exit(0)
+}
+
+
 for(const scheme of ['light','dark']){
  const {context,page}=await signedIn(desktopURL,{scheme})
  await audit(page,'Desktop '+scheme)

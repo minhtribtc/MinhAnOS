@@ -146,7 +146,8 @@ func New(ctx context.Context, db *pgxpool.Pool) (*App, error) {
 	if err = tx.QueryRow(ctx, "SELECT count(*) FROM users").Scan(&count); err != nil {
 		return nil, err
 	}
-	if count == 0 {
+	// A fresh install waits for the first-run setup (setup.go); unattended installs opt into the bootstrap admin.
+	if count == 0 && os.Getenv("MINHANOS_BOOTSTRAP_ADMIN") == "true" {
 		password, readErr := os.ReadFile(os.Getenv("BOOTSTRAP_PASSWORD_FILE"))
 		if readErr != nil {
 			return nil, fmt.Errorf("bootstrap password file: %w", readErr)
@@ -220,6 +221,8 @@ func (a *App) Handler() http.Handler {
 		writeJSON(w, 200, map[string]string{"status": "ok", "version": Version})
 	})
 	mux.HandleFunc("POST /api/login", a.login)
+	mux.HandleFunc("GET /api/setup", a.setupStatus)
+	mux.HandleFunc("POST /api/setup", a.setup)
 	mux.Handle("/api/drive/", a.driveProxy())
 	mux.Handle("GET /api/session", a.auth(http.HandlerFunc(a.session)))
 	mux.Handle("POST /api/logout", a.auth(http.HandlerFunc(a.logout)))

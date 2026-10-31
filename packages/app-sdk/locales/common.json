@@ -1,5 +1,12 @@
 {
   "vi-VN": {
+    "common.errors.SETUP_DONE": "MinhAnOS đã được khởi tạo. Hãy đăng nhập.",
+    "common.errors.SETUP_CODE_INVALID": "Mã cài đặt chưa đúng.",
+    "common.errors.SETUP_UNAVAILABLE": "Máy chủ chưa có mã cài đặt (secrets/bootstrap_password).",
+    "common.errors.SETUP_INVALID_USERNAME": "Tên đăng nhập không hợp lệ.",
+    "common.errors.SETUP_INVALID_NAME": "Tên hiển thị không hợp lệ.",
+    "common.errors.SETUP_WEAK_PASSWORD": "Mật khẩu cần 12–256 ký tự và khác mã cài đặt.",
+    "common.errors.SETUP_INVALID_ORGANIZATION": "Tên tổ chức cần 1–100 ký tự.",
     "common.errors.ORG_INVALID": "Tên tổ chức không hợp lệ (1–100 ký tự) hoặc thiếu thay đổi.",
     "common.errors.ORG_NOT_FOUND": "Không tìm thấy tổ chức.",
     "common.errors.ORG_PERMISSION_DENIED": "Vai trò của bạn trong tổ chức này không cho phép thao tác này.",
@@ -50,6 +57,13 @@
     "common.errors.QUOTA_EXCEEDED": "Đã hết dung lượng được cấp."
   },
   "en-US": {
+    "common.errors.SETUP_DONE": "MinhAnOS is already set up. Please sign in.",
+    "common.errors.SETUP_CODE_INVALID": "The setup code is not correct.",
+    "common.errors.SETUP_UNAVAILABLE": "The server has no setup code (secrets/bootstrap_password).",
+    "common.errors.SETUP_INVALID_USERNAME": "Invalid username.",
+    "common.errors.SETUP_INVALID_NAME": "Invalid display name.",
+    "common.errors.SETUP_WEAK_PASSWORD": "The password needs 12–256 characters and must differ from the setup code.",
+    "common.errors.SETUP_INVALID_ORGANIZATION": "The organization name needs 1–100 characters.",
     "common.errors.ORG_INVALID": "Invalid organization name (1–100 characters) or nothing to change.",
     "common.errors.ORG_NOT_FOUND": "Organization not found.",
     "common.errors.ORG_PERMISSION_DENIED": "Your role in this organization does not allow this action.",

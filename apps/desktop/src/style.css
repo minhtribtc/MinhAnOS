@@ -27,3 +27,4 @@
 .password-change-card{width:min(760px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:20px;background:var(--mn-color-surface);color:var(--mn-color-text-primary);box-shadow:var(--mn-shadow-panel);overflow:auto}
 .password-change-card h1{margin:0;font-size:24px}.password-change-card p{margin:4px 0 0;color:var(--mn-color-text-secondary)}
 .password-change-card .mn-accounts{min-height:420px}
+.setup-card .setup-help{display:block;margin:-6px 0 12px;font-size:12px;color:var(--mn-color-text-secondary)}.setup-card .setup-summary{margin:4px 0 14px;font-size:13px;color:var(--mn-color-text-secondary)}.setup-card .setup-back{margin-top:10px;width:100%;border:0;background:transparent;color:var(--mn-color-text-secondary);padding:8px;cursor:pointer;font:inherit}.setup-card .setup-back:hover{color:var(--mn-color-text-primary)}

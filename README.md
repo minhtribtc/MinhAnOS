@@ -38,9 +38,11 @@ NetBird, Authentik, 1Panel và App Center packages
 ## Triển khai thử
 
 VM: `10.1.1.20`, nguồn: `/opt/minhanos-next`, URL: `http://10.1.1.20:8081`.
-Tên đăng nhập bootstrap là `admin`. Mật khẩu được tạo ngẫu nhiên và đọc từ
-`secrets/bootstrap_password` khi database chưa có người dùng; không ghi vào git
-hoặc log. Thay file bootstrap sau khi tạo user không đổi mật khẩu đã lưu.
+**Khởi tạo lần đầu** ([ADR 0009](docs/adr/0009-first-run-setup.md)): bản cài mới không có tài khoản nào. Mở Desktop,
+nhập **mã cài đặt** (nội dung `secrets/bootstrap_password`, tạo ngẫu nhiên, không ghi vào git hoặc log), tạo
+tài khoản System Admin (tên đăng nhập và mật khẩu riêng), rồi đặt tên tổ chức đầu tiên. Khi đã có tài khoản,
+khởi tạo bị đóng vĩnh viễn. Bản cài tự động (CI, stack thử dùng một lần, Files độc lập) đặt
+`MINHANOS_BOOTSTRAP_ADMIN=true` để giữ cách cũ: tạo `admin` với mật khẩu là mã cài đặt.
 
 ```sh
 # Trước lần chạy đầu, tạo .env chứa POSTGRES_PASSWORD ngẫu nhiên,
@@ -79,8 +81,10 @@ npm run build --workspace=minhanos-desktop
 go test ./...
 go vet ./...
 docker compose build
-# API integration test, sau khi ứng dụng chạy:
-TEST_URL=http://10.1.1.20:8081 TEST_PASSWORD_FILE=secrets/bootstrap_password node tests/api-smoke.mjs
+# API integration test, sau khi ứng dụng chạy. Bản cài mới: chạy setup-smoke trước (tạo admin với mật khẩu
+# trong TEST_PASSWORD_FILE, phải khác mã cài đặt), rồi các smoke test khác đăng nhập bằng admin đó:
+TEST_URL=http://10.1.1.20:8081 SETUP_CODE_FILE=secrets/bootstrap_password TEST_PASSWORD_FILE=<file mật khẩu test> node tests/setup-smoke.mjs
+TEST_URL=http://10.1.1.20:8081 TEST_PASSWORD_FILE=<file mật khẩu test> node tests/api-smoke.mjs
 ```
 
 Test tích hợp tạo một user dùng một lần, ghi username vào artifacts/test-user.txt.

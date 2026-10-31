@@ -1,3 +1,11 @@
+## First-run setup — 2026-10-31
+
+`TestFirstRunSetup` (fresh schema without `MINHANOS_BOOTSTRAP_ADMIN`): no account is created at startup; wrong
+code 403, short password and password = setup code 400, invalid username/organization 400, cross-origin 403; four
+concurrent setups → exactly one 201 and three 409; the account is System Admin, the default organization carries the
+chosen name with the account as admin, one `setup.completed` audit row with the organization; sign-in works and no
+`admin`/setup-code account exists. Full Go DB suite (8 packages) and `npm run check` PASS.
+
 ## Organizations and tenancy (row 27) — 2026-10-31
 
 Go DB suites (`tests/migrations-integration.sh`, 8 packages) PASS, including `TestOrganizationsRolesAndIsolation`,

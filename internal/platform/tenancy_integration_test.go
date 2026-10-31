@@ -49,6 +49,7 @@ func TestTenancyStorageAndLogsOverHTTP(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "bootstrap")
 	os.WriteFile(file, []byte(pass), 0600)
 	t.Setenv("BOOTSTRAP_PASSWORD_FILE", file)
+	t.Setenv("MINHANOS_BOOTSTRAP_ADMIN", "true")
 	app, e := New(ctx, db)
 	if e != nil {
 		t.Fatal(e)

@@ -21,7 +21,8 @@ for(const [dir,module,prefix] of [['files-api','files','/api/drive/'],['desktop'
   assert(runtime.implementedOperations.includes(op.operationId),'missing in status: '+op.operationId)
   assert(op.responses.default?.content?.['application/json']?.schema?.$ref==='#/components/schemas/LegacyError',op.operationId+' needs the error envelope')
   const headers=(op.parameters||[]).filter(p=>p.in==='header').map(p=>p.name)
-  const open=['filesLogin','desktopLogin'].includes(op.operationId)
+  // Pre-session writes: login and first-run setup (Origin check plus credentials or the setup code).
+  const open=['filesLogin','desktopLogin','desktopSetup'].includes(op.operationId)
   if(method!=='get'&&!open)assert(headers.includes('X-CSRF-Token'),op.operationId+' needs CSRF')
   if(module==='files'&&path.startsWith('/api/drive/files/')&&method==='post')assert(headers.includes('Idempotency-Key'),op.operationId+' needs Idempotency-Key')
   if(method==='put'||op.operationId==='filesSaveText')assert(headers.includes('If-Match'),op.operationId+' needs If-Match')

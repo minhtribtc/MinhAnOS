@@ -1,3 +1,10 @@
+## First-run setup (ADR 0009, 2026-10-31)
+
+`GET /api/setup` → `{"required":bool}` (public). `POST /api/setup` `{setupCode, username, displayName, password,
+organizationName}` → 201 `{user:{username,displayName}, organization}`; only while no account exists (409
+`SETUP_DONE` after), setup code = bootstrap secret (403 `SETUP_CODE_INVALID`), Origin-checked, rate limited, no
+CSRF (pre-session, like login). Operations `desktopSetupStatus`, `desktopSetup` in OpenAPI (`x-module: desktop`).
+
 ## Organizations and allocations (ADR 0008, 2026-10-31)
 
 Identity: `GET/POST /api/v1/identity/organizations`, `GET/PATCH/DELETE /organizations/{id}`, members

@@ -51,6 +51,7 @@ func TestAuthAdaptersAcrossHTTPRealms(t *testing.T) {
 		t.Fatal(e)
 	}
 	t.Setenv("BOOTSTRAP_PASSWORD_FILE", file)
+	t.Setenv("MINHANOS_BOOTSTRAP_ADMIN", "true")
 	app, e := New(ctx, db)
 	if e != nil {
 		t.Fatal(e)

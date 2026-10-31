@@ -1,3 +1,8 @@
+## Khởi tạo lần đầu — 2026-10-31
+
+- Máy cài mới không còn tự tạo tài khoản `admin`. Mở Desktop sẽ thấy **Khởi tạo lần đầu** gồm 2 bước: (1) tạo tài khoản **System Admin** với tên đăng nhập và mật khẩu do bạn chọn (cần **mã cài đặt** là nội dung tệp `secrets/bootstrap_password` trên máy chủ), (2) đặt tên **tổ chức đầu tiên**. Xong là tự đăng nhập.
+- Chỉ khởi tạo được một lần, khi máy chủ chưa có tài khoản nào; người khác trong mạng không chiếm được máy mới cài nếu không có mã cài đặt. Mã cài đặt không dùng làm mật khẩu đăng nhập.
+
 ## Tổ chức (NAS + Cloud nhiều tổ chức) — 2026-10-31
 
 - **Tổ chức** dạng cây (tối đa 8 cấp). Máy hiện có tự thành một tổ chức mặc định *MinhAnOS*: mọi tài khoản và nhóm người dùng đã có nằm trong đó, không cần làm gì thêm.

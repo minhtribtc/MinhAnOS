@@ -67,7 +67,8 @@ func NewSQLIdentity(ctx context.Context, db *pgxpool.Pool, bootstrap string) (*S
 	if err = tx.QueryRow(ctx, "SELECT count(*) FROM users").Scan(&count); err != nil {
 		return nil, err
 	}
-	if count == 0 {
+	// A fresh install is set up from Desktop (first-run setup); only unattended installs create the bootstrap admin.
+	if count == 0 && os.Getenv("MINHANOS_BOOTSTRAP_ADMIN") == "true" {
 		p, e := os.ReadFile(bootstrap)
 		if e != nil {
 			return nil, e
