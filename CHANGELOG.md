@@ -1,3 +1,10 @@
+## Files: nhật ký hoạt động chi tiết và xem ai đang truy cập — 2026-10-31
+
+- **Bốn mức nhật ký** cho Files, System Admin chọn trong *Cài đặt → MinhAnOS Files → Nhật ký hoạt động*: Tối thiểu (như trước), Thao tác ghi (kèm đường dẫn, tên), Truy cập (thêm mọi lượt mở thư mục, mở/tải tệp, ZIP, tìm kiếm, lượt bị từ chối, khách dùng liên kết công khai), Đầy đủ (thêm IP, trình duyệt, thời gian, số byte).
+- **Đang truy cập Files** trong Trung tâm nhật ký (mức Đầy đủ): ai đang xem thư mục nào, mở tệp nào, đang tải lên/xuống gì và được bao nhiêu.
+- Trung tâm nhật ký: sự kiện Files hiện đúng kết quả (thành công/bị từ chối/thất bại) và đường dẫn; lọc mới theo **người** và theo **đường dẫn / nội dung** cho mọi nguồn.
+- Người dùng được báo trong Files khi hoạt động của họ được ghi (từ mức Truy cập).
+
 ## Files: chia sẻ nội bộ và liên kết công khai — 2026-10-31
 
 - **Chia sẻ với người trong tổ chức**: chọn tệp/thư mục ở vùng riêng → *Chia sẻ*, tìm người cùng tổ chức, cho quyền *Chỉ xem* hoặc *Được sửa*. Người nhận thấy ở mục **Chia sẻ với tôi** trên thanh bên; thay đổi lưu thẳng vào kho của người chia sẻ.

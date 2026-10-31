@@ -5773,6 +5773,7 @@ export interface FilesRootList {
   sharing?: boolean;
   publicBase?: string;
   publicPort?: string;
+  activityLevel?: "minimal" | "writes" | "access" | "full";
 }
 
 export interface FilesQuotaFolderList {
@@ -5811,6 +5812,49 @@ export interface FilesLoginInput {
 
 export interface FilesOk {
   ok: true;
+}
+
+export interface FilesActivitySettings {
+  level: "minimal" | "writes" | "access" | "full";
+  version: number;
+  retentionDays?: number;
+}
+
+export interface FilesActivityLevelInput {
+  level: "minimal" | "writes" | "access" | "full";
+}
+
+export interface FilesPresenceInput {
+  root: string;
+  rootName?: string;
+  path: string;
+  file?: string;
+}
+
+export interface FilesPresenceResult {
+  stored: boolean;
+}
+
+export interface FilesLiveList {
+  level: "minimal" | "writes" | "access" | "full";
+  /**
+   * @maxItems 5000
+   */
+  items: {
+    user: string;
+    displayName?: string;
+    kind: "view" | "open" | "download" | "archive" | "upload";
+    root: string;
+    rootName?: string;
+    path: string;
+    file?: string;
+    since: string;
+    seen: string;
+    client?: string;
+    agent?: string;
+    bytes?: number;
+    total?: number;
+  }[];
 }
 
 export interface FilesPurgeResult {

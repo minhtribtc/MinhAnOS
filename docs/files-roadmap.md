@@ -28,6 +28,8 @@ Items 1–2 shipped 2026-10-31 (ADR 0011, files SQL 008):
 3. Versions: keep previous versions on overwrite, restore, retention.
 4. Tags and comments; per-file activity from `files_events`.
 
+Activity log (ADR 0012, files SQL 009, shipped 2026-10-31): levels minimal / writes / access / full chosen in central Settings; reads, refusals and public-link visitors recorded from `access`; client, duration, bytes and live presence ("In Files now" in Log Center) at `full`. Next: per-file history in the inspector, per-person timeline, CSV export, alerts on mass delete or download.
+
 ## Phase 3 — integration
 1. Resumable chunked upload above 128 MB.
 2. WebDAV endpoint (desktop/mobile sync clients).

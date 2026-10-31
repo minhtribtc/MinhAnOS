@@ -9,7 +9,7 @@ const text=path=>readFile(new URL(path,root),'utf8')
 
 // Catalog owning each nameKey/labelKey namespace, and the source that registers each app's panels.
 const catalogs={desktop:'apps/desktop/locales/catalogs.json',accounts:'packages/accounts-app/locales/catalogs.json',files:'packages/files-app/locales/catalogs.json',settings:'packages/settings-app/locales/catalogs.json',storage:'packages/storage-app/locales/catalogs.json',notifications:'packages/notifications-app/locales/catalogs.json',logs:'packages/logs-app/locales/catalogs.json',notes:'packages/notes-app/locales/catalogs.json'}
-const providers={'com.minhanos.settings':'packages/settings-app/src/system.ts','com.minhanos.desktop':'apps/desktop/src/settings.ts','com.minhanos.account-center':'packages/accounts-app/src/settings.ts','com.minhanos.storage':'packages/storage-app/src/settings.ts'}
+const providers={'com.minhanos.settings':'packages/settings-app/src/system.ts','com.minhanos.desktop':'apps/desktop/src/settings.ts','com.minhanos.account-center':'packages/accounts-app/src/settings.ts','com.minhanos.storage':'packages/storage-app/src/settings.ts','com.minhanos.files':'packages/files-app/src/settings.ts'}
 const registry=await text('apps/desktop/src/settings.ts')
 
 for(const file of (await readdir(new URL('contracts/manifests/',root))).filter(f=>f.endsWith('.app.json'))){

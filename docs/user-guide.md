@@ -1,3 +1,19 @@
+## Nhật ký hoạt động Files (2026-10-31)
+
+System Admin chọn Files ghi lại bao nhiêu: **Cài đặt → MinhAnOS Files → Nhật ký hoạt động**. Đổi mức nào cũng được ghi vào nhật ký.
+
+| Mức | Ghi lại |
+| --- | --- |
+| **Tối thiểu** (mặc định) | Chỉ thao tác ghi (tải lên, tạo thư mục, đổi tên, di chuyển, sao chép, xoá, khôi phục, lưu văn bản, chia sẻ). Không ghi tên/đường dẫn trong vùng riêng và Shared Folder. |
+| **Thao tác ghi** | Như trên, kèm đường dẫn và tên (từ → đến); cả thao tác ghi bị lỗi. |
+| **Truy cập** | Thêm mọi lượt đọc: mở thư mục, mở tệp văn bản, tải tệp, tải ZIP, tìm kiếm, xem Gần đây/Thùng rác; lượt bị từ chối hoặc lỗi; khách mở liên kết công khai. |
+| **Đầy đủ** | Thêm địa chỉ IP, trình duyệt, thời gian xử lý, số byte; và **ai đang mở thư mục/tệp nào ngay lúc này**, lượt tải đang chạy. |
+
+- Xem trong **Trung tâm nhật ký**: chọn nguồn *Tệp (Files)*; lọc theo **Người** (tên đăng nhập) và **Đường dẫn / nội dung** (ví dụ `Kế toán/2026`); bấm mũi tên đầu dòng để xem chi tiết (IP, trình duyệt, số byte…). Khách dùng liên kết công khai hiện là *Khách (liên kết công khai)*.
+- Ở mức **Đầy đủ**, đầu Trung tâm nhật ký có khung **Đang truy cập Files**: mỗi người đang xem thư mục nào, mở tệp nào, đang tải gì (tự làm mới mỗi 15 giây). Danh sách này chỉ nằm trong bộ nhớ, mất khi khởi động lại; một mục tự biến mất sau khoảng 75 giây người dùng không còn hoạt động.
+- Từ mức **Truy cập**, người dùng thấy dòng *Hoạt động trong Files được ghi nhật ký* ở thanh bên Files.
+- Nhật ký Files giữ 365 ngày. Mức Truy cập/Đầy đủ tạo nhiều dòng nhật ký hơn (mỗi lần mở thư mục một dòng).
+
 ## Khởi tạo lần đầu (2026-10-31)
 
 1. Mở Desktop (ví dụ `http://10.1.1.20:8081`). Máy chưa có tài khoản sẽ hiện **Khởi tạo lần đầu · Bước 1/2**.
@@ -23,7 +39,7 @@ Lỗi thường gặp: *Mã cài đặt chưa đúng* → kiểm tra lại tệp
 - Ghim/bỏ ghim ứng dụng: mở Spotlight, bấm biểu tượng ghim ở cuối dòng ứng dụng.
 - Giao diện sáng/tối: Control Center → *Giao diện* mở thẳng phần Giao diện trong Cài đặt.
 - **Ghi chú** là ứng dụng riêng; nội dung ghi chú cũ vẫn còn.
-- Thao tác tệp của bạn được ghi vào **Trung tâm nhật ký** (System Admin xem, nguồn *Files*). Với vùng riêng chỉ ghi loại thao tác, không ghi tên hay đường dẫn tệp.
+- Thao tác tệp của bạn được ghi vào **Trung tâm nhật ký** (System Admin xem, nguồn *Files*). Mặc định với vùng riêng chỉ ghi loại thao tác, không ghi tên hay đường dẫn tệp; System Admin có thể tăng mức chi tiết (xem *Nhật ký hoạt động Files*).
 - Các ứng dụng cũ Tổng quan, App Center, Kết nối, Nhật ký, Giới thiệu đã bỏ; nếu đã ghim, chúng tự biến mất khỏi Dock.
 - Sao chép thư mục: chọn thư mục → *Sao chép* → mở nơi đến → *Dán*. Việc sao chép chạy nền; xem tiến độ hoặc hủy ở nút *Tác vụ* dưới chân Files. Không sao chép được thư mục vào chính nó, và thư mục chứa liên kết (symlink) hoặc tệp đặc biệt sẽ báo lỗi.
 - Xuất dữ liệu: trong vùng riêng, bấm *Xuất toàn bộ tệp riêng (.tar)* ở chân trang (không gồm thùng rác). Dữ liệu Desktop (bố cục, ghi chú): mở `/api/export` khi đã đăng nhập.
@@ -35,7 +51,7 @@ Lỗi thường gặp: *Mã cài đặt chưa đúng* → kiểm tra lại tệp
 - **Chuông thông báo** (góc trên bên phải Desktop, cạnh trạng thái kết nối): số đỏ là số thông báo chưa đọc, cập nhật mỗi phút. Bấm chuông để xem thông báo mới nhất, bấm dấu ✓ để đánh dấu đã đọc, hoặc "Mở Trung tâm thông báo".
 - **Trung tâm thông báo**: danh sách đầy đủ, lọc "Tất cả"/"Chưa đọc", "Đánh dấu tất cả đã đọc". Thông báo bảo mật ghi "Bảo mật · bắt buộc" và không tắt được. Nếu thấy thông báo đổi mật khẩu hoặc đăng nhập sai mà không phải bạn, hãy đổi mật khẩu và báo quản trị viên.
 - **Trung tâm nhật ký** (chỉ System Admin): mọi thao tác quản trị và bảo mật của Account Center và Storage Manager, mới nhất trước. Lọc theo nguồn và kết quả (thành công, bị từ chối, thất bại); bấm mũi tên đầu dòng để xem Request ID và chi tiết. Nhật ký tài khoản giữ 365 ngày.
-- Chưa có: tùy chọn tắt thông báo không bắt buộc, thông báo khi gần hết quota, nhật ký của Files trong Trung tâm nhật ký.
+- Chưa có: tùy chọn tắt thông báo không bắt buộc, thông báo khi gần hết quota. (Nhật ký Files đã có — xem *Nhật ký hoạt động Files*.)
 
 ## Storage Manager và quota
 

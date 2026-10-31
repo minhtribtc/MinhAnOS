@@ -4885,6 +4885,26 @@
             }
           },
           {
+            "name": "actor",
+            "in": "query",
+            "required": false,
+            "description": "Username; only that person's events",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Text in the target or details, such as a Files path",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -9871,6 +9891,208 @@
           }
         }
       }
+    },
+    "/api/drive/activity/presence": {
+      "post": {
+        "operationId": "filesActivityPresence",
+        "summary": "Report the folder or file open in the app (kept in memory at level full only)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesPresenceResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesPresenceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/activity/live": {
+      "get": {
+        "operationId": "filesActivityLive",
+        "summary": "Who has what open and the transfers running (System Admin; empty below level full)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesLiveList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/activity/settings": {
+      "get": {
+        "operationId": "filesActivitySettings",
+        "summary": "Files activity log level (System Admin); ETag is the version",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesActivitySettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "filesSetActivitySettings",
+        "summary": "Change the activity log level (System Admin; If-Match the ETag, 412 VERSION_CONFLICT otherwise); the change is audited",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "ETag of the version the client last read",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesActivitySettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesActivityLevelInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13492,6 +13714,14 @@
           "publicPort": {
             "type": "string",
             "maxLength": 5
+          },
+          "activityLevel": {
+            "enum": [
+              "minimal",
+              "writes",
+              "access",
+              "full"
+            ]
           }
         },
         "required": [
@@ -15681,6 +15911,180 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "FilesActivitySettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "level": {
+            "enum": [
+              "minimal",
+              "writes",
+              "access",
+              "full"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "retentionDays": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "level",
+          "version"
+        ]
+      },
+      "FilesActivityLevelInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "level": {
+            "enum": [
+              "minimal",
+              "writes",
+              "access",
+              "full"
+            ]
+          }
+        },
+        "required": [
+          "level"
+        ]
+      },
+      "FilesPresenceInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "root": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "rootName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "file": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "root",
+          "path"
+        ]
+      },
+      "FilesPresenceResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stored": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "stored"
+        ]
+      },
+      "FilesLiveList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "level": {
+            "enum": [
+              "minimal",
+              "writes",
+              "access",
+              "full"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 5000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "user": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "kind": {
+                  "enum": [
+                    "view",
+                    "open",
+                    "download",
+                    "archive",
+                    "upload"
+                  ]
+                },
+                "root": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "rootName": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "path": {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                "file": {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                "since": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "seen": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "client": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "agent": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "user",
+                "kind",
+                "root",
+                "path",
+                "since",
+                "seen"
+              ]
+            }
+          }
+        },
+        "required": [
+          "level",
+          "items"
         ]
       }
     }

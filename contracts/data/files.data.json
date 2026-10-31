@@ -2,7 +2,8 @@
   "dataVersion": "1",
   "app": "com.minhanos.files",
   "tables": [
-    {"name": "files_events", "personal": false, "retention": "365 days (append-only audit; actor ID only, no personal paths)", "onAccountDelete": "kept-by-retention"},
+    {"name": "files_events", "personal": false, "retention": "365 days (append-only audit; actor ID; paths, names and client address only when the System Admin raises the activity level, ADR 0012)", "onAccountDelete": "kept-by-retention"},
+    {"name": "files_settings", "personal": false, "retention": "Permanent (one row: the activity log level, its version and who changed it)", "onAccountDelete": "not-personal"},
     {"name": "files_idempotency", "personal": true, "retention": "24 hours", "onAccountDelete": "removed"},
     {"name": "files_favorites", "personal": true, "retention": "Until the user removes the favorite (at most 500 per user)", "onAccountDelete": "removed"},
     {"name": "files_grants", "personal": true, "retention": "Until the owner stops sharing, the item is trashed or deleted, or either account is deleted (at most 1000 per owner)", "onAccountDelete": "removed"},

@@ -59,11 +59,10 @@ func TestFilesAuditPrivacyAndAppendOnly(t *testing.T) {
 	if e = db.QueryRow(ctx, "SELECT count(*) FILTER (WHERE details ? 'path'),count(share_key),count(actor_id) FROM files_events").Scan(&paths, &shares, &actors); e != nil {
 		t.Fatal(e)
 	}
-	if paths != 1 || shares != 1 || actors != 3 {
-		t.Fatal("privacy rules", paths, shares, actors)
-	}
-	if _, e = db.Exec(ctx, "INSERT INTO files_events(action,root,request_id,details) VALUES('files.upload','personal','r','{\"path\":\"/a\"}')"); e == nil {
-		t.Fatal("personal path accepted")
+	// Whether a path is recorded outside the system root is the caller's choice by activity level (ADR 0012, see
+	// TestActivityLevels); the store keeps what it is given.
+	if paths != 3 || shares != 1 || actors != 3 {
+		t.Fatal("stored events", paths, shares, actors)
 	}
 	if _, e = db.Exec(ctx, "DELETE FROM files_events"); e == nil {
 		t.Fatal("delete allowed")

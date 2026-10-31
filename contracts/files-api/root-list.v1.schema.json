@@ -101,6 +101,14 @@
     "publicPort": {
       "type": "string",
       "maxLength": 5
+    },
+    "activityLevel": {
+      "enum": [
+        "minimal",
+        "writes",
+        "access",
+        "full"
+      ]
     }
   },
   "required": [

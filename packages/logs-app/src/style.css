@@ -30,3 +30,9 @@
 .lc-empty{padding:30px;text-align:center}
 .mn-logs .lc-more{align-self:center}
 .lc-foot{font-size:12px}
+.mn-logs input{font:inherit;border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-surface);color:var(--mn-color-text-primary);min-height:36px;padding:0 10px;width:200px;max-width:100%}
+.lc-live{border:1px solid var(--mn-color-border);border-radius:var(--mn-radius-control);background:var(--mn-color-surface);display:flex;flex-direction:column}
+.mn-logs .lc-live-head{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:10px 12px;text-align:left;cursor:pointer;flex-wrap:wrap}
+.lc-live .lc-table{border:0;border-top:1px solid var(--mn-color-border);border-radius:0}
+.lc-agent{display:block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-pill.live-open,.lc-pill.live-upload{color:var(--mn-color-action-primary)}

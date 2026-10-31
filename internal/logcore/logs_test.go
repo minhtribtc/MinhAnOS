@@ -45,7 +45,7 @@ func fixture(t *testing.T) Store {
 		"CREATE TABLE users(id text PRIMARY KEY,public_id uuid,username text)",
 		"CREATE TABLE identity_admin_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target_id text,outcome text NOT NULL,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
 		"CREATE TABLE storage_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,target text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
-		"CREATE TABLE files_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,root text NOT NULL,share_key text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid)",
+		"CREATE TABLE files_events(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),actor_id uuid,action text NOT NULL,root text NOT NULL,share_key text,request_id text NOT NULL,correlation_id text,details jsonb NOT NULL DEFAULT '{}',occurred_at timestamptz NOT NULL DEFAULT now(),organization_id uuid,outcome text NOT NULL DEFAULT 'success')",
 		"INSERT INTO users VALUES('1','" + admin + "','root')",
 	} {
 		if _, e = db.Exec(ctx, q); e != nil {
@@ -104,8 +104,25 @@ func TestEventsMergeFilterAndPage(t *testing.T) {
 	if e != nil || len(files.Items) != 1 || files.Items[0].Target == nil || *files.Items[0].Target != "media" || files.Items[0].Details["root"] != "share" {
 		t.Fatal("files source", files, e)
 	}
+	// Files events carry their outcome and path (ADR 0012); actor and text filters reach every source.
+	if _, e := s.DB.Exec(ctx, `INSERT INTO files_events(actor_id,action,root,request_id,outcome,details) VALUES($1,'files.list','personal','req_g','denied','{"path":"Ke toan/2026","code":"ACCESS_DENIED"}')`, admin); e != nil {
+		t.Fatal(e)
+	}
+	if got, e := s.Events(ctx, Filter{Source: "files", Outcome: "denied", Limit: 50}); e != nil || len(got.Items) != 1 || got.Items[0].Target == nil || *got.Items[0].Target != "Ke toan/2026" {
+		t.Fatal("files outcome and path", got, e)
+	}
+	if got, _ := s.Events(ctx, Filter{Query: "KE TOAN", Limit: 50}); len(got.Items) != 1 {
+		t.Fatal("text filter", got)
+	}
+	if got, _ := s.Events(ctx, Filter{Source: "files", Actor: "nobody", Limit: 50}); len(got.Items) != 0 {
+		t.Fatal("actor filter", got)
+	}
+	deniedAll, _ := s.Events(ctx, Filter{Outcome: "denied", Limit: 50})
+	if len(deniedAll.Items) != 2 {
+		t.Fatal("denied across sources", len(deniedAll.Items))
+	}
 	storage, _ := s.Events(ctx, Filter{Source: "storage", Limit: 50})
-	denied, _ := s.Events(ctx, Filter{Outcome: "denied", Limit: 50})
+	denied, _ := s.Events(ctx, Filter{Outcome: "denied", Source: "identity", Limit: 50})
 	if len(storage.Items) != 4 || len(denied.Items) != 1 || denied.Items[0].Source != "identity" {
 		t.Fatal("filters", len(storage.Items), len(denied.Items))
 	}

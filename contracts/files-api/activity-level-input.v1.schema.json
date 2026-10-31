@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-activity-level-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "level": {
+      "enum": [
+        "minimal",
+        "writes",
+        "access",
+        "full"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ]
+}

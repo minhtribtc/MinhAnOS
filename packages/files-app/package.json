@@ -3,7 +3,10 @@
   "version": "0.3.0",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./settings": "./src/settings.ts"
+  },
   "peerDependencies": {
     "vue": "^3.5.0",
     "lucide-vue-next": "^0.468.0"

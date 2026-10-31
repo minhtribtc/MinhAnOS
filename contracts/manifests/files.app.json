@@ -26,5 +26,12 @@
     "version": "1",
     "supports": ["foreground", "background", "requestClose"]
   },
-  "settingsIntegration": []
+  "settingsIntegration": [
+    {
+      "id": "activity",
+      "labelKey": "files.activity.title",
+      "path": "/activity",
+      "requiredPermission": "files.system.read"
+    }
+  ]
 }

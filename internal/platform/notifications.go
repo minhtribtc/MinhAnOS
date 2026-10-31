@@ -117,7 +117,11 @@ func (a *App) logsHandler() http.Handler {
 	})
 	mux.HandleFunc("GET /api/v1/logs/events", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
-		f := logcore.Filter{Source: q.Get("source"), Outcome: q.Get("outcome"), Cursor: q.Get("cursor"), Limit: 50}
+		f := logcore.Filter{Source: q.Get("source"), Outcome: q.Get("outcome"), Cursor: q.Get("cursor"), Limit: 50, Actor: q.Get("actor"), Query: q.Get("q")}
+		if len(f.Actor) > 64 || len(f.Query) > 200 {
+			v1Error(w, r, 400, "INVALID_REQUEST")
+			return
+		}
 		// Organization admins read only their organizations' events; ?organization= narrows to one (ADR 0008).
 		scope := r.Context().Value(logScopeKey{}).([]string)
 		if org := q.Get("organization"); org != "" {

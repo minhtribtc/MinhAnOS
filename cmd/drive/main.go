@@ -75,7 +75,7 @@ func main() {
 	} else if retired {
 		slog.Info("storage.homes.legacy_retired")
 	}
-	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: dataDir, StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: store, Shares: store, Units: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}, Favorites: drive.SQLFavorites{DB: db}, Sharing: drive.SQLSharing{DB: db}, PublicBase: os.Getenv("FILES_PUBLIC_URL"), PublicPort: env("FILES_PUBLIC_PORT", "8082")}
+	app := &drive.Server{Profile: profile, AllowPlatformSessions: os.Getenv("ALLOW_PLATFORM_SESSIONS") == "true", Identity: identity, DataDir: dataDir, StaticDir: env("DRIVE_STATIC_DIR", "/app/web"), AgentSocket: os.Getenv("DRIVE_AGENT_SOCKET"), SecureCookie: os.Getenv("COOKIE_SECURE") == "true", Quota: store, Shares: store, Units: storagecore.AgentClient{Socket: os.Getenv("STORAGE_AGENT_SOCKET")}, Favorites: drive.SQLFavorites{DB: db}, Sharing: drive.SQLSharing{DB: db}, Activity: drive.SQLActivity{DB: db}, PublicBase: os.Getenv("FILES_PUBLIC_URL"), PublicPort: env("FILES_PUBLIC_PORT", "8082")}
 	app.StartMeasurer(ctx, 30*time.Second)
 	// Background work runs on the platform job engine and event bus (ADR 0010): copies, retention, removals.
 	if err = eventcore.ApplySchema(ctx, db); err != nil {

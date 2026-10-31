@@ -2,9 +2,9 @@ import {defineSettingsProvider,type SettingsProvider} from '@minhanos/app-sdk'
 import {settingsProvider as accounts} from '@minhanos/accounts-app/settings'
 import {createSystemSettingsProvider} from '@minhanos/settings-app/system'
 import {settingsProvider as storage} from '@minhanos/storage-app/settings'
+import {settingsProvider as files} from '@minhanos/files-app/settings'
 import catalog from '../../../contracts/apps/catalog.v1.json'
 import desktopManifest from '../../../contracts/manifests/desktop.app.json'
-import filesManifest from '../../../contracts/manifests/files.app.json'
 import notificationsManifest from '../../../contracts/manifests/notifications.app.json'
 import logsManifest from '../../../contracts/manifests/logs.app.json'
 import notesManifest from '../../../contracts/manifests/notes.app.json'
@@ -18,7 +18,7 @@ const providers:SettingsProvider[]=[
  defineSettingsProvider({manifest:desktopManifest,panels:{appearance:AppearancePanel}}),
  accounts,
  storage,
- defineSettingsProvider({manifest:filesManifest,panels:{}}),
+ files,
  defineSettingsProvider({manifest:notificationsManifest,panels:{}}),
  defineSettingsProvider({manifest:logsManifest,panels:{}}),
  defineSettingsProvider({manifest:notesManifest,panels:{}}),

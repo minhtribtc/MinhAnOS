@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-live-list.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "level": {
+      "enum": [
+        "minimal",
+        "writes",
+        "access",
+        "full"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "kind": {
+            "enum": [
+              "view",
+              "open",
+              "download",
+              "archive",
+              "upload"
+            ]
+          },
+          "root": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "rootName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "file": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "seen": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "client": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "agent": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "user",
+          "kind",
+          "root",
+          "path",
+          "since",
+          "seen"
+        ]
+      }
+    }
+  },
+  "required": [
+    "level",
+    "items"
+  ]
+}

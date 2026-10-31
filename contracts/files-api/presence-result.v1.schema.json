@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/files-presence-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "stored": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "stored"
+  ]
+}

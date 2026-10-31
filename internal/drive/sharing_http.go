@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"minhanos.local/platform/internal/authn"
@@ -324,6 +325,12 @@ func (s *Server) servePublic(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	rest := strings.TrimPrefix(r.URL.Path, "/api/public/")
 	token, op, _ := strings.Cut(rest, "/")
+	// What a visitor does is recorded per the activity level (ADR 0012), with no account: the link and its owner.
+	aw := &activityWriter{ResponseWriter: w}
+	w = aw
+	var l Link
+	audited := false
+	defer s.recordPublic(r, &l, op, aw, time.Now(), &audited)
 	if !validID(token) {
 		fail(w, 404, "Không tìm thấy liên kết.", "FILES_LINK_NOT_FOUND")
 		return
@@ -421,11 +428,16 @@ func (s *Server) servePublic(w http.ResponseWriter, r *http.Request) {
 	}
 	defer root.Close()
 	if !read {
-		// Writes by visitors count against the owner's quota and are audited as the owner's home.
-		if err = s.Identity.Audit(ctx, User{ID: l.OwnerID}, AuditEvent{Action: "files.public_" + fileOp, Root: "personal"}); err != nil {
+		// Writes by visitors count against the owner's quota and are recorded in the owner's home, without an actor.
+		ev := AuditEvent{Action: "files.public_" + fileOp, Root: "personal", Details: s.publicDetails(r, l)}
+		if s.records(ctx, LevelWrites) {
+			ev.Path = r.URL.Query().Get("path")
+		}
+		if err = s.Identity.Audit(ctx, User{}, ev); err != nil {
 			fail(w, 503, "Chưa ghi được nhật ký; thao tác chưa thực hiện.", "AUDIT_UNAVAILABLE")
 			return
 		}
+		audited = true
 	}
 	var reservation *storagecore.Reservation
 	if !read && s.Quota != nil {
@@ -437,6 +449,14 @@ func (s *Server) servePublic(w http.ResponseWriter, r *http.Request) {
 			}
 			reservation = &res
 		}
+	}
+	if (fileOp == "download" || fileOp == "archive" || fileOp == "upload") && s.records(ctx, LevelFull) {
+		counter := &aw.bytes
+		if fileOp == "upload" {
+			counter = &atomic.Int64{}
+			r.Body = countingBody{r: r.Body, n: counter}
+		}
+		defer s.transfer(User{ID: "link:" + l.ID}, r, fileOp, "link:"+l.ID, r.URL.Query().Get("path"), counter)()
 	}
 	r.URL.Path = "/api/files/" + fileOp
 	if err = ServeEngine(w, r, engine); err != nil {

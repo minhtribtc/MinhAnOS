@@ -82,6 +82,26 @@
       "type": "FilesOk"
     },
     {
+      "file": "activity-settings.v1.schema.json",
+      "type": "FilesActivitySettings"
+    },
+    {
+      "file": "activity-level-input.v1.schema.json",
+      "type": "FilesActivityLevelInput"
+    },
+    {
+      "file": "presence-input.v1.schema.json",
+      "type": "FilesPresenceInput"
+    },
+    {
+      "file": "presence-result.v1.schema.json",
+      "type": "FilesPresenceResult"
+    },
+    {
+      "file": "live-list.v1.schema.json",
+      "type": "FilesLiveList"
+    },
+    {
       "file": "purge-result.v1.schema.json",
       "type": "FilesPurgeResult"
     },

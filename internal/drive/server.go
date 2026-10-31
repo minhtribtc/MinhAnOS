@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -51,9 +52,12 @@ type Server struct {
 	Sharing    SharingStore
 	PublicBase string
 	PublicPort string
-	locks      sync.Map
-	limiter    loginLimiter
-	linkTries  loginLimiter // password tries on public links, apart from logins so one cannot crowd out the other
+	// Activity keeps the activity level (ADR 0012); nil records at level minimal.
+	Activity  ActivityStore
+	act       activity
+	locks     sync.Map
+	limiter   loginLimiter
+	linkTries loginLimiter // password tries on public links, apart from logins so one cannot crowd out the other
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -263,7 +267,7 @@ func (s *Server) Handler() http.Handler {
 			}
 			// Public links live on the Files origin (/s/<token>); embedded in the Desktop, the app builds the URL
 			// from publicBase, or from the page's host and publicPort.
-			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText, "sharing": s.Sharing != nil, "publicBase": s.PublicBase, "publicPort": s.PublicPort}
+			body := map[string]any{"roots": roots, "homes": homes, "maxUploadBytes": MaxUpload, "maxTextBytes": MaxText, "sharing": s.Sharing != nil, "publicBase": s.PublicBase, "publicPort": s.PublicPort, "activityLevel": s.activityLevel(r.Context())}
 			if homes && s.Quota != nil && validID(session.User.ID) {
 				// Never measure here: large homes are walked by the background measurer.
 				usage, err := s.Quota.HomeUsage(r.Context(), session.User.ID)
@@ -313,6 +317,12 @@ func (s *Server) Handler() http.Handler {
 			}
 			return
 		}
+		if strings.HasPrefix(r.URL.Path, "/api/activity/") {
+			if s.authorized(w, r, session.User, "files.read") {
+				s.serveActivity(w, r, session.User)
+			}
+			return
+		}
 		if r.URL.Path == "/api/jobs" || strings.HasPrefix(r.URL.Path, "/api/jobs/") {
 			permission := "files.read"
 			if r.Method == "POST" {
@@ -332,6 +342,14 @@ func (s *Server) Handler() http.Handler {
 			root = "personal"
 		}
 		mutation := r.Method != "GET" && r.Method != "HEAD"
+		// What this request records depends on the activity level (ADR 0012); see recordFiles.
+		aw := &activityWriter{ResponseWriter: w}
+		w = aw
+		rec := &filesRecord{op: path.Base(r.URL.Path), mutation: mutation, root: "personal", rootID: root, path: r.URL.Query().Get("path"), started: time.Now()}
+		defer s.recordFiles(r, session.User, aw, rec)
+		if root == "system" {
+			rec.root = "system"
+		}
 		if root == "system" {
 			allowed, e := s.hostAllowed(r.Context(), session.User)
 			if e != nil {
@@ -379,6 +397,7 @@ func (s *Server) Handler() http.Handler {
 				fail(w, 403, "Thư mục chia sẻ này chỉ cho phép xem.", "SHARE_READ_ONLY")
 				return
 			}
+			rec.root, rec.share = "share", shareKey
 			share = found
 		}
 		// An item shared with the user (ADR 0011) is served from the owner's home: edit allows writes inside a shared
@@ -404,6 +423,7 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			grant, owner = found, found.OwnerID
+			rec.details = map[string]any{"via": "shared", "owner": found.Owner, "ownerPath": grantPath(found, rec.path)}
 		}
 		if mutation {
 			rec, finish, done := s.idempotent(w, r, session.User)
@@ -418,14 +438,32 @@ func (s *Server) Handler() http.Handler {
 			if isShare {
 				ev.Root, ev.Share = "share", shareKey
 			} else if isGrant {
-				ev.Root = "personal" // the owner's home; no path, like any personal write
+				ev.Root = "personal" // the owner's home
 			} else if root == "system" {
-				ev.Path = r.URL.Query().Get("path")
+				ev.Path = rec.path
+			}
+			// From level writes on, the record names the item and where it goes; at full, also the client.
+			if s.records(r.Context(), LevelWrites) {
+				ev.Path, ev.Details = rec.path, peekBody(r)
+				if ev.Details == nil {
+					ev.Details = map[string]any{}
+				}
+				if name := r.URL.Query().Get("name"); name != "" {
+					ev.Details["name"] = name
+				}
+				for k, v := range rec.details {
+					ev.Details[k] = v
+				}
+				rec.details = ev.Details
+				if s.records(r.Context(), LevelFull) {
+					clientDetails(r, ev.Details, time.Time{})
+				}
 			}
 			if err = s.Identity.Audit(r.Context(), session.User, ev); err != nil {
 				fail(w, 503, "Chưa ghi được nhật ký; thao tác chưa thực hiện.", "AUDIT_UNAVAILABLE")
 				return
 			}
+			rec.audited = true
 		}
 		if root == "system" {
 			if s.AgentSocket == "" {
@@ -559,6 +597,15 @@ func (s *Server) Handler() http.Handler {
 				}
 				reservation = &res
 			}
+		}
+		// At level full, downloads, ZIPs and uploads are listed as running while they stream.
+		if op := rec.op; (op == "download" || op == "archive" || op == "upload") && s.records(r.Context(), LevelFull) {
+			counter := &aw.bytes
+			if op == "upload" {
+				counter = &atomic.Int64{}
+				r.Body = countingBody{r: r.Body, n: counter}
+			}
+			defer s.transfer(session.User, r, op, root, rec.path, counter)()
 		}
 		if err = ServeEngine(w, r, engine); err != nil {
 			handleFileError(w, err)
