@@ -212,7 +212,7 @@ func (a *App) Handler() http.Handler {
 		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 		defer cancel()
 		if a.db.Ping(ctx) != nil {
-			writeError(w, 503, "Database chưa sẵn sàng.")
+			writeError(w, 503, "Database chưa sẵn sàng.", "SERVICE_UNAVAILABLE")
 			return
 		}
 		writeJSON(w, 200, map[string]string{"status": "ok", "version": Version})
@@ -231,7 +231,9 @@ func (a *App) Handler() http.Handler {
 	mux.Handle("GET /api/system", a.auth(http.HandlerFunc(a.system)))
 	mux.Handle("GET /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.users))))
 	mux.Handle("POST /api/admin/users", a.auth(a.admin(http.HandlerFunc(a.createUser))))
-	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { writeError(w, 404, "API không tồn tại.") })
+	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
+		writeError(w, 404, "API không tồn tại.", "NOT_FOUND")
+	})
 	root := os.Getenv("STATIC_DIR")
 	if root == "" {
 		root = "/app/web"
@@ -239,11 +241,11 @@ func (a *App) Handler() http.Handler {
 	fs := http.FileServer(http.Dir(root))
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" && r.Method != "HEAD" {
-			writeError(w, http.StatusMethodNotAllowed, "Phương thức không được hỗ trợ.")
+			writeError(w, http.StatusMethodNotAllowed, "Phương thức không được hỗ trợ.", "METHOD_NOT_ALLOWED")
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/api") {
-			writeError(w, 404, "API không tồn tại.")
+			writeError(w, 404, "API không tồn tại.", "NOT_FOUND")
 			return
 		}
 		if r.URL.Path != "/" && filepath.Ext(r.URL.Path) == "" {
@@ -265,7 +267,7 @@ func (a *App) Handler() http.Handler {
 		}
 		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/identity/") {
 			if !sameOrigin(r) {
-				writeError(w, 403, "Nguồn yêu cầu không hợp lệ.")
+				writeError(w, 403, "Nguồn yêu cầu không hợp lệ.", "ACCESS_DENIED")
 				return
 			}
 			if !strings.HasPrefix(r.URL.Path, "/api/drive/") {
@@ -291,7 +293,7 @@ func (a *App) auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("minhanos_session")
 		if err != nil || len(cookie.Value) != 64 {
-			writeError(w, 401, "Phiên đăng nhập đã hết hạn.")
+			writeError(w, 401, "Phiên đăng nhập đã hết hạn.", "AUTH_REQUIRED")
 			return
 		}
 		v, err := a.authCore.Authenticate(r.Context(), identityschema.DesktopRealm, cookie.Value)
@@ -299,14 +301,14 @@ func (a *App) auth(next http.Handler) http.Handler {
 		if err != nil {
 			if !errors.Is(err, identityschema.ErrUnauthorized) {
 				logError(r.Context(), "platform.session_lookup_failed", err)
-				writeError(w, 503, "Không kiểm tra được phiên đăng nhập.")
+				writeError(w, 503, "Không kiểm tra được phiên đăng nhập.", "SERVICE_UNAVAILABLE")
 				return
 			}
-			writeError(w, 401, "Phiên đăng nhập đã hết hạn.")
+			writeError(w, 401, "Phiên đăng nhập đã hết hạn.", "AUTH_REQUIRED")
 			return
 		}
 		if r.Method != "GET" && r.Method != "HEAD" && subtle.ConstantTimeCompare([]byte(r.Header.Get("X-CSRF-Token")), []byte(i.CSRF)) != 1 {
-			writeError(w, 403, "Mã xác thực yêu cầu không hợp lệ.")
+			writeError(w, 403, "Mã xác thực yêu cầu không hợp lệ.", "ACCESS_DENIED")
 			return
 		}
 		if i.PasswordChangeRequired && !(r.URL.Path == "/api/session" || r.URL.Path == "/api/logout" || r.URL.Path == "/api/profile") {
@@ -320,7 +322,7 @@ func (a *App) admin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// The identity policy decides; the legacy role column is only the fallback when it is not wired.
 		if a.identityService == nil && identity(r).User.Role != "admin" {
-			writeError(w, 403, "Bạn không có quyền quản trị tài khoản.")
+			writeError(w, 403, "Bạn không có quyền quản trị tài khoản.", "ACCESS_DENIED")
 			return
 		}
 		if a.identityService != nil {
@@ -367,7 +369,7 @@ func (a *App) allowLogin(ip string) bool {
 func (a *App) login(w http.ResponseWriter, r *http.Request) {
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	if !a.allowLogin(ip) {
-		writeError(w, 429, "Đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 10 phút.")
+		writeError(w, 429, "Đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 10 phút.", "AUTH_RATE_LIMITED")
 		return
 	}
 	var body struct {
@@ -378,7 +380,7 @@ func (a *App) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(body.Username) > 64 || len(body.Password) > 256 {
-		writeError(w, 400, "Thông tin đăng nhập không hợp lệ.")
+		writeError(w, 400, "Thông tin đăng nhập không hợp lệ.", "INVALID_REQUEST")
 		return
 	}
 	old := ""
@@ -538,7 +540,7 @@ func (a *App) putPreferences(w http.ResponseWriter, r *http.Request) {
 		p.Mode = "focus"
 	}
 	if !validPreferences(p) {
-		writeError(w, 400, "Cài đặt desktop không hợp lệ.")
+		writeError(w, 400, "Cài đặt desktop không hợp lệ.", "INVALID_REQUEST")
 		return
 	}
 	raw, err := json.Marshal(p)
@@ -609,7 +611,7 @@ func (a *App) createUser(w http.ResponseWriter, r *http.Request) {
 	b.Username = strings.ToLower(strings.TrimSpace(b.Username))
 	b.DisplayName = strings.TrimSpace(b.DisplayName)
 	if !usernamePattern.MatchString(b.Username) || len(b.DisplayName) < 1 || len(b.DisplayName) > 100 || len(b.Password) < 12 || len(b.Password) > 256 || (b.Role != "admin" && b.Role != "user") {
-		writeError(w, 400, "Tên đăng nhập gồm 3–32 ký tự a-z, số, _ hoặc -. Mật khẩu cần ít nhất 12 ký tự.")
+		writeError(w, 400, "Tên đăng nhập gồm 3–32 ký tự a-z, số, _ hoặc -. Mật khẩu cần ít nhất 12 ký tự.", "INVALID_REQUEST")
 		return
 	}
 	cookie, _ := r.Cookie("minhanos_session")
@@ -638,11 +640,11 @@ func decode(w http.ResponseWriter, r *http.Request, out any) bool {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(out); err != nil {
-		writeError(w, 400, "Dữ liệu yêu cầu không hợp lệ.")
+		writeError(w, 400, "Dữ liệu yêu cầu không hợp lệ.", "INVALID_REQUEST")
 		return false
 	}
 	if err := d.Decode(&struct{}{}); err != io.EOF {
-		writeError(w, 400, "Yêu cầu cần đúng một đối tượng JSON.")
+		writeError(w, 400, "Yêu cầu cần đúng một đối tượng JSON.", "INVALID_REQUEST")
 		return false
 	}
 	return true
@@ -657,5 +659,5 @@ func writeError(w http.ResponseWriter, status int, message string, code ...strin
 }
 func internalError(w http.ResponseWriter, r *http.Request, err error) {
 	logError(r.Context(), "platform.request_failed", err, "method", r.Method, "route", r.Pattern)
-	writeError(w, 500, "Không thể hoàn thành yêu cầu. Vui lòng thử lại.")
+	writeError(w, 500, "Không thể hoàn thành yêu cầu. Vui lòng thử lại.", "INTERNAL_ERROR")
 }

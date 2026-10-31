@@ -1,3 +1,13 @@
+## Desktop và Files (quy chuẩn 2026-10-31)
+
+- Ứng dụng tệp có tên **MinhAnOS Files** ở mọi nơi; mở trong Desktop hoặc tại cổng 8082 đều là cùng một ứng dụng.
+- Đổi ngôn ngữ trong *Cài đặt → Ngôn ngữ* thì Desktop, Files và Ghi chú đổi theo, kể cả tên ứng dụng trong Spotlight và Dock.
+- Ghim/bỏ ghim ứng dụng: mở Spotlight, bấm biểu tượng ghim ở cuối dòng ứng dụng.
+- Giao diện sáng/tối: Control Center → *Giao diện* mở thẳng phần Giao diện trong Cài đặt.
+- **Ghi chú** là ứng dụng riêng; nội dung ghi chú cũ vẫn còn.
+- Thao tác tệp của bạn được ghi vào **Trung tâm nhật ký** (System Admin xem, nguồn *Files*). Với vùng riêng chỉ ghi loại thao tác, không ghi tên hay đường dẫn tệp.
+- Các ứng dụng cũ Tổng quan, App Center, Kết nối, Nhật ký, Giới thiệu đã bỏ; nếu đã ghim, chúng tự biến mất khỏi Dock.
+
 ## Thông báo và nhật ký
 
 - **Chuông thông báo** (góc trên bên phải Desktop, cạnh trạng thái kết nối): số đỏ là số thông báo chưa đọc, cập nhật mỗi phút. Bấm chuông để xem thông báo mới nhất, bấm dấu ✓ để đánh dấu đã đọc, hoặc "Mở Trung tâm thông báo".

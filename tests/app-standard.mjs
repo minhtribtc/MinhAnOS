@@ -76,6 +76,10 @@ for(const file of (await files('internal/drive',['.go'])).filter(f=>!f.endsWith(
  assert(!/\blog\.Print/.test(code),file+': use the structured logger (logError/logInfo)')
 }
 for(const file of ['internal/platform/server.go','internal/platform/storage.go'])assert(!/\blog\.Print/.test(await text(file)),file+': unstructured log')
+// Row 8 (Desktop backend): legacy /api errors carry a stable code too.
+for(const file of (await files('internal/platform',['.go'])).filter(f=>!f.endsWith('_test.go'))){
+ for(const [call] of (await text(file)).matchAll(/\bwriteError\(w, [^()\n]*\)/g))assert(/, "[A-Z][A-Z0-9_]+"\)$|\.Code\)$/.test(call),file+': error without a code: '+call)
+}
 // Row 10: the legacy free-text audit tables are no longer written.
 assert(!/INSERT INTO (drive_)?audit\(/.test(registry+await text('internal/drive/auth.go')),'legacy audit write')
 console.log('PASS app standard: Desktop, Files, Notes — manifests, registry, i18n parity/keys, tokens only, useCatalog, error codes, structured logs, naming, labelled dialogs')

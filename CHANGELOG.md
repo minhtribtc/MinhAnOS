@@ -1,3 +1,12 @@
+## Desktop và Files theo quy chuẩn ứng dụng — 2026-10-31
+
+- Files: tên hiển thị thống nhất là **MinhAnOS Files** (bỏ "MinhAnOS Drive", "File Station · Preview"). Toàn bộ chữ trong Files có cả tiếng Việt và tiếng Anh; ngày giờ theo ngôn ngữ và múi giờ trong Cài đặt.
+- Files: thông báo lỗi rõ nguyên nhân (không tìm thấy, đã tồn tại, hết dung lượng, không có quyền, …) thay cho "yêu cầu thất bại" chung chung.
+- Files: thao tác tệp (tải lên, sửa, xóa, đổi tên, …) được ghi vào Trung tâm nhật ký, nguồn *Files*, giữ 365 ngày. Không lưu đường dẫn tệp trong vùng riêng của người dùng.
+- Desktop: tên ứng dụng lấy theo ngôn ngữ của bạn; Spotlight có nút ghim/bỏ ghim; Control Center mở *Cài đặt → Giao diện* thay cho các ô chọn giao diện riêng.
+- Desktop: bỏ các ứng dụng cũ Tổng quan, App Center, Kết nối, Nhật ký và Giới thiệu (nhật ký xem ở Trung tâm nhật ký). Ghi chú thành ứng dụng **Ghi chú** riêng; ghi chú cũ giữ nguyên. Bố cục đã lưu tự bỏ các ứng dụng không còn.
+- Màn hình đăng nhập không còn hiện địa chỉ máy chủ và số phiên bản thử nghiệm. Màu sắc Desktop và Files lấy từ bộ màu chung nên giao diện sáng/tối đồng nhất (một vài sắc độ hơi khác trước).
+
 ## Thư mục quota trong Shared Folder — 2026-10-31
 
 - Storage Manager → Shared Folder → *Thư mục quota*: đặt giới hạn riêng cho một thư mục con (ví dụ `du-an/2026`). Files tự tạo thư mục nếu chưa có hoặc dùng thư mục có sẵn rồi đo dung lượng. Mỗi lần ghi phải vừa cả thư mục quota lẫn Shared Folder.

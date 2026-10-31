@@ -79,9 +79,9 @@ try {
   await reLogin.login(testUsername,testPassword)
   assert.equal((await reLogin.request('/preferences')).data.notes, userPrefs.notes)
   passed('Preferences isolated across users and preserved across sessions')
-  const audit = (await user.request('/audit')).data
-  assert.ok(audit.every(entry => entry.actor === testUsername))
-  passed('Standard user audit isolated')
+  // The free-text audit endpoint is gone; sign-in and file events live in the Log Center (app standard row 10).
+  assert.equal((await user.request('/audit')).response.status, 404)
+  passed('Legacy audit endpoint removed')
   await user.request('/logout',{method:'POST'})
   assert.equal((await user.request('/session')).response.status, 401)
   passed('Logout revokes server-side session')

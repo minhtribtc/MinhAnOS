@@ -35,7 +35,7 @@ after a gap review; earlier app reviews covered rows 1–14 only. Sources: AGENT
 
 Notification Center and Log Center exist as minimal v1 (2026-10-31, [design](notification-log-center.md)):
 an app satisfies rows 11–12 by writing its outbox/audit correctly and registering it with
-`notifycore.Deliver` / `logcore.Sources`. Today only identity (notices + audit) and storage (audit) are wired.
+`notifycore.Deliver` / `logcore.Sources`. Wired today: identity (notices + audit), storage (audit) and Files (audit, `files_events`).
 
 ## Known violations of rows 15–26 (2026-10-31)
 
@@ -44,8 +44,12 @@ an app satisfies rows 11–12 by writing its outbox/audit correctly and register
 | 15 | Drive `/api/files/*` | Not in OpenAPI (storage API fixed 2026-10-31: `/api/v1/storage` in OpenAPI with generated client, If-Match, Idempotency-Key) |
 | 20 | Storage, Files | Jobs contract still planned; needed for measuring, moving homes to a new share, recursive copy |
 | 19 | All apps | No per-app backup list; backups so far were manual `pg_dump` before migrations; Files/ZFS/Btrfs data restore untested |
-| 17 | All apps | No user data export/removal flow; retention documented only for identity audit and notices |
-| 22 | Desktop, Files, Storage Manager | No accessibility checks in the test suite (Account Center dialogs have a focus trap) |
-| 23 | Files | "MinhAnOS Drive", "File Station · Preview" in UI |
-| 11–12 | Files, Storage | Files sends no notices (quota thresholds) and its `drive_audit` is not a Log Center source; storage audit has no retention policy |
-| 12 | Desktop | Legacy "Nhật ký" app still reads the legacy `audit` table; to be replaced by a per-user activity view |
+| 17 | All apps | No user data export/removal flow; retention documented for identity audit, notices and Files audit (365 days) |
+| 11 | Files, Storage | No notices for quota thresholds (80/95/100 %); storage audit has no retention policy |
+| 22 | Desktop, Files | Dialogs are labelled and modal (checked); Storage Manager has no checks; focus trap, contrast and phone-width layout not tested automatically |
+| 9 | Desktop | Legacy `/api/admin/users` (list/create) still served beside Account Center; role check only when the identity service is absent |
+
+Fixed on 2026-10-31 for Desktop and Files ([Desktop review](desktop-review.md), [Files review](files-app-review.md)):
+row 23 (naming), rows 10–12 (Files audit `files_events` as a Log Center source, structured logs; legacy
+"Nhật ký" app and `/api/audit` removed), rows 1–8 (packages only in the Shell, manifest registry, i18n, tokens,
+`useCatalog`, stable error codes). `tests/app-standard.mjs` keeps these rows from regressing.
