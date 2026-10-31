@@ -2,6 +2,7 @@
 
 - Máy cài mới không còn tự tạo tài khoản `admin`. Mở Desktop sẽ thấy **Khởi tạo lần đầu** gồm 2 bước: (1) tạo tài khoản **System Admin** với tên đăng nhập và mật khẩu do bạn chọn (cần **mã cài đặt** là nội dung tệp `secrets/bootstrap_password` trên máy chủ), (2) đặt tên **tổ chức đầu tiên**. Xong là tự đăng nhập.
 - Chỉ khởi tạo được một lần, khi máy chủ chưa có tài khoản nào; người khác trong mạng không chiếm được máy mới cài nếu không có mã cài đặt. Mã cài đặt không dùng làm mật khẩu đăng nhập.
+- Sửa lỗi: tải lên, di chuyển, xóa vào thùng rác và khôi phục trong vùng riêng hoặc Shared Folder đặt trên pool **ZFS** (OpenZFS 2.1, Debian 12) báo lỗi máy chủ. Nay hoạt động bình thường, vẫn không bao giờ ghi đè tệp trùng tên.
 
 ## Tổ chức (NAS + Cloud nhiều tổ chức) — 2026-10-31
 

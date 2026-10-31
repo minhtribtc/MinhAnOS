@@ -1,5 +1,7 @@
 ## First-run setup — 2026-10-31
 
+`TestRenameNoReplaceFallback` (forced EINVAL as on OpenZFS 2.1, also run on the ZFS pool): files and directories are never
+replaced by the fallback. A fresh-install run with homes on ZFS found the bug (uploads 500) before the fix.
 `TestFirstRunSetup` (fresh schema without `MINHANOS_BOOTSTRAP_ADMIN`): no account is created at startup; wrong
 code 403, short password and password = setup code 400, invalid username/organization 400, cross-origin 403; four
 concurrent setups → exactly one 201 and three 409; the account is System Admin, the default organization carries the

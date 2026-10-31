@@ -30,6 +30,8 @@ password, and the first organization (ADR 0008) had a fixed name.
 ## Consequences
 
 - `tests/setup-smoke.mjs` runs first on a fresh install; the other smoke tests then use the admin it created
-  (`TEST_PASSWORD_FILE` must differ from the setup code). `tests/a11y-browser.mjs` audits the setup screen when the
+  (`TEST_PASSWORD_FILE` must differ from the setup code). `SETUP_HOMES_VOLUME=<pool>` also creates the homes Shared
+  Folder so the Files smoke tests have personal space. Setup attempts count toward the sign-in rate limit (20 per IP
+  per 10 minutes). `tests/a11y-browser.mjs` audits the setup screen when the
   install is not set up yet.
 - Standalone Files on port 8082 cannot set up a Desktop install; open Desktop (8081) first.

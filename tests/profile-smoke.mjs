@@ -5,7 +5,7 @@ import {randomBytes} from 'node:crypto'
 import {createUser} from './identity-user.mjs'
 const ajv=new Ajv2020({strict:true});const checkProfile=ajv.compile(JSON.parse(await readFile('contracts/api/profile.schema.json','utf8')));const checkError=ajv.compile(JSON.parse(await readFile('contracts/api/error.legacy.schema.json','utf8')))
 const desktop='http://10.1.1.20:8081',drive='http://10.1.1.20:8082'
-const password=(await readFile('/run/bootstrap_password','utf8')).trim()
+const password=(await readFile(process.env.TEST_PASSWORD_FILE||'/run/bootstrap_password','utf8')).trim()
 class Client{
  cookie='';csrf=''
  constructor(base){this.base=base}
