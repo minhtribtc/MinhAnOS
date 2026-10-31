@@ -125,7 +125,13 @@ func (a *App) completeSetup(r *http.Request, username, displayName, hash, organi
 		return errSetupDone
 	}
 	var user, org string
-	if err = tx.QueryRow(ctx, "INSERT INTO users(id,username,display_name,role,password_hash) VALUES($1,$2,$3,'admin',$4) RETURNING public_id::text", token(), username, displayName, hash).Scan(&user); err != nil {
+	id := token()
+	if err = tx.QueryRow(ctx, "INSERT INTO users(id,username,display_name,role,password_hash) VALUES($1,$2,$3,'admin',$4) RETURNING public_id::text", id, username, displayName, hash).Scan(&user); err != nil {
+		return err
+	}
+	// Whoever holds the setup code owns the server: like the former bootstrap admin, the first System Admin is a host
+	// operator (Files "System" root); it can be revoked like any other.
+	if _, err = tx.Exec(ctx, "INSERT INTO identity_host_operators(user_id,state,origin) VALUES($1,'enabled','first-run-setup')", id); err != nil {
 		return err
 	}
 	if err = tx.QueryRow(ctx, "UPDATE identity_organizations SET name=$1,version=version+1 WHERE is_default RETURNING id::text", organization).Scan(&org); err != nil {

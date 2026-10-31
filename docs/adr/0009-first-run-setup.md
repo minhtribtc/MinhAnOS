@@ -19,7 +19,7 @@ password, and the first organization (ADR 0008) had a fixed name.
   password must differ from the code: the code is never a sign-in password.
 - One transaction under the startup advisory lock (681021): re-check that no account exists, create the account
   with `role='admin'` (System Admin), rename the default organization (ADR 0008) to the chosen name, make the
-  account its admin, write the audit event `setup.completed` with that organization. Concurrent attempts: exactly
+  account its admin and a host operator (Files *System* root, like the former bootstrap admin), write the audit event `setup.completed` with that organization. Concurrent attempts: exactly
   one succeeds, the others get 409 `SETUP_DONE`. Once any account exists setup is closed for good.
 - Errors: 403 `SETUP_CODE_INVALID`, 400 `SETUP_INVALID_USERNAME` / `SETUP_INVALID_NAME` / `SETUP_WEAK_PASSWORD` /
   `SETUP_INVALID_ORGANIZATION`, 409 `SETUP_DONE`, 503 `SETUP_UNAVAILABLE` (no setup code configured), 429.

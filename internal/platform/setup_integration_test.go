@@ -122,11 +122,13 @@ func TestFirstRunSetup(t *testing.T) {
 	}
 	var role, org, member string
 	var events int
+	var host bool
+	db.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM identity_host_operators o JOIN users u ON u.id=o.user_id WHERE u.username='owner' AND o.state='enabled')").Scan(&host)
 	db.QueryRow(ctx, "SELECT role FROM users WHERE username='owner'").Scan(&role)
 	db.QueryRow(ctx, "SELECT o.name,m.role FROM identity_organizations o JOIN identity_memberships m ON m.organization_id=o.id JOIN users u ON u.public_id=m.user_id WHERE o.is_default AND u.username='owner'").Scan(&org, &member)
 	db.QueryRow(ctx, "SELECT count(*) FROM identity_admin_events WHERE action='setup.completed' AND organization_id IS NOT NULL").Scan(&events)
-	if role != "admin" || org != "Acme" || member != "admin" || events != 1 {
-		t.Fatal("setup result", role, org, member, events)
+	if role != "admin" || org != "Acme" || member != "admin" || events != 1 || !host {
+		t.Fatal("setup result", role, org, member, events, host)
 	}
 	if w := call("POST", "/api/login", `{"username":"owner","password":"owner-password-123"}`); w.Code != 200 {
 		t.Fatal("System Admin signs in after setup", w.Code, w.Body.String())
