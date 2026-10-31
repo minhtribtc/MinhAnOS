@@ -84,6 +84,8 @@ console.log('PASS Files public links: password unlock, view, drop-only upload, c
 // UI: the owner sees the share mark, the dialog and Shared by me; the colleague Shared with me; the visitor the page.
 const ownerPage=await owner.context.newPage()
 await ownerPage.goto(base+'/');await ownerPage.waitForSelector('.files-app .file-item')
+// Filter first: the folder may be below the fold, and scrolling closes an open context menu.
+await ownerPage.getByLabel('Tìm trong thư mục').fill(dir)
 const item=ownerPage.locator('.file-item',{hasText:dir})
 await item.locator('.share-mark').waitFor()
 await item.click({button:'right'})
