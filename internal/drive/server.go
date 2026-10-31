@@ -260,6 +260,28 @@ func (s *Server) Handler() http.Handler {
 			jsonResponse(w, 200, body)
 			return
 		}
+		if r.URL.Path == "/api/quota-folders" && r.Method == "GET" {
+			// Quota folders of a Shared Folder the user may read (Files shows the one the current path is in).
+			if !s.authorized(w, r, session.User, "files.read") {
+				return
+			}
+			key, _ := strings.CutPrefix(r.URL.Query().Get("root"), "share:")
+			found, ok, e := s.userShare(r.Context(), session.User.ID, key)
+			if e == nil && ok {
+				var items []storagecore.QuotaFolder
+				if items, e = s.Shares.QuotaFolderUsage(r.Context(), found.ID); e == nil {
+					jsonResponse(w, 200, map[string]any{"items": items})
+					return
+				}
+			}
+			if e != nil {
+				log.Printf("drive quota folders failed: %v", e)
+				fail(w, 503, "Không đọc được cấu hình lưu trữ.", "SERVICE_UNAVAILABLE")
+				return
+			}
+			fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
+			return
+		}
 		if !strings.HasPrefix(r.URL.Path, "/api/files/") {
 			fail(w, 404, "API không tồn tại.")
 			return
@@ -386,12 +408,44 @@ func (s *Server) Handler() http.Handler {
 		// Soft quota: reserve what the write may add on the home and the homes share (or on the Shared
 		// Folder), then commit the actual bytes or release on failure. The write lock is held throughout.
 		var reservation *storagecore.Reservation
+		// Quota folders of a Shared Folder (Q3): new data must fit every enclosing quota folder too; moves,
+		// trash and restore shift usage between folders; renames keep the registrations.
+		var plan *folderPlan
+		if mutation && isShare && s.Quota != nil && s.Shares != nil {
+			folders, e := s.Shares.ShareFolders(r.Context(), share.ID)
+			if e != nil {
+				log.Printf("drive quota folders lookup failed: %v", e)
+				fail(w, 503, "Không kiểm tra được dung lượng.", "SERVICE_UNAVAILABLE")
+				return
+			}
+			if len(folders) > 0 {
+				if plan, err = s.planFolders(r, engine, folders); errors.Is(err, errProtectedFolder) {
+					fail(w, 409, "Thư mục quota không đưa vào thùng rác được; quản trị viên cần gỡ quota trong Storage Manager trước.", "QUOTA_FOLDER_PROTECTED")
+					return
+				} else if err != nil {
+					handleFileError(w, err)
+					return
+				}
+				if path.Base(r.URL.Path) == "move" && len(plan.to) > 0 && plan.size > 0 {
+					hold, e := s.Shares.ReserveShare(r.Context(), "", plan.to, plan.size)
+					if e != nil {
+						quotaFailure(w, e)
+						return
+					}
+					plan.moveHold = &hold
+				}
+			}
+		}
 		if mutation && s.Quota != nil && (!isShare || s.Shares != nil) {
 			if size := quotaSize(r, engine); size > 0 {
 				var res storagecore.Reservation
 				var e error
 				if isShare {
-					res, e = s.Shares.ReserveShare(r.Context(), share.ID, size)
+					var write []string
+					if plan != nil {
+						write = plan.write
+					}
+					res, e = s.Shares.ReserveShare(r.Context(), share.ID, write, size)
 				} else {
 					res, e = s.Quota.Reserve(r.Context(), session.User.ID, size)
 				}
@@ -406,6 +460,7 @@ func (s *Server) Handler() http.Handler {
 			handleFileError(w, err)
 			log.Printf("drive actor=%s operation=%s target=%q error=%v", session.User.Username, r.URL.Path, target, err)
 		}
+		s.settleFolders(share.ID, plan, err == nil)
 		if reservation != nil {
 			// Use a fresh context: the client may already have gone, but the ledger must still settle.
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

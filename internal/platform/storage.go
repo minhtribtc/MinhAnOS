@@ -179,6 +179,66 @@ func (a *App) storageHandler() http.Handler {
 		}
 		accepted(w, 200)
 	}))
+	mux.HandleFunc("POST /api/v1/storage/shares/{id}/measure", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		if len(bytes.TrimSpace(raw)) > 0 && string(bytes.TrimSpace(raw)) != "{}" {
+			v1Error(w, r, 400, "INVALID_REQUEST")
+			return
+		}
+		if err := a.storage.RequestShareMeasure(r.Context(), actor, r.PathValue("id")); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 202)
+	}))
+	mux.HandleFunc("GET /api/v1/storage/shares/{id}/folders", func(w http.ResponseWriter, r *http.Request) {
+		items, err := a.storage.QuotaFolders(r.Context(), r.PathValue("id"))
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		writeJSON(w, 200, map[string]any{"items": items})
+	})
+	mux.HandleFunc("POST /api/v1/storage/shares/{id}/folders", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		var body struct {
+			Path       string `json:"path"`
+			LimitBytes *int64 `json:"limitBytes"`
+		}
+		if !decodeStrict(w, r, raw, &body) {
+			return
+		}
+		folder, err := a.storage.CreateQuotaFolder(r.Context(), actor, r.PathValue("id"), body.Path, body.LimitBytes)
+		if err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		w.Header().Set("ETag", fmt.Sprintf(`"%d"`, folder.Version))
+		writeJSON(w, 201, folder)
+	}))
+	mux.HandleFunc("PUT /api/v1/storage/folders/{id}/quota", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		version, ok := ifMatch(w, r)
+		var body struct {
+			LimitBytes *int64 `json:"limitBytes"`
+		}
+		if !ok || !decodeStrict(w, r, raw, &body) {
+			return
+		}
+		if err := a.storage.SetQuotaFolderLimit(r.Context(), actor, r.PathValue("id"), version, body.LimitBytes); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 200)
+	}))
+	mux.HandleFunc("DELETE /api/v1/storage/folders/{id}", write(func(w http.ResponseWriter, r *http.Request, actor string, raw []byte) {
+		version, ok := ifMatch(w, r)
+		if !ok {
+			return
+		}
+		if err := a.storage.DeleteQuotaFolder(r.Context(), actor, r.PathValue("id"), version); err != nil {
+			a.storageFailure(w, r, err)
+			return
+		}
+		accepted(w, 200)
+	}))
 	mux.HandleFunc("GET /api/v1/storage/subjects", func(w http.ResponseWriter, r *http.Request) {
 		items, err := a.storage.Subjects(r.Context())
 		if err != nil {

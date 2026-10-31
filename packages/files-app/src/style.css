@@ -16,3 +16,4 @@
 .files-quota-bar i{display:block;height:100%;background:var(--mn-color-action-primary)}
 .files-quota-bar i.full{background:var(--mn-color-danger)}
 .files-app .files-no-storage{font-size:11px;color:#96a0b1;padding:6px 12px}
+.files-app .files-quota-folder{margin-top:6px;font-size:11px;color:var(--mn-color-action-primary)}

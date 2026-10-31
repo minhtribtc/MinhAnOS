@@ -81,7 +81,19 @@
     "storage.access.pick": "Chọn tài khoản hoặc nhóm",
     "storage.access.remove": "Bỏ {name}",
     "storage.access.none": "Chưa ai có quyền.",
-    "storage.access.limit": "Tối đa 200 dòng quyền."
+    "storage.access.limit": "Tối đa 200 dòng quyền.",
+    "storage.folders.title": "Thư mục quota",
+    "storage.folders.hint": "Thư mục con có giới hạn riêng; mỗi lần ghi phải vừa cả thư mục quota và Shared Folder.",
+    "storage.folders.new": "Thêm thư mục quota",
+    "storage.folders.none": "Chưa có thư mục quota.",
+    "storage.folders.notMeasured": "Đang chờ Files tạo và đo",
+    "storage.folders.path": "Đường dẫn trong Shared Folder",
+    "storage.folders.pathExample": "du-an/2026",
+    "storage.folders.pathHint": "Files tạo thư mục nếu chưa có, hoặc dùng thư mục có sẵn rồi đo dung lượng.",
+    "storage.folders.remove": "Gỡ thư mục quota",
+    "storage.folders.removeHint": "Chỉ gỡ giới hạn; thư mục và tệp vẫn giữ nguyên.",
+    "storage.folders.created": "Đã thêm; Files sẽ đo dung lượng trong ít phút.",
+    "storage.shares.measureHint": "Files đo lại toàn bộ tệp và thùng rác của Shared Folder trong nền."
   },
   "en-US": {
     "storage.app.name": "Storage Manager",
@@ -165,6 +177,18 @@
     "storage.access.pick": "Choose an account or group",
     "storage.access.remove": "Remove {name}",
     "storage.access.none": "Nobody has access yet.",
-    "storage.access.limit": "At most 200 permission entries."
+    "storage.access.limit": "At most 200 permission entries.",
+    "storage.folders.title": "Quota folders",
+    "storage.folders.hint": "Subfolders with their own limit; every write must fit the quota folder and the shared folder.",
+    "storage.folders.new": "Add quota folder",
+    "storage.folders.none": "No quota folders yet.",
+    "storage.folders.notMeasured": "Waiting for Files to create and measure it",
+    "storage.folders.path": "Path inside the shared folder",
+    "storage.folders.pathExample": "projects/2026",
+    "storage.folders.pathHint": "Files creates the folder if missing, or adopts an existing one and measures it.",
+    "storage.folders.remove": "Remove quota folder",
+    "storage.folders.removeHint": "Only the limit is removed; the folder and its files stay.",
+    "storage.folders.created": "Added; Files measures it within a few minutes.",
+    "storage.shares.measureHint": "Files re-measures all files and trash of the shared folder in the background."
   }
 }

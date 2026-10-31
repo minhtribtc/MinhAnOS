@@ -56,6 +56,18 @@
     {
       "file": "subject-page.v1.schema.json",
       "type": "StorageSubjectPage"
+    },
+    {
+      "file": "quota-folder.v1.schema.json",
+      "type": "StorageQuotaFolder"
+    },
+    {
+      "file": "quota-folder-page.v1.schema.json",
+      "type": "StorageQuotaFolderPage"
+    },
+    {
+      "file": "create-quota-folder.v1.schema.json",
+      "type": "StorageCreateQuotaFolder"
     }
   ]
 }

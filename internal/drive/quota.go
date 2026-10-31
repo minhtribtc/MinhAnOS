@@ -102,6 +102,9 @@ func (s *Server) runMeasurer(ctx context.Context, interval time.Duration) {
 		if e := s.measurePending(ctx); e != nil && ctx.Err() == nil {
 			log.Printf("drive quota measurement failed: %v", e)
 		}
+		if e := s.measureShares(ctx); e != nil && ctx.Err() == nil {
+			log.Printf("drive share measurement failed: %v", e)
+		}
 		select {
 		case <-ctx.Done():
 			return
@@ -156,6 +159,10 @@ func quotaActual(r *http.Request, e *Engine, reserved int64) int64 {
 
 func quotaFailure(w http.ResponseWriter, e error) {
 	var q storagecore.QuotaExceeded
+	if errors.As(e, &q) && q.Scope == "folder" {
+		fail(w, 507, "Thư mục quota đã hết dung lượng được cấp.", "QUOTA_EXCEEDED")
+		return
+	}
 	if errors.As(e, &q) {
 		fail(w, 507, "Đã hết dung lượng được cấp.", "QUOTA_EXCEEDED")
 		return

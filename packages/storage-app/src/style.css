@@ -43,3 +43,6 @@
 .mn-storage .sm-access{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto}
 .mn-storage .sm-access li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
 @container (max-width:720px){.mn-storage{grid-template-columns:1fr}.mn-storage .sm-sidebar{border-right:0;border-bottom:1px solid var(--mn-color-border)}}
+.mn-storage .sm-folders{border-top:1px solid var(--mn-color-border);padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.mn-storage .sm-folder{display:grid;grid-template-columns:minmax(0,1fr) 140px auto;gap:10px;align-items:center;width:100%}
+@container (max-width:560px){.mn-storage .sm-folder{grid-template-columns:1fr}}

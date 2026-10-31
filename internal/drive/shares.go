@@ -15,7 +15,16 @@ import (
 type ShareRegistry interface {
 	HomesShare(ctx context.Context) (storagecore.HomesShare, error)
 	UserShares(ctx context.Context, storageID string) ([]storagecore.UserShare, error)
-	ReserveShare(ctx context.Context, share string, bytes int64) (storagecore.Reservation, error)
+	ReserveShare(ctx context.Context, share string, folders []string, bytes int64) (storagecore.Reservation, error)
+	// Quota folders (Q3) and background measurement of folders and shares.
+	ShareFolders(ctx context.Context, shareID string) ([]storagecore.FolderScope, error)
+	MoveFolders(ctx context.Context, shareID, from, to string) error
+	AdjustFolders(ctx context.Context, folders []string, delta int64) error
+	PendingFolderMeasures(ctx context.Context, limit int) ([]storagecore.PendingFolder, error)
+	SetFolderMeasured(ctx context.Context, id string, bytes int64) error
+	PendingShareMeasures(ctx context.Context, limit int) ([]storagecore.PendingShare, error)
+	SetShareMeasured(ctx context.Context, id string, bytes int64) error
+	QuotaFolderUsage(ctx context.Context, shareID string) ([]storagecore.QuotaFolder, error)
 }
 
 // UnitAgent resolves ZFS/Btrfs units to host paths (storagecore.AgentClient in production). Files reaches

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,reactive,ref,watch} from 'vue'
-import {HardDrive,FolderTree,Users,RefreshCw,Plus,X,Gauge,ShieldCheck,Trash2,Info,User} from 'lucide-vue-next'
+import {HardDrive,FolderTree,Users,RefreshCw,Plus,X,Gauge,ShieldCheck,Trash2,Info,User,FolderLock,Ruler} from 'lucide-vue-next'
 import {useHost,createApiClient,createIdempotencyKey,ApiError} from '@minhanos/app-sdk'
 import {createStorageClient} from '@minhanos/api-client/storage'
 import catalogs from '../locales/catalogs.json'
-import {fromGB,toGB,type AccessEntry,type Home,type Share,type Subject,type Volume} from './api'
+import {fromGB,toGB,type AccessEntry,type Home,type QuotaFolder,type Share,type Subject,type Volume} from './api'
 
 // Storage Manager (com.minhanos.storage): volumes, shared folders and per-user soft quota.
 // Writes need storage.manage and a reauthentication; the server enforces both.
@@ -17,14 +17,18 @@ const api=createApiClient(props.apiBase),storage=createStorageClient(props.apiBa
 type Tab='volumes'|'shares'|'homes'
 const tab=ref<Tab>('shares'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('')
 const volumes=ref<Volume[]>([]),shares=ref<Share[]>([]),homes=ref<Home[]>([]),agentError=ref(false)
-type Dialog={kind:'share'|'share-quota'|'home-quota'|'measure'|'access';version?:number;title:string;target?:Share|Home}
-const dialog=ref<Dialog|null>(null),form=reactive({key:'',name:'',volume:'',quota:'',password:'',hostsHomes:false})
+type Dialog={kind:'share'|'share-quota'|'home-quota'|'measure'|'access'|'share-measure'|'folder-new'|'folder-quota'|'folder-remove';version?:number;title:string;target?:Share|Home|QuotaFolder}
+const dialog=ref<Dialog|null>(null),form=reactive({key:'',name:'',volume:'',quota:'',password:'',hostsHomes:false,path:''})
 const managedVolumes=computed(()=>volumes.value.filter(v=>v.managed&&v.online))
 // First-run rule: until one share hosts homes, Files has no personal space.
 const hasHomes=computed(()=>shares.value.some(s=>s.kind==='homes'))
 // Permission editor of one share (entries are replaced as a whole, If-Match on the share version).
 const entries=ref<AccessEntry[]>([]),subjects=ref<Subject[]>([]),pick=ref('')
 const available=computed(()=>subjects.value.filter(s=>!entries.value.some(e=>e.subjectType===s.type&&e.subjectId===s.id)))
+// Quota folders (Q3) of the share whose panel is open; loaded on demand.
+const openShare=ref<string|null>(null),folders=ref<QuotaFolder[]>([])
+async function loadFolders(){if(!openShare.value)return;try{folders.value=(await storage.storageListQuotaFolders({shareId:openShare.value})).items}catch(e){error.value=message(e)}}
+async function toggleFolders(s:Share){openShare.value=openShare.value===s.id?null:s.id;folders.value=[];await loadFolders()}
 
 function size(bytes:number|null|undefined){
  if(bytes==null)return t('unlimited')
@@ -45,10 +49,10 @@ async function load(){
 async function init(){
  try{const s=await api.request<{csrfToken:string}>('/session');api.setCSRF(s.csrfToken);storage.setCSRF(s.csrfToken);await load()}catch(e){error.value=message(e)}
 }
-async function open(kind:Dialog['kind'],target?:Share|Home){
+async function open(kind:Dialog['kind'],target?:Share|Home|QuotaFolder){
  if(busy.value)return
- Object.assign(form,{key:'',name:'',volume:managedVolumes.value[0]?.name??'',quota:'',password:'',hostsHomes:false})
- if(target)form.quota=toGB(target.usage.limitBytes)
+ Object.assign(form,{key:'',name:'',volume:managedVolumes.value[0]?.name??'',quota:'',password:'',hostsHomes:false,path:''})
+ if(target&&kind!=='folder-new')form.quota=toGB(target.usage.limitBytes)
  error.value=''
  if(kind==='access'){
   const s=target as Share
@@ -60,7 +64,8 @@ async function open(kind:Dialog['kind'],target?:Share|Home){
   }catch(e){error.value=message(e)}finally{busy.value=false}
   return
  }
- dialog.value={kind,target,title:t(kind==='share'?'shares.new':kind==='measure'?'homes.measure':'quota.edit')}
+ const titles:Partial<Record<Dialog['kind'],string>>={share:'shares.new',measure:'homes.measure','share-measure':'homes.measure','folder-new':'folders.new','folder-remove':'folders.remove'}
+ dialog.value={kind,target,title:t(titles[kind]??'quota.edit')}
 }
 function addEntry(){
  const s=available.value.find(x=>x.type+':'+x.id===pick.value)
@@ -71,7 +76,7 @@ function removeEntry(entry:AccessEntry){entries.value=entries.value.filter(e=>e!
 function close(){if(!busy.value){dialog.value=null;form.password=''}}
 async function submit(){
  const d=dialog.value;if(!d||busy.value)return
- const limitBytes=d.kind==='measure'||d.kind==='access'?null:fromGB(form.quota)
+ const limitBytes=['measure','access','share-measure','folder-remove'].includes(d.kind)?null:fromGB(form.quota)
  if(limitBytes===undefined){error.value=t('errors.quota');return}
  busy.value=true;error.value=''
  try{
@@ -81,8 +86,12 @@ async function submit(){
   else if(d.kind==='access'){const s=d.target as Share;await storage.storageSetShareAccess({shareId:s.id,ifMatch:'"'+d.version+'"',body:{entries:entries.value.map(({subjectType,subjectId,access})=>({subjectType,subjectId,access}))}})}
   else if(d.kind==='share-quota'){const s=d.target as Share;await storage.storageSetShareQuota({shareId:s.id,ifMatch:'"'+s.version+'"',body:{limitBytes}})}
   else if(d.kind==='measure'){const h=d.target as Home;await storage.storageMeasureHome({userId:h.userId,idempotencyKey:createIdempotencyKey()})}
+  else if(d.kind==='share-measure')await storage.storageMeasureShare({shareId:(d.target as Share).id,idempotencyKey:createIdempotencyKey()})
+  else if(d.kind==='folder-new')await storage.storageCreateQuotaFolder({shareId:(d.target as Share).id,idempotencyKey:createIdempotencyKey(),body:{path:form.path.split('/').filter(Boolean).join('/'),limitBytes}})
+  else if(d.kind==='folder-quota'){const f=d.target as QuotaFolder;await storage.storageSetQuotaFolderQuota({folderId:f.id,ifMatch:'"'+f.version+'"',body:{limitBytes}})}
+  else if(d.kind==='folder-remove'){const f=d.target as QuotaFolder;await storage.storageDeleteQuotaFolder({folderId:f.id,ifMatch:'"'+f.version+'"'})}
   else{const h=d.target as Home;await storage.storageSetHomeQuota({userId:h.userId,ifMatch:'"'+h.version+'"',body:{limitBytes}})}
-  notice.value=t(d.kind==='measure'?'homes.measureQueued':'saved');dialog.value=null;await load()
+  notice.value=t(d.kind==='measure'||d.kind==='share-measure'?'homes.measureQueued':d.kind==='folder-new'?'folders.created':'saved');dialog.value=null;await load();await loadFolders()
  }catch(e){error.value=message(e)}finally{form.password='';busy.value=false}
 }
 function canClose(){return !busy.value&&(!dialog.value||globalThis.confirm(t('confirm.discard')))}
@@ -109,9 +118,19 @@ onMounted(init)
 
    <div v-if="tab==='shares'" class="sm-list">
     <article v-for="s in shares" :key="s.id" class="sm-card">
-     <div class="sm-row"><span class="sm-title"><FolderTree :size="20"/><span><strong>{{s.kind==='homes'?t('shares.homesName'):s.name}}</strong><small>{{s.key}} · {{t('shares.onVolume',{volume:s.volume})}}<template v-if="s.kind==='homes'"> · {{t('shares.hostsHomesBadge')}}</template></small></span></span><span class="sm-actions"><button v-if="s.kind==='share'" :disabled="busy" @click="open('access',s)"><ShieldCheck :size="16"/>{{t('shares.access')}}</button><button :disabled="busy" @click="open('share-quota',s)"><Gauge :size="16"/>{{t('quota.edit')}}</button></span></div>
+     <div class="sm-row"><span class="sm-title"><FolderTree :size="20"/><span><strong>{{s.kind==='homes'?t('shares.homesName'):s.name}}</strong><small>{{s.key}} · {{t('shares.onVolume',{volume:s.volume})}}<template v-if="s.kind==='homes'"> · {{t('shares.hostsHomesBadge')}}</template></small></span></span><span class="sm-actions"><template v-if="s.kind==='share'"><button :disabled="busy" @click="open('access',s)"><ShieldCheck :size="16"/>{{t('shares.access')}}</button><button :disabled="busy" :aria-expanded="openShare===s.id" @click="toggleFolders(s)"><FolderLock :size="16"/>{{t('folders.title')}}</button><button :disabled="busy" @click="open('share-measure',s)"><Ruler :size="16"/>{{t('homes.measure')}}</button></template><button :disabled="busy" @click="open('share-quota',s)"><Gauge :size="16"/>{{t('quota.edit')}}</button></span></div>
      <div class="sm-bar" role="progressbar" :aria-valuenow="percent(s.usage.usedBytes,s.usage.limitBytes)" aria-valuemin="0" aria-valuemax="100"><i :style="{width:percent(s.usage.usedBytes,s.usage.limitBytes)+'%'}"></i></div>
-     <small>{{t('quota.usedOf',{used:size(s.usage.usedBytes),limit:size(s.usage.limitBytes)})}}<template v-if="s.physicalBytes!=null"> · {{t('quota.physical',{size:size(s.physicalBytes)})}}</template></small>
+     <small>{{s.usage.measured?t('quota.usedOf',{used:size(s.usage.usedBytes),limit:size(s.usage.limitBytes)}):t('homes.notMeasured')}}<template v-if="s.physicalBytes!=null"> · {{t('quota.physical',{size:size(s.physicalBytes)})}}</template></small>
+     <section v-if="openShare===s.id" class="sm-folders" :aria-label="t('folders.title')">
+      <p class="sm-muted">{{t('folders.hint')}}</p>
+      <div v-for="f in folders" :key="f.id" class="sm-folder">
+       <span class="sm-title"><FolderLock :size="16"/><span><strong>{{f.path}}</strong><small>{{f.usage.measured?t('quota.usedOf',{used:size(f.usage.usedBytes),limit:size(f.usage.limitBytes)}):t('folders.notMeasured')}}</small></span></span>
+       <div class="sm-bar"><i :style="{width:percent(f.usage.usedBytes,f.usage.limitBytes)+'%'}"></i></div>
+       <span class="sm-actions"><button :disabled="busy" @click="open('folder-quota',f)">{{t('quota.edit')}}</button><button :disabled="busy" :aria-label="t('folders.remove')+': '+f.path" @click="open('folder-remove',f)"><Trash2 :size="16"/></button></span>
+      </div>
+      <p v-if="!folders.length" class="sm-muted">{{t('folders.none')}}</p>
+      <button :disabled="busy" @click="open('folder-new',s)"><Plus :size="16"/>{{t('folders.new')}}</button>
+     </section>
     </article>
     <p v-if="!shares.length&&!loading" class="sm-muted">{{t('empty')}}</p>
    </div>
@@ -148,8 +167,14 @@ onMounted(init)
      <div class="sm-row"><select v-model="pick" :aria-label="t('access.pick')"><option value="">{{t('access.pick')}}</option><option v-for="s in available" :key="s.type+s.id" :value="s.type+':'+s.id">{{s.name}} ({{t('access.'+s.type)}})</option></select><button type="button" :disabled="!pick||entries.length>=200" @click="addEntry"><Plus :size="16"/>{{t('access.add')}}</button></div>
      <small v-if="entries.length>=200">{{t('access.limit')}}</small>
     </template>
+    <template v-else-if="dialog.kind==='folder-new'">
+     <p class="sm-muted">{{(dialog.target as Share).name}}</p>
+     <label>{{t('folders.path')}}<input v-model="form.path" required maxlength="4096" :placeholder="t('folders.pathExample')"><small>{{t('folders.pathHint')}}</small></label>
+    </template>
+    <p v-else-if="dialog.kind==='folder-quota'||dialog.kind==='folder-remove'" class="sm-muted">{{(dialog.target as QuotaFolder).path}}<template v-if="dialog.kind==='folder-remove'"><br>{{t('folders.removeHint')}}</template></p>
+    <p v-else-if="dialog.kind==='share-measure'" class="sm-muted">{{(dialog.target as Share).name}}<br>{{t('shares.measureHint')}}</p>
     <p v-else class="sm-muted">{{dialog.kind==='share-quota'?(dialog.target as Share).name:(dialog.target as Home).displayName}}</p>
-    <label v-if="dialog.kind!=='measure'&&dialog.kind!=='access'">{{t('quota.limitGB')}}<input v-model="form.quota" inputmode="decimal" :placeholder="t('unlimited')"><small>{{t('quota.limitHint')}}</small></label>
+    <label v-if="!['measure','access','share-measure','folder-remove'].includes(dialog.kind)">{{t('quota.limitGB')}}<input v-model="form.quota" inputmode="decimal" :placeholder="t('unlimited')"><small>{{t('quota.limitHint')}}</small></label>
     <label>{{t('confirm.password')}}<input v-model="form.password" type="password" autocomplete="current-password" required maxlength="256"><small>{{t('confirm.reauth')}}</small></label>
    </fieldset>
    <footer class="sm-actions"><button type="button" :disabled="busy" @click="close">{{t('cancel')}}</button><button class="sm-primary" :disabled="busy">{{t(busy?'working':'save')}}</button></footer>

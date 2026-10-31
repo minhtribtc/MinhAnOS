@@ -644,6 +644,42 @@ export interface StorageSubjectPage {
   }[];
 }
 
+export interface StorageQuotaFolder {
+  id: string;
+  shareId: string;
+  path: string;
+  version: number;
+  usage: {
+    limitBytes: number | null;
+    usedBytes: number;
+    reservedBytes: number;
+    measured: boolean;
+  };
+}
+
+export interface StorageQuotaFolderPage {
+  /**
+   * @maxItems 100
+   */
+  items: {
+    id: string;
+    shareId: string;
+    path: string;
+    version: number;
+    usage: {
+      limitBytes: number | null;
+      usedBytes: number;
+      reservedBytes: number;
+      measured: boolean;
+    };
+  }[];
+}
+
+export interface StorageCreateQuotaFolder {
+  path: string;
+  limitBytes: number | null;
+}
+
 export interface NotificationItem {
   id: string;
   source: string;

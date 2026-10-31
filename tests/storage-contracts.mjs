@@ -26,4 +26,6 @@ assert(v.StorageCreateShare({key:'homes',name:'Homes',volume:'tank',limitBytes:n
 assert(v.StorageShareAccessInput({entries:[{subjectType:'group',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'read'}]}))
 assert(!v.StorageShareAccessInput({entries:[{subjectType:'role',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'read'}]}),'only users and groups')
 assert(!v.StorageShareAccessInput({entries:[{subjectType:'user',subjectId:'68c8dedb-efbf-4de3-8a61-e7320b4d0d39',access:'owner'}]}))
+assert(v.StorageCreateQuotaFolder({path:'projects/2026',limitBytes:1073741824}))
+for(const path of ['/abs','a//b','a/'])assert(!v.StorageCreateQuotaFolder({path,limitBytes:null}),'quota folder path '+path)
 console.log('PASS Storage contracts: schemas = OpenAPI, generated client, If-Match/Idempotency-Key/CSRF on writes, no paths in DTOs')

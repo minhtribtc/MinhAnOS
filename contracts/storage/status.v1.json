@@ -1,16 +1,21 @@
 {
   "contractVersion": "1",
-  "implementation": "Q1 soft quota and Storage Manager; Q2 share permissions and homes share",
+  "implementation": "Q1 soft quota and Storage Manager; Q2 share permissions and homes share; Q3 quota folders and share measurement",
   "implementedOperations": [
+    "storageCreateQuotaFolder",
     "storageCreateShare",
+    "storageDeleteQuotaFolder",
     "storageGetSettings",
     "storageGetShareAccess",
     "storageListHomes",
+    "storageListQuotaFolders",
     "storageListShares",
     "storageListSubjects",
     "storageListVolumes",
     "storageMeasureHome",
+    "storageMeasureShare",
     "storageSetHomeQuota",
+    "storageSetQuotaFolderQuota",
     "storageSetSettings",
     "storageSetShareAccess",
     "storageSetShareQuota"

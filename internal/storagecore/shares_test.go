@@ -104,12 +104,12 @@ func TestShareQuota(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	r, e := s.ReserveShare(ctx, share.ID, 8*mib)
+	r, e := s.ReserveShare(ctx, share.ID, nil, 8*mib)
 	if e != nil {
 		t.Fatal(e)
 	}
 	var q QuotaExceeded
-	if _, e = s.ReserveShare(ctx, share.ID, 3*mib); !errors.As(e, &q) || q.Scope != "share" {
+	if _, e = s.ReserveShare(ctx, share.ID, nil, 3*mib); !errors.As(e, &q) || q.Scope != "share" {
 		t.Fatal("share limit not enforced", e)
 	}
 	if e = s.Commit(ctx, r, 6*mib); e != nil {

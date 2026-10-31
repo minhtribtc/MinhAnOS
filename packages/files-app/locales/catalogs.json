@@ -40,7 +40,10 @@
     "files.roots.noneTitle": "Chưa có nơi lưu trữ",
     "files.roots.noneHint": "Quản trị viên cần tạo Shared Folder chứa vùng riêng người dùng trong Storage Manager, hoặc cấp quyền một Shared Folder cho bạn.",
     "files.share.readOnly": "Thư mục chia sẻ này chỉ cho phép xem.",
-    "files.share.readOnlyBadge": "Chỉ xem"
+    "files.share.readOnlyBadge": "Chỉ xem",
+    "files.quotaFolder.used": "Thư mục quota {path}: {used} / {limit}",
+    "files.quotaFolder.unlimited": "Thư mục quota {path}: đã dùng {used}",
+    "files.quotaFolder.pending": "Thư mục quota {path}: đang đo dung lượng"
   },
   "en-US": {
     "files.app.name": "MinhAnOS Files",
@@ -83,6 +86,9 @@
     "files.roots.noneTitle": "No storage yet",
     "files.roots.noneHint": "An administrator needs to create the shared folder that hosts user homes in Storage Manager, or give you access to a shared folder.",
     "files.share.readOnly": "This shared folder is view-only.",
-    "files.share.readOnlyBadge": "View only"
+    "files.share.readOnlyBadge": "View only",
+    "files.quotaFolder.used": "Quota folder {path}: {used} of {limit}",
+    "files.quotaFolder.unlimited": "Quota folder {path}: {used} used",
+    "files.quotaFolder.pending": "Quota folder {path}: measuring"
   }
 }
