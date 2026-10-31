@@ -8331,6 +8331,82 @@
         ],
         "description": "System Admins (storage.manage) manage everything; organization admins manage the shares, quota folders and permissions of their organizations, managers the allocations of descendant organizations (ADR 0008). A resource the caller may not manage reads as not found. Writes need reauthentication within five minutes. Soft quota: logical bytes written through MinhAnOS Files."
       }
+    },
+    "/api/setup": {
+      "get": {
+        "operationId": "desktopSetupStatus",
+        "summary": "Whether the first-run setup is still open (no account exists yet)",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopSetupStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "operationId": "desktopSetup",
+        "summary": "First-run setup: create the System Admin and name the first organization (setup code = the bootstrap secret; 409 SETUP_DONE once any account exists)",
+        "x-implementation": "implemented",
+        "x-module": "desktop",
+        "tags": [
+          "desktop"
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DesktopSetupResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DesktopSetupInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13326,6 +13402,84 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "DesktopSetupStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "required"
+        ]
+      },
+      "DesktopSetupInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "setupCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "username": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{2,31}$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12,
+            "maxLength": 256
+          },
+          "organizationName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "setupCode",
+          "username",
+          "displayName",
+          "password",
+          "organizationName"
+        ]
+      },
+      "DesktopSetupResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "username",
+              "displayName"
+            ]
+          },
+          "organization": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "organization"
         ]
       }
     }

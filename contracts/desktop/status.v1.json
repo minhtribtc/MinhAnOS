@@ -9,6 +9,8 @@
     "desktopGetPreferences",
     "desktopPutPreferences",
     "desktopExport",
-    "desktopSystem"
+    "desktopSystem",
+    "desktopSetupStatus",
+    "desktopSetup"
   ]
 }

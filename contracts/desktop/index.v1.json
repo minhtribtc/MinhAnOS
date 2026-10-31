@@ -32,6 +32,18 @@
     {
       "file": "health.v1.schema.json",
       "type": "DesktopHealth"
+    },
+    {
+      "file": "setup-status.v1.schema.json",
+      "type": "DesktopSetupStatus"
+    },
+    {
+      "file": "setup-input.v1.schema.json",
+      "type": "DesktopSetupInput"
+    },
+    {
+      "file": "setup-result.v1.schema.json",
+      "type": "DesktopSetupResult"
     }
   ]
 }

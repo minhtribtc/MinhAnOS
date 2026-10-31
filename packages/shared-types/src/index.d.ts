@@ -5894,3 +5894,23 @@ export interface DesktopHealth {
   status: "ok";
   version: string;
 }
+
+export interface DesktopSetupStatus {
+  required: boolean;
+}
+
+export interface DesktopSetupInput {
+  setupCode: string;
+  username: string;
+  displayName: string;
+  password: string;
+  organizationName: string;
+}
+
+export interface DesktopSetupResult {
+  user: {
+    username: string;
+    displayName: string;
+  };
+  organization: string;
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.minhanos.local/desktop-setup-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "displayName"
+      ]
+    },
+    "organization": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user",
+    "organization"
+  ]
+}
