@@ -20,12 +20,14 @@ const files={
  FilesJob:job,
  FilesJobList:obj({items:{type:'array',maxItems:20,items:job}}),
  FilesListPage:obj({path:str(),entries:{type:'array',maxItems:1000,items:entry},nextCursor:{type:['string','null'],pattern:'^[A-Za-z0-9_-]+$'}}),
+ FilesSearchResult:obj({path:str(),entries:{type:'array',maxItems:1000,items:entry},truncated:{type:'boolean'}}),
  FilesText:obj({content:str({maxLength:1048576}),etag:str()}),
  FilesTrashItem:trashItem,
  FilesTrashList:{type:'array',maxItems:10000,items:trashItem},
  FilesNameInput:obj({name:str({minLength:1,maxLength:255})}),
  FilesDestinationInput:obj({destination:str({minLength:1,maxLength:4096})}),
  FilesRestoreInput:obj({id:str({pattern:'^[A-Za-z0-9_-]{8,128}$'})}),
+ FilesTrashDeleteInput:obj({id:str({pattern:'^[A-Za-z0-9_-]{8,128}$'})}),
  FilesRemoveInput:obj({confirm:{const:true}}),
  FilesSaveTextInput:obj({content:str({maxLength:1048576})}),
  FilesWriteResult:obj({ok:{const:true},item:{anyOf:[entry,trashItem]},backup:str(),job},['ok']),
@@ -34,6 +36,7 @@ const files={
  FilesSession:session,
  FilesLoginInput:obj({username:str({minLength:1,maxLength:64}),password:str({minLength:1,maxLength:256})}),
  FilesOk:obj({ok:{const:true}}),
+ FilesPurgeResult:obj({ok:{const:true},freedBytes:int({minimum:0})}),
  FilesHealth:obj({app:{const:'MinhAnOS Files'},version:str(),independent:{type:'boolean'}}),
 }
 const win=obj({id:str(),x:{type:'number',minimum:0,maximum:20000},y:{type:'number',minimum:0,maximum:20000},width:{type:'number',minimum:260,maximum:10000},height:{type:'number',minimum:200,maximum:10000},minimized:{type:'boolean'},maximized:{type:'boolean'}})
@@ -68,11 +71,14 @@ const idem=header('Idempotency-Key','16–128 characters; a retry with the same 
 const ifMatch=header('If-Match','ETag of the version the client last read',{type:'string',minLength:1})
 const q=(name,description,schema={type:'string'},required=false)=>({name,in:'query',required,description,schema})
 const rootQ=q('root','personal, share:<key> or system',{type:'string',pattern:'^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$'})
+const favorite=obj({root:{type:'string',pattern:rootQ.schema.pattern},path:str({minLength:1,maxLength:4096}),dir:{type:'boolean'},created:time})
+files.FilesFavoriteList=obj({items:{type:'array',maxItems:500,items:favorite},limit:int({minimum:1})})
+files.FilesFavoriteInput=obj({root:{type:'string',pattern:rootQ.schema.pattern},path:str({minLength:1,maxLength:4096}),dir:{type:'boolean'}},['root','path'])
 const pathQ=q('path','Path relative to the root',{type:'string',maxLength:4096})
 const jobID={name:'id',in:'path',required:true,description:'Job ID',schema:{type:'string',format:'uuid'}}
 const ops={}
 const op=(path,method,operationId,summary,{params=[],body,ok='200',response,security='driveSession',module,extra={}}={})=>{
- const o={operationId,summary,'x-implementation':'implemented','x-module':module,tags:[module],parameters:params,responses:{[ok]:{description:'Successful response',content:response==='binary'?{'application/octet-stream':{schema:{type:'string',format:'binary'}}}:response==='tar'?{'application/x-tar':{schema:{type:'string',format:'binary'}}}:json(response)},default:error},...extra}
+ const o={operationId,summary,'x-implementation':'implemented','x-module':module,tags:[module],parameters:params,responses:{[ok]:{description:'Successful response',content:response==='binary'?{'application/octet-stream':{schema:{type:'string',format:'binary'}}}:response==='tar'?{'application/x-tar':{schema:{type:'string',format:'binary'}}}:response==='zip'?{'application/zip':{schema:{type:'string',format:'binary'}}}:json(response)},default:error},...extra}
  if(security)o.security=[{[security]:[]}];else o.security=[]
  if(body)o.requestBody={required:true,content:body==='binary'?{'application/octet-stream':{schema:{type:'string',format:'binary'}}}:json(body)}
  if(!o.parameters.length)delete o.parameters
@@ -89,7 +95,10 @@ const filesOps=[
  op(`${F}/roots`,'get','filesRoots','Storage roots the user may open, limits and home quota',{...fm,response:'FilesRootList'}),
  op(`${F}/quota-folders`,'get','filesQuotaFolders','Quota folders of a Shared Folder the user may read',{...fm,params:[rootQ],response:'FilesQuotaFolderList'}),
  op(`${F}/files/list`,'get','filesList','One page of a folder listing (folders first, then by name)',{...fm,params:[rootQ,pathQ,q('limit','1–1000, default 1000',{type:'integer',minimum:1,maximum:1000}),q('cursor','nextCursor of the previous page',{type:'string',pattern:'^[A-Za-z0-9_-]+$'})],response:'FilesListPage'}),
+ op(`${F}/files/search`,'get','filesSearch','Search names under path (case-insensitive; at most 200 results, truncated when the walk stopped early)',{...fm,params:[rootQ,pathQ,q('q','Name contains (case-insensitive), 1–255 characters',{type:'string',minLength:1,maxLength:255},true)],response:'FilesSearchResult'}),
+ op(`${F}/files/recent`,'get','filesRecent','The 50 most recently modified regular files under path',{...fm,params:[rootQ,pathQ],response:'FilesSearchResult'}),
  op(`${F}/files/download`,'get','filesDownload','Download a file (Content-Disposition attachment)',{...fm,params:[rootQ,pathQ],response:'binary'}),
+ op(`${F}/files/archive`,'get','filesArchive','Download the selected items as a zip archive',{...fm,params:[rootQ,{...q('item','Path of an item to include; repeat for several (at most 1000)',{type:'array',items:{type:'string',maxLength:4096},minItems:1,maxItems:1000},true),style:'form',explode:true}],response:'zip'}),
  op(`${F}/files/text`,'get','filesText','Read a text file up to maxTextBytes with its ETag',{...fm,params:[rootQ,pathQ],response:'FilesText'}),
  op(`${F}/files/trash`,'get','filesTrashList','Items in the trash of the root',{...fm,params:[rootQ],response:'FilesTrashList'}),
  w('upload','filesUpload','Upload a file (body is the raw content, at most maxUploadBytes)','binary','FilesEntry',{ok:'201',params:[q('name','File name',{type:'string',minLength:1,maxLength:255},true)]}),
@@ -99,14 +108,20 @@ const filesOps=[
  w('copy','filesCopy','Copy to another path in the same root; a folder or a file over maxUploadBytes is queued as a job (202)','FilesDestinationInput'),
  w('trash','filesTrash','Move to the trash of the root','FilesEmptyInput'),
  w('restore','filesRestore','Restore a trash item','FilesRestoreInput'),
+ w('empty-trash','filesEmptyTrash','Empty the trash of the root (personal and share roots only)','FilesEmptyInput','FilesPurgeResult'),
+ w('trash-delete','filesTrashDelete','Delete one item from the trash permanently','FilesTrashDeleteInput','FilesPurgeResult'),
  w('remove','filesRemove','Delete permanently (system root only, needs confirm)','FilesRemoveInput'),
  w('save-text','filesSaveText','Replace a text file; If-Match carries its ETag, the previous content is kept as a backup','FilesSaveTextInput','FilesWriteResult',{params:[ifMatch]}),
  op(`${F}/export`,'get','filesExport','Download the personal home as a tar archive (folders and regular files; trash, links and special files excluded)',{...fm,response:'tar'}),
  op(`${F}/jobs`,'get','filesJobs','The user\'s 20 most recent Files jobs (finished jobs are kept 7 days)',{...fm,response:'FilesJobList'}),
  op(`${F}/jobs/{id}`,'get','filesJob','One Files job with its progress',{...fm,params:[jobID],response:'FilesJob'}),
  op(`${F}/jobs/{id}/cancel`,'post','filesCancelJob','Request cancel (idempotent; a running job stops at its next progress report)',{...fm,params:[csrf,jobID],response:'FilesJob'}),
+ op(`${F}/favorites`,'get','filesFavorites','Favorites the user can still open',{...fm,response:'FilesFavoriteList'}),
+ op(`${F}/favorites`,'post','filesAddFavorite','Add a favorite (409 FILES_FAVORITES_LIMIT at 500)',{...fm,params:[csrf],body:'FilesFavoriteInput',response:'FilesOk'}),
+ op(`${F}/favorites/remove`,'post','filesRemoveFavorite','Remove a favorite',{...fm,params:[csrf],body:'FilesFavoriteInput',response:'FilesOk'}),
 ]
 ops[`${F}/files/copy`].post.responses['202']={description:'Queued as a background job (job holds its id and progress)',content:json('FilesWriteResult')}
+ops[`${F}/favorites`].post.responses['409']={description:'FILES_FAVORITES_LIMIT: the user already has 500 favorites',content:json('LegacyError')}
 files.FilesEmptyInput=obj({},[])
 const D='/api',dm={module:'desktop',security:'desktopSession'}
 const desktopOps=[

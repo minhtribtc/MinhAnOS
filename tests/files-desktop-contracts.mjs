@@ -40,7 +40,7 @@ for(const [name,generate] of [['files',generateFilesClient],['desktop',generateD
 const drive=await text('internal/drive/server.go'),platform=await text('internal/platform/server.go')
 const driveRoutes=[...drive.matchAll(/mux\.HandleFunc\("(GET|POST) \/api\/([a-z-]+)"/g)].map(([,m,p])=>[m,p])
  .concat([...drive.matchAll(/r\.URL\.Path == "\/api\/([a-z-]+)" && r\.Method == "(GET|POST)"/g)].map(([,p,m])=>[m,p]))
- .concat([...drive.slice(drive.indexOf('func ServeEngine')).matchAll(/case "([a-z-]+)":/g)].map(([,p])=>[p==='list'||p==='download'||p==='text'?'GET':'POST','files/'+p]))
+ .concat([...drive.slice(drive.indexOf('func ServeEngine')).matchAll(/case "([a-z-]+)":/g)].map(([,p])=>[['list','download','text','search','recent','archive'].includes(p)?'GET':'POST','files/'+p]))
 for(const [method,route] of driveRoutes){if(route==='profile')continue;const item=api.paths['/api/drive/'+route];assert(item?.[method.toLowerCase()]||(route==='files/trash'&&item?.get&&item?.post),'undocumented Files route '+method+' /api/'+route)}
 assert(api.paths['/api/drive/files/upload']?.post,'undocumented upload')
 // Durable jobs (row 20): the Go job routes are documented, copy may answer 202, and a Files job is a job.v1.

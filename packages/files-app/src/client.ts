@@ -24,7 +24,7 @@ function upload(root:string,path:string,file:File,onProgress:(value:number)=>voi
 }
 
 // The user's own data export (app standard row 17): the personal home as a tar archive.
-return {request,list,setCSRF,upload,downloadURL:(root:string,path:string)=>base+endpoint('download',root,path),exportURL:base+'/export'}
+return {request,list,setCSRF,upload,downloadURL:(root:string,path:string)=>base+endpoint('download',root,path),archiveURL:(root:string,items:string[])=>`${base}/files/archive?${new URLSearchParams([['root',root],['path',''],...items.map(item=>['item',item])])}`,exportURL:base+'/export'}
 }
 export function endpoint(op:string,root:string,path:string,name?:string){return `/files/${op}?${new URLSearchParams({root,path,...name?{name}:{}})}`}
 export function bytes(value:number){if(value<1024)return `${value} B`;if(value<1024**2)return `${(value/1024).toFixed(1)} KB`;if(value<1024**3)return `${(value/1024**2).toFixed(1)} MB`;return `${(value/1024**3).toFixed(1)} GB`}

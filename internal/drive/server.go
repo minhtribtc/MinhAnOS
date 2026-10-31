@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"mime"
 	"minhanos.local/platform/internal/apicontract"
 	"minhanos.local/platform/internal/coreprofile"
 	"minhanos.local/platform/internal/identity"
@@ -42,9 +43,11 @@ type Server struct {
 	// measureKick wakes the background measurer (set by RunMeasurer).
 	measureKick chan struct{}
 	// Jobs is the platform job worker running files.copy (RegisterJobs); nil refuses folder copies.
-	Jobs    *jobcore.Worker
-	locks   sync.Map
-	limiter loginLimiter
+	Jobs *jobcore.Worker
+	// Favorites keeps the items pinned in the Files sidebar; nil disables them.
+	Favorites FavoriteStore
+	locks     sync.Map
+	limiter   loginLimiter
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -290,6 +293,12 @@ func (s *Server) Handler() http.Handler {
 			fail(w, 404, "Không tìm thấy thư mục chia sẻ.", "SHARE_NOT_FOUND")
 			return
 		}
+		if r.URL.Path == "/api/favorites" || r.URL.Path == "/api/favorites/remove" {
+			if s.authorized(w, r, session.User, "files.read") {
+				s.serveFavorites(w, r, session.User)
+			}
+			return
+		}
 		if r.URL.Path == "/api/jobs" || strings.HasPrefix(r.URL.Path, "/api/jobs/") {
 			permission := "files.read"
 			if r.Method == "POST" {
@@ -396,10 +405,11 @@ func (s *Server) Handler() http.Handler {
 		}
 		v, _ := s.locks.LoadOrStore(lockKey, &sync.RWMutex{})
 		lock := v.(*sync.RWMutex)
+		// A ZIP download can stream for minutes; it takes no lock so writes (and the reads queued behind them) go on.
 		if mutation {
 			lock.Lock()
 			defer lock.Unlock()
-		} else {
+		} else if path.Base(r.URL.Path) != "archive" {
 			lock.RLock()
 			defer lock.RUnlock()
 		}
@@ -504,6 +514,9 @@ func (s *Server) Handler() http.Handler {
 			logError(r.Context(), "files.operation_failed", err, "actor", session.User.ID, "operation", path.Base(r.URL.Path), "root", root)
 		}
 		s.settleFolders(share.ID, plan, err == nil)
+		if op := path.Base(r.URL.Path); err == nil && (op == "empty-trash" || op == "trash-delete") {
+			s.purged(r.Context(), isShare, share.ID, session.User.ID, dir)
+		}
 		if reservation != nil {
 			// Not cancelled with the client (the ledger must still settle) but keeps the request IDs for quota notices.
 			ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 10*time.Second)
@@ -605,6 +618,38 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 			}
 			jsonResponse(w, 200, v)
 			return nil
+		case "search", "recent":
+			var v []Entry
+			var truncated bool
+			var err error
+			if op == "search" {
+				v, truncated, err = e.Search(p, r.URL.Query().Get("q"))
+			} else {
+				v, truncated, err = e.Recent(p)
+			}
+			if err != nil {
+				return err
+			}
+			jsonResponse(w, 200, map[string]any{"path": p, "entries": v, "truncated": truncated})
+			return nil
+		case "archive":
+			items, err := e.ArchiveCheck(r.URL.Query()["item"])
+			if err != nil {
+				return err
+			}
+			name := "files.zip"
+			if len(items) == 1 {
+				name = path.Base(items[0]) + ".zip"
+			} else if base := path.Base(path.Dir(items[0])); base != "." {
+				name = base + ".zip"
+			}
+			w.Header().Set("Content-Type", "application/zip")
+			w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": name}))
+			if err = e.Archive(w, items); err != nil {
+				// The response has started: the client sees a broken archive; the log keeps the cause.
+				logError(r.Context(), "files.archive_failed", err)
+			}
+			return nil
 		}
 	}
 	if r.Method != "POST" {
@@ -653,6 +698,13 @@ func ServeEngine(w http.ResponseWriter, r *http.Request, e *Engine) error {
 		result["item"] = item
 	case "restore":
 		err = e.Restore(b.ID)
+	case "empty-trash", "trash-delete":
+		if op == "trash-delete" && b.ID == "" {
+			return problem(400, "FILES_TRASH_ITEM_INVALID", "Mục trong thùng rác không hợp lệ.")
+		}
+		var freed int64
+		freed, err = e.EmptyTrash(b.ID)
+		result["freedBytes"] = freed
 	case "remove":
 		if !b.Confirm {
 			return problem(400, "FILES_CONFIRM_REQUIRED", "Cần xác nhận xóa tệp hệ thống.")
@@ -687,8 +739,10 @@ func AgentHandler(root *os.Root) http.Handler {
 			return
 		}
 		if r.Method == "GET" {
-			lock.RLock()
-			defer lock.RUnlock()
+			if path.Base(r.URL.Path) != "archive" { // a streaming ZIP holds no lock
+				lock.RLock()
+				defer lock.RUnlock()
+			}
 		} else {
 			lock.Lock()
 			defer lock.Unlock()

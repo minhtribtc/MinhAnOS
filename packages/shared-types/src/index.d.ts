@@ -5639,6 +5639,25 @@ export interface FilesListPage {
   nextCursor: string | null;
 }
 
+export interface FilesSearchResult {
+  path: string;
+  /**
+   * @maxItems 1000
+   */
+  entries: {
+    name: string;
+    path: string;
+    kind: "file" | "folder" | "symlink" | "special";
+    size: number;
+    modified: string;
+    mode: string;
+    uid: number;
+    gid: number;
+    etag: string;
+  }[];
+  truncated: boolean;
+}
+
 export interface FilesText {
   content: string;
   etag: string;
@@ -5670,6 +5689,10 @@ export interface FilesDestinationInput {
 }
 
 export interface FilesRestoreInput {
+  id: string;
+}
+
+export interface FilesTrashDeleteInput {
   id: string;
 }
 
@@ -5787,10 +5810,34 @@ export interface FilesOk {
   ok: true;
 }
 
+export interface FilesPurgeResult {
+  ok: true;
+  freedBytes: number;
+}
+
 export interface FilesHealth {
   app: "MinhAnOS Files";
   version: string;
   independent: boolean;
+}
+
+export interface FilesFavoriteList {
+  /**
+   * @maxItems 500
+   */
+  items: {
+    root: string;
+    path: string;
+    dir: boolean;
+    created: string;
+  }[];
+  limit: number;
+}
+
+export interface FilesFavoriteInput {
+  root: string;
+  path: string;
+  dir?: boolean;
 }
 
 export interface FilesEmptyInput {}

@@ -8407,6 +8407,549 @@
           }
         }
       }
+    },
+    "/api/drive/files/search": {
+      "get": {
+        "operationId": "filesSearch",
+        "summary": "Search names under path (case-insensitive; at most 200 results, truncated when the walk stopped early)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Name contains (case-insensitive), 1–255 characters",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesSearchResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/recent": {
+      "get": {
+        "operationId": "filesRecent",
+        "summary": "The 50 most recently modified regular files under path",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesSearchResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/archive": {
+      "get": {
+        "operationId": "filesArchive",
+        "summary": "Download the selected items as a zip archive",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "item",
+            "in": "query",
+            "required": true,
+            "description": "Path of an item to include; repeat for several (at most 1000)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 4096
+              },
+              "minItems": 1,
+              "maxItems": 1000
+            },
+            "style": "form",
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      }
+    },
+    "/api/drive/files/empty-trash": {
+      "post": {
+        "operationId": "filesEmptyTrash",
+        "summary": "Empty the trash of the root (personal and share roots only)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesPurgeResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesEmptyInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/files/trash-delete": {
+      "post": {
+        "operationId": "filesTrashDelete",
+        "summary": "Delete one item from the trash permanently",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "16–128 characters; a retry with the same key and request replays the response for 24 hours",
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "root",
+            "in": "query",
+            "required": false,
+            "description": "personal, share:<key> or system",
+            "schema": {
+              "type": "string",
+              "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "description": "Path relative to the root",
+            "schema": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesPurgeResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesTrashDeleteInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/favorites": {
+      "get": {
+        "operationId": "filesFavorites",
+        "summary": "Favorites the user can still open",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesFavoriteList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "filesAddFavorite",
+        "summary": "Add a favorite (409 FILES_FAVORITES_LIMIT at 500)",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "FILES_FAVORITES_LIMIT: the user already has 500 favorites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesFavoriteInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drive/favorites/remove": {
+      "post": {
+        "operationId": "filesRemoveFavorite",
+        "summary": "Remove a favorite",
+        "x-implementation": "implemented",
+        "x-module": "files",
+        "tags": [
+          "files"
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "description": "CSRF token from the session",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesOk"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Request failed (stable code; the message is not shown to users)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "driveSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesFavoriteInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -13480,6 +14023,179 @@
         "required": [
           "user",
           "organization"
+        ]
+      },
+      "FilesSearchResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "path": {
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "file",
+                    "folder",
+                    "symlink",
+                    "special"
+                  ]
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "modified": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "uid": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "gid": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "etag": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "path",
+                "kind",
+                "size",
+                "modified",
+                "mode",
+                "uid",
+                "gid",
+                "etag"
+              ]
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "entries",
+          "truncated"
+        ]
+      },
+      "FilesTrashDeleteInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{8,128}$"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "FilesPurgeResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "freedBytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "ok",
+          "freedBytes"
+        ]
+      },
+      "FilesFavoriteList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "root": {
+                  "type": "string",
+                  "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "dir": {
+                  "type": "boolean"
+                },
+                "created": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "root",
+                "path",
+                "dir",
+                "created"
+              ]
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "items",
+          "limit"
+        ]
+      },
+      "FilesFavoriteInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "root": {
+            "type": "string",
+            "pattern": "^(personal|system|share:[a-z0-9][a-z0-9-]{0,62})$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "dir": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "root",
+          "path"
         ]
       }
     }

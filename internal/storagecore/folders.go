@@ -302,6 +302,13 @@ func (s Store) SetShareMeasured(ctx context.Context, id string, bytes int64) err
 	return e
 }
 
+// RequestShareMeasure flags a share for the background measurer (after data left it outside the ledger, e.g. an
+// emptied trash).
+func (s Store) RequestShareMeasure(ctx context.Context, id string) error {
+	_, e := s.DB.Exec(ctx, "UPDATE storage_quota SET measure_requested=true WHERE scope_type='share' AND scope_id=$1", id)
+	return e
+}
+
 // QuotaFolderUsage is the read side Files shows inside a share (same rows as Storage Manager).
 func (s Store) QuotaFolderUsage(ctx context.Context, shareID string) ([]QuotaFolder, error) {
 	return Manager{Store: s}.QuotaFolders(ctx, shareID)

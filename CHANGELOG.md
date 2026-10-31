@@ -1,3 +1,14 @@
+## Files: quản lý tệp đầy đủ hơn — 2026-10-31
+
+- **Sắp xếp** theo tên, kích thước, ngày sửa, loại tệp (tăng/giảm dần, thư mục luôn trước), được nhớ lại.
+- **Tải thư mục lên** bằng nút hoặc kéo thả cả thư mục, giữ nguyên cây thư mục.
+- **Tải nhiều mục / cả thư mục thành một tệp .zip.**
+- **Kéo thả để di chuyển** vào thư mục hoặc lên breadcrumb.
+- **Tìm kiếm cả thư mục con**: gõ để lọc, nhấn Enter để tìm sâu trên máy chủ.
+- Thanh bên có **Gần đây** (50 tệp sửa gần nhất) và **Yêu thích** (đánh dấu tệp/thư mục ở mọi không gian).
+- **Thùng rác**: xóa vĩnh viễn từng mục hoặc dọn sạch, dung lượng được cập nhật ngay; mỗi mục hiện vị trí gốc và ngày xóa.
+- Xem trước và sửa các định dạng (ảnh, PDF, Office…) sẽ là các module riêng, làm sau.
+
 ## Files: danh sách không còn nhảy, hai cột bên đứng yên — 2026-10-31
 
 - Chọn tệp hoặc thư mục không còn đẩy danh sách xuống: nút Sao chép/Cắt/Dán/Xóa nằm ngay trên hàng đường dẫn; thông báo hiện nổi phía dưới.

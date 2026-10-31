@@ -11,14 +11,15 @@ tests, vi-VN/en-US catalogs and app-standard rows.
   details, quota, transfers panel, keyboard shortcuts, export (.tar).
 
 ## Phase 1 — daily use
-1. Preview viewer: images, PDF, video/audio (Range streaming), text; image thumbnails generated as jobs and cached.
-2. Sort by name/size/modified/type and list columns; remember per user.
-3. Upload whole folders (picker + drag-drop), keeping the tree.
-4. Download several items as one ZIP (streamed).
-5. Drag and drop to move into a folder or breadcrumb.
-6. Search the whole subtree on the server (name), with paging.
-7. Empty trash; trash shows original location and deletion date.
-8. Favorites (per user) and a Recent view.
+Shipped 2026-10-31 except item 1 (preview, thumbnails and format editors become separate modules):
+1. Preview viewer: images, PDF, video/audio (Range streaming), text; image thumbnails generated as jobs and cached — **separate module, later**.
+2. Done: sort by name/size/modified/type, ascending/descending, folders first; remembered in the browser.
+3. Done: upload whole folders (picker + drag-drop), keeping the tree and empty folders; existing folders are reused.
+4. Done: download a folder or several items as one ZIP streamed by the server (`GET files/archive?item=…`, ≤1000 items).
+5. Done: drag and drop to move into a folder or breadcrumb (same root; never into itself).
+6. Done: search the whole subtree on the server by name (`GET files/search`, ≤200 results, walk ≤100k entries, `truncated`).
+7. Done: empty trash and delete one trash item permanently (`empty-trash`, `trash-delete`, freed bytes, quota re-measured); trash shows original location and deletion date.
+8. Done: favorites per user across roots (files SQL 007, `/api/favorites`, ≤500, removed with the account) and a Recent view (`GET files/recent`, 50 newest files).
 
 ## Phase 2 — collaboration
 1. Public links: password, expiry, download-only / upload-only (file drop), revocable, audited.

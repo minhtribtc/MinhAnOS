@@ -24,6 +24,7 @@ type ShareRegistry interface {
 	SetFolderMeasured(ctx context.Context, id string, bytes int64) error
 	PendingShareMeasures(ctx context.Context, limit int) ([]storagecore.PendingShare, error)
 	SetShareMeasured(ctx context.Context, id string, bytes int64) error
+	RequestShareMeasure(ctx context.Context, id string) error
 	QuotaFolderUsage(ctx context.Context, shareID string) ([]storagecore.QuotaFolder, error)
 }
 

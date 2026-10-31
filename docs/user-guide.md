@@ -171,7 +171,14 @@ Nút ⋯ cung cấp thao tác khi dùng cảm ứng hoặc không dùng chuột 
 
 **Thùng rác:** chứa các mục cá nhân đã xóa. Chọn mục và Khôi phục để trả về vị trí cũ.
 Nếu tên đích đã tồn tại hoặc thư mục cha không còn, thao tác có thể bị từ chối;
-ứng dụng không tự ghi đè tệp đích. Chưa có chức năng dọn/xóa vĩnh viễn thùng rác trong UI.
+ứng dụng không tự ghi đè tệp đích. Mỗi mục hiện vị trí gốc ("Từ …") và ngày xóa. **Xóa vĩnh viễn** một mục
+hoặc **Dọn sạch thùng rác** (nút trên đầu, hoặc chuột phải vào vùng trống) giải phóng dung lượng ngay; không khôi phục được.
+
+**Gần đây:** 50 tệp được sửa gần nhất trong không gian đang mở (vùng riêng hoặc Shared Folder).
+
+**Yêu thích:** chọn tệp/thư mục rồi bấm *Thêm vào Yêu thích* (menu, cột Thông tin). Mục Yêu thích ở thanh bên
+gom mọi không gian; bấm để mở thư mục, hoặc mở thư mục chứa tệp và chọn sẵn tệp. Tối đa 500 mục; mục ở
+Shared Folder bạn không còn quyền sẽ tự ẩn. Yêu thích bị xóa cùng tài khoản.
 
 **Hệ thống Debian:** chỉ admin và chỉ khi agent được cấu hình/kết nối.
 Đây là tệp thật của máy chủ; không phải kho tệp cá nhân. Thao tác xóa hệ thống là xóa vĩnh viễn
@@ -185,7 +192,11 @@ Không mở symlink, tệp thiết bị, socket và các đường dẫn `/proc`
 - Ctrl/Cmd-click chọn nhiều mục; Shift-click chọn một khoảng trong danh sách đang hiển thị.
 - Chuột phải lên mục trong nhóm giữ nguyên nhóm đã chọn. Đổi bộ lọc/tệp ẩn sẽ xóa lựa chọn.
 - Dùng toolbar hoặc menu để Sao chép, Cắt, Dán, Đổi tên, Di chuyển, Thuộc tính và Thùng rác.
-- Đổi tên/Di chuyển chỉ thực hiện cho một mục mỗi lần. Sao chép thư mục chưa được hỗ trợ.
+- Đổi tên/Di chuyển chỉ thực hiện cho một mục mỗi lần.
+- **Kéo thả để di chuyển:** kéo một hoặc nhiều mục đã chọn thả lên thư mục hoặc lên breadcrumb; không thả được vào chính nó.
+- **Sắp xếp** theo Tên, Kích thước, Ngày sửa hoặc Loại tệp, tăng/giảm dần (thư mục luôn đứng trước); lựa chọn được nhớ trên trình duyệt.
+- **Tìm kiếm:** gõ để lọc thư mục đang mở; nhấn **Enter** để tìm theo tên trong thư mục đó và mọi thư mục con
+  (tối đa 200 kết quả; nếu báo "chỉ hiện một phần" hãy thu hẹp từ khóa). Xóa ô tìm để quay lại thư mục.
 
 Clipboard là bộ nhớ của ứng dụng, không phải clipboard của hệ điều hành. Nó giữ khi chuyển app/Home,
 nhưng mất khi đóng app hoặc reload. Dán chỉ trong cùng không gian lưu trữ; không dán từ kho cá nhân sang Debian.
@@ -199,12 +210,14 @@ kiểm thử Ctrl+X tự động chưa thành công, xem [validation.md](validat
 
 ## 5. Tải lên và tải xuống
 
-Chọn Tải lên hoặc kéo tệp vào vùng duyệt. Giới hạn hiện tại **128 MiB/tệp**, chưa tải thư mục đệ quy.
+Chọn Tải lên hoặc kéo tệp vào vùng duyệt. **Tải thư mục lên** (hoặc kéo cả thư mục vào) giữ nguyên cây thư mục,
+kể cả thư mục rỗng; thư mục trùng tên được dùng lại, tệp trùng tên vẫn báo lỗi. Giới hạn **128 MiB/tệp**, 10.000 tệp mỗi lần.
 Nút Tác vụ hiển thị tiến độ, hủy và thử lại. Đổi thư mục/chuyển app khi tab còn chạy không tự hủy upload.
 100% dữ liệu đã gửi chưa đồng nghĩa server đã xác nhận lưu xong; chờ trạng thái hoàn tất.
 Đóng app/trang, reload hoặc mất trình duyệt có thể ngắt truyền. Bản hiện tại chưa có chunk resume/durable upload.
 
-Chọn tệp rồi Tải xuống. Nội dung được tải dạng attachment; chưa có preview ảnh/PDF/media phong phú.
+Chọn tệp rồi Tải xuống. Chọn một thư mục hoặc nhiều mục rồi Tải xuống để nhận **một tệp .zip** (tạo dần khi tải,
+tối đa 1.000 mục được chọn; symlink và tệp đặc biệt bị bỏ qua). Chưa có preview ảnh/PDF/media — sẽ là module riêng.
 
 ## 6. Xem và sửa văn bản
 
@@ -233,7 +246,7 @@ không gửi mật khẩu, session, khóa riêng hoặc nội dung tệp nhạy 
 
 ## 8. Chức năng chưa có
 
-Chia sẻ liên kết, ACL UI/chmod/chown, quota, ZIP, sao chép cây thư mục, tìm toàn văn,
+Chia sẻ liên kết, ACL UI/chmod/chown, xem trước/sửa định dạng (module riêng), tìm toàn văn, phiên bản tệp,
 Office/cộng tác, upload resume, tác vụ bền vững, SSO Authentik và adapter NetBird/1Panel chưa hoàn chỉnh.
 Đa ngôn ngữ và Theme/Design Tokens nền tảng là kế hoạch đã chốt, chưa có trong bản hiện tại.
 

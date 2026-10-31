@@ -94,13 +94,16 @@ func (s *Server) exportHome(w http.ResponseWriter, r *http.Request, u User) {
 	}
 }
 
-// RemoveDeletedUsers drops the jobs and replay rows of deleted accounts at once and empties their home
+// RemoveDeletedUsers drops the jobs, favorites and replay rows of deleted accounts at once and empties their home
 // (files, trash, job staging) once the grace period has passed. The unit itself stays for Storage Manager.
 func (s *Server) RemoveDeletedUsers(ctx context.Context, db *pgxpool.Pool) error {
 	if _, err := db.Exec(ctx, "INSERT INTO files_removals(user_id) SELECT id FROM users WHERE status='deleted' ON CONFLICT DO NOTHING"); err != nil {
 		return err
 	}
 	if _, err := db.Exec(ctx, "DELETE FROM files_idempotency WHERE user_id IN (SELECT user_id FROM files_removals)"); err != nil {
+		return err
+	}
+	if _, err := db.Exec(ctx, "DELETE FROM files_favorites WHERE user_id IN (SELECT user_id FROM files_removals)"); err != nil {
 		return err
 	}
 	if _, err := db.Exec(ctx, "DELETE FROM platform_jobs WHERE type LIKE 'files.%' AND actor_id IN (SELECT user_id FROM files_removals)"); err != nil {

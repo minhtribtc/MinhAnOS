@@ -120,10 +120,16 @@ func TestEventBus(t *testing.T) {
 	}
 	// The watermark passes settled, delivered events only.
 	db.Exec(ctx, "UPDATE platform_events SET occurred_at=now()-interval '1 hour'")
-	b.Deliver(ctx, "test.ok")
+	// Other test packages share the cluster, and their open transactions hold the snapshot xmin back for a moment.
 	var since, last int64
-	db.QueryRow(ctx, "SELECT since_seq FROM platform_event_consumers WHERE consumer='test.ok'").Scan(&since)
 	db.QueryRow(ctx, "SELECT max(seq) FROM platform_events").Scan(&last)
+	for i := 0; i < 50 && since != last; i++ {
+		b.Deliver(ctx, "test.ok")
+		db.QueryRow(ctx, "SELECT since_seq FROM platform_event_consumers WHERE consumer='test.ok'").Scan(&since)
+		if since != last {
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 	if since != last {
 		t.Fatal("watermark", since, last)
 	}

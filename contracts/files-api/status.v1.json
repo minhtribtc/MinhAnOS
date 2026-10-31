@@ -8,7 +8,10 @@
     "filesRoots",
     "filesQuotaFolders",
     "filesList",
+    "filesSearch",
+    "filesRecent",
     "filesDownload",
+    "filesArchive",
     "filesText",
     "filesTrashList",
     "filesUpload",
@@ -18,11 +21,16 @@
     "filesCopy",
     "filesTrash",
     "filesRestore",
+    "filesEmptyTrash",
+    "filesTrashDelete",
     "filesRemove",
     "filesSaveText",
     "filesExport",
     "filesJobs",
     "filesJob",
-    "filesCancelJob"
+    "filesCancelJob",
+    "filesFavorites",
+    "filesAddFavorite",
+    "filesRemoveFavorite"
   ]
 }

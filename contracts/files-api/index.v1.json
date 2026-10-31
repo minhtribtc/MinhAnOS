@@ -18,6 +18,10 @@
       "type": "FilesListPage"
     },
     {
+      "file": "search-result.v1.schema.json",
+      "type": "FilesSearchResult"
+    },
+    {
       "file": "text.v1.schema.json",
       "type": "FilesText"
     },
@@ -40,6 +44,10 @@
     {
       "file": "restore-input.v1.schema.json",
       "type": "FilesRestoreInput"
+    },
+    {
+      "file": "trash-delete-input.v1.schema.json",
+      "type": "FilesTrashDeleteInput"
     },
     {
       "file": "remove-input.v1.schema.json",
@@ -74,8 +82,20 @@
       "type": "FilesOk"
     },
     {
+      "file": "purge-result.v1.schema.json",
+      "type": "FilesPurgeResult"
+    },
+    {
       "file": "health.v1.schema.json",
       "type": "FilesHealth"
+    },
+    {
+      "file": "favorite-list.v1.schema.json",
+      "type": "FilesFavoriteList"
+    },
+    {
+      "file": "favorite-input.v1.schema.json",
+      "type": "FilesFavoriteInput"
     },
     {
       "file": "empty-input.v1.schema.json",

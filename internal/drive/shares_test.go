@@ -75,6 +75,10 @@ func (m *memShares) PendingShareMeasures(context.Context, int) ([]storagecore.Pe
 	}
 	return []storagecore.PendingShare{{ID: "s1", Key: "team", Volume: "tank"}}, nil
 }
+func (m *memShares) RequestShareMeasure(_ context.Context, id string) error {
+	m.pendingShare = true
+	return nil
+}
 func (m *memShares) SetShareMeasured(_ context.Context, id string, n int64) error {
 	m.measured[id], m.pendingShare = n, false
 	return nil

@@ -168,3 +168,36 @@ func quotaFailure(w http.ResponseWriter, e error) {
 	}
 	fail(w, 503, "Không kiểm tra được dung lượng.", "SERVICE_UNAVAILABLE")
 }
+
+// purged re-measures after trash was emptied, so the freed space shows at once: a home is measured right after the
+// request releases its write lock (under the read lock, like the measurer), a Shared Folder is queued.
+func (s *Server) purged(ctx context.Context, isShare bool, shareID, home, dir string) {
+	if s.Quota == nil {
+		return
+	}
+	if isShare {
+		if s.Shares == nil {
+			return
+		}
+		if e := s.Shares.RequestShareMeasure(ctx, shareID); e != nil {
+			logError(ctx, "files.share.measure_request_failed", e)
+			return
+		}
+		s.kickMeasurer()
+		return
+	}
+	ctx = context.WithoutCancel(ctx)
+	go func() {
+		v, _ := s.locks.LoadOrStore(home, &sync.RWMutex{})
+		lock := v.(*sync.RWMutex)
+		lock.RLock()
+		defer lock.RUnlock()
+		n, e := measureHome(dir)
+		if e == nil {
+			e = s.Quota.SetMeasured(ctx, home, n)
+		}
+		if e != nil {
+			logError(ctx, "files.quota.measure_failed", e)
+		}
+	}()
+}

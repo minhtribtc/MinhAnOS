@@ -4,6 +4,7 @@
   "tables": [
     {"name": "files_events", "personal": false, "retention": "365 days (append-only audit; actor ID only, no personal paths)", "onAccountDelete": "kept-by-retention"},
     {"name": "files_idempotency", "personal": true, "retention": "24 hours", "onAccountDelete": "removed"},
+    {"name": "files_favorites", "personal": true, "retention": "Until the user removes the favorite (at most 500 per user)", "onAccountDelete": "removed"},
     {"name": "files_jobs", "personal": false, "retention": "Legacy and empty: files SQL 006 moved its rows to platform_jobs (ADR 0010; Files jobs there are removed 7 days after they end and at once when the account is deleted, see RemoveDeletedUsers); dropped in a later contract step", "onAccountDelete": "not-personal"},
     {"name": "files_removals", "personal": false, "retention": "Permanent (one row per deleted account: when it was seen and emptied)", "onAccountDelete": "not-personal"}
   ],
