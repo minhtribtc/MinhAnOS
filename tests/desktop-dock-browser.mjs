@@ -12,6 +12,14 @@ const context=await browser.newContext({viewport:{width:1280,height:800},locale:
 const login=await context.request.post(desktop+'/api/login',{data:{username:'admin',password},headers:{Origin:desktop}})
 assert.equal(login.status(),200)
 const before=await (await context.request.get(desktop+'/api/preferences')).json()
+// Start from a known layout: focus mode, dock at the bottom, no open windows.
+async function savePrefs(change){
+ const now=await context.request.get(desktop+'/api/preferences')
+ const csrf=(await (await context.request.get(desktop+'/api/session')).json()).csrfToken
+ const r=await context.request.put(desktop+'/api/preferences',{data:{...await now.json(),...change},headers:{Origin:desktop,'X-CSRF-Token':csrf,'If-Match':now.headers()['etag']}})
+ assert.equal(r.status(),200,'save preferences '+await r.text())
+}
+await savePrefs({mode:'focus',windows:[],dock:{position:'bottom',size:'medium'}})
 const page=await context.newPage()
 const box=selector=>page.locator(selector).first().boundingBox()
 await page.goto(desktop+'/')
@@ -74,8 +82,6 @@ try{
  }
  console.log('PASS Desktop dock: no top bar, work area, maximize hides the dock (pill, edge reveal), dock position persisted, pin from Home, notification side panel')
 }finally{
- const now=await context.request.get(desktop+'/api/preferences')
- const csrf=(await (await context.request.get(desktop+'/api/session')).json()).csrfToken
- await context.request.put(desktop+'/api/preferences',{data:{...await now.json(),dock:before.dock,pinned:before.pinned,windows:[]},headers:{Origin:desktop,'X-CSRF-Token':csrf,'If-Match':now.headers()['etag']}})
+ await savePrefs({mode:before.mode,dock:before.dock,pinned:before.pinned,windows:[]}).catch(e=>console.error(e))
  await browser.close()
 }
