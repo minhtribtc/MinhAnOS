@@ -27,3 +27,14 @@ console.log('PASS setup creates the System Admin and the first organization once
 r=await post('/api/login',{username:'admin',password})
 assert.equal(r.status,200)
 console.log('PASS the new System Admin signs in')
+// Optional next first-run step for automated installs: SETUP_HOMES_VOLUME=<pool> creates the Shared Folder that hosts
+// personal homes (what Storage Manager asks for after setup), so the Files smoke tests have personal space.
+const volume=process.env.SETUP_HOMES_VOLUME
+if(volume){
+ const cookie=r.headers.getSetCookie()[0].split(';')[0],{csrfToken}=await r.json(),headers={'Content-Type':'application/json',Origin:base,Cookie:cookie,'X-CSRF-Token':csrfToken}
+ assert.equal((await fetch(base+'/api/v1/identity/reauthenticate',{method:'POST',headers,body:JSON.stringify({password})})).status,200)
+ await fetch(base+'/api/v1/storage/volumes',{headers})
+ const share=await fetch(base+'/api/v1/storage/shares',{method:'POST',headers:{...headers,'Idempotency-Key':'setup-homes-'+Date.now()},body:JSON.stringify({key:'homes',name:'Homes',volume,limitBytes:null,hostsHomes:true})})
+ assert.equal(share.status,201,await share.text())
+ console.log('PASS the homes Shared Folder is created on '+volume)
+}
