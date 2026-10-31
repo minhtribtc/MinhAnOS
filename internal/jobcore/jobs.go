@@ -164,7 +164,7 @@ func (s Store) List(ctx context.Context, actor string, types []string, limit int
 	if limit < 1 || limit > listLimit {
 		limit = listLimit
 	}
-	rows, err := s.DB.Query(ctx, "SELECT "+columns+" FROM platform_jobs WHERE actor_id=$1 AND (cardinality($2::text[])=0 OR type=ANY($2)) ORDER BY created_at DESC LIMIT $3", actor, types, limit)
+	rows, err := s.DB.Query(ctx, "SELECT "+columns+" FROM platform_jobs WHERE actor_id=$1 AND (coalesce(cardinality($2::text[]),0)=0 OR type=ANY($2)) ORDER BY created_at DESC LIMIT $3", actor, types, limit)
 	if err != nil {
 		return nil, err
 	}

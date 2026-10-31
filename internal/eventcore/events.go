@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -24,8 +25,11 @@ import (
 //go:embed migrations/001_events.sql
 var eventsSQL string
 
+//go:embed migrations/002_event_xid.sql
+var eventXIDSQL string
+
 func Module() migrate.Module {
-	return migrate.Module{ID: "events", Steps: []migrate.Step{{ID: 1, Name: "events", SQL: eventsSQL}}}
+	return migrate.Module{ID: "events", Steps: []migrate.Step{{ID: 1, Name: "events", SQL: eventsSQL}, {ID: 2, Name: "event_xid", SQL: eventXIDSQL}}}
 }
 
 func ApplySchema(ctx context.Context, db *pgxpool.Pool) error {
@@ -37,9 +41,8 @@ const (
 	MaxAttempts   = 8
 	batch         = 50
 	maxBackoff    = time.Hour
-	// settle is how old an event must be before a consumer's watermark may pass it: a transaction that took a lower
-	// sequence number may still commit after a higher one was delivered.
-	settle = 10 * time.Minute
+	// lockSpace is the first key of the per-consumer advisory lock (second key: hash of the consumer name).
+	lockSpace = 681030
 )
 
 var (
@@ -169,7 +172,7 @@ func (b *Bus) Deliver(ctx context.Context, consumer string) (int, error) {
 	}
 	defer tx.Rollback(ctx)
 	var locked bool
-	if err = tx.QueryRow(ctx, "SELECT pg_try_advisory_xact_lock(hashtext('minhanos.events.'||$1))", consumer).Scan(&locked); err != nil || !locked {
+	if err = tx.QueryRow(ctx, "SELECT pg_try_advisory_xact_lock($2,hashtext($1))", consumer, lockSpace).Scan(&locked); err != nil || !locked {
 		return 0, err
 	}
 	rows, err := tx.Query(ctx, `SELECT e.seq,e.id::text,e.name,e.schema_version,e.source,e.subject,coalesce(e.organization_id::text,''),e.correlation_id,e.data,e.occurred_at,coalesce(d.attempts,0)
@@ -215,7 +218,7 @@ func (b *Bus) Deliver(ctx context.Context, consumer string) (int, error) {
 			}
 			msg := herr.Error()
 			if len(msg) > 500 {
-				msg = msg[:500]
+				msg = strings.ToValidUTF8(msg[:500], "") // never cut a character: Postgres would refuse the row
 			}
 			backoff := min(5*time.Second<<min(attempts, 12), maxBackoff)
 			_, err = tx.Exec(ctx, `INSERT INTO platform_event_deliveries(consumer,event_seq,state,attempts,next_attempt_at,last_error) VALUES($1,$2,$3,$4,now()+make_interval(secs=>$5),$6)
@@ -226,14 +229,15 @@ func (b *Bus) Deliver(ctx context.Context, consumer string) (int, error) {
 			return 0, err
 		}
 	}
-	// Advance the watermark over settled events that are done or dead, so the scan stays short.
+	// Advance the watermark over done or dead events whose transaction is older than every running one (a running
+	// transaction may still commit a lower sequence number), so the scan stays short.
 	if _, err = tx.Exec(ctx, `WITH c AS (SELECT since_seq,names FROM platform_event_consumers WHERE consumer=$1),
-		settled AS (SELECT max(e.seq) s FROM platform_events e,c WHERE e.seq>c.since_seq AND e.occurred_at<now()-make_interval(secs=>$2)),
+		settled AS (SELECT max(e.seq) s FROM platform_events e,c WHERE e.seq>c.since_seq AND e.xid<pg_snapshot_xmin(pg_current_snapshot())),
 		open AS (SELECT min(e.seq) s FROM platform_events e,c WHERE e.seq>c.since_seq AND e.name=ANY(c.names)
 			AND NOT EXISTS(SELECT 1 FROM platform_event_deliveries d WHERE d.consumer=$1 AND d.event_seq=e.seq AND d.state IN ('done','dead')))
 		UPDATE platform_event_consumers SET since_seq=least((SELECT s FROM settled),coalesce((SELECT s FROM open)-1,(SELECT s FROM settled)))
 		WHERE consumer=$1 AND (SELECT s FROM settled) IS NOT NULL AND least((SELECT s FROM settled),coalesce((SELECT s FROM open)-1,(SELECT s FROM settled)))>since_seq`,
-		consumer, settle.Seconds()); err != nil {
+		consumer); err != nil {
 		return 0, err
 	}
 	return len(list), tx.Commit(ctx)

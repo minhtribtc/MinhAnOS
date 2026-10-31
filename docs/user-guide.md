@@ -270,3 +270,13 @@ Các tên Storage Manager, Container Manager, Resource Monitor đang được d�
 
 Account Center mới đang ở checkpoint kiến trúc, chưa có ứng dụng/URL mới để sử dụng.
 Quản lý users hiện tại vẫn nằm trong Settings như trước. Chưa có disable/reset password/MFA/SSO/provision Linux mới.
+
+## Tác vụ nền và lịch chạy
+
+Tác vụ nền là việc máy chủ tiếp tục làm sau khi bạn bấm, ví dụ sao chép cả thư mục hoặc tệp lớn hơn 128 MB trong Files.
+
+- Trong Files, mở bảng *Tải lên và sao chép* để xem tiến độ và bấm hủy khi cần; đóng trang không dừng việc đang chạy.
+- Lỗi tạm thời được tự thử lại tối đa 3 lần, và một việc đang chạy không bao giờ bị chạy trùng hai lần.
+- Khi tài khoản bị vô hiệu hóa, các tác vụ Files chưa xong của tài khoản đó tự hủy; việc đăng xuất vẫn diễn ra ngay.
+- Việc dọn dẹp định kỳ chạy theo lịch chung của hệ thống, mỗi việc chỉ chạy một lần dù có nhiều máy chủ.
+- Nhật ký thao tác tệp trong Files được giữ 365 ngày; tác vụ đã kết thúc được giữ 7 ngày rồi tự dọn.

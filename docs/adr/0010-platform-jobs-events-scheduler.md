@@ -36,7 +36,9 @@ Three platform packages, all PostgreSQL-backed (no extra broker to operate on a 
 - A consumer is a named, durable subscription (`platform_event_consumers`) created at its first start from the then
   latest event (no replay of history by default). Delivery is at-least-once: the handler runs in a savepoint of the
   same transaction that records `(consumer, event)` as done, so side effect and dedupe commit together. Failures back
-  off; after 8 attempts the delivery is `dead` (kept for diagnosis, visible to operators later).
+  off; after 8 attempts the delivery is `dead` (kept for diagnosis, visible to operators later). A consumer's
+  watermark (`since_seq`) only passes events that are done or dead and whose inserting transaction (`xid`, events SQL
+  002) is older than the snapshot xmin, so an event committed late by a long transaction is never skipped.
 - Events never carry authority: security-critical effects (session revocation on disable) stay synchronous in the
   domain transaction. Events are for caches, follow-up work and external services.
 - First event: `identity.user.disabled.v1` on disable; first consumer: Files cancels the user's unfinished jobs.
