@@ -249,7 +249,7 @@ func (e *Engine) Rename(source, destination string) error {
 	if st.Mode&unix.S_IFMT != unix.S_IFREG && st.Mode&unix.S_IFMT != unix.S_IFDIR {
 		return problem(400, "FILES_NOT_REGULAR", "Không di chuyển tệp đặc biệt hoặc symlink.")
 	}
-	return unix.Renameat2(int(src.Fd()), sn, int(dst.Fd()), dn, unix.RENAME_NOREPLACE)
+	return renameNoReplace(int(src.Fd()), sn, int(dst.Fd()), dn)
 }
 func (e *Engine) Upload(value, name string, body io.Reader) (Entry, error) {
 	if !validName(name) {
@@ -277,7 +277,7 @@ func (e *Engine) Upload(value, name string, body io.Reader) (Entry, error) {
 	if err = f.Sync(); err != nil {
 		return Entry{}, err
 	}
-	if err = unix.Renameat2(int(dir.Fd()), temp, int(dir.Fd()), name, unix.RENAME_NOREPLACE); err != nil {
+	if err = renameNoReplace(int(dir.Fd()), temp, int(dir.Fd()), name); err != nil {
 		return Entry{}, err
 	}
 	_ = dir.Sync()
@@ -452,7 +452,7 @@ func (e *Engine) Trash(value string) (TrashItem, error) {
 		return item, err
 	}
 	defer dest.Close()
-	err = unix.Renameat2(int(src.Fd()), sn, int(dest.Fd()), "content", unix.RENAME_NOREPLACE)
+	err = renameNoReplace(int(src.Fd()), sn, int(dest.Fd()), "content")
 	return item, err
 }
 func (e *Engine) TrashList() ([]TrashItem, error) {
@@ -517,7 +517,7 @@ func (e *Engine) Restore(id string) error {
 		return err
 	}
 	defer src.Close()
-	if err = unix.Renameat2(int(src.Fd()), "content", int(dst.Fd()), dn, unix.RENAME_NOREPLACE); err != nil {
+	if err = renameNoReplace(int(src.Fd()), "content", int(dst.Fd()), dn); err != nil {
 		return err
 	}
 	_ = e.Root.Remove(path.Join("trash", id, "meta.json"))
@@ -613,4 +613,33 @@ func handleFileError(w http.ResponseWriter, err error) {
 func checksum(value string) string {
 	h := sha256.Sum256([]byte(value))
 	return hex.EncodeToString(h[:])
+}
+
+// renameNoReplace renames without ever replacing the target. Filesystems without RENAME_NOREPLACE (OpenZFS before
+// 2.2 answers EINVAL) fall back to link+unlink for files, which also fails with EEXIST, and to check-then-rename for
+// directories (hard links are impossible there), where a directory created between the check and the rename could
+// be replaced only if it is empty (rename(2) refuses a non-empty target).
+var renameat2 = unix.Renameat2 // replaced in tests to exercise the fallback
+
+func renameNoReplace(srcDir int, src string, dstDir int, dst string) error {
+	err := renameat2(srcDir, src, dstDir, dst, unix.RENAME_NOREPLACE)
+	if err != unix.EINVAL && err != unix.ENOSYS && err != unix.EOPNOTSUPP {
+		return err
+	}
+	var st unix.Stat_t
+	if err = unix.Fstatat(srcDir, src, &st, unix.AT_SYMLINK_NOFOLLOW); err != nil {
+		return err
+	}
+	if st.Mode&unix.S_IFMT != unix.S_IFDIR {
+		if err = unix.Linkat(srcDir, src, dstDir, dst, 0); err != nil {
+			return err
+		}
+		return unix.Unlinkat(srcDir, src, 0)
+	}
+	if err = unix.Fstatat(dstDir, dst, &st, unix.AT_SYMLINK_NOFOLLOW); err == nil {
+		return unix.EEXIST
+	} else if err != unix.ENOENT {
+		return err
+	}
+	return unix.Renameat(srcDir, src, dstDir, dst)
 }
