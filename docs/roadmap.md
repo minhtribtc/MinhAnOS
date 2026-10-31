@@ -1,4 +1,4 @@
-Current: Storage Q2 (share permissions, Shared Folders in Files, homes share, first-run). Next: Storage Q3 (quota folders, share measurement, moving homes), Files notices/audit source, notification preferences, MFA, Phase 6. [Details](storage-q2.md).
+Current: Storage Q3 (quota folders, share re-measure). Next: moving homes off the legacy share (Jobs), quota notices 80/95/100 %, Files notices/audit source, notification preferences, MFA, Phase 6. [Details](storage-q3.md).
 
 Current: Phase 5 done — Files authorized by identity policy, app access rules, Phase A audit/notice foundation, admin sessions. Next: Notification Center, Log Center, shared folders, MFA, Phase 6. [Details](account-center/PHASE5_REPORT.md).
 

@@ -13,7 +13,8 @@
 - Quota do ứng dụng kiểm soát khi ghi qua Files; ghi trực tiếp trên máy chủ không được tính.
 - **Quyền Shared Folder:** Storage Manager → Shared Folder → *Quyền truy cập*: thêm tài khoản hoặc nhóm, chọn Đọc, Đọc và ghi hoặc Từ chối (Từ chối thắng; không có dòng nào là không có quyền), nhập mật khẩu để lưu.
 - **Files:** các Shared Folder được cấp quyền nằm trong thanh bên; thư mục *Chỉ xem* không cho tạo, tải lên, đổi tên, xóa. Thùng rác là của thư mục đang mở.
-- **Vùng riêng người dùng:** chỉ một Shared Folder chứa vùng riêng (chọn *Chứa vùng riêng của người dùng* khi tạo). Máy mới chưa có vùng riêng nào; Files báo *Chưa có nơi lưu trữ* cho đến khi admin tạo. Thư mục quota sẽ có ở bước sau.
+- **Vùng riêng người dùng:** chỉ một Shared Folder chứa vùng riêng (chọn *Chứa vùng riêng của người dùng* khi tạo). Máy mới chưa có vùng riêng nào; Files báo *Chưa có nơi lưu trữ* cho đến khi admin tạo.
+- **Thư mục quota:** Storage Manager → Shared Folder → *Thư mục quota* → *Thêm thư mục quota* (đường dẫn trong Shared Folder và giới hạn GB). Tải lên, sao chép, di chuyển vào thư mục đó bị chặn khi hết dung lượng; thùng rác trả lại dung lượng cho thư mục. Muốn xóa thư mục quota: gỡ quota trước (tệp vẫn giữ). *Đo lại* trên Shared Folder để sửa số liệu.
 
 ## Account Center — quyền truy cập ứng dụng
 

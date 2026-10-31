@@ -1,3 +1,7 @@
+Release status: d9ad03a deployed to VM 10.1.1.20 after pg_dump before-storage-004.sql; storage SQL 004 applied; live probe: a quota folder registered on share2 was created and measured by the Drive measurer within 35 s and share2 was re-measured (probe rows and folder removed). Browser acceptance pending user.
+
+Storage Q3 (current): read [storage Q3](storage-q3.md). Quota folders in Shared Folders (nested soft quota, moves/trash/restore shift usage, renames keep registrations, protected from trash), share re-measure, Storage Manager quota folder panel, Files shows the quota folder around the current path. Next: moving homes off the legacy share (Jobs), quota notices 80/95/100 %, Files audit as a Log Center source.
+
 Release status: 607f7c6 deployed to VM 10.1.1.20 after pg_dump before-storage-003.sql; storage SQL 003 applied; storage agent rebuilt (backup of the old binary in /opt/minhanos-backups) and class directories set to root:10001 0750; Drive sees /srv/minhanos and the agent socket. Legacy homes share kept (has data). Browser acceptance pending user.
 
 Storage Q2 (current): read [storage Q2](storage-q2.md). Share permissions (users/groups, read/write/deny), Shared Folders as Files roots with own trash and share quota, one share hosts homes (units on ZFS/Btrfs), first-run retirement of an empty legacy homes share, Storage Manager permission editor. Next Q3: quota folders, share measurement, moving homes off the legacy share.

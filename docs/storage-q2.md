@@ -31,7 +31,7 @@ Builds on [Storage Q1](storage-quota.md) and the first-run rule in [Files review
 
 ## Limits / next (Q3)
 
-Quota folders; measuring shares; moving homes; hard quota on units (agent supports it); share notices and
+Quota folders and share measurement shipped in Q3 ([storage Q3](storage-q3.md)). Still open: moving homes; hard quota on units (agent supports it); share notices and
 Files audit in the Log Center; per-folder ACL inside a share is not planned.
 
 ## Verification

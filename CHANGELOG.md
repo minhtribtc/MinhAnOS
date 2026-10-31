@@ -1,3 +1,10 @@
+## Thư mục quota trong Shared Folder — 2026-10-31
+
+- Storage Manager → Shared Folder → *Thư mục quota*: đặt giới hạn riêng cho một thư mục con (ví dụ `du-an/2026`). Files tự tạo thư mục nếu chưa có hoặc dùng thư mục có sẵn rồi đo dung lượng. Mỗi lần ghi phải vừa cả thư mục quota lẫn Shared Folder.
+- Di chuyển tệp vào thư mục quota đã đầy bị từ chối; đổi tên hoặc di chuyển thư mục quota vẫn giữ giới hạn. Không đưa được thư mục quota vào thùng rác (gỡ quota trước).
+- Nút *Đo lại* cho Shared Folder khi dung lượng hiển thị sai.
+- Files hiện dung lượng của thư mục quota đang mở.
+
 ## Quyền Shared Folder và thư mục chia sẻ trong Files — 2026-10-31
 
 - Storage Manager: nút *Quyền truy cập* trên mỗi Shared Folder để cấp quyền Đọc, Đọc và ghi hoặc Từ chối cho tài khoản hoặc nhóm. Từ chối thắng Ghi, Ghi thắng Đọc; không có dòng nào là không có quyền. Người tạo Shared Folder được quyền ghi.
