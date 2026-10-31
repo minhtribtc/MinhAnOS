@@ -19,3 +19,23 @@
 .files-app .files-quota-folder{margin-top:6px;font-size:11px;color:var(--mn-color-action-primary)}
 .files-app .files-footer .export-link{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;color:var(--mn-color-action-primary);text-decoration:none}.files-app .files-footer .export-link:hover{text-decoration:underline}
 .files-app .drive-sidebar .files-org-label{margin-top:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Pinned panes: the sidebar, the file list and the details column scroll on their own, so scrolling the list never
+   moves navigation or details. The path row has a fixed height and carries the selection actions, and notices float,
+   so selecting an item or a notice never shifts the list. On narrow screens the panes stack: the content scrolls as one
+   and the path row sticks to the top instead. */
+.files-app:has(>.drive-layout){height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.files-app.embedded:has(>.drive-layout){height:100%}
+.files-app .drive-layout{flex:1;min-height:0;height:auto;overflow:hidden;grid-template-rows:minmax(0,1fr)}
+.files-app .drive-sidebar,.files-app .file-browser,.files-app .file-inspector{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.files-app .drive-main{flex:1;min-height:0;overflow:hidden;position:relative}
+.files-app .files-layout{min-height:0;overflow:hidden;grid-template-rows:minmax(0,1fr)}
+.files-app .files-footer{margin-top:0;flex-shrink:0}
+.files-app .path-row{position:relative;display:flex;align-items:center;flex-shrink:0;height:48px;border-bottom:1px solid var(--mn-accent-slate-100)}
+.files-app .path-row .breadcrumbs{flex:1;min-width:0;min-height:0;height:100%;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.files-app .path-row .selection-bar{flex-shrink:0;flex-wrap:nowrap;margin:0 20px 0 0;padding:0;border:0}
+.files-app .path-row .selection-bar>span{margin-right:4px;white-space:nowrap}
+.files-app .error-banner,.files-app .notice{position:absolute;z-index:20;left:50%;bottom:56px;transform:translateX(-50%);margin:0;width:max-content;max-width:min(560px,calc(100% - 32px));box-shadow:0 8px 24px color-mix(in srgb,var(--mn-color-text-primary) 18%,transparent)}
+@media(max-width:850px){.files-app .files-layout{grid-template-rows:minmax(0,1fr) auto}.files-app .file-inspector{max-height:40%}}
+@media(max-width:600px){.files-app .drive-layout{overflow-y:auto}.files-app .drive-main,.files-app .files-layout,.files-app .file-browser,.files-app .file-inspector{overflow:visible;min-height:auto}.files-app .drive-main{flex:none}.files-app .files-layout{grid-template-rows:auto auto}.files-app .file-inspector{max-height:none}.files-app .path-row{position:sticky;top:0;z-index:5;background:var(--mn-color-surface)}.files-app .path-row .selection-bar{position:absolute;inset:0;margin:0;padding:0 13px;background:var(--mn-color-surface);overflow-x:auto}.files-app .error-banner,.files-app .notice{position:fixed}}
+@container files (max-width:800px){.files-app .drive-layout{overflow-y:auto}.files-app .drive-main,.files-app .files-layout,.files-app .file-browser,.files-app .file-inspector{overflow:visible;min-height:auto}.files-app .drive-main{flex:none}.files-app .files-layout{grid-template-rows:auto auto}.files-app .file-inspector{max-height:none}.files-app .path-row{position:sticky;top:0;z-index:5;background:var(--mn-color-surface)}.files-app .path-row .selection-bar{position:absolute;inset:0;margin:0;padding:0 13px;background:var(--mn-color-surface);overflow-x:auto}.files-app .error-banner,.files-app .notice{position:fixed}}

@@ -1,3 +1,8 @@
+## Files: danh sách không còn nhảy, hai cột bên đứng yên — 2026-10-31
+
+- Chọn tệp hoặc thư mục không còn đẩy danh sách xuống: nút Sao chép/Cắt/Dán/Xóa nằm ngay trên hàng đường dẫn; thông báo hiện nổi phía dưới.
+- Khi cuộn tìm tệp, chỉ danh sách cuộn; thanh bên trái và cột Thông tin bên phải đứng yên. Trên điện thoại, hàng đường dẫn dính ở trên cùng khi cuộn.
+
 ## Nền tảng: tác vụ nền, sự kiện và lịch chạy dùng chung — 2026-10-31
 
 - Mọi ứng dụng giờ dùng chung một **bộ tác vụ nền** của MinhAnOS (tiến độ, hủy, thử lại có giãn cách, không bao giờ chạy trùng). Sao chép thư mục trong Files chuyển sang bộ này; tác vụ đang chạy khi nâng cấp vẫn tiếp tục, bảng *Tải lên và sao chép* không đổi.
